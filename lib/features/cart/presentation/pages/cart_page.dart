@@ -2115,28 +2115,9 @@ class CartPage extends GetView<CartController> {
     }
     if (isLumpsum) {
       controller.checkoutLumpsum();
-      return;
+    } else {
+      controller.checkoutSip();
     }
-
-    if (isDesktop) {
-      _processInlineCartPayment();
-      return;
-    }
-
-    final int targetAmount = isLumpsum
-        ? controller.totalLumpsumAmount
-        : controller.totalSipStepUpAmount;
-
-    Get.toNamed(
-      AppRoutes.paymentScreen,
-      arguments: {
-        'isMandate': false,
-        'isLumpsum': isLumpsum,
-        'checkoutType': isLumpsum ? 'lumpsum' : 'sip_stepup',
-        'amount': targetAmount.toString(),
-      },
-      id: isDesktop ? 1 : null,
-    );
   }
 
   void _showPrerequisiteDialog({

@@ -12,6 +12,7 @@ import 'package:my_sip/services/session_manager.dart';
 
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 
 import '../../../fund_details/domain/entity/fund_detail_entity.dart';
@@ -296,6 +297,54 @@ class CartController extends GetxController {
         //   title: 'Lumpsum Order Placed 🎉',
         //   message: '${funds.length} lumpsum order(s) submitted successfully.',
         // );
+        fetchCart(showFullLoader: false);
+      },
+    );
+  }
+
+  List<SipFundItemModel> get sipFundItems {
+    return sipAndStepUpItems.map((item) {
+      final freq = (item.frequency != null && item.frequency!.isNotEmpty)
+          ? item.frequency!
+          : 'M';
+      final String dayVal;
+      if (freq == 'D') {
+        dayVal = 'NA';
+      } else if (item.sipDay != null && item.sipDay! > 0) {
+        dayVal = item.sipDay.toString();
+      } else {
+        dayVal = selectedSipDay.value.toString();
+      }
+
+      return SipFundItemModel(
+        schemeCode: item.schemeCode?.toString() ?? '',
+        amount: item.amount ?? 1000,
+        folio: 'NEW',
+        frequency: freq,
+        day: dayVal,
+      );
+    }).toList();
+  }
+
+  Future<void> checkoutSip() async {
+    final funds = sipFundItems;
+    if (funds.isEmpty) {
+      CustomSnackbar.error(
+        title: 'Empty Cart',
+        message: 'No SIP items found in your cart.',
+      );
+      return;
+    }
+
+    final mfuCtrl = Get.find<MfuController>();
+
+    await mfuCtrl.executeSip(
+      funds: funds,
+      onSuccess: (res) {
+        CustomSnackbar.success(
+          title: 'SIP Registered 🎉',
+          message: '${funds.length} SIP order(s) submitted successfully.',
+        );
         fetchCart(showFullLoader: false);
       },
     );

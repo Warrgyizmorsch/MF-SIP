@@ -303,6 +303,17 @@ class MfuController extends GetxController {
     }
   }
 
+  String formatMfuSipFrequency() {
+    switch (sipFreq.value) {
+      case SipFrequency.daily:
+        return 'D';
+      case SipFrequency.weekly:
+        return 'W';
+      case SipFrequency.monthly:
+        return 'M';
+    }
+  }
+
   // ─── Invest ───────────────────────────────────────────────────────────────────
 
   void onSipInvest() {
@@ -341,7 +352,7 @@ class MfuController extends GetxController {
         schemeCode: schemeCode,
         amount: amount,
         day: day,
-        frequency: 'M',
+        frequency: formatMfuSipFrequency(),
         folio: folio,
       );
     } else if (sipInvType.value == InvType.stepup) {
@@ -1036,7 +1047,7 @@ class MfuController extends GetxController {
     String? schemeCode,
     double? amount,
     String folio = 'NEW',
-    required String day,
+    String? day,
     String frequency = 'M',
     List<SipFundItemModel>? funds,
     Function(SipResModel)? onSuccess,
@@ -1047,15 +1058,17 @@ class MfuController extends GetxController {
     final List<SipFundItemModel> sipFunds =
         funds ??
         [
-          if (schemeCode != null && amount != null)
+          if (schemeCode != null && amount != null && day != null)
             SipFundItemModel(
               schemeCode: schemeCode,
               amount: amount,
               folio: folio,
+              frequency: frequency,
+              day: day,
             ),
         ];
 
-    final req = SipReqModel(frequency: frequency, day: day, funds: sipFunds);
+    final req = SipReqModel(funds: sipFunds);
 
     final res = await mfuUseCases.postSipUseCase(req);
 
