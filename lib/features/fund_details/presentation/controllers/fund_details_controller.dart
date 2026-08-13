@@ -152,7 +152,7 @@ class FundDetailsController extends GetxController
 
     FundDetailsScreen.navData = null;
 
-    createLog("Loading Fund: $schemeName with code: $schemeCode");
+    createLog("Loading Fund: $schemeName with code: $schemeCode, isin: $isin");
     createLog("FundDetails args: $getArgs");
     createLog("FundDetails params: $params");
 
@@ -165,7 +165,10 @@ class FundDetailsController extends GetxController
       return;
     }
 
-    fetchAllData(scheme: schemeName, id: schemeCode, isin: isin);
+    final String targetIsin = (isin.isNotEmpty && isin != '--')
+        ? isin
+        : schemeName;
+    fetchAllData(scheme: schemeName, id: schemeCode, isin: targetIsin);
   }
 
   String? _firstValid(List<dynamic> values) {

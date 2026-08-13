@@ -1149,44 +1149,7 @@ class _WebDashboardLayout extends StatelessWidget {
                         subtitle: fund.schemecategory ?? "",
                         threeYear:
                             fund.returnsEntity?.threeYear?.toString() ?? '--',
-                        // onTap: () {
-                        //   final schemeName = fund.baseSchemeName?.trim() ?? '';
-                        //   final schemeCode =
-                        //       fund.schemeCode?.toString().trim() ?? '';
 
-                        //   if (schemeName.isEmpty || schemeCode.isEmpty) {
-                        //     debugPrint(
-                        //       'Fund details missing: scheme=$schemeName code=$schemeCode',
-                        //     );
-                        //     return;
-                        //   }
-
-                        //   mutualController.addToLocalRecentlyViewed(fund);
-
-                        //   navController.openNestedRoute(
-                        //     AppRoutes.funddetails,
-                        //     queryParameters: {
-                        //       'scheme': schemeName,
-                        //       'scheme_code': schemeCode,
-                        //     },
-                        //     arguments: {
-                        //       'scheme': schemeName,
-                        //       'imgUrl': img,
-                        //       'scheme_code': schemeCode,
-                        //     },
-                        //     beforeOpen: () {
-                        //       if (Get.isRegistered<FundDetailsController>()) {
-                        //         Get.delete<FundDetailsController>();
-                        //       }
-
-                        //       FundDetailsScreen.navData = {
-                        //         'scheme': schemeName,
-                        //         'imgUrl': img,
-                        //         'scheme_code': schemeCode,
-                        //       };
-                        //     },
-                        //   );
-                        // },
                         onTap: () {
                           final schemeName = fund.baseSchemeName?.trim() ?? '';
                           final schemeCode =
@@ -1215,11 +1178,13 @@ class _WebDashboardLayout extends StatelessWidget {
                               queryParameters: {
                                 'scheme': schemeName,
                                 'scheme_code': schemeCode,
+                                'isin': fund.isin ?? '',
                               },
                               arguments: {
                                 'scheme': schemeName,
                                 'imgUrl': img,
                                 'scheme_code': schemeCode,
+                                'isin': fund.isin ?? '',
                               },
                               beforeOpen: () {
                                 if (Get.isRegistered<FundDetailsController>()) {
@@ -1230,6 +1195,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                   'scheme': schemeName,
                                   'imgUrl': img,
                                   'scheme_code': schemeCode,
+                                  'isin': fund.isin ?? '',
                                 };
                               },
                             );
@@ -1242,39 +1208,12 @@ class _WebDashboardLayout extends StatelessWidget {
                               'scheme': schemeName,
                               'imgUrl': img,
                               'scheme_code': schemeCode,
+                              'isin': fund.isin ?? '',
                             };
 
                             Get.toNamed(AppRoutes.funddetails);
                           }
                         },
-
-                        // onTap: () {
-                        //   mutualController.addToLocalRecentlyViewed(fund);
-                        //   // Get.delete<FundDetailsController>();
-                        //   // FundDetailsScreen.navData = {
-                        //   //   'scheme': fund.baseSchemeName ?? '',
-                        //   //   'imgUrl': img,
-                        //   //   'scheme_code': fund.schemeCode.toString(),
-                        //   // };
-                        //   // Get.toNamed(AppRoutes.funddetails, id: 1);
-                        //   navController.openNestedRoute(
-                        //     AppRoutes.funddetails,
-                        //     queryParameters: {
-                        //       'scheme_code': fund.schemeCode.toString(),
-                        //       'scheme': fund.baseSchemeName ?? '',
-                        //       'imgUrl': img,
-                        //     },
-                        //     beforeOpen: () {
-                        //       Get.delete<FundDetailsController>();
-
-                        //       FundDetailsScreen.navData = {
-                        //         'scheme': fund.baseSchemeName ?? '',
-                        //         'imgUrl': img,
-                        //         'scheme_code': fund.schemeCode.toString(),
-                        //       };
-                        //     },
-                        //   );
-                        // },
                       );
                     },
                   );
@@ -1679,108 +1618,6 @@ class _WebDashboardLayout extends StatelessWidget {
       },
     );
   }
-  // Widget _investModeCard({
-  //   required String icon,
-  //   required String title,
-  //   required String subtitle,
-  //   required VoidCallback onTap,
-  // }) {
-  //   return WebHoverTile(
-  //     onTap: onTap,
-  //     builder: (hover) {
-  //       return AnimatedContainer(
-  //         duration: const Duration(milliseconds: 180),
-  //         height: 170,
-  //         padding: const EdgeInsets.all(18),
-  //         decoration: BoxDecoration(
-  //           color: hover ? const Color(0xFFF5FAFF) : Colors.white,
-  //           borderRadius: BorderRadius.circular(16),
-  //           border: Border.all(
-  //             color: hover
-  //                 ? Ucolors.primary.withValues(alpha: 0.22)
-  //                 : const Color(0xFFE2E8F0),
-  //           ),
-  //           boxShadow: hover
-  //               ? [
-  //                   BoxShadow(
-  //                     color: Ucolors.primary.withValues(alpha: 0.12),
-  //                     blurRadius: 16,
-  //                     offset: const Offset(0, 7),
-  //                   ),
-  //                 ]
-  //               : null,
-  //         ),
-  //         child: Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             Container(
-  //               width: 54,
-  //               height: 54,
-  //               padding: const EdgeInsets.all(14),
-  //               decoration: BoxDecoration(
-  //                 gradient: LinearGradient(
-  //                   colors: [
-  //                     Ucolors.primary,
-  //                     Ucolors.primary.withValues(alpha: 0.78),
-  //                   ],
-  //                 ),
-  //                 borderRadius: BorderRadius.circular(16),
-  //                 boxShadow: [
-  //                   BoxShadow(
-  //                     color: Ucolors.primary.withValues(alpha: 0.20),
-  //                     blurRadius: 14,
-  //                     offset: const Offset(0, 7),
-  //                   ),
-  //                 ],
-  //               ),
-  //               child: SvgPicture.asset(
-  //                 icon,
-  //                 colorFilter: const ColorFilter.mode(
-  //                   Colors.white,
-  //                   BlendMode.srcIn,
-  //                 ),
-  //               ),
-  //             ),
-  //             const SizedBox(height: 18),
-  //             Text(
-  //               title,
-  //               textAlign: TextAlign.center,
-  //               style: const TextStyle(
-  //                 fontFamily: FontFamily.medium,
-  //                 fontSize: 15,
-  //                 fontWeight: FontWeight.w900,
-  //                 color: Color(0xFF111827),
-  //               ),
-  //             ),
-  //             const SizedBox(height: 8),
-  //             Text(
-  //               subtitle,
-  //               style: TextStyle(
-  //                 fontFamily: FontFamily.medium,
-  //                 fontSize: 12,
-  //                 color: Colors.blueGrey.shade600,
-  //               ),
-  //             ),
-  //             const SizedBox(height: 18),
-  //             Container(
-  //               width: 36,
-  //               height: 36,
-  //               decoration: const BoxDecoration(
-  //                 color: Color(0xFF005DFF),
-  //                 shape: BoxShape.circle,
-  //               ),
-  //               child: const Icon(
-  //                 Icons.arrow_forward_rounded,
-  //                 size: 18,
-  //                 color: Colors.white,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget _buildRecentlyViewedPanel() {
     return Obx(() {
@@ -1821,11 +1658,13 @@ class _WebDashboardLayout extends StatelessWidget {
                           queryParameters: {
                             'scheme_code': schemeCode,
                             'scheme': schemeName,
+                            'isin': fund.isin ?? '',
                           },
                           arguments: {
                             'scheme': schemeName,
                             'imgUrl': img,
                             'scheme_code': schemeCode,
+                            'isin': fund.isin ?? '',
                           },
                           beforeOpen: () {
                             if (Get.isRegistered<FundDetailsController>()) {
@@ -1836,20 +1675,11 @@ class _WebDashboardLayout extends StatelessWidget {
                               'scheme': schemeName,
                               'imgUrl': img,
                               'scheme_code': schemeCode,
+                              'isin': fund.isin ?? '',
                             };
                           },
                         );
                       },
-
-                      // onTap: () {
-                      //   Get.delete<FundDetailsController>();
-                      //   FundDetailsScreen.navData = {
-                      //     'scheme': fund.baseSchemeName ?? '',
-                      //     'imgUrl': img,
-                      //     'scheme_code': fund.schemeCode.toString(),
-                      //   };
-                      //   Get.toNamed(AppRoutes.funddetails, id: 1);
-                      // },
                     ),
                   );
                 }).toList(),

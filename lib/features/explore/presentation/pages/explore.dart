@@ -1326,6 +1326,7 @@ class WebFundListCard extends StatelessWidget {
   void _openFundDetails(MutualFundListEntity entity) {
     final schemeName = entity.baseSchemeName?.trim() ?? '';
     final schemeCode = entity.schemeCode?.toString().trim() ?? '';
+    final isin = entity.isin?.trim() ?? '';
     final imgUrl = '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}';
 
     if (schemeName.isEmpty || schemeCode.isEmpty) {
@@ -1341,11 +1342,19 @@ class WebFundListCard extends StatelessWidget {
       navController.openNestedRoute(
         AppRoutes.funddetails,
         navIndex: 1,
-        queryParameters: {'scheme': schemeName, 'scheme_code': schemeCode},
+        queryParameters: {
+          'scheme': schemeName,
+          'scheme_code': schemeCode,
+          'isin': isin,
+        },
         arguments: {
           'scheme': schemeName,
           'imgUrl': imgUrl,
           'scheme_code': schemeCode,
+          'isin': isin,
+          'email': entity.amc?.email,
+          'address': entity.amc?.address,
+          'contact': entity.amc?.contact,
         },
         beforeOpen: () {
           if (Get.isRegistered<FundDetailsController>()) {
@@ -1356,6 +1365,10 @@ class WebFundListCard extends StatelessWidget {
             'scheme': schemeName,
             'imgUrl': imgUrl,
             'scheme_code': schemeCode,
+            'isin': isin,
+            'email': entity.amc?.email,
+            'address': entity.amc?.address,
+            'contact': entity.amc?.contact,
           };
         },
       );
@@ -1368,6 +1381,10 @@ class WebFundListCard extends StatelessWidget {
         'scheme': schemeName,
         'imgUrl': imgUrl,
         'scheme_code': schemeCode,
+        'isin': isin,
+        'email': entity.amc?.email,
+        'address': entity.amc?.address,
+        'contact': entity.amc?.contact,
       };
 
       Get.toNamed(AppRoutes.funddetails);
@@ -2116,6 +2133,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
   void _openFundDetails(MutualFundListEntity entity) {
     final schemeName = entity.baseSchemeName?.trim() ?? '';
     final schemeCode = entity.schemeCode?.toString().trim() ?? '';
+    final isin = entity.isin?.trim() ?? '';
     final imgUrl = '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}';
 
     if (schemeName.isEmpty || schemeCode.isEmpty) {
@@ -2131,11 +2149,19 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
       navController.openNestedRoute(
         AppRoutes.funddetails,
         navIndex: 1,
-        queryParameters: {'scheme': schemeName, 'scheme_code': schemeCode},
+        queryParameters: {
+          'scheme': schemeName,
+          'scheme_code': schemeCode,
+          'isin': isin,
+        },
         arguments: {
           'scheme': schemeName,
           'imgUrl': imgUrl,
           'scheme_code': schemeCode,
+          'isin': isin,
+          'email': entity.amc?.email,
+          'address': entity.amc?.address,
+          'contact': entity.amc?.contact,
         },
         beforeOpen: () {
           if (Get.isRegistered<FundDetailsController>()) {
@@ -2146,6 +2172,10 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
             'scheme': schemeName,
             'imgUrl': imgUrl,
             'scheme_code': schemeCode,
+            'isin': isin,
+            'email': entity.amc?.email,
+            'address': entity.amc?.address,
+            'contact': entity.amc?.contact,
           };
         },
       );
@@ -2158,6 +2188,10 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
         'scheme': schemeName,
         'imgUrl': imgUrl,
         'scheme_code': schemeCode,
+        'isin': isin,
+        'email': entity.amc?.email,
+        'address': entity.amc?.address,
+        'contact': entity.amc?.contact,
       };
 
       Get.toNamed(AppRoutes.funddetails);

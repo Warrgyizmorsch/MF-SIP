@@ -343,55 +343,12 @@ class MfuController extends GetxController {
     }
   }
 
-  // else if (sipInvType.value == InvType.lumpsum) {
-  //   final folio = args.folio;
-  //   if (folio != null && folio.isNotEmpty) {
-  //     normalTransaction(
-  //       MfuNormalTxnRequest.lumpsumExistingFolio(
-  //         // uid: 9105,
-  //         uid: session.getUserData?.id ?? 0,
-  //         schemeCode: args.schemeCode,
-  //         amount: sipAmount.value.toDouble(),
-  //         folio: folio,
-  //       ),
-  //     );
-  //   } else {
-  //     normalTransaction(
-  //       MfuNormalTxnRequest.lumpsumNewFolio(
-  //         // uid: 9105,
-  //         uid: session.getUserData?.id ?? 0,
-
-  //         schemeCode: "012",
-  //         // schemeCode: args.schemeCode,
-  //         amount: sipAmount.value.toDouble(),
-  //       ),
-  //     );
-  //   }
-  // }
-
-  ////////////////          ----------------------------           //////////////////
-
   void selectMethod(String method) {
     selectedMethod.value = method;
     isVerified.value = false;
     // upiId.value = '';
   }
 
-  // Future<void> verifyUpi() async {
-  //   if (upiId.value.isEmpty) {
-  //     showCustomToast(
-  //       title: 'Enter UPI Id',
-  //       message: '',
-  //       backgroundColor: Colors.red,
-  //       icon: Icons.warning,
-  //     );
-  //     return;
-  //   }
-  //   isVerifying.value = true;
-  //   await Future.delayed(const Duration(seconds: 2));
-  //   isVerified.value = true;
-  //   isVerifying.value = false;
-  // }
   Future<void> verifyUpi() async {
     final currentUpi = upiId.value.trim();
 
