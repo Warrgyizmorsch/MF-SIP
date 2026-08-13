@@ -342,6 +342,7 @@ class MfuController extends GetxController {
         amount: amount,
         day: day,
         frequency: 'M',
+        folio: folio,
       );
     } else if (sipInvType.value == InvType.stepup) {
       executeStepUp(
@@ -1026,23 +1027,29 @@ class MfuController extends GetxController {
 
   /// Flow 2: SIP Registration (`POST /api/v1/invest/sip`)
   Future<void> executeSip({
-    required String schemeCode,
-    required double amount,
+    String? schemeCode,
+    double? amount,
+    String folio = 'NEW',
     required String day,
     String frequency = 'M',
-    int? goalId,
+    List<SipFundItemModel>? funds,
     Function(SipResModel)? onSuccess,
   }) async {
     isSubmittingSip.value = true;
     errorMessage.value = '';
 
-    final req = SipReqModel(
-      schemeCode: schemeCode,
-      amount: amount,
-      day: day,
-      frequency: frequency,
-      goalId: goalId,
-    );
+    final List<SipFundItemModel> sipFunds =
+        funds ??
+        [
+          if (schemeCode != null && amount != null)
+            SipFundItemModel(
+              schemeCode: schemeCode,
+              amount: amount,
+              folio: folio,
+            ),
+        ];
+
+    final req = SipReqModel(frequency: frequency, day: day, funds: sipFunds);
 
     final res = await mfuUseCases.postSipUseCase(req);
 
