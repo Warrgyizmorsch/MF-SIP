@@ -302,36 +302,42 @@ class CartController extends GetxController {
     );
   }
 
-  List<SipFundItemModel> get sipFundItems {
-    return sipAndStepUpItems.map((item) {
-      final freq = (item.frequency != null && item.frequency!.isNotEmpty)
-          ? item.frequency!
-          : 'M';
-      final String dayVal;
-      if (freq == 'D') {
-        dayVal = 'NA';
-      } else if (item.sipDay != null && item.sipDay! > 0) {
-        dayVal = item.sipDay.toString();
-      } else {
-        dayVal = selectedSipDay.value.toString();
-      }
+  List<SipFundItemModel> get normalSipFundItems {
+    return sipAndStepUpItems
+        .where((item) => (item.transType?.toLowerCase() ?? 'sip') != 'stepup')
+        .map((item) {
+          final freq = (item.frequency != null && item.frequency!.isNotEmpty)
+              ? item.frequency!
+              : 'M';
+          final String dayVal;
+          if (freq == 'D') {
+            dayVal = 'NA';
+          } else if (item.sipDay != null && item.sipDay! > 0) {
+            dayVal = item.sipDay.toString();
+          } else {
+            dayVal = selectedSipDay.value.toString();
+          }
 
-      return SipFundItemModel(
-        schemeCode: item.schemeCode?.toString() ?? '',
-        amount: item.amount ?? 1000,
-        folio: 'NEW',
-        frequency: freq,
-        day: dayVal,
-      );
-    }).toList();
+          return SipFundItemModel(
+            schemeCode: item.schemeCode?.toString() ?? '',
+            amount: item.amount ?? 1000,
+            folio: 'NEW',
+            frequency: freq,
+            day: dayVal,
+          );
+        })
+        .toList();
   }
 
   Future<void> checkoutSip() async {
-    final funds = sipFundItems;
-    if (funds.isEmpty) {
-      CustomSnackbar.error(
-        title: 'Empty Cart',
-        message: 'No SIP items found in your cart.',
+    final normalFunds = normalSipFundItems;
+    final stepUpCount = sipAndStepUpItems.length - normalFunds.length;
+
+    if (normalFunds.isEmpty) {
+      CustomSnackbar.warning(
+        title: 'Step-Up SIP Coming Soon 🚀',
+        message:
+            'All items in your cart are Step-Up SIPs which are currently coming soon. Please add Normal SIP items to proceed.',
       );
       return;
     }
@@ -339,11 +345,13 @@ class CartController extends GetxController {
     final mfuCtrl = Get.find<MfuController>();
 
     await mfuCtrl.executeSip(
-      funds: funds,
+      funds: normalFunds,
       onSuccess: (res) {
         CustomSnackbar.success(
-          title: 'SIP Registered 🎉',
-          message: '${funds.length} SIP order(s) submitted successfully.',
+          title: 'SIP Processing',
+          message: stepUpCount > 0
+              ? '${normalFunds.length} Normal SIP order(s) placed ($stepUpCount Step-Up fund kept in cart).'
+              : '${normalFunds.length} SIP order(s) submitted successfully.',
         );
         fetchCart(showFullLoader: false);
       },
