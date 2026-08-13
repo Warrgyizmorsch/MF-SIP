@@ -306,6 +306,16 @@ class MfuController extends GetxController {
   // ─── Invest ───────────────────────────────────────────────────────────────────
 
   void onSipInvest() {
+    //Step up block
+    if (sipInvType.value == InvType.stepup) {
+      CustomSnackbar.warning(
+        title: 'Step-Up SIP Coming Soon 🚀',
+        message:
+            'Step-Up SIP is currently unavailable. Please select Normal SIP or Lump Sum to proceed.',
+      );
+
+      return;
+    }
     // 1. Validate inputs
     final aErr = _validateSipAmount(sipAmount.value);
     final sErr = sipInvType.value == InvType.stepup ? _validateStepUp() : null;
