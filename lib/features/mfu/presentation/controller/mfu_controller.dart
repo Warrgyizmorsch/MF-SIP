@@ -967,21 +967,27 @@ class MfuController extends GetxController {
 
   /// Flow 1: Lumpsum Purchase (`POST /api/v1/invest/lumpsum`)
   Future<void> executeLumpsum({
-    required String schemeCode,
-    required double amount,
+    String? schemeCode,
+    double? amount,
     String folio = 'NEW',
-    int? goalId,
+    List<LumpsumFundItemModel>? funds,
     Function(LumpsumResModel)? onSuccess,
   }) async {
     isSubmittingLumpsum.value = true;
     errorMessage.value = '';
 
-    final req = LumpsumReqModel(
-      schemeCode: schemeCode,
-      amount: amount,
-      folio: folio,
-      goalId: goalId,
-    );
+    final List<LumpsumFundItemModel> lumpsumFunds =
+        funds ??
+        [
+          if (schemeCode != null && amount != null)
+            LumpsumFundItemModel(
+              schemeCode: schemeCode,
+              amount: amount,
+              folio: folio,
+            ),
+        ];
+
+    final req = LumpsumReqModel(funds: lumpsumFunds);
 
     final res = await mfuUseCases.postLumpsumUseCase(req);
 
