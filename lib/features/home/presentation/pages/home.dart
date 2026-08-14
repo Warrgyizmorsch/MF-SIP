@@ -3542,6 +3542,7 @@ class _MobileLayout extends StatelessWidget {
                                     'scheme': name,
                                     'imgUrl': img,
                                     'scheme_code': schemeCode,
+                                    'isin': fund.isin ?? '',
                                   },
                                 );
                               },
@@ -3559,79 +3560,6 @@ class _MobileLayout extends StatelessWidget {
               );
             }),
           ),
-
-          // SliverToBoxAdapter(
-          //   child: Obx(() {
-          //     final popularList = mutualController.searchFund;
-
-          //     if (popularList.isEmpty) {
-          //       return const SizedBox.shrink();
-          //     }
-
-          //     return Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         Padding(
-          //           padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-          //           child: USectionHeading(
-          //             title: 'Popular Funds',
-          //             showActionButton: true,
-          //             onPressed: () {
-          //               FocusScope.of(context).unfocus();
-          //               _showPopularFundsSheet(context);
-          //             },
-          //           ),
-          //         ),
-          //         SizedBox(
-          //           height:
-          //               120, // 🚀 Keep this identical to the Recently Viewed height
-          //           child: ListView.separated(
-          //             padding: const EdgeInsets.symmetric(horizontal: 16),
-          //             scrollDirection: Axis.horizontal,
-          //             // If you strictly want maximum 2 items in the whole list, use: popularList.length.clamp(0, 2)
-          //             itemCount: popularList.length.clamp(0, 4),
-          //             separatorBuilder: (context, index) =>
-          //                 const SizedBox(width: 16),
-          //             itemBuilder: (context, index) {
-          //               final fund = popularList[index];
-
-          //               final rawLogo = fund.amc?.amcLogoUrl ?? '';
-          //               final img = rawLogo.startsWith('http')
-          //                   ? rawLogo
-          //                   : "${Appurl.baseUrl}$rawLogo";
-
-          //               final name = fund.baseSchemeName ?? 'Unknown Name';
-          //               final threeyear = fund.returnsEntity?.threeYear ?? '';
-          //               final schemeCode = fund.schemeCode.toString();
-
-          //               return SizedBox(
-          //                 // 🚀 This makes exactly 2 cards fit on the screen at a time
-          //                 width: MediaQuery.of(context).size.width * 0.42,
-          //                 child: PopularFundCard(
-          //                   onTap: () {
-          //                     mutualController.addToLocalRecentlyViewed(fund);
-          //                     Get.toNamed(
-          //                       AppRoutes.funddetails,
-          //                       arguments: {
-          //                         'scheme': name,
-          //                         'imgUrl': img,
-          //                         'scheme_code': schemeCode,
-          //                       },
-          //                     );
-          //                   },
-          //                   isNetwork: true,
-          //                   imgPath: img,
-          //                   name: name,
-          //                   threeYear: threeyear,
-          //                 ),
-          //               );
-          //             },
-          //           ),
-          //         ),
-          //       ],
-          //     );
-          //   }),
-          // ),
 
           // 2. RECENTLY VIEWED SECTION (Horizontal Scroll)
           SliverToBoxAdapter(
@@ -3687,6 +3615,7 @@ class _MobileLayout extends StatelessWidget {
                                   'scheme': name,
                                   'imgUrl': img,
                                   'scheme_code': schemeCode,
+                                  'isin': fund.isin ?? '',
                                 },
                               );
                             },
@@ -3704,133 +3633,6 @@ class _MobileLayout extends StatelessWidget {
             }),
           ),
 
-          // Popular Funds
-          // SliverToBoxAdapter(
-          //   child: Padding(
-          //     padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
-          //     child: USectionHeading(
-          //       title: 'Popular Funds',
-          //       showActionButton: true,
-          //       // onPressed: () => navController.selectedIndex.value = 1,
-          //       // onPressed: () =>
-          //       //     navController.navigateToExploreWithFilter(null),
-          //       onPressed: () {
-          //         FocusScope.of(context).unfocus();
-          //         _showPopularFundsSheet(context);
-          //       },
-          //     ),
-          //   ),
-          // ),
-          // SliverPadding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16),
-          //   sliver: Obx(() {
-          //     return SliverGrid.builder(
-          //       itemCount: mutualController.searchFund.length.clamp(0, 4),
-          //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          //         crossAxisCount: 2,
-          //         childAspectRatio: 1.55,
-          //         crossAxisSpacing: 16,
-          //         mainAxisSpacing: 16,
-          //       ),
-          //       itemBuilder: (context, index) {
-          //         final fund = mutualController.searchFund[index];
-          //         final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
-          //         final name = fund.baseSchemeName ?? 'Unknown Name';
-          //         final threeyear = fund.returnsEntity?.threeYear ?? '';
-          //         final schemeCode = fund.schemeCode.toString();
-          //         return PopularFundCard(
-          //           onTap: () => Get.toNamed(
-          //             AppRoutes.funddetails,
-          //             arguments: {
-          //               'scheme': name,
-          //               'imgUrl': img,
-          //               'scheme_code': schemeCode,
-          //             },
-          //           ),
-          //           isNetwork: true,
-          //           imgPath: img,
-          //           name: name,
-          //           threeYear: threeyear,
-          //         );
-          //       },
-          //     );
-          //   }),
-          // ),
-          // SliverToBoxAdapter(
-          //   child: Obx(() {
-          //     // 🚀 Check if they have viewed 4 or more funds
-          //     final hasEnoughHistory =
-          //         mutualController.recentlyViewedFunds.length >= 4;
-
-          //     return Padding(
-          //       padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-          //       child: USectionHeading(
-          //         title: hasEnoughHistory ? 'Recently Viewed' : 'Popular Funds',
-          //         // Only show the Action button for Popular Funds (optional)
-          //         showActionButton: !hasEnoughHistory,
-          //         onPressed: () {
-          //           FocusScope.of(context).unfocus();
-          //           _showPopularFundsSheet(context);
-          //         },
-          //       ),
-          //     );
-          //   }),
-          // ),
-          // SliverPadding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16),
-          //   sliver: Obx(() {
-          //     final hasEnoughHistory =
-          //         mutualController.recentlyViewedFunds.length >= 4;
-
-          //     // 🚀 Swap the data source based on history length
-          //     final displayList = hasEnoughHistory
-          //         ? mutualController.recentlyViewedFunds
-          //         : mutualController.searchFund;
-
-          //     if (displayList.isEmpty) {
-          //       return const SliverToBoxAdapter(child: SizedBox.shrink());
-          //     }
-
-          //     return SliverGrid.builder(
-          //       itemCount: displayList.length.clamp(0, 4),
-          //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          //         crossAxisCount: 2,
-          //         childAspectRatio: 1.55,
-          //         crossAxisSpacing: 16,
-          //         mainAxisSpacing: 16,
-          //       ),
-          //       itemBuilder: (context, index) {
-          //         final fund = displayList[index];
-          //         final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
-          //         final name = fund.baseSchemeName ?? 'Unknown Name';
-          //         final threeyear = fund.returnsEntity?.threeYear ?? '';
-          //         final schemeCode = fund.schemeCode.toString();
-
-          //         return PopularFundCard(
-          //           onTap: () {
-          //             // 🚀 Track this fund when tapped!
-          //             // mutualController.addToRecentlyViewed(fund);
-          //             mutualController.addToLocalRecentlyViewed(fund);
-
-          //             Get.toNamed(
-          //               AppRoutes.funddetails,
-          //               arguments: {
-          //                 'scheme': name,
-          //                 'imgUrl': img,
-          //                 'scheme_code': schemeCode,
-          //               },
-          //             );
-          //           },
-          //           isNetwork: true,
-          //           imgPath: img,
-          //           name: name,
-          //           threeYear: threeyear,
-          //         );
-          //       },
-          //     );
-          //   }),
-          // ),
-
           // Videos
           SliverToBoxAdapter(
             child: Padding(
@@ -3843,34 +3645,7 @@ class _MobileLayout extends StatelessWidget {
               ),
             ),
           ),
-          // SliverToBoxAdapter(
-          //   child: SizedBox(
-          //     // height: size.height * 0.25,
-          //     height: 220,
-          //     child: ListView(
-          //       scrollDirection: Axis.horizontal,
-          //       padding: const EdgeInsets.symmetric(horizontal: 16),
-          //       children: const [
-          //         InlineYouTubePlayer(
-          //           thumbnailUrl:
-          //               "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
-          //           videoId: "yo5aL4Plbso",
-          //         ),
-          //         // YoutubeThumbnail(videoId: 'yo5aL4Plbso'),
-          //         SizedBox(width: 16),
-          //         InlineYouTubePlayer(
-          //           thumbnailUrl:
-          //               "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
-          //           videoId: "t7lUSiddFd4",
-          //         ),
 
-          //         // YoutubeThumbnail(videoId: 't7lUSiddFd4'),
-          //         SizedBox(width: 16),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-          // const SliverToBoxAdapter(child: SizedBox(height: 24)),
           SliverToBoxAdapter(
             child: SizedBox(
               height: 160,
