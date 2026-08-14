@@ -1,4 +1,3 @@
-
 // ignore_for_file: deprecated_member_use, unused_local_variable
 
 import 'dart:async';
@@ -2064,6 +2063,7 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                           controller.updateCartItem(
                             itemId: widget.itemEntity.id!,
                             sipDay: int.parse(val),
+                            frequency: null,
                           );
                         }
                       },
