@@ -248,11 +248,16 @@ class CartPage extends GetView<CartController> {
                 : SafeArea(
                     top: false,
                     child: Obx(() {
+                      final mfuCtrl = Get.find<MfuController>();
+                      final isLumpsumTab = controller.activeTabIndex.value == 1;
+                      final isSubmitting = isLumpsumTab
+                          ? mfuCtrl.isSubmittingLumpsum.value
+                          : mfuCtrl.isSubmittingSip.value;
+
                       final isLoading =
                           (controller.isLoading.value &&
                               controller.items.isEmpty) ||
                           controller.isInitLoading.value;
-                      final isLumpsumTab = controller.activeTabIndex.value == 1;
                       final targetItems = isLumpsumTab
                           ? controller.lumpsumItems
                           : controller.sipAndStepUpItems;
@@ -262,6 +267,7 @@ class CartPage extends GetView<CartController> {
 
                       return CartBottomBar(
                         isValid: controller.isListValid(targetItems),
+                        isLoading: isSubmitting,
                         amount: isLoading ? '0' : targetAmount.toString(),
                         ontap: () => _handlePurchase(isLumpsum: isLumpsumTab),
                       );
@@ -1514,6 +1520,7 @@ class CartBottomBar extends StatelessWidget {
     this.amount,
     this.goalAmount,
     this.isValid = true,
+    this.isLoading = false,
   });
 
   final String? title;
@@ -1523,6 +1530,7 @@ class CartBottomBar extends StatelessWidget {
   final String? amount;
   final String? goalAmount;
   final bool isValid;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -1562,13 +1570,22 @@ class CartBottomBar extends StatelessWidget {
 
             Expanded(
               child: UElevatedBUtton(
-                color: isValid ? Ucolors.primary : Colors.grey,
-                onPressed: isValid ? ontap : null,
+                color: (isValid && !isLoading) ? Ucolors.primary : Colors.grey,
+                onPressed: (isValid && !isLoading) ? ontap : null,
                 child: Center(
-                  child: Text(
-                    buttonText ?? 'Purchase',
-                    style: UTextStyles.buttonText,
-                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : Text(
+                          buttonText ?? 'Purchase',
+                          style: UTextStyles.buttonText,
+                        ),
                 ),
               ),
             ),
@@ -1589,6 +1606,7 @@ class CartBottomBarWeb extends StatelessWidget {
     this.amount,
     this.goalAmount,
     this.isValid = true,
+    this.isLoading = false,
   });
 
   final String? title;
@@ -1598,6 +1616,7 @@ class CartBottomBarWeb extends StatelessWidget {
   final String? amount;
   final String? goalAmount;
   final bool isValid;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -1650,16 +1669,27 @@ class CartBottomBarWeb extends StatelessWidget {
                 width: 250, // 🚀 Fixed width prevents comical stretching
                 height: 52,
                 child: UElevatedButtonWeb(
-                  color: isValid ? Ucolors.primary : Colors.grey.shade400,
-                  onPressed: isValid ? ontap : null,
+                  color: (isValid && !isLoading)
+                      ? Ucolors.primary
+                      : Colors.grey.shade400,
+                  onPressed: (isValid && !isLoading) ? ontap : null,
                   child: Center(
-                    child: Text(
-                      buttonText ?? 'Purchase',
-                      style: UTextStyles.buttonText.copyWith(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : Text(
+                            buttonText ?? 'Purchase',
+                            style: UTextStyles.buttonText.copyWith(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ),
