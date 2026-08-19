@@ -17,6 +17,22 @@ class FundDetailRemoteDataSource {
 
   FundDetailRemoteDataSource(this._servicesApi);
 
+  Map<String, String> _buildQueryParams(Map<String, dynamic> data) {
+    final Map<String, String> params = {
+      'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
+    };
+    final String? isin = data['isin']?.toString();
+    final String? scheme = data['scheme']?.toString();
+
+    if (isin != null && isin.isNotEmpty && isin != '--') {
+      params['isin'] = isin;
+    } else if (scheme != null && scheme.isNotEmpty) {
+      params['scheme'] = scheme;
+    }
+
+    return params;
+  }
+
   //Scheme info
   Future<Either<Result<FundDetailModel>, ApiError>> getSchemeInfo(
     Map<String, dynamic> data,
@@ -25,10 +41,7 @@ class FundDetailRemoteDataSource {
       final response = await _servicesApi.postApi(
         '${Appurl.baseUrl2}/getSchemeInfoLatest',
         // '${Appurl.baseUrl}/api/mutual-fund/details',
-        queryParameters: {
-          'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
-          'isin': data['isin'],
-        },
+        queryParameters: _buildQueryParams(data),
       );
       createLog(
         "[Scheme inof Remote Data Source] scheme detail model  Response: $response",
@@ -60,10 +73,7 @@ class FundDetailRemoteDataSource {
       final response = await _servicesApi.postApi(
         '${Appurl.baseUrl2}/getPortfolioAnalysisNew',
         // '${Appurl.baseUrl}/public/api/mutual-fund/portfolio-details?scheme',
-        queryParameters: {
-          'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
-          'isin': data['isin'],
-        },
+        queryParameters: _buildQueryParams(data),
       );
       createLog(
         "[Portfolio inof Remote Data Source] Portfolio detail model  Response: $response",

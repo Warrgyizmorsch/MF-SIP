@@ -33,9 +33,10 @@ class CompareFundController extends GetxController {
   void _handleInitialArguments() {
     final args = Get.arguments as Map<String, dynamic>?;
 
-    // If we passed a fund name, pre-fill Slot 1
-    if (args != null && args['name'] != null) {
+    // If we passed a fund name/isin, pre-fill Slot 1
+    if (args != null && (args['name'] != null || args['isin'] != null)) {
       final String passedImgUrl = args['imgUrl'] ?? ''; // Get the URL from args
+      final String passedIsin = args['isin'] ?? '';
       final initialFund = MutualFundListEntity(
         nav: null,
         schemecategory: null,
@@ -45,7 +46,7 @@ class CompareFundController extends GetxController {
         baseSchemeName: args['name'],
         schemeType: '',
         riskLevel: '',
-        isin: '',
+        isin: passedIsin,
         amc: AmcEntity(id: 0, amcName: '', amcLogoUrl: passedImgUrl),
         minSipAmount: 0,
         minLumpsum: 0,
@@ -57,7 +58,7 @@ class CompareFundController extends GetxController {
     }
 
     // If a second fund was passed (rare, but possible)
-    if (args != null && args['name2'] != null) {
+    if (args != null && (args['name2'] != null || args['isin2'] != null)) {
       final secondFund = MutualFundListEntity(
         nav: null,
         minTopUp: 0,
@@ -67,7 +68,7 @@ class CompareFundController extends GetxController {
         baseSchemeName: args['name2'],
         schemeType: '',
         riskLevel: '',
-        isin: '',
+        isin: args['isin2'] ?? '',
         amc: null,
         minSipAmount: 0,
         minLumpsum: 0,
@@ -79,12 +80,17 @@ class CompareFundController extends GetxController {
 
   // 2. Set Fund (Called from Search Sheet)
   void setFund(int slot, MutualFundListEntity fund, {String? imgUrl}) {
+    final String targetIsin =
+        (fund.isin != null && fund.isin!.isNotEmpty && fund.isin != '--')
+        ? fund.isin!
+        : (fund.baseSchemeName ?? '');
+
     if (slot == 1) {
       fund1Basic.value = fund;
-      _fetchAllDetails(1, fund.baseSchemeName ?? '');
+      _fetchAllDetails(1, targetIsin, schemeName: fund.baseSchemeName ?? '');
     } else {
       fund2Basic.value = fund;
-      _fetchAllDetails(2, fund.baseSchemeName ?? '');
+      _fetchAllDetails(2, targetIsin, schemeName: fund.baseSchemeName ?? '');
     }
   }
 
@@ -102,7 +108,11 @@ class CompareFundController extends GetxController {
   }
 
   // 4. Fetch Details & Portfolio API
-  Future<void> _fetchAllDetails(int slot, String schemeName) async {
+  Future<void> _fetchAllDetails(
+    int slot,
+    String targetIsin, {
+    String schemeName = '',
+  }) async {
     final loadingState = slot == 1 ? isFund1Loading : isFund2Loading;
     final detailState = slot == 1 ? fund1Detail : fund2Detail;
     final portfolioState = slot == 1 ? fund1Portfolio : fund2Portfolio;
@@ -110,11 +120,16 @@ class CompareFundController extends GetxController {
     try {
       loadingState.value = true;
 
+      final Map<String, dynamic> requestPayload = {
+        'isin': targetIsin,
+        'scheme': schemeName.isNotEmpty ? schemeName : targetIsin,
+      };
+
       // Run APIs in parallel for speed
       await Future.wait([
         // A. Get Basic Details (Returns, Ratios)
         fundDetailsUsecases.fundDetailUseCase
-            .getSchemeInfo({'scheme': schemeName})
+            .getSchemeInfo(requestPayload)
             .then(
               (result) => result.fold(
                 (success) => detailState.value = success.data,
@@ -124,7 +139,7 @@ class CompareFundController extends GetxController {
 
         // B. Get Portfolio (Holdings)
         fundDetailsUsecases.portfolioAnalysisUsecases
-            .getPortfolioAnlysis({'scheme': schemeName})
+            .getPortfolioAnlysis(requestPayload)
             .then(
               (result) => result.fold(
                 (success) => portfolioState.value = success.data,

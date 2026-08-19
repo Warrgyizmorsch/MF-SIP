@@ -131,7 +131,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                                 },
                               );
                             },
-                            
                           )
                         : const SizedBox.shrink(),
                   ),
@@ -139,7 +138,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
               );
             }),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      
     );
   }
 
@@ -319,7 +317,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
           }),
           const SizedBox(width: 5),
 
-     
           const SizedBox(width: 5),
         ],
       ),
@@ -1195,6 +1192,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                   AppRoutes.comparefund,
                                   arguments: {
                                     'name': controller.schemeName,
+                                    'isin': controller.isin,
                                     'imgUrl': controller.imgUrl,
                                     'name2': item.schemeName,
                                   },
@@ -3788,6 +3786,7 @@ class _DesktopComparisonSection extends StatelessWidget {
                     // },
                     arguments: {
                       'name': controller.schemeName,
+                      'isin': controller.isin,
                       'imgUrl': controller.imgUrl,
                       'name2':
                           fund.schemePeerComparisonList[index + 1].schemeName,
