@@ -147,7 +147,11 @@ class MfuPortfolioEntity extends Equatable {
       portfolio.where((f) => f.investmentType.toLowerCase() == 'sip').toList();
 
   List<MfuPortfolioItemEntity> get lumpsumFunds => portfolio
-      .where((f) => f.investmentType.toLowerCase() == 'normal')
+      .where(
+        (f) =>
+            f.investmentType.toLowerCase() == 'lumpsum' ||
+            f.investmentType.toLowerCase() == 'normal',
+      )
       .toList();
 
   @override

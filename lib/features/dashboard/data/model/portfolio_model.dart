@@ -90,8 +90,16 @@ class MfuPortfolioModel {
   final bool? success;
   final List<MfuPortfolioItemModel>? portfolio;
   final MfuPortfolioSummaryModel? summary;
+  final MfuPortfolioUserModel? user;
+  final MfuPortfolioPaginationModel? pagination;
 
-  MfuPortfolioModel({this.success, this.portfolio, this.summary});
+  MfuPortfolioModel({
+    this.success,
+    this.portfolio,
+    this.summary,
+    this.user,
+    this.pagination,
+  });
 
   factory MfuPortfolioModel.fromJson(Map<String, dynamic> json) {
     return MfuPortfolioModel(
@@ -105,6 +113,56 @@ class MfuPortfolioModel {
               json['summary'] as Map<String, dynamic>,
             )
           : null,
+      user: json['user'] != null
+          ? MfuPortfolioUserModel.fromJson(json['user'] as Map<String, dynamic>)
+          : null,
+      pagination: json['pagination'] != null
+          ? MfuPortfolioPaginationModel.fromJson(
+              json['pagination'] as Map<String, dynamic>,
+            )
+          : null,
+    );
+  }
+}
+
+class MfuPortfolioUserModel {
+  final int? id;
+  final String? name;
+  final String? image;
+
+  MfuPortfolioUserModel({this.id, this.name, this.image});
+
+  factory MfuPortfolioUserModel.fromJson(Map<String, dynamic> json) {
+    return MfuPortfolioUserModel(
+      id: json.parse<int>('id'),
+      name: json.parse<String>('name'),
+      image: json.parse<String>('image'),
+    );
+  }
+}
+
+class MfuPortfolioPaginationModel {
+  final int? currentPage;
+  final int? perPage;
+  final int? total;
+  final int? lastPage;
+  final bool? hasMore;
+
+  MfuPortfolioPaginationModel({
+    this.currentPage,
+    this.perPage,
+    this.total,
+    this.lastPage,
+    this.hasMore,
+  });
+
+  factory MfuPortfolioPaginationModel.fromJson(Map<String, dynamic> json) {
+    return MfuPortfolioPaginationModel(
+      currentPage: json.parse<int>('current_page'),
+      perPage: json.parse<int>('per_page'),
+      total: json.parse<int>('total'),
+      lastPage: json.parse<int>('last_page'),
+      hasMore: json.parse<bool>('has_more'),
     );
   }
 }
@@ -129,6 +187,7 @@ class MfuPortfolioItemModel {
   final String? folioNo;
   final String? purchaseDate;
   final String? lastTransactionDate;
+  final int? mfuOrderFundId;
 
   MfuPortfolioItemModel({
     this.schemeCode,
@@ -150,18 +209,28 @@ class MfuPortfolioItemModel {
     this.folioNo,
     this.purchaseDate,
     this.lastTransactionDate,
+    this.mfuOrderFundId,
   });
 
   factory MfuPortfolioItemModel.fromJson(Map<String, dynamic> json) {
-    // Scheme code can sometimes be an int in JSON (e.g., 12 vs "012"), parse it safely as String
+    final String? parsedLogo =
+        json.parse<String>('amc_logo') ?? json.parse<String>('amc_image_url');
+
+    final String? parsedType =
+        json.parse<String>('type') ?? json.parse<String>('investment_type');
+
+    final double? parsedInvested =
+        json.parse<double>('invested_amount') ??
+        json.parse<double>('fund_invested');
+
     return MfuPortfolioItemModel(
       schemeCode: json['scheme_code']?.toString(),
       fundName: json.parse<String>('fund_name'),
       amcName: json.parse<String>('amc_name'),
       amcCode: json.parse<String>('amc_code'),
-      amcLogo: json.parse<String>('amc_logo'),
-      investmentType: json.parse<String>('investment_type'),
-      investedAmount: json.parse<double>('invested_amount'),
+      amcLogo: parsedLogo,
+      investmentType: parsedType,
+      investedAmount: parsedInvested,
       totalUnits: json.parse<double>('total_units'),
       purchaseNav: json.parse<double>('purchase_nav'),
       averagePurchaseNav: json.parse<double>('average_purchase_nav'),
@@ -174,6 +243,7 @@ class MfuPortfolioItemModel {
       folioNo: json.parse<String>('folio_no'),
       purchaseDate: json.parse<String>('purchase_date'),
       lastTransactionDate: json.parse<String>('last_transaction_date'),
+      mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
     );
   }
 }
@@ -183,20 +253,54 @@ class MfuPortfolioSummaryModel {
   final double? totalCurrentValue;
   final double? totalGainLoss;
   final double? totalGainLossPercent;
+  final MfuPortfolioDisplayModel? display;
 
   MfuPortfolioSummaryModel({
     this.totalInvested,
     this.totalCurrentValue,
     this.totalGainLoss,
     this.totalGainLossPercent,
+    this.display,
   });
 
   factory MfuPortfolioSummaryModel.fromJson(Map<String, dynamic> json) {
     return MfuPortfolioSummaryModel(
       totalCurrentValue: json.parse<double>('current_value'),
       totalInvested: json.parse<double>('total_invested'),
-      totalGainLoss: json.parse<double>('total_returns'),
-      totalGainLossPercent: json.parse<double>('total_returns_percent'),
+      totalGainLoss:
+          json.parse<double>('total_returns') ??
+          json.parse<double>('total_gain_loss'),
+      totalGainLossPercent:
+          json.parse<double>('total_returns_percent') ??
+          json.parse<double>('total_gain_loss_percent'),
+      display: json['display'] != null
+          ? MfuPortfolioDisplayModel.fromJson(
+              json['display'] as Map<String, dynamic>,
+            )
+          : null,
+    );
+  }
+}
+
+class MfuPortfolioDisplayModel {
+  final String? currentValue;
+  final String? totalInvested;
+  final String? totalReturns;
+  final String? totalReturnsPercent;
+
+  MfuPortfolioDisplayModel({
+    this.currentValue,
+    this.totalInvested,
+    this.totalReturns,
+    this.totalReturnsPercent,
+  });
+
+  factory MfuPortfolioDisplayModel.fromJson(Map<String, dynamic> json) {
+    return MfuPortfolioDisplayModel(
+      currentValue: json.parse<String>('current_value'),
+      totalInvested: json.parse<String>('total_invested'),
+      totalReturns: json.parse<String>('total_returns'),
+      totalReturnsPercent: json.parse<String>('total_returns_percent'),
     );
   }
 }

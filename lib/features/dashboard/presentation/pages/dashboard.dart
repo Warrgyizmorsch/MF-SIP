@@ -3867,7 +3867,6 @@ class PortfolioCard extends StatelessWidget {
                         onSelected: (value) {
                           switch (value) {
                             case PortfolioMenuAction.topUp:
-                              log('top up');
                               break;
 
                             case PortfolioMenuAction.modify:
@@ -3878,6 +3877,8 @@ class PortfolioCard extends StatelessWidget {
                               createLog('tap for cancel sip / lumpsum ');
                               break;
                             case PortfolioMenuAction.redemption:
+                              createLog('tap for cancel redemption / lumpsum ');
+
                               Get.to(
                                 () => RedeemPage(),
                                 arguments: RedeemArgs(
