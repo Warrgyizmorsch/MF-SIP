@@ -9,6 +9,8 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
+import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 class _T {
   static const bg = Color(0xFFF0F4F8); // light grey page bg
@@ -96,6 +98,50 @@ class _RedeemPageState extends State<RedeemPage> {
   void dispose() {
     _amountFocus.dispose();
     super.dispose();
+  }
+
+  BankAccountEntity? get _activeBank {
+    if (Get.isRegistered<PersonalisationController>()) {
+      final pCtrl = Get.find<PersonalisationController>();
+      final list = pCtrl.userData.value?.bankAccounts;
+      if (list != null && list.isNotEmpty) {
+        return list.firstWhere(
+          (b) => b.verified == 1,
+          orElse: () => list.first,
+        );
+      }
+    }
+    return null;
+  }
+
+  String get _displayBankName {
+    final b = _activeBank;
+    if (b?.bankName != null && b!.bankName!.isNotEmpty) {
+      return b.bankName!;
+    }
+    return _args.bankName.isNotEmpty
+        ? _args.bankName
+        : 'Registered Bank Account';
+  }
+
+  String get _displayBankAccount {
+    final b = _activeBank;
+    final raw = b?.accountNumberEncrypted ?? '';
+    if (raw.isNotEmpty) {
+      if (raw.contains('•') || raw.contains('*')) {
+        return raw;
+      }
+      return raw.length >= 4 ? '• • • • ${raw.substring(raw.length - 4)}' : raw;
+    }
+    return _args.bankAccount;
+  }
+
+  String get _displayIfsc {
+    final b = _activeBank;
+    if (b?.ifscCode != null && b!.ifscCode!.isNotEmpty) {
+      return b.ifscCode!;
+    }
+    return _args.ifsc;
   }
 
   void _onProceed() {
@@ -200,7 +246,7 @@ class _RedeemPageState extends State<RedeemPage> {
                     const Divider(height: 16),
                     _buildConfirmRow(
                       'Payout Bank',
-                      '${_args.bankName}\n(A/c ending ${_args.bankAccount})',
+                      '$_displayBankName\n(A/c ending $_displayBankAccount)',
                     ),
                   ],
                 ),
@@ -774,7 +820,7 @@ class _RedeemPageState extends State<RedeemPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _args.bankName,
+                        _displayBankName,
                         style: UTextStyles.bodyLargeBold.copyWith(
                           color: _T.textPrimary,
                           fontSize: 14,
@@ -782,7 +828,7 @@ class _RedeemPageState extends State<RedeemPage> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'A/c ending in ${_args.bankAccount}',
+                        'A/c ending in $_displayBankAccount',
                         style: UTextStyles.bodyMediumW500.copyWith(
                           color: _T.textSec,
                         ),
@@ -815,7 +861,7 @@ class _RedeemPageState extends State<RedeemPage> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      _args.ifsc,
+                      _displayIfsc,
                       style: UTextStyles.bodyLargeBold.copyWith(
                         color: _T.textPrimary,
                         fontSize: 14,
