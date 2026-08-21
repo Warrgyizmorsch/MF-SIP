@@ -158,6 +158,40 @@ class MfuPortfolioEntity extends Equatable {
   List<Object?> get props => [success, portfolio, summary];
 }
 
+class MfuRedemptionDetailsEntity extends Equatable {
+  final String orderRefNo;
+  final String gorn;
+  final double amount;
+  final String requestedDate;
+  final String status;
+  final String statusCode;
+  final String estimatedPayoutDays;
+  final String message;
+
+  const MfuRedemptionDetailsEntity({
+    required this.orderRefNo,
+    required this.gorn,
+    required this.amount,
+    required this.requestedDate,
+    required this.status,
+    required this.statusCode,
+    required this.estimatedPayoutDays,
+    required this.message,
+  });
+
+  @override
+  List<Object?> get props => [
+    orderRefNo,
+    gorn,
+    amount,
+    requestedDate,
+    status,
+    statusCode,
+    estimatedPayoutDays,
+    message,
+  ];
+}
+
 class MfuPortfolioItemEntity extends Equatable {
   final String schemeCode;
   final String fundName;
@@ -165,6 +199,7 @@ class MfuPortfolioItemEntity extends Equatable {
   final String amcLogo;
   final String investmentType;
   final double investedAmount;
+  final double totalUnits;
   final double currentNav;
   final double currentValue;
   final double gainLoss;
@@ -173,7 +208,13 @@ class MfuPortfolioItemEntity extends Equatable {
   final double oneDayChangePercent;
   final String folioNo;
   final String lastTransactionDate;
+  final String navDate;
+  final double navChange;
   final dynamic mfuOrderFundId;
+  final bool hasPendingRedemption;
+  final String redemptionStatus;
+  final String redemptionMessage;
+  final MfuRedemptionDetailsEntity? redemptionDetails;
 
   const MfuPortfolioItemEntity({
     required this.schemeCode,
@@ -182,6 +223,7 @@ class MfuPortfolioItemEntity extends Equatable {
     required this.amcLogo,
     required this.investmentType,
     required this.investedAmount,
+    this.totalUnits = 0.0,
     required this.currentNav,
     required this.currentValue,
     required this.gainLoss,
@@ -190,7 +232,13 @@ class MfuPortfolioItemEntity extends Equatable {
     required this.oneDayChangePercent,
     required this.folioNo,
     required this.lastTransactionDate,
+    this.navDate = '',
+    this.navChange = 0.0,
     this.mfuOrderFundId,
+    this.hasPendingRedemption = false,
+    this.redemptionStatus = '',
+    this.redemptionMessage = '',
+    this.redemptionDetails,
   });
 
   // Computed properties for easy UI styling
@@ -205,6 +253,7 @@ class MfuPortfolioItemEntity extends Equatable {
     amcLogo,
     investmentType,
     investedAmount,
+    totalUnits,
     currentNav,
     currentValue,
     gainLoss,
@@ -213,7 +262,13 @@ class MfuPortfolioItemEntity extends Equatable {
     oneDayChangePercent,
     folioNo,
     lastTransactionDate,
+    navDate,
+    navChange,
     mfuOrderFundId,
+    hasPendingRedemption,
+    redemptionStatus,
+    redemptionMessage,
+    redemptionDetails,
   ];
 }
 
@@ -262,6 +317,21 @@ extension MfuPortfolioModelMapper on MfuPortfolioModel {
   }
 }
 
+extension MfuRedemptionDetailsMapper on MfuRedemptionDetailsModel {
+  MfuRedemptionDetailsEntity toEntity() {
+    return MfuRedemptionDetailsEntity(
+      orderRefNo: orderRefNo ?? '',
+      gorn: gorn ?? '',
+      amount: amount ?? 0.0,
+      requestedDate: requestedDate ?? '',
+      status: status ?? '',
+      statusCode: statusCode ?? '',
+      estimatedPayoutDays: estimatedPayoutDays ?? '',
+      message: message ?? '',
+    );
+  }
+}
+
 extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
   MfuPortfolioItemEntity toEntity() {
     return MfuPortfolioItemEntity(
@@ -271,6 +341,7 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       amcLogo: amcLogo ?? '',
       investmentType: investmentType ?? 'normal',
       investedAmount: investedAmount ?? 0.0,
+      totalUnits: totalUnits ?? 0.0,
       currentNav: currentNav ?? 0.0,
       currentValue: currentValue ?? 0.0,
       gainLoss: gainLoss ?? 0.0,
@@ -279,7 +350,13 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       oneDayChangePercent: oneDayChangePercent ?? 0.0,
       folioNo: folioNo ?? 'NEW',
       lastTransactionDate: lastTransactionDate ?? '',
+      navDate: navDate ?? '',
+      navChange: navChange ?? 0.0,
       mfuOrderFundId: mfuOrderFundId,
+      hasPendingRedemption: hasPendingRedemption ?? false,
+      redemptionStatus: redemptionStatus ?? '',
+      redemptionMessage: redemptionMessage ?? '',
+      redemptionDetails: redemptionDetails?.toEntity(),
     );
   }
 }

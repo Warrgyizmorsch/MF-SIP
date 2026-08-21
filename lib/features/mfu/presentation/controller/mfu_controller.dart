@@ -862,11 +862,15 @@ class MfuController extends GetxController {
           "[MfuController] Redeem Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
         );
 
-        CustomSnackbar.success(
-          title: 'Redemption Submitted 🎉',
-          message:
-              data?.message ?? 'Redemption request submitted successfully.',
-        );
+        // CustomSnackbar.success(
+        //   title: 'Redemption Submitted 🎉',
+        //   message:
+        //       data?.message ?? 'Redemption request submitted successfully.',
+        // );
+
+        if (data?.hasApprovalLink == true) {
+          openApprovalLink(data!.approvalLink!, title: 'Confirm Redemption');
+        }
 
         if (onSuccess != null && data != null) {
           onSuccess(data);
@@ -910,7 +914,7 @@ class MfuController extends GetxController {
           return;
         }
         executeRedeem(
-          RedeemReqModel(mfuOrderFundId: targetId, amount: v),
+          RedeemReqModel(mfuOrderFundId: targetId, folio: folio, amount: v),
           onSuccess: onSuccess,
         );
         break;
@@ -927,14 +931,18 @@ class MfuController extends GetxController {
           return;
         }
         executeRedeem(
-          RedeemReqModel(mfuOrderFundId: targetId, units: v),
+          RedeemReqModel(mfuOrderFundId: targetId, folio: folio, units: v),
           onSuccess: onSuccess,
         );
         break;
 
       case RedeemType.allFree:
         executeRedeem(
-          RedeemReqModel(mfuOrderFundId: targetId, redeemAll: true),
+          RedeemReqModel(
+            mfuOrderFundId: targetId,
+            folio: folio,
+            redeemAll: true,
+          ),
           onSuccess: onSuccess,
         );
         break;

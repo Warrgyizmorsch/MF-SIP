@@ -167,6 +167,41 @@ class MfuPortfolioPaginationModel {
   }
 }
 
+class MfuRedemptionDetailsModel {
+  final String? orderRefNo;
+  final String? gorn;
+  final double? amount;
+  final String? requestedDate;
+  final String? status;
+  final String? statusCode;
+  final String? estimatedPayoutDays;
+  final String? message;
+
+  MfuRedemptionDetailsModel({
+    this.orderRefNo,
+    this.gorn,
+    this.amount,
+    this.requestedDate,
+    this.status,
+    this.statusCode,
+    this.estimatedPayoutDays,
+    this.message,
+  });
+
+  factory MfuRedemptionDetailsModel.fromJson(Map<String, dynamic> json) {
+    return MfuRedemptionDetailsModel(
+      orderRefNo: json.parse<String>('order_ref_no'),
+      gorn: json.parse<String>('gorn'),
+      amount: json.parse<double>('amount'),
+      requestedDate: json.parse<String>('requested_date'),
+      status: json.parse<String>('status'),
+      statusCode: json.parse<String>('status_code'),
+      estimatedPayoutDays: json.parse<String>('estimated_payout_days'),
+      message: json.parse<String>('message'),
+    );
+  }
+}
+
 class MfuPortfolioItemModel {
   final String? schemeCode;
   final String? fundName;
@@ -187,7 +222,13 @@ class MfuPortfolioItemModel {
   final String? folioNo;
   final String? purchaseDate;
   final String? lastTransactionDate;
+  final String? navDate;
+  final double? navChange;
   final int? mfuOrderFundId;
+  final bool? hasPendingRedemption;
+  final String? redemptionStatus;
+  final String? redemptionMessage;
+  final MfuRedemptionDetailsModel? redemptionDetails;
 
   MfuPortfolioItemModel({
     this.schemeCode,
@@ -209,7 +250,13 @@ class MfuPortfolioItemModel {
     this.folioNo,
     this.purchaseDate,
     this.lastTransactionDate,
+    this.navDate,
+    this.navChange,
     this.mfuOrderFundId,
+    this.hasPendingRedemption,
+    this.redemptionStatus,
+    this.redemptionMessage,
+    this.redemptionDetails,
   });
 
   factory MfuPortfolioItemModel.fromJson(Map<String, dynamic> json) {
@@ -223,6 +270,37 @@ class MfuPortfolioItemModel {
         json.parse<double>('invested_amount') ??
         json.parse<double>('fund_invested');
 
+    final String? parsedFolio =
+        json.parse<String>('folio_no') ?? json.parse<String>('folio');
+
+    final double? parsedUnits =
+        json.parse<double>('total_units') ?? json.parse<double>('units');
+
+    final double? parsedPurchaseNav =
+        json.parse<double>('purchase_nav') ??
+        json.parse<double>('invested_nav') ??
+        json.parse<double>('average_nav') ??
+        json.parse<double>('latest_purchase_nav');
+
+    final double? parsedCurrentNav =
+        json.parse<double>('current_nav') ?? json.parse<double>('nav');
+
+    final double? parsed1DChange =
+        json.parse<double>('one_day_change') ??
+        json.parse<double>('day_change') ??
+        json.parse<double>('one_day_return');
+
+    final double? parsed1DChangePercent =
+        json.parse<double>('one_day_change_percent') ??
+        json.parse<double>('day_change_percent') ??
+        json.parse<double>('one_day_return_percent');
+
+    final String? parsedDate =
+        json.parse<String>('purchase_date') ??
+        json.parse<String>('invested_date') ??
+        json.parse<String>('investment_date') ??
+        json.parse<String>('latest_invested_date');
+
     return MfuPortfolioItemModel(
       schemeCode: json['scheme_code']?.toString(),
       fundName: json.parse<String>('fund_name'),
@@ -231,19 +309,29 @@ class MfuPortfolioItemModel {
       amcLogo: parsedLogo,
       investmentType: parsedType,
       investedAmount: parsedInvested,
-      totalUnits: json.parse<double>('total_units'),
-      purchaseNav: json.parse<double>('purchase_nav'),
-      averagePurchaseNav: json.parse<double>('average_purchase_nav'),
-      currentNav: json.parse<double>('current_nav'),
+      totalUnits: parsedUnits,
+      purchaseNav: parsedPurchaseNav,
+      averagePurchaseNav: parsedPurchaseNav,
+      currentNav: parsedCurrentNav,
       currentValue: json.parse<double>('current_value'),
       gainLoss: json.parse<double>('gain_loss'),
       gainLossPercent: json.parse<double>('gain_loss_percent'),
-      oneDayChange: json.parse<double>('one_day_change'),
-      oneDayChangePercent: json.parse<double>('one_day_change_percent'),
-      folioNo: json.parse<String>('folio_no'),
-      purchaseDate: json.parse<String>('purchase_date'),
+      oneDayChange: parsed1DChange,
+      oneDayChangePercent: parsed1DChangePercent,
+      folioNo: parsedFolio,
+      purchaseDate: parsedDate,
       lastTransactionDate: json.parse<String>('last_transaction_date'),
+      navDate: json.parse<String>('nav_date'),
+      navChange: json.parse<double>('nav_change'),
       mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
+      hasPendingRedemption: json.parse<bool>('has_pending_redemption'),
+      redemptionStatus: json.parse<String>('redemption_status'),
+      redemptionMessage: json.parse<String>('redemption_message'),
+      redemptionDetails: json['redemption_details'] != null
+          ? MfuRedemptionDetailsModel.fromJson(
+              json['redemption_details'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 }
@@ -253,6 +341,8 @@ class MfuPortfolioSummaryModel {
   final double? totalCurrentValue;
   final double? totalGainLoss;
   final double? totalGainLossPercent;
+  final double? oneDayReturns;
+  final double? oneDayReturnsPercent;
   final MfuPortfolioDisplayModel? display;
 
   MfuPortfolioSummaryModel({
@@ -260,10 +350,21 @@ class MfuPortfolioSummaryModel {
     this.totalCurrentValue,
     this.totalGainLoss,
     this.totalGainLossPercent,
+    this.oneDayReturns,
+    this.oneDayReturnsPercent,
     this.display,
   });
 
   factory MfuPortfolioSummaryModel.fromJson(Map<String, dynamic> json) {
+    final double? parsed1DReturns =
+        json.parse<double>('one_day_returns') ??
+        json.parse<double>('one_day_return') ??
+        json.parse<double>('one_day_change');
+
+    final double? parsed1DReturnsPercent =
+        json.parse<double>('one_day_returns_percent') ??
+        json.parse<double>('one_day_change_percent');
+
     return MfuPortfolioSummaryModel(
       totalCurrentValue: json.parse<double>('current_value'),
       totalInvested: json.parse<double>('total_invested'),
@@ -273,6 +374,8 @@ class MfuPortfolioSummaryModel {
       totalGainLossPercent:
           json.parse<double>('total_returns_percent') ??
           json.parse<double>('total_gain_loss_percent'),
+      oneDayReturns: parsed1DReturns,
+      oneDayReturnsPercent: parsed1DReturnsPercent,
       display: json['display'] != null
           ? MfuPortfolioDisplayModel.fromJson(
               json['display'] as Map<String, dynamic>,
@@ -287,12 +390,16 @@ class MfuPortfolioDisplayModel {
   final String? totalInvested;
   final String? totalReturns;
   final String? totalReturnsPercent;
+  final String? oneDayReturns;
+  final String? oneDayReturnsPercent;
 
   MfuPortfolioDisplayModel({
     this.currentValue,
     this.totalInvested,
     this.totalReturns,
     this.totalReturnsPercent,
+    this.oneDayReturns,
+    this.oneDayReturnsPercent,
   });
 
   factory MfuPortfolioDisplayModel.fromJson(Map<String, dynamic> json) {
@@ -301,6 +408,8 @@ class MfuPortfolioDisplayModel {
       totalInvested: json.parse<String>('total_invested'),
       totalReturns: json.parse<String>('total_returns'),
       totalReturnsPercent: json.parse<String>('total_returns_percent'),
+      oneDayReturns: json.parse<String>('one_day_returns'),
+      oneDayReturnsPercent: json.parse<String>('one_day_returns_percent'),
     );
   }
 }

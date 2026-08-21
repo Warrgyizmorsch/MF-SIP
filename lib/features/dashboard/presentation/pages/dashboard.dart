@@ -3793,6 +3793,45 @@ class PortfolioCard extends StatelessWidget {
                           height: 1.3,
                         ),
                       ),
+                      if (fund.hasPendingRedemption) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.hourglass_top_rounded,
+                                size: 12,
+                                color: Colors.orange.shade800,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  fund.redemptionMessage.isNotEmpty
+                                      ? fund.redemptionMessage
+                                      : 'Redemption In Progress',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.orange.shade800,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       if (subtitle) ...[
                         const SizedBox(height: 6),
                         Row(
@@ -3883,15 +3922,16 @@ class PortfolioCard extends StatelessWidget {
                                 () => RedeemPage(),
                                 arguments: RedeemArgs(
                                   mfuOrderFundId: fund.mfuOrderFundId,
+                                  amcLogo: fund.amcLogo,
                                   schemeCode: fund.schemeCode,
                                   schemeName: fund.fundName,
                                   folioNumber: fund.folioNo,
                                   folioType: 'Individual',
-                                  totalUnits: 0.0,
+                                  totalUnits: fund.totalUnits,
                                   totalValue: fund.currentValue,
                                   lockedUnits: 0.0,
                                   lockedValue: 0,
-                                  freeUnits: 0.0,
+                                  freeUnits: fund.totalUnits,
                                   freeValue: fund.currentValue,
                                   investedAmt: fund.investedAmount,
                                 ),

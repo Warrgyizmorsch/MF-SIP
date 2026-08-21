@@ -574,22 +574,24 @@ class _PortfolioTableRow extends StatelessWidget {
                       log('cancel');
                       break;
                     case PortfolioMenuAction.redemption:
-                      // Get.to(
-                      //   () => RedeemPage(),
-                      //   arguments: RedeemArgs(
-                      //     schemeCode: fund.schemeCode.toString(),
-                      //     schemeName: fund.fundName,
-                      //     folioNumber: '123456',
-                      //     folioType: 'Individual',
-                      //     totalUnits: 0.0,
-                      //     totalValue: 0,
-                      //     lockedUnits: 0.0,
-                      //     lockedValue: 0,
-                      //     freeUnits: 0.0,
-                      //     freeValue: 0,
-                      //     investedAmt: fund.investedAmount,
-                      //   ),
-                      // );
+                      Get.to(
+                        () => const RedeemPage(),
+                        arguments: RedeemArgs(
+                          mfuOrderFundId: fund.mfuOrderFundId,
+                          amcLogo: fund.amcLogo,
+                          schemeCode: fund.schemeCode,
+                          schemeName: fund.fundName,
+                          folioNumber: fund.folioNo,
+                          folioType: 'Individual',
+                          totalUnits: fund.totalUnits,
+                          totalValue: fund.currentValue,
+                          lockedUnits: 0.0,
+                          lockedValue: 0,
+                          freeUnits: fund.totalUnits,
+                          freeValue: fund.currentValue,
+                          investedAmt: fund.investedAmount,
+                        ),
+                      );
                       break;
                     case PortfolioMenuAction.switchgoal:
                       log('switch goal');

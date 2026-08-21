@@ -25,6 +25,7 @@ class _T {
 
 class RedeemArgs {
   final dynamic mfuOrderFundId;
+  final String amcLogo;
   final String schemeCode;
   final String schemeName;
   final String folioNumber;
@@ -43,6 +44,7 @@ class RedeemArgs {
 
   const RedeemArgs({
     this.mfuOrderFundId,
+    this.amcLogo = '',
     required this.schemeCode,
     required this.schemeName,
     required this.folioNumber,
@@ -207,15 +209,6 @@ class _RedeemPageState extends State<RedeemPage> {
             ),
           ),
           const SizedBox(height: 6),
-          // Text(
-          //   _args.schemeName,
-          //   style: UTextStyles.heading2.copyWith(
-          //     color: _T.textPrimary,
-          //     fontSize: 22,
-          //     height: 1.25,
-          //     letterSpacing: -0.5,
-          //   ),
-          // ),
           Row(
             children: [
               // Circular Logo
@@ -227,8 +220,9 @@ class _RedeemPageState extends State<RedeemPage> {
                 ),
                 child: ClipOval(
                   child: CustomCachedImage(
-                    imageUrl:
-                        '${Appurl.baseUrl}/assets/amc-logos/axis_groww.webp',
+                    imageUrl: _args.amcLogo.isNotEmpty
+                        ? _args.amcLogo
+                        : '${Appurl.baseUrl}/assets/amc-logos/axis_groww.webp',
                     height: 40,
                     width: 40,
                   ),
@@ -483,7 +477,7 @@ class _RedeemPageState extends State<RedeemPage> {
               _AmountInput(
                 // focusNode: FocusNode(),
                 controller: _mfu.redeemUnitsCtrl,
-                prefix: '&',
+                prefix: '',
                 hint: '0.000',
                 suffix: 'units',
                 error: _mfu.redeemInputError.value,
