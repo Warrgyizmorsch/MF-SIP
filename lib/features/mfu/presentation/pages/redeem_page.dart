@@ -41,6 +41,9 @@ class RedeemArgs {
   final String bankAccount; // masked, e.g. "• • • • 2649"
   final String ifsc;
   final String payoutMode;
+  final bool hasPendingRedemption;
+  final String redemptionMessage;
+  final String orderRefNo;
 
   const RedeemArgs({
     this.mfuOrderFundId,
@@ -60,6 +63,9 @@ class RedeemArgs {
     this.bankAccount = '• • • • 2649',
     this.ifsc = 'BARB0NIMBAH',
     this.payoutMode = 'NEFT PAYOUT',
+    this.hasPendingRedemption = false,
+    this.redemptionMessage = '',
+    this.orderRefNo = '',
   });
 }
 
@@ -96,15 +102,228 @@ class _RedeemPageState extends State<RedeemPage> {
     FocusScope.of(context).unfocus();
     HapticFeedback.mediumImpact();
 
-    _mfu.processRedemption(
-      mfuOrderFundId: _args.mfuOrderFundId,
-      schemeCode: _args.schemeCode,
-      folio: _args.folioNumber,
-      freeUnits: _args.freeUnits,
-      freeValue: _args.freeValue,
-      onSuccess: (_) => Navigator.maybePop(context),
+    // Determine values for summary dialog
+    String redeemSummary = '';
+    final rType = _mfu.redeemType.value;
+
+    if (rType == RedeemType.amount) {
+      final v = double.tryParse(_mfu.redeemAmountCtrl.text) ?? 0;
+      if (v <= 0) {
+        _mfu.redeemInputError.value = 'Please enter an amount';
+        return;
+      }
+      if (_args.freeValue > 0 && v > _args.freeValue) {
+        _mfu.redeemInputError.value =
+            'Exceeds free value (Max: ₹${_args.freeValue.toStringAsFixed(2)})';
+        return;
+      }
+      redeemSummary = '₹${_fmtVal(v)}';
+    } else if (rType == RedeemType.units) {
+      final v = double.tryParse(_mfu.redeemUnitsCtrl.text) ?? 0;
+      if (v <= 0) {
+        _mfu.redeemInputError.value = 'Please enter units';
+        return;
+      }
+      if (_args.freeUnits > 0 && v > _args.freeUnits) {
+        _mfu.redeemInputError.value =
+            'Exceeds free units (Max: ${_args.freeUnits.toStringAsFixed(3)})';
+        return;
+      }
+      redeemSummary = '${v.toStringAsFixed(3)} Units';
+    } else {
+      redeemSummary =
+          'Full Redemption (${_args.freeUnits.toStringAsFixed(3)} Units / ₹${_fmtVal(_args.freeValue)})';
+    }
+
+    _showConfirmationBottomSheet(context, redeemSummary);
+  }
+
+  void _showConfirmationBottomSheet(
+    BuildContext context,
+    String redeemSummary,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Confirm Redemption',
+                style: UTextStyles.bodyLargeBold.copyWith(
+                  color: _T.textPrimary,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Please verify your request details before submitting.',
+                style: UTextStyles.bodyMedium.copyWith(color: _T.textSec),
+              ),
+              const SizedBox(height: 16),
+
+              // Detail box
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _T.border),
+                ),
+                child: Column(
+                  children: [
+                    _buildConfirmRow('Fund', _args.schemeName),
+                    const Divider(height: 16),
+                    _buildConfirmRow('Folio', _args.folioNumber),
+                    const Divider(height: 16),
+                    _buildConfirmRow('Redemption', redeemSummary),
+                    const Divider(height: 16),
+                    _buildConfirmRow(
+                      'Payout Bank',
+                      '${_args.bankName}\n(A/c ending ${_args.bankAccount})',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Ucolors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _mfu.processRedemption(
+                          mfuOrderFundId: _args.mfuOrderFundId,
+                          schemeCode: _args.schemeCode,
+                          folio: _args.folioNumber,
+                          freeUnits: _args.freeUnits,
+                          freeValue: _args.freeValue,
+                          onSuccess: (_) => Navigator.maybePop(context),
+                        );
+                      },
+                      child: const Text(
+                        'Confirm & Submit',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
+
+  Widget _buildConfirmRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: UTextStyles.bodyMedium.copyWith(color: _T.textSec)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: UTextStyles.bodyMediumSemiBold.copyWith(
+              color: _T.textPrimary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPendingRedemptionBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: Color(0xFFD97706),
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Pending Redemption Request Found',
+                  style: UTextStyles.bodyMediumBold.copyWith(
+                    color: const Color(0xFF92400E),
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _args.redemptionMessage.isNotEmpty
+                      ? _args.redemptionMessage
+                      : 'A redemption request is already in progress for this folio. Payout will be processed in 1-2 working days.',
+                  style: UTextStyles.bodyMedium.copyWith(
+                    color: const Color(0xFFB45309),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────────
 
   @override
@@ -112,7 +331,6 @@ class _RedeemPageState extends State<RedeemPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        // backgroundColor: _T.bg,
         appBar: CustomAppBarNormal(title: 'Redeem'),
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -123,6 +341,10 @@ class _RedeemPageState extends State<RedeemPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (_args.hasPendingRedemption) ...[
+                      _buildPendingRedemptionBanner(),
+                      const SizedBox(height: 12),
+                    ],
                     _buildFundCard(),
                     const SizedBox(height: 12),
                     _buildSelectionCard(context),
@@ -130,7 +352,6 @@ class _RedeemPageState extends State<RedeemPage> {
                     _buildBankCard(),
                     const SizedBox(height: 12),
                     _buildNoticeCard(),
-
                     const SizedBox(height: 12),
                     CustomFooter(),
                   ],

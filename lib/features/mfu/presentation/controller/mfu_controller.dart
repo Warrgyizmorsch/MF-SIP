@@ -941,7 +941,7 @@ class MfuController extends GetxController {
           RedeemReqModel(
             mfuOrderFundId: targetId,
             folio: folio,
-            redeemAll: true,
+            units: freeUnits,
           ),
           onSuccess: onSuccess,
         );

@@ -3918,6 +3918,14 @@ class PortfolioCard extends StatelessWidget {
                             case PortfolioMenuAction.redemption:
                               createLog('tap for cancel redemption / lumpsum ');
 
+                              if (fund.hasPendingRedemption) {
+                                _showPendingRedemptionDetailsModal(
+                                  context,
+                                  fund,
+                                );
+                                break;
+                              }
+
                               Get.to(
                                 () => RedeemPage(),
                                 arguments: RedeemArgs(
@@ -3934,6 +3942,11 @@ class PortfolioCard extends StatelessWidget {
                                   freeUnits: fund.totalUnits,
                                   freeValue: fund.currentValue,
                                   investedAmt: fund.investedAmount,
+                                  hasPendingRedemption:
+                                      fund.hasPendingRedemption,
+                                  redemptionMessage: fund.redemptionMessage,
+                                  orderRefNo:
+                                      fund.redemptionDetails?.orderRefNo ?? '',
                                 ),
                               );
 
@@ -4188,4 +4201,147 @@ class SummaryItem extends StatelessWidget {
       ],
     );
   }
+}
+
+void _showPendingRedemptionDetailsModal(BuildContext context, dynamic fund) {
+  final details = fund.redemptionDetails;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(
+                  Icons.hourglass_top_rounded,
+                  color: Colors.orange,
+                  size: 24,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Redemption In Progress',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0D1117),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              fund.redemptionMessage.isNotEmpty
+                  ? fund.redemptionMessage
+                  : 'A redemption request is currently being processed by the AMC.',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                children: [
+                  _buildModalRow('Fund', fund.fundName),
+                  const Divider(height: 16),
+                  _buildModalRow('Folio', fund.folioNo),
+                  if (details != null) ...[
+                    const Divider(height: 16),
+                    _buildModalRow('Order Reference', details.orderRefNo),
+                    if (details.gorn.isNotEmpty) ...[
+                      const Divider(height: 16),
+                      _buildModalRow('MFU GORN', details.gorn),
+                    ],
+                    if (details.amount > 0) ...[
+                      const Divider(height: 16),
+                      _buildModalRow('Amount', '₹${details.amount}'),
+                    ],
+                    if (details.status.isNotEmpty) ...[
+                      const Divider(height: 16),
+                      _buildModalRow('Status', details.status),
+                    ],
+                    if (details.estimatedPayoutDays.isNotEmpty) ...[
+                      const Divider(height: 16),
+                      _buildModalRow(
+                        'Payout Window',
+                        details.estimatedPayoutDays,
+                      ),
+                    ],
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text(
+                  'Got it',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildModalRow(String label, String value) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Text(
+          value,
+          textAlign: TextAlign.end,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0D1117),
+          ),
+        ),
+      ),
+    ],
+  );
 }

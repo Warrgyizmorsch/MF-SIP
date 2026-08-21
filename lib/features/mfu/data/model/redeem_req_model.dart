@@ -16,7 +16,10 @@ class RedeemReqModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {'mfu_order_fund_id': mfuOrderFundId};
     if (folio != null && folio!.isNotEmpty) {
-      data['folio'] = folio;
+      final cleanFolio = folio!.contains('/')
+          ? folio!.split('/').first
+          : folio!;
+      data['folio'] = cleanFolio;
     }
     if (redeemAll == true) {
       data['redeem_all'] = true;

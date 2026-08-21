@@ -574,6 +574,18 @@ class _PortfolioTableRow extends StatelessWidget {
                       log('cancel');
                       break;
                     case PortfolioMenuAction.redemption:
+                      if (fund.hasPendingRedemption) {
+                        Get.snackbar(
+                          'Redemption In Progress',
+                          fund.redemptionMessage.isNotEmpty
+                              ? fund.redemptionMessage
+                              : 'A redemption request is already in progress for this folio.',
+                          backgroundColor: Colors.amber.shade100,
+                          colorText: Colors.amber.shade900,
+                        );
+                        break;
+                      }
+
                       Get.to(
                         () => const RedeemPage(),
                         arguments: RedeemArgs(
@@ -590,6 +602,9 @@ class _PortfolioTableRow extends StatelessWidget {
                           freeUnits: fund.totalUnits,
                           freeValue: fund.currentValue,
                           investedAmt: fund.investedAmount,
+                          hasPendingRedemption: fund.hasPendingRedemption,
+                          redemptionMessage: fund.redemptionMessage,
+                          orderRefNo: fund.redemptionDetails?.orderRefNo ?? '',
                         ),
                       );
                       break;
