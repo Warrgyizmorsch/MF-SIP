@@ -24,6 +24,7 @@ class _T {
 }
 
 class RedeemArgs {
+  final dynamic mfuOrderFundId;
   final String schemeCode;
   final String schemeName;
   final String folioNumber;
@@ -41,6 +42,7 @@ class RedeemArgs {
   final String payoutMode;
 
   const RedeemArgs({
+    this.mfuOrderFundId,
     required this.schemeCode,
     required this.schemeName,
     required this.folioNumber,
@@ -93,10 +95,12 @@ class _RedeemPageState extends State<RedeemPage> {
     HapticFeedback.mediumImpact();
 
     _mfu.processRedemption(
+      mfuOrderFundId: _args.mfuOrderFundId,
       schemeCode: _args.schemeCode,
       folio: _args.folioNumber,
       freeUnits: _args.freeUnits,
       freeValue: _args.freeValue,
+      onSuccess: (_) => Navigator.maybePop(context),
     );
   }
   // ── Build ─────────────────────────────────────────────────────────────────────

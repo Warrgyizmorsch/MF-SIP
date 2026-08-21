@@ -173,6 +173,7 @@ class MfuPortfolioItemEntity extends Equatable {
   final double oneDayChangePercent;
   final String folioNo;
   final String lastTransactionDate;
+  final dynamic mfuOrderFundId;
 
   const MfuPortfolioItemEntity({
     required this.schemeCode,
@@ -189,6 +190,7 @@ class MfuPortfolioItemEntity extends Equatable {
     required this.oneDayChangePercent,
     required this.folioNo,
     required this.lastTransactionDate,
+    this.mfuOrderFundId,
   });
 
   // Computed properties for easy UI styling
@@ -211,6 +213,7 @@ class MfuPortfolioItemEntity extends Equatable {
     oneDayChangePercent,
     folioNo,
     lastTransactionDate,
+    mfuOrderFundId,
   ];
 }
 
@@ -276,6 +279,7 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       oneDayChangePercent: oneDayChangePercent ?? 0.0,
       folioNo: folioNo ?? 'NEW',
       lastTransactionDate: lastTransactionDate ?? '',
+      mfuOrderFundId: mfuOrderFundId,
     );
   }
 }

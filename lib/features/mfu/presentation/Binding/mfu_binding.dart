@@ -14,6 +14,7 @@ import 'package:my_sip/features/mfu/domain/usecases/systematic_txn_usecases.dart
 import 'package:my_sip/features/mfu/domain/usecases/post_lumpsum_usecase.dart';
 import 'package:my_sip/features/mfu/domain/usecases/post_sip_usecase.dart';
 import 'package:my_sip/features/mfu/domain/usecases/post_stepup_usecase.dart';
+import 'package:my_sip/features/mfu/domain/usecases/post_redeem_usecase.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 
@@ -89,6 +90,10 @@ class MfuBindings extends Bindings {
       () => PostStepUpUseCase(Get.find<MfuRepositoryImpl>()),
       fenix: true,
     );
+    Get.lazyPut(
+      () => PostRedeemUseCase(Get.find<MfuRepositoryImpl>()),
+      fenix: true,
+    );
 
     // 4. Use Cases Wrapper
     Get.lazyPut(
@@ -104,6 +109,7 @@ class MfuBindings extends Bindings {
         postLumpsumUseCase: Get.find<PostLumpsumUseCase>(),
         postSipUseCase: Get.find<PostSipUseCase>(),
         postStepUpUseCase: Get.find<PostStepUpUseCase>(),
+        postRedeemUseCase: Get.find<PostRedeemUseCase>(),
       ),
     );
 

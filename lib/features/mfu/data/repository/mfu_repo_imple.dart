@@ -21,6 +21,8 @@ import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_res_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/redeem_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/redeem_res_model.dart';
 import 'package:my_sip/features/mfu/domain/repository/mfu_repository_abstract.dart';
 
 class MfuRepositoryImpl extends MfuRepository {
@@ -220,6 +222,21 @@ class MfuRepositoryImpl extends MfuRepository {
   ) async {
     try {
       final response = await _remoteDataSource.postStepUp(request);
+      return response.fold(
+        (success) => Left(Result.success(success.data!)),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<RedeemResModel>, ApiError>> postRedeem(
+    RedeemReqModel request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.postRedeem(request);
       return response.fold(
         (success) => Left(Result.success(success.data!)),
         (error) => Right(error),

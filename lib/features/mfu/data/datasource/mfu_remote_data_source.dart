@@ -23,6 +23,8 @@ import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_res_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/redeem_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/redeem_res_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class MfuRemoteDataSource {
@@ -481,6 +483,39 @@ class MfuRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'postStepUp Exception: $e'));
+    }
+  }
+
+  /// POST /api/v1/invest/redeem
+  Future<Either<Result<RedeemResModel>, ApiError>> postRedeem(
+    RedeemReqModel req,
+  ) async {
+    try {
+      createLog("[MfuRemoteDataSource] postRedeem Request: ${req.toJson()}");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/invest/redeem",
+        data: req.toJson(),
+      );
+
+      createLog("[MfuRemoteDataSource] postRedeem Response: $resp");
+
+      if (resp != null) {
+        final result = RedeemResModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Redemption request failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'postRedeem: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'postRedeem Exception: $e'));
     }
   }
 }

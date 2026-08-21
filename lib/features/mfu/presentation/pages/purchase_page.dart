@@ -2108,7 +2108,6 @@ class _BottomCta extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(vertical: 15),
               decoration: BoxDecoration(
-            
                 color: canTap ? Ucolors.primary : Ucolors.darkgrey,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: canTap
@@ -2149,4 +2148,3 @@ class _BottomCta extends StatelessWidget {
     );
   }
 }
-

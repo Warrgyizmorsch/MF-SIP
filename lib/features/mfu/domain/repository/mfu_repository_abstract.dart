@@ -18,6 +18,8 @@ import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_res_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/redeem_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/redeem_res_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
 
@@ -68,5 +70,9 @@ abstract class MfuRepository {
 
   Future<Either<Result<StepUpResModel>, ApiError>> postStepUp(
     StepUpReqModel request,
+  );
+
+  Future<Either<Result<RedeemResModel>, ApiError>> postRedeem(
+    RedeemReqModel request,
   );
 }

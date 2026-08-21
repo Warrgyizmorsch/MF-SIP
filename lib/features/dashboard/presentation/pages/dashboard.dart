@@ -3882,18 +3882,18 @@ class PortfolioCard extends StatelessWidget {
                               Get.to(
                                 () => RedeemPage(),
                                 arguments: RedeemArgs(
-                                  schemeCode: '012',
-                                  schemeName:
-                                      'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                                  folioNumber: '28975246',
+                                  mfuOrderFundId: fund.mfuOrderFundId,
+                                  schemeCode: fund.schemeCode,
+                                  schemeName: fund.fundName,
+                                  folioNumber: fund.folioNo,
                                   folioType: 'Individual',
-                                  totalUnits: 0.049,
-                                  totalValue: 104304,
+                                  totalUnits: 0.0,
+                                  totalValue: fund.currentValue,
                                   lockedUnits: 0.0,
                                   lockedValue: 0,
-                                  freeUnits: 0.049,
-                                  freeValue: 104304,
-                                  investedAmt: 78500,
+                                  freeUnits: 0.0,
+                                  freeValue: fund.currentValue,
+                                  investedAmt: fund.investedAmount,
                                 ),
                               );
 

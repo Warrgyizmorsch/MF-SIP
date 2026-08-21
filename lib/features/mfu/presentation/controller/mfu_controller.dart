@@ -23,6 +23,8 @@ import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_res_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/redeem_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/redeem_res_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
@@ -65,6 +67,8 @@ class MfuController extends GetxController {
   final sipResponse = Rxn<SipResModel>();
   final isSubmittingStepUp = false.obs;
   final stepUpResponse = Rxn<StepUpResModel>();
+  final isSubmittingRedeem = false.obs;
+  final redeemResponse = Rxn<RedeemResModel>();
 
   // ─── Redeem State ────────────────────────────────────────────────────────────
 
@@ -95,7 +99,8 @@ class MfuController extends GetxController {
       isSubmittingSystematicTxn.value ||
       isSubmittingLumpsum.value ||
       isSubmittingSip.value ||
-      isSubmittingStepUp.value;
+      isSubmittingStepUp.value ||
+      isSubmittingRedeem.value;
 
   String get canNumber => mfuCanResponse.value?.can ?? '';
   String get canStatus => mfuCanResponse.value?.canStatus ?? '';
@@ -839,14 +844,58 @@ class MfuController extends GetxController {
     redeemInputError.value = null;
   }
 
+  /// Flow 4: Lumpsum Redemption (`POST /api/v1/invest/redeem`)
+  Future<void> executeRedeem(
+    RedeemReqModel req, {
+    Function(RedeemResModel)? onSuccess,
+  }) async {
+    isSubmittingRedeem.value = true;
+    errorMessage.value = '';
+
+    final res = await mfuUseCases.postRedeemUseCase(req);
+
+    res.fold(
+      (success) {
+        final data = success.data;
+        redeemResponse.value = data;
+        log(
+          "[MfuController] Redeem Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
+        );
+
+        CustomSnackbar.success(
+          title: 'Redemption Submitted 🎉',
+          message:
+              data?.message ?? 'Redemption request submitted successfully.',
+        );
+
+        if (onSuccess != null && data != null) {
+          onSuccess(data);
+        }
+      },
+      (error) {
+        errorMessage.value = error.message;
+        log("[MfuController] Redeem Error → ${error.message}");
+        CustomSnackbar.error(
+          title: 'Redemption Failed ❌',
+          message: error.message,
+        );
+      },
+    );
+
+    isSubmittingRedeem.value = false;
+  }
+
   void processRedemption({
+    dynamic mfuOrderFundId,
     required String schemeCode,
     required String folio,
     required double freeUnits,
     required double freeValue,
+    Function(RedeemResModel)? onSuccess,
   }) {
     redeemInputError.value = null;
-    final uid = session.getUserData?.id ?? 0;
+
+    final targetId = mfuOrderFundId ?? schemeCode;
 
     switch (redeemType.value) {
       case RedeemType.amount:
@@ -855,18 +904,14 @@ class MfuController extends GetxController {
           redeemInputError.value = 'Please enter an amount';
           return;
         }
-        if (v > freeValue) {
+        if (freeValue > 0 && v > freeValue) {
           redeemInputError.value =
               'Exceeds free value (Max: ₹${freeValue.toStringAsFixed(2)})';
           return;
         }
-        normalTransaction(
-          MfuNormalTxnRequest.redeemByAmount(
-            uid: uid,
-            schemeCode: schemeCode,
-            amount: v,
-            folio: folio,
-          ),
+        executeRedeem(
+          RedeemReqModel(mfuOrderFundId: targetId, amount: v),
+          onSuccess: onSuccess,
         );
         break;
 
@@ -876,32 +921,21 @@ class MfuController extends GetxController {
           redeemInputError.value = 'Please enter units';
           return;
         }
-        if (v > freeUnits) {
+        if (freeUnits > 0 && v > freeUnits) {
           redeemInputError.value =
               'Exceeds free units (Max: ${freeUnits.toStringAsFixed(3)})';
           return;
         }
-        normalTransaction(
-          MfuNormalTxnRequest.redeemByUnit(
-            uid: uid,
-            schemeCode: schemeCode,
-            units: v,
-            folio: folio,
-          ),
+        executeRedeem(
+          RedeemReqModel(mfuOrderFundId: targetId, units: v),
+          onSuccess: onSuccess,
         );
         break;
 
       case RedeemType.allFree:
-        if (freeUnits <= 0) {
-          redeemInputError.value = 'No free units available';
-          return;
-        }
-        normalTransaction(
-          MfuNormalTxnRequest.fullRedeem(
-            uid: uid,
-            schemeCode: schemeCode,
-            folio: folio,
-          ),
+        executeRedeem(
+          RedeemReqModel(mfuOrderFundId: targetId, redeemAll: true),
+          onSuccess: onSuccess,
         );
         break;
     }
