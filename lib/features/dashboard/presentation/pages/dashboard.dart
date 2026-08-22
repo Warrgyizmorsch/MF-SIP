@@ -3110,430 +3110,446 @@ class _MobileDashboardLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // THIS IS YOUR ORIGINAL CODE MOVED HERE
-    return CustomScrollView(
-      slivers: [
-        /// 1️⃣ App Bar
-        SliverAppBar(
-          automaticallyImplyLeading: false,
-          floating: false,
-          pinned: true,
-          flexibleSpace: CustomProfileAppbar(
-            onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),
-            backgroundColor: const Color(0xffE8F5FF),
-            greetingName: 'Pratik',
-            role: 'Developer',
-            avatar: AssetImage(UImages.avatar),
-            iconColor: Ucolors.blue,
-            roleColor: Ucolors.blue,
-            greetingNameColor: Ucolors.blue,
+    return RefreshIndicator(
+      color: Ucolors.primary,
+      backgroundColor: Colors.white,
+      onRefresh: () => dashboardController.refreshDashboard(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          /// 1️⃣ App Bar
+          SliverAppBar(
+            automaticallyImplyLeading: false,
+            floating: false,
+            pinned: true,
+            flexibleSpace: CustomProfileAppbar(
+              onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),
+              backgroundColor: const Color(0xffE8F5FF),
+              greetingName: 'Pratik',
+              role: 'Developer',
+              avatar: AssetImage(UImages.avatar),
+              iconColor: Ucolors.blue,
+              roleColor: Ucolors.blue,
+              greetingNameColor: Ucolors.blue,
 
-            action: [
-              CompactIcon(
-                icon: Iconsax.notification,
-                onPressed: () => Get.toNamed(AppRoutes.notification),
-                iconColor: Ucolors.dark,
-              ),
+              action: [
+                CompactIcon(
+                  icon: Iconsax.notification,
+                  onPressed: () => Get.toNamed(AppRoutes.notification),
+                  iconColor: Ucolors.dark,
+                ),
 
-              Obx(
-                () => Stack(
-                  children: [
-                    CompactIcon(
-                      icon: Iconsax.shopping_cart,
-                      onPressed: () {
-                        Get.find<CartController>().filterGoalId.value = null;
-                        Get.toNamed(AppRoutes.cart);
-                        // cartController.fetchCart();
-                      },
-                      iconColor: Ucolors.dark,
-                    ),
-                    if (cartController.generalItemsCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: -5,
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            color: Ucolors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            cartController.generalItemsCount.toString(),
-                            style: UTextStyles.buttonText.copyWith(
-                              fontSize: 10,
+                Obx(
+                  () => Stack(
+                    children: [
+                      CompactIcon(
+                        icon: Iconsax.shopping_cart,
+                        onPressed: () {
+                          Get.find<CartController>().filterGoalId.value = null;
+                          Get.toNamed(AppRoutes.cart);
+                          // cartController.fetchCart();
+                        },
+                        iconColor: Ucolors.dark,
+                      ),
+                      if (cartController.generalItemsCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: -5,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: const BoxDecoration(
+                              color: Ucolors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              cartController.generalItemsCount.toString(),
+                              style: UTextStyles.buttonText.copyWith(
+                                fontSize: 10,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              CompactIcon(
-                icon: Iconsax.archive_tick,
-                onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                iconColor: Ucolors.dark,
-              ),
-            ],
-            actionsPadding: const EdgeInsets.only(right: 16),
-          ),
-        ),
-
-        /// 2️⃣ Portfolio Summary Card
-        SliverToBoxAdapter(
-          child: ClipPath(
-            clipper: BottomWaveClipper(),
-            child: Container(
-              width: double.infinity,
-              color: const Color(0xffE8F5FF),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-                child: ClipPath(
-                  clipper: BottomWaveClipper(),
-                  child: Obx(() {
-                    final summary =
-                        dashboardController.portfolioData.value?.summary;
-                    final isVisible =
-                        dashboardController.isBalanceVisible.value;
-
-                    // 2. Extract values with safe fallbacks (default to 0.0)
-                    final currentValue = summary?.totalCurrentValue ?? 0.0;
-                    final invested = summary?.totalInvested ?? 0.0;
-                    final totalReturns = summary?.totalGainLoss ?? 0.0;
-                    final isProfit = summary?.isOverallProfit ?? true;
-
-                    return Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xff0B3C5D), Color(0xff072A40)],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Current Value',
-                            style: Theme.of(context).textTheme.titleMedium!
-                                .copyWith(color: Ucolors.skyblue, fontSize: 15),
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                // '₹${currentValue.toStringAsFixed(2)}',
-                                isVisible
-                                    ? '₹${currentValue.toStringAsFixed(2)}'
-                                    : '₹ ••••••',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              CompactIcon(
-                                icon: isVisible
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                onPressed: () {
-                                  dashboardController.isBalanceVisible.toggle();
-                                },
-                                iconColor: Ucolors.light,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SummaryItem(
-                                title: 'Invested',
-                                amount: invested, // Pass the raw double
-                                isVisible:
-                                    isVisible, // Pass the reactive visibility state
-                              ),
-                              SummaryItem(
-                                title: 'Total Returns',
-                                amount: totalReturns, // Pass the raw double
-                                isProfit: isProfit,
-                                isVisible: isVisible,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 18),
-                        ],
-                      ),
-                    );
-                  }),
+                CompactIcon(
+                  icon: Iconsax.archive_tick,
+                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                  iconColor: Ucolors.dark,
                 ),
-              ),
+              ],
+              actionsPadding: const EdgeInsets.only(right: 16),
             ),
           ),
-        ),
 
-        /// Dashed Painter
-        SliverToBoxAdapter(
-          child: CustomPaint(
-            painter: BottomDashedLinePainter(),
-            size: const Size(double.infinity, 0.01),
-          ),
-        ),
+          /// 2️⃣ Portfolio Summary Card
+          SliverToBoxAdapter(
+            child: ClipPath(
+              clipper: BottomWaveClipper(),
+              child: Container(
+                width: double.infinity,
+                color: const Color(0xffE8F5FF),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+                  child: ClipPath(
+                    clipper: BottomWaveClipper(),
+                    child: Obx(() {
+                      final summary =
+                          dashboardController.portfolioData.value?.summary;
+                      final isVisible =
+                          dashboardController.isBalanceVisible.value;
 
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                      // 2. Extract values with safe fallbacks (default to 0.0)
+                      final currentValue = summary?.totalCurrentValue ?? 0.0;
+                      final invested = summary?.totalInvested ?? 0.0;
+                      final totalReturns = summary?.totalGainLoss ?? 0.0;
+                      final isProfit = summary?.isOverallProfit ?? true;
 
-        /// My portfolio & Transactions Tabbar
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: const Color(0xffF4F6F9),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Obx(() {
-                final controller = Get.find<DashboardController>();
-
-                return Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => controller.changeTab(0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          decoration: BoxDecoration(
-                            color: controller.selectedIndex.value == 0
-                                ? Ucolors.light
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
+                      return Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xff0B3C5D), Color(0xff072A40)],
                           ),
-                          child: Text(
-                            'My Portfolio',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: controller.selectedIndex.value == 0
-                                  ? Ucolors.primary
-                                  : Colors.grey,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => controller.changeTab(1),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          decoration: BoxDecoration(
-                            color: controller.selectedIndex.value == 1
-                                ? Ucolors.light
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            'Transactions',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: controller.selectedIndex.value == 1
-                                  ? Ucolors.primary
-                                  : Colors.grey,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Current Value',
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color: Ucolors.skyblue,
+                                    fontSize: 15,
+                                  ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-            ),
-          ),
-        ),
-
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-        Obx(() {
-          final controller = Get.find<DashboardController>();
-          final isVisible = controller.isBalanceVisible.value;
-
-          if (controller.selectedIndex.value == 0) {
-            /// 🟦 MY PORTFOLIO TAB
-
-            // 1. Handle Loading State
-            if (controller.isLoadingPortfolio.value) {
-              return const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: Center(
-                    child: CircularProgressIndicator(color: Colors.blue),
-                  ),
-                ),
-              );
-            }
-
-            // 2. Extract portfolio list
-            final funds = controller.portfolioData.value?.portfolio ?? [];
-
-            // 3. Handle Empty State
-            if (funds.isEmpty) {
-              return const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: Center(child: Text("No funds in your portfolio yet.")),
-                ),
-              );
-            }
-
-            return SliverList(
-              delegate: SliverChildListDelegate([
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: SectionHeading(
-                    sectionTitle: 'My Portfolio',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    textcolor: const Color(0xff787878),
-                  ),
-                ),
-                // 4. Map the actual funds to PortfolioCard
-                ...funds
-                    .map((fund) => PortfolioCard(fund: fund, isVisible: true))
-                    .toList(),
-              ]),
-            );
-          } else {
-            if (controller.isLoadingTransactions.value) {
-              return const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: Center(
-                    child: CircularProgressIndicator(color: Colors.blue),
-                  ),
-                ),
-              );
-            }
-            final txns = controller.transactionList.value?.transactions ?? [];
-
-            if (txns.isEmpty) {
-              return const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: Center(child: Text("No transactions found.")),
-                ),
-              );
-            }
-
-            final filteredTxns = controller.filteredTransactions;
-
-            /// 🟩 TRANSACTIONS TAB
-            return SliverList(
-              delegate: SliverChildListDelegate([
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: SectionHeading(
-                    sectionTitle: 'Transactions',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    textcolor: const Color(0xff787878),
-                  ),
-                ),
-                SizedBox(
-                  height: 36, // Height of the filter bar
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: controller.txnFilters.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final filter = controller.txnFilters[index];
-                      final isSelected =
-                          controller.selectedTxnFilter.value == filter;
-
-                      return GestureDetector(
-                        onTap: () => controller.setTxnFilter(filter),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            // Smooth color transitions
-                            color: isSelected ? Ucolors.primary : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Ucolors.primary
-                                  : Colors.grey.shade300,
-                              width: 1,
-                            ),
-                            // Add a subtle glow/shadow to the active pill
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: Ucolors.primary.withOpacity(0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ]
-                                : [],
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            filter,
-                            style: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : Colors.grey.shade700,
-                              fontSize: 13,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-                // ...txns
-                //     .map((txn) => TransactionCardDash(transaction: txn))
-                //     .toList(),
-                ...filteredTxns.isEmpty
-                    ? [
-                        Padding(
-                          padding: const EdgeInsets.all(40.0),
-                          child: Center(
-                            child: Column(
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Icon(
-                                  Icons.receipt_long,
-                                  size: 48,
-                                  color: Colors.grey.shade300,
-                                ),
-                                const SizedBox(height: 12),
                                 Text(
-                                  "No ${controller.selectedTxnFilter.value.toLowerCase()} transactions found.",
-                                  style: TextStyle(color: Colors.grey.shade500),
+                                  // '₹${currentValue.toStringAsFixed(2)}',
+                                  isVisible
+                                      ? '₹${currentValue.toStringAsFixed(2)}'
+                                      : '₹ ••••••',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                CompactIcon(
+                                  icon: isVisible
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  onPressed: () {
+                                    dashboardController.isBalanceVisible
+                                        .toggle();
+                                  },
+                                  iconColor: Ucolors.light,
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SummaryItem(
+                                  title: 'Invested',
+                                  amount: invested, // Pass the raw double
+                                  isVisible:
+                                      isVisible, // Pass the reactive visibility state
+                                ),
+                                SummaryItem(
+                                  title: 'Total Returns',
+                                  amount: totalReturns, // Pass the raw double
+                                  isProfit: isProfit,
+                                  isVisible: isVisible,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 18),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          /// Dashed Painter
+          SliverToBoxAdapter(
+            child: CustomPaint(
+              painter: BottomDashedLinePainter(),
+              size: const Size(double.infinity, 0.01),
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+          /// My portfolio & Transactions Tabbar
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0xffF4F6F9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Obx(() {
+                  final controller = Get.find<DashboardController>();
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => controller.changeTab(0),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            decoration: BoxDecoration(
+                              color: controller.selectedIndex.value == 0
+                                  ? Ucolors.light
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              'My Portfolio',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: controller.selectedIndex.value == 0
+                                    ? Ucolors.primary
+                                    : Colors.grey,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
-                      ]
-                    : filteredTxns
-                          .map((txn) => TransactionCardDash(transaction: txn))
-                          .toList(),
-              ]),
-            );
-          }
-        }),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => controller.changeTab(1),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            decoration: BoxDecoration(
+                              color: controller.selectedIndex.value == 1
+                                  ? Ucolors.light
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              'Transactions',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: controller.selectedIndex.value == 1
+                                    ? Ucolors.primary
+                                    : Colors.grey,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ),
+          ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-      ],
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+          Obx(() {
+            final controller = Get.find<DashboardController>();
+            final isVisible = controller.isBalanceVisible.value;
+
+            if (controller.selectedIndex.value == 0) {
+              /// 🟦 MY PORTFOLIO TAB
+
+              // 1. Handle Loading State
+              if (controller.isLoadingPortfolio.value) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Center(
+                      child: CircularProgressIndicator(color: Colors.blue),
+                    ),
+                  ),
+                );
+              }
+
+              // 2. Extract portfolio list
+              final funds = controller.portfolioData.value?.portfolio ?? [];
+
+              // 3. Handle Empty State
+              if (funds.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Center(
+                      child: Text("No funds in your portfolio yet."),
+                    ),
+                  ),
+                );
+              }
+
+              return SliverList(
+                delegate: SliverChildListDelegate([
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: SectionHeading(
+                      sectionTitle: 'My Portfolio',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      textcolor: const Color(0xff787878),
+                    ),
+                  ),
+                  // 4. Map the actual funds to PortfolioCard
+                  ...funds
+                      .map((fund) => PortfolioCard(fund: fund, isVisible: true))
+                      .toList(),
+                ]),
+              );
+            } else {
+              if (controller.isLoadingTransactions.value) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Center(
+                      child: CircularProgressIndicator(color: Colors.blue),
+                    ),
+                  ),
+                );
+              }
+              final txns = controller.transactionList.value?.transactions ?? [];
+
+              if (txns.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Center(child: Text("No transactions found.")),
+                  ),
+                );
+              }
+
+              final filteredTxns = controller.filteredTransactions;
+
+              /// 🟩 TRANSACTIONS TAB
+              return SliverList(
+                delegate: SliverChildListDelegate([
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: SectionHeading(
+                      sectionTitle: 'Transactions',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      textcolor: const Color(0xff787878),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 36, // Height of the filter bar
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: controller.txnFilters.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final filter = controller.txnFilters[index];
+                        final isSelected =
+                            controller.selectedTxnFilter.value == filter;
+
+                        return GestureDetector(
+                          onTap: () => controller.setTxnFilter(filter),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              // Smooth color transitions
+                              color: isSelected
+                                  ? Ucolors.primary
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: isSelected
+                                    ? Ucolors.primary
+                                    : Colors.grey.shade300,
+                                width: 1,
+                              ),
+                              // Add a subtle glow/shadow to the active pill
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: Ucolors.primary.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ]
+                                  : [],
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              filter,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey.shade700,
+                                fontSize: 13,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  // ...txns
+                  //     .map((txn) => TransactionCardDash(transaction: txn))
+                  //     .toList(),
+                  ...filteredTxns.isEmpty
+                      ? [
+                          Padding(
+                            padding: const EdgeInsets.all(40.0),
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.receipt_long,
+                                    size: 48,
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    "No ${controller.selectedTxnFilter.value.toLowerCase()} transactions found.",
+                                    style: TextStyle(
+                                      color: Colors.grey.shade500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ]
+                      : filteredTxns
+                            .map((txn) => TransactionCardDash(transaction: txn))
+                            .toList(),
+                ]),
+              );
+            }
+          }),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        ],
+      ),
     );
   }
 }

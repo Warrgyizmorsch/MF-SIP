@@ -143,6 +143,10 @@ class DashboardController extends GetxController {
     isLoadingPortfolio.value = false;
   }
 
+  Future<void> refreshDashboard() async {
+    await Future.wait([getPortfolio(), getTransactions()]);
+  }
+
   //   controller.getPortfolio();
 
   // Obx(() {
