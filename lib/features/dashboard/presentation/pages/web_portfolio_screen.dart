@@ -574,6 +574,19 @@ class _PortfolioTableRow extends StatelessWidget {
                       log('cancel');
                       break;
                     case PortfolioMenuAction.redemption:
+                      if (!fund.isUnitAllotted ||
+                          fund.allotmentStatus == 'allotment_in_progress') {
+                        Get.snackbar(
+                          'Allotment In Progress',
+                          fund.allotmentMessage.isNotEmpty
+                              ? fund.allotmentMessage
+                              : 'Unit allotment is currently in progress by the AMC (1-2 business days).',
+                          backgroundColor: Colors.blue.shade100,
+                          colorText: Colors.blue.shade900,
+                        );
+                        break;
+                      }
+
                       if (fund.hasPendingRedemption) {
                         Get.snackbar(
                           'Redemption In Progress',

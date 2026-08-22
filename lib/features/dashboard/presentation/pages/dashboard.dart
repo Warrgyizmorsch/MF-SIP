@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
@@ -3917,6 +3918,18 @@ class PortfolioCard extends StatelessWidget {
                               break;
                             case PortfolioMenuAction.redemption:
                               createLog('tap for cancel redemption / lumpsum ');
+
+                              if (!fund.isUnitAllotted ||
+                                  fund.allotmentStatus ==
+                                      'allotment_in_progress') {
+                                CustomSnackbar.info(
+                                  title: 'Allotment In Progress',
+                                  message: fund.allotmentMessage.isNotEmpty
+                                      ? fund.allotmentMessage
+                                      : 'Unit allotment is currently in progress by the AMC (1-2 business days).',
+                                );
+                                break;
+                              }
 
                               if (fund.hasPendingRedemption) {
                                 _showPendingRedemptionDetailsModal(

@@ -224,6 +224,11 @@ class MfuPortfolioItemModel {
   final String? lastTransactionDate;
   final String? navDate;
   final double? navChange;
+  final String? allotmentStatus;
+  final String? unitStatus;
+  final String? allotmentStatusLabel;
+  final String? allotmentMessage;
+  final bool? isUnitAllotted;
   final int? mfuOrderFundId;
   final bool? hasPendingRedemption;
   final String? redemptionStatus;
@@ -252,6 +257,11 @@ class MfuPortfolioItemModel {
     this.lastTransactionDate,
     this.navDate,
     this.navChange,
+    this.allotmentStatus,
+    this.unitStatus,
+    this.allotmentStatusLabel,
+    this.allotmentMessage,
+    this.isUnitAllotted,
     this.mfuOrderFundId,
     this.hasPendingRedemption,
     this.redemptionStatus,
@@ -323,6 +333,11 @@ class MfuPortfolioItemModel {
       lastTransactionDate: json.parse<String>('last_transaction_date'),
       navDate: json.parse<String>('nav_date'),
       navChange: json.parse<double>('nav_change'),
+      allotmentStatus: json.parse<String>('allotment_status'),
+      unitStatus: json.parse<String>('unit_status'),
+      allotmentStatusLabel: json.parse<String>('allotment_status_label'),
+      allotmentMessage: json.parse<String>('allotment_message'),
+      isUnitAllotted: json.parse<bool>('is_unit_allotted'),
       mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
       hasPendingRedemption: json.parse<bool>('has_pending_redemption'),
       redemptionStatus: json.parse<String>('redemption_status'),

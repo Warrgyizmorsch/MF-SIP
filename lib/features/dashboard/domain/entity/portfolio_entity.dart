@@ -210,6 +210,11 @@ class MfuPortfolioItemEntity extends Equatable {
   final String lastTransactionDate;
   final String navDate;
   final double navChange;
+  final String allotmentStatus;
+  final String unitStatus;
+  final String allotmentStatusLabel;
+  final String allotmentMessage;
+  final bool isUnitAllotted;
   final dynamic mfuOrderFundId;
   final bool hasPendingRedemption;
   final String redemptionStatus;
@@ -234,6 +239,11 @@ class MfuPortfolioItemEntity extends Equatable {
     required this.lastTransactionDate,
     this.navDate = '',
     this.navChange = 0.0,
+    this.allotmentStatus = '',
+    this.unitStatus = '',
+    this.allotmentStatusLabel = '',
+    this.allotmentMessage = '',
+    this.isUnitAllotted = true,
     this.mfuOrderFundId,
     this.hasPendingRedemption = false,
     this.redemptionStatus = '',
@@ -264,6 +274,11 @@ class MfuPortfolioItemEntity extends Equatable {
     lastTransactionDate,
     navDate,
     navChange,
+    allotmentStatus,
+    unitStatus,
+    allotmentStatusLabel,
+    allotmentMessage,
+    isUnitAllotted,
     mfuOrderFundId,
     hasPendingRedemption,
     redemptionStatus,
@@ -352,6 +367,11 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       lastTransactionDate: lastTransactionDate ?? '',
       navDate: navDate ?? '',
       navChange: navChange ?? 0.0,
+      allotmentStatus: allotmentStatus ?? '',
+      unitStatus: unitStatus ?? '',
+      allotmentStatusLabel: allotmentStatusLabel ?? '',
+      allotmentMessage: allotmentMessage ?? '',
+      isUnitAllotted: isUnitAllotted ?? true,
       mfuOrderFundId: mfuOrderFundId,
       hasPendingRedemption: hasPendingRedemption ?? false,
       redemptionStatus: redemptionStatus ?? '',
