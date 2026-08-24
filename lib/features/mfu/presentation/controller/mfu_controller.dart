@@ -1214,6 +1214,22 @@ class MfuController extends GetxController {
   }
 }
 
+bool _isMfuSuccessUrl(String url) {
+  final lower = url.toLowerCase();
+  return lower.contains('epayeezdebitreshandler.do') ||
+      lower.contains('calinv2success.jsp') ||
+      lower.contains('respflag=s') ||
+      (lower.contains('page=s') && lower.contains('remarks=transaction'));
+}
+
+bool _isMfuFailureUrl(String url) {
+  final lower = url.toLowerCase();
+  return lower.contains('calinv2error.jsp') ||
+      lower.contains('calinv2fail.jsp') ||
+      (lower.contains('respflag=f') && !lower.contains('respflag=s')) ||
+      (lower.contains('respflag=e') && !lower.contains('respflag=s'));
+}
+
 class MandateWebView extends StatefulWidget {
   final String url;
   final String title;
@@ -1262,12 +1278,70 @@ class _MandateWebViewState extends State<MandateWebView> {
         title: Text(widget.title),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Get.back(result: 'check_status'),
+          onPressed: () =>
+              Get.back(result: _succeeded ? 'success' : 'check_status'),
         ),
       ),
       body: InAppWebView(
         initialData: InAppWebViewInitialData(data: _bridgeHtml),
         initialSettings: _settings,
+
+        shouldOverrideUrlLoading: (controller, action) async {
+          final url = action.request.url?.toString() ?? '';
+          if (_isMfuSuccessUrl(url)) {
+            _succeeded = true;
+            if (mounted) Get.back(result: 'success');
+            return NavigationActionPolicy.CANCEL;
+          }
+          if (_isMfuFailureUrl(url)) {
+            if (mounted) Get.back(result: 'failed');
+            return NavigationActionPolicy.CANCEL;
+          }
+          return NavigationActionPolicy.ALLOW;
+        },
+
+        onLoadStart: (controller, url) async {
+          final currentUrl = url?.toString() ?? '';
+          if (_isMfuSuccessUrl(currentUrl)) {
+            _succeeded = true;
+            if (mounted) Get.back(result: 'success');
+          } else if (_isMfuFailureUrl(currentUrl)) {
+            if (mounted) Get.back(result: 'failed');
+          }
+        },
+
+        onLoadStop: (controller, url) async {
+          final currentUrl = url?.toString() ?? '';
+          debugPrint("Page Loaded: $currentUrl");
+          if (_isMfuSuccessUrl(currentUrl)) {
+            _succeeded = true;
+            if (mounted) Get.back(result: 'success');
+          } else if (_isMfuFailureUrl(currentUrl)) {
+            if (mounted) Get.back(result: 'failed');
+          }
+        },
+
+        onUpdateVisitedHistory: (controller, url, isReload) async {
+          final currentUrl = url?.toString() ?? '';
+          if (_isMfuSuccessUrl(currentUrl)) {
+            _succeeded = true;
+            if (mounted) Get.back(result: 'success');
+          } else if (_isMfuFailureUrl(currentUrl)) {
+            if (mounted) Get.back(result: 'failed');
+          }
+        },
+
+        onReceivedHttpError: (controller, request, errorResponse) async {
+          final reqUrl = request.url.toString();
+          debugPrint("HTTP Error ${errorResponse.statusCode} on $reqUrl");
+          if (_isMfuSuccessUrl(reqUrl)) {
+            debugPrint(
+              "🎉 Intercepted HTTP Error on Success URL! Auto-closing WebView as Success...",
+            );
+            _succeeded = true;
+            if (mounted) Get.back(result: 'success');
+          }
+        },
 
         onCreateWindow: (controller, action) async {
           final result = await Get.to(
@@ -1317,7 +1391,8 @@ class _PopupWebViewState extends State<_PopupWebView> {
         title: Text(widget.title),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Get.back(result: 'check_status'),
+          onPressed: () =>
+              Get.back(result: _succeeded ? 'success' : 'check_status'),
         ),
       ),
       body: InAppWebView(
@@ -1336,10 +1411,21 @@ class _PopupWebViewState extends State<_PopupWebView> {
         shouldOverrideUrlLoading: (controller, action) async {
           final url = action.request.url?.toString() ?? '';
 
-          // Success return URL
-          if (url.contains("EPayeezDebitResHandler.do")) {
+          // Check MFU Success callback (e.g. EPayeezDebitResHandler.do or CalinV2Success.jsp or respFlag=S)
+          if (_isMfuSuccessUrl(url)) {
+            debugPrint(
+              "🎉 Intercepted MFU Success URL in shouldOverrideUrlLoading: $url",
+            );
             _succeeded = true;
             if (mounted) Get.back(result: 'success');
+            return NavigationActionPolicy.CANCEL;
+          }
+
+          if (_isMfuFailureUrl(url)) {
+            debugPrint(
+              "⚠️ Intercepted MFU Failure URL in shouldOverrideUrlLoading: $url",
+            );
+            if (mounted) Get.back(result: 'failed');
             return NavigationActionPolicy.CANCEL;
           }
 
@@ -1362,41 +1448,61 @@ class _PopupWebViewState extends State<_PopupWebView> {
           return NavigationActionPolicy.ALLOW;
         },
 
+        onLoadStart: (controller, url) async {
+          final currentUrl = url?.toString() ?? '';
+          debugPrint("Page Load Started: $currentUrl");
+          if (_isMfuSuccessUrl(currentUrl)) {
+            debugPrint(
+              "🎉 Intercepted MFU Success URL in onLoadStart: $currentUrl",
+            );
+            _succeeded = true;
+            if (mounted) Get.back(result: 'success');
+          } else if (_isMfuFailureUrl(currentUrl)) {
+            if (mounted) Get.back(result: 'failed');
+          }
+        },
+
         onLoadStop: (controller, url) async {
-          final currentUrl = url.toString();
+          final currentUrl = url?.toString() ?? '';
           debugPrint("Page Loaded: $currentUrl");
 
-          // Safely parse the URL so we can check the actual page endpoint
-          final uri = Uri.tryParse(currentUrl);
-
-          // Use uri.path instead of currentUrl.contains
-          if (uri != null && uri.path.contains("EPayeezDebitResHandler.do")) {
-            debugPrint("🎉 NPCI Flow Complete! Auto-closing WebView...");
-
-            _succeeded =
-                true; // Prevent the onCloseWindow from marking it as failed
-
-            final String rawPageText =
-                await controller.evaluateJavascript(
-                  source: "document.body.innerText;",
-                ) ??
-                "No text found";
-
-            // Optional: Give the user 1 second to see the final "OK" page
-            await Future.delayed(const Duration(seconds: 1));
-
+          if (_isMfuSuccessUrl(currentUrl)) {
+            debugPrint("🎉 MFU Flow Complete! Auto-closing WebView...");
+            _succeeded = true;
             if (mounted) {
               Get.back(result: 'success');
+            }
+          } else if (_isMfuFailureUrl(currentUrl)) {
+            if (mounted) {
+              Get.back(result: 'failed');
             }
           }
         },
 
         onUpdateVisitedHistory: (controller, url, isReload) async {
-          final currentUrl = url.toString();
-          final uri = Uri.tryParse(currentUrl);
+          final currentUrl = url?.toString() ?? '';
+          if (_isMfuSuccessUrl(currentUrl)) {
+            debugPrint(
+              "🎉 Intercepted MFU Success URL in onUpdateVisitedHistory: $currentUrl",
+            );
+            _succeeded = true;
+            if (mounted) {
+              Get.back(result: 'success');
+            }
+          } else if (_isMfuFailureUrl(currentUrl)) {
+            if (mounted) {
+              Get.back(result: 'failed');
+            }
+          }
+        },
 
-          // Use uri.path here as well!
-          if (uri != null && uri.path.contains("EPayeezDebitResHandler.do")) {
+        onReceivedHttpError: (controller, request, errorResponse) async {
+          final reqUrl = request.url.toString();
+          debugPrint("HTTP Error ${errorResponse.statusCode} on $reqUrl");
+          if (_isMfuSuccessUrl(reqUrl)) {
+            debugPrint(
+              "🎉 Intercepted HTTP Error on Success URL! Auto-closing WebView as Success...",
+            );
             _succeeded = true;
             if (mounted) {
               Get.back(result: 'success');
