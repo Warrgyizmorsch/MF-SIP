@@ -36,6 +36,7 @@ class MandateWaitingScreen extends StatelessWidget {
         can: can,
         mumrn: mumrn,
         upiId: upiId,
+
         maxAmount: maxAmount,
         deepLink: deepLink,
       ),

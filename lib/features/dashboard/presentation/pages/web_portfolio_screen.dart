@@ -505,17 +505,104 @@ class _PortfolioTableRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    fund.fundName.toString(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: FontFamily.medium,
-                      fontSize: 13,
-                      color: Ucolors.dark,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        fund.fundName.toString(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 13,
+                          color: Ucolors.dark,
+                          fontWeight: FontWeight.w600,
+                          height: 1.35,
+                        ),
+                      ),
+                      if (fund.isRedemptionPending) ...[
+                        const SizedBox(height: 4),
+                        GestureDetector(
+                          onTap: () =>
+                              _showPendingRedemptionDetailsModal(context, fund),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade50,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.orange.shade200),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.hourglass_top_rounded,
+                                  size: 12,
+                                  color: Colors.orange.shade800,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    fund.redemptionMessage.isNotEmpty
+                                        ? fund.redemptionMessage
+                                        : 'Redemption In Progress',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.orange.shade800,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ] else if (fund.isAllotmentPending) ...[
+                        const SizedBox(height: 4),
+                        GestureDetector(
+                          onTap: () => _showAllotmentInfoModal(context, fund),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.blue.shade200),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  size: 12,
+                                  color: Colors.blue.shade800,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    'Allotment In Progress ⏳',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.blue.shade800,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -574,28 +661,13 @@ class _PortfolioTableRow extends StatelessWidget {
                       log('cancel');
                       break;
                     case PortfolioMenuAction.redemption:
-                      if (!fund.isUnitAllotted ||
-                          fund.allotmentStatus == 'allotment_in_progress') {
-                        Get.snackbar(
-                          'Allotment In Progress',
-                          fund.allotmentMessage.isNotEmpty
-                              ? fund.allotmentMessage
-                              : 'Unit allotment is currently in progress by the AMC (1-2 business days).',
-                          backgroundColor: Colors.blue.shade100,
-                          colorText: Colors.blue.shade900,
-                        );
+                      if (fund.isRedemptionPending) {
+                        _showPendingRedemptionDetailsModal(context, fund);
                         break;
                       }
 
-                      if (fund.hasPendingRedemption) {
-                        Get.snackbar(
-                          'Redemption In Progress',
-                          fund.redemptionMessage.isNotEmpty
-                              ? fund.redemptionMessage
-                              : 'A redemption request is already in progress for this folio.',
-                          backgroundColor: Colors.amber.shade100,
-                          colorText: Colors.amber.shade900,
-                        );
+                      if (fund.isAllotmentPending) {
+                        _showAllotmentInfoModal(context, fund);
                         break;
                       }
 
@@ -629,22 +701,31 @@ class _PortfolioTableRow extends StatelessWidget {
                 itemBuilder: (context) {
                   final List<PopupMenuEntry<PortfolioMenuAction>> items = [];
 
-                  final isSip = fund.isSip;
-                  final isLumpsum = fund.isLumpsum;
-
-                  // 1. SIP Only Actions -> Cancel SIP
-                  if (isSip) {
+                  if (fund.isRedemptionPending) {
+                    items.add(
+                      buildMenuItem(
+                        icon: Iconsax.receipt_2,
+                        text: 'Redemption Details',
+                        value: PortfolioMenuAction.redemption,
+                      ),
+                    );
+                  } else if (fund.isAllotmentPending) {
+                    items.add(
+                      buildMenuItem(
+                        icon: Iconsax.info_circle,
+                        text: 'Allotment Details',
+                        value: PortfolioMenuAction.redemption,
+                      ),
+                    );
+                  } else if (fund.isSip) {
                     items.add(
                       buildMenuItem(
                         icon: Iconsax.trash,
-                        text: 'Cancel',
+                        text: 'Cancel SIP',
                         value: PortfolioMenuAction.cancel,
                       ),
                     );
-                  }
-
-                  // 2. Lumpsum & General Holdings -> Redemption
-                  if (isLumpsum || !isSip) {
+                  } else {
                     items.add(
                       buildMenuItem(
                         icon: Iconsax.receipt,
@@ -794,4 +875,283 @@ class _EmptyState extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showPendingRedemptionDetailsModal(BuildContext context, dynamic fund) {
+  final details = fund.redemptionDetails;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(
+                  Icons.hourglass_top_rounded,
+                  color: Colors.orange,
+                  size: 24,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Redemption In Progress',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0D1117),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              fund.redemptionMessage.isNotEmpty
+                  ? fund.redemptionMessage
+                  : 'A redemption request is currently being processed by the AMC.',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                children: [
+                  _buildWebModalRow('Fund', fund.fundName),
+                  const Divider(height: 16),
+                  _buildWebModalRow('Folio', fund.folioNo),
+                  if (details != null) ...[
+                    const Divider(height: 16),
+                    _buildWebModalRow('Order Reference', details.orderRefNo),
+                    if (details.gorn.isNotEmpty) ...[
+                      const Divider(height: 16),
+                      _buildWebModalRow('MFU GORN', details.gorn),
+                    ],
+                    if (details.amount > 0) ...[
+                      const Divider(height: 16),
+                      _buildWebModalRow('Amount', '₹${details.amount}'),
+                    ],
+                    if (details.status.isNotEmpty) ...[
+                      const Divider(height: 16),
+                      _buildWebModalRow('Status', details.status),
+                    ],
+                    if (details.estimatedPayoutDays.isNotEmpty) ...[
+                      const Divider(height: 16),
+                      _buildWebModalRow(
+                        'Payout Window',
+                        details.estimatedPayoutDays,
+                      ),
+                    ],
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text(
+                  'Got it',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+void _showAllotmentInfoModal(BuildContext context, dynamic fund) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.access_time_rounded,
+                  size: 40,
+                  color: Colors.blue.shade700,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Center(
+              child: Text(
+                'Unit Allotment In Progress',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              fund.allotmentMessage.isNotEmpty
+                  ? fund.allotmentMessage
+                  : 'Your investment request has been submitted to the Mutual Fund AMC. Unit allocation and NAV credit take 1 to 2 business days. Your portfolio balance will update automatically once AMC approves the allotment.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                children: [
+                  _buildWebModalRow('Scheme Name', fund.fundName),
+                  if (fund.investmentType.isNotEmpty) ...[
+                    const Divider(height: 16),
+                    _buildWebModalRow(
+                      'Investment Type',
+                      fund.investmentType.toUpperCase(),
+                    ),
+                  ],
+                  if (fund.investedAmount > 0) ...[
+                    const Divider(height: 16),
+                    _buildWebModalRow(
+                      'Amount',
+                      '₹${fund.investedAmount.toStringAsFixed(2)}',
+                    ),
+                  ],
+                  if (fund.folioNo != null && fund.folioNo.isNotEmpty) ...[
+                    const Divider(height: 16),
+                    _buildWebModalRow('Folio No', fund.folioNo),
+                  ],
+                  if (fund.lastTransactionDate.isNotEmpty) ...[
+                    const Divider(height: 16),
+                    _buildWebModalRow(
+                      'Transaction Date',
+                      fund.lastTransactionDate,
+                    ),
+                  ],
+                  const Divider(height: 16),
+                  _buildWebModalRow(
+                    'Status',
+                    fund.allotmentStatusLabel.isNotEmpty
+                        ? fund.allotmentStatusLabel
+                        : 'Allotment In Progress',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text(
+                  'Got it',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildWebModalRow(String label, String value) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Text(
+          value,
+          textAlign: TextAlign.end,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0D1117),
+          ),
+        ),
+      ),
+    ],
+  );
 }

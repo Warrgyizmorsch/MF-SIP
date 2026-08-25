@@ -339,7 +339,11 @@ class MfuPortfolioItemModel {
       allotmentMessage: json.parse<String>('allotment_message'),
       isUnitAllotted: json.parse<bool>('is_unit_allotted'),
       mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
-      hasPendingRedemption: json.parse<bool>('has_pending_redemption'),
+      hasPendingRedemption:
+          (json.parse<bool>('has_pending_redemption') ?? false) ||
+          parsedType?.toLowerCase() == 'redeem' ||
+          parsedType?.toLowerCase() == 'redemption' ||
+          json['redemption_details'] != null,
       redemptionStatus: json.parse<String>('redemption_status'),
       redemptionMessage: json.parse<String>('redemption_message'),
       redemptionDetails: json['redemption_details'] != null

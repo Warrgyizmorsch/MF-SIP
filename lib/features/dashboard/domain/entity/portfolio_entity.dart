@@ -260,6 +260,23 @@ class MfuPortfolioItemEntity extends Equatable {
       investmentType.toLowerCase() == 'normal' ||
       investmentType.toLowerCase() == 'lump-sum';
 
+  /// Redemption is pending if type is redeem, hasPendingRedemption is true, or redemption_details exists
+  bool get isRedemptionPending =>
+      hasPendingRedemption ||
+      investmentType.toLowerCase() == 'redeem' ||
+      investmentType.toLowerCase() == 'redemption' ||
+      redemptionDetails != null ||
+      (redemptionStatus.isNotEmpty &&
+          redemptionStatus.toLowerCase() != 'null' &&
+          redemptionStatus.toLowerCase() != 'none');
+
+  /// Allotment is pending ONLY if NOT redeeming and allotment is in progress
+  bool get isAllotmentPending =>
+      !isRedemptionPending &&
+      (!isUnitAllotted ||
+          allotmentStatus.toLowerCase() == 'allotment_in_progress' ||
+          allotmentStatus.toLowerCase() == 'pending');
+
   @override
   List<Object?> get props => [
     schemeCode,
@@ -376,7 +393,10 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       unitStatus: unitStatus ?? '',
       allotmentStatusLabel: allotmentStatusLabel ?? '',
       allotmentMessage: allotmentMessage ?? '',
-      isUnitAllotted: isUnitAllotted ?? true,
+      isUnitAllotted:
+          isUnitAllotted ??
+          ((allotmentStatus ?? '').toLowerCase() != 'allotment_in_progress' &&
+              (allotmentStatus ?? '').toLowerCase() != 'pending'),
       mfuOrderFundId: mfuOrderFundId,
       hasPendingRedemption: hasPendingRedemption ?? false,
       redemptionStatus: redemptionStatus ?? '',
