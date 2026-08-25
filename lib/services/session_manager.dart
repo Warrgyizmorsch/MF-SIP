@@ -357,6 +357,57 @@ class SessionManager extends GetxService {
     _controller.add(jwtAccessToken);
   }
 
+  // ── Pending Mandate Reconciliation Storage ─────────────────────────────────
+
+  Future<void> savePendingMandate({
+    required String can,
+    required String mumrn,
+    String? upiId,
+    String? maxAmount,
+  }) async {
+    final data = jsonEncode({
+      'can': can,
+      'mumrn': mumrn,
+      'upiId': upiId,
+      'maxAmount': maxAmount,
+      'createdAt': DateTime.now().toIso8601String(),
+    });
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await _prefs!.setString('pending_mandate_data', data);
+    } else {
+      await _secureStorage!.write(key: 'pending_mandate_data', value: data);
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPendingMandate() async {
+    String? rawData;
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      rawData = _prefs!.getString('pending_mandate_data');
+    } else {
+      rawData = await _secureStorage!.read(key: 'pending_mandate_data');
+    }
+
+    if (rawData != null && rawData.isNotEmpty) {
+      try {
+        return jsonDecode(rawData) as Map<String, dynamic>;
+      } catch (e) {
+        debugPrint("Error parsing pending mandate session: $e");
+      }
+    }
+    return null;
+  }
+
+  Future<void> clearPendingMandate() async {
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await _prefs!.remove('pending_mandate_data');
+    } else {
+      await _secureStorage!.delete(key: 'pending_mandate_data');
+    }
+  }
+
   Future<void> getSession() async {
     String? userDataString;
     String? riskScoreString;

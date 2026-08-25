@@ -411,7 +411,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
             }
           },
         ),
-        const SizedBox(height: 28),
+        if (!controller.isLumpsum.value) const SizedBox(height: 28),
         controller.isLumpsum.value
             ? SizedBox.shrink()
             : Text(
@@ -420,60 +420,65 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                   context,
                 ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               ),
-        const SizedBox(height: 8),
-        DropdownButtonHideUnderline(
-          child: DropdownButton2<String>(
-            isExpanded: true,
+        if (!controller.isLumpsum.value) const SizedBox(height: 8),
+        controller.isLumpsum.value
+            ? SizedBox.shrink()
+            : DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
 
-            valueListenable: controller.selectedSipDay,
+                  valueListenable: controller.selectedSipDay,
 
-            items: List.generate(
-              28,
-              (i) => DropdownItem<String>(
-                value: '${i + 1}',
-                child: Text(
-                  '${controller.getOrdinal(i + 1)} of every month',
-                  style: const TextStyle(
-                    fontFamily: FontFamily.medium,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                    color: Color(0xFF142438),
+                  items: List.generate(
+                    28,
+                    (i) => DropdownItem<String>(
+                      value: '${i + 1}',
+                      child: Text(
+                        '${controller.getOrdinal(i + 1)} of every month',
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: Color(0xFF142438),
+                        ),
+                      ),
+                    ),
+                  ),
+                  onChanged: (val) {
+                    if (val != null) {
+                      controller.selectedSipDay.value = val;
+                    }
+                  },
+                  buttonStyleData: ButtonStyleData(
+                    padding: const EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                      color: Colors.white,
+                    ),
+                  ),
+                  iconStyleData: IconStyleData(
+                    icon: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 24,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  dropdownStyleData: DropdownStyleData(
+                    maxHeight: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white,
+                    ),
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
                   ),
                 ),
               ),
-            ),
-            onChanged: (val) {
-              if (val != null) {
-                controller.selectedSipDay.value = val;
-              }
-            },
-            buttonStyleData: ButtonStyleData(
-              padding: const EdgeInsets.only(right: 16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                color: Colors.white,
-              ),
-            ),
-            iconStyleData: IconStyleData(
-              icon: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                size: 24,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            dropdownStyleData: DropdownStyleData(
-              maxHeight: 200,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.white,
-              ),
-            ),
-            menuItemStyleData: const MenuItemStyleData(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-            ),
-          ),
-        ),
       ],
     );
   }

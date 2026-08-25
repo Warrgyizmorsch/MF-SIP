@@ -483,8 +483,13 @@ class PersonalisationController extends GetxController {
             log('Has Risk Profile: ${hasRiskProfile.value}');
 
             checkAndTriggerCanRegistration();
-            final mfuController = Get.find<MfuController>();
-            mfuController.resumePollingIfNeeded();
+            if (Get.isRegistered<MfuController>()) {
+              final mfuController = Get.find<MfuController>();
+              mfuController.resumePollingIfNeeded();
+              if (!hasApprovedMandate) {
+                mfuController.checkPendingMandateReconciliation();
+              }
+            }
           } else {
             linkedBankAccounts.clear();
           }

@@ -647,6 +647,14 @@ class MfuController extends GetxController {
                   return;
                 }
 
+                // Save pending mandate to session for delayed background reconciliation
+                await session.savePendingMandate(
+                  can: can,
+                  mumrn: freshMumrn,
+                  upiId: request.upiId,
+                  maxAmount: request.amount?.toString(),
+                );
+
                 // 4. Launch Native Mandate Waiting & Polling Screen
                 await Get.to(
                   () => MandateWaitingScreen(
@@ -727,6 +735,86 @@ class MfuController extends GetxController {
     );
 
     isLoadingMandateStatus.value = false;
+  }
+
+  /// Reconcile pending mandate saved locally in session when user returns/refreshes
+  Future<bool> checkPendingMandateReconciliation() async {
+    final pendingData = await session.getPendingMandate();
+    if (pendingData == null) return false;
+
+    final can = pendingData['can'] as String? ?? '';
+    final mumrn = pendingData['mumrn'] as String? ?? '';
+    final uid = session.getUserData?.id ?? 0;
+
+    if (can.isEmpty || mumrn.isEmpty || uid == 0) {
+      await session.clearPendingMandate();
+      return false;
+    }
+
+    log(
+      "[MfuController] Reconciling pending mandate from session: MUMRN=$mumrn",
+    );
+
+    try {
+      final request = MfuMandateStatusRequest.upi(
+        userId: uid,
+        can: can,
+        mumrn: mumrn,
+      );
+
+      final result = await mfuUseCases.mfuMandateStatusUseCase(request);
+
+      return result.fold(
+        (success) async {
+          final entity = success.data;
+          final mfuStat = entity?.response?.regStatus.isNotEmpty == true
+              ? entity?.response?.regStatus
+              : entity?.mandateStatus;
+          final aggrStat = entity?.response?.aggrStatus;
+
+          final mfu = (mfuStat ?? '').trim().toUpperCase();
+          final aggr = (aggrStat ?? '').trim().toUpperCase();
+
+          final isApproved =
+              (mfu == 'PA' || mfu == 'APPROVED' || mfu == 'SUCCESS') &&
+              aggr == 'AC';
+          final isTerminalFailure =
+              mfu == 'PR' ||
+              aggr == 'RA' ||
+              mfu == 'CL' ||
+              aggr == 'CL' ||
+              aggr == 'MX' ||
+              aggr == 'RV';
+
+          if (isApproved) {
+            log(
+              "[MfuController] Pending mandate $mumrn is now APPROVED! Clearing session and reloading profile.",
+            );
+            await session.clearPendingMandate();
+            if (Get.isRegistered<PersonalisationController>()) {
+              await Get.find<PersonalisationController>().fetchUserDetails();
+            }
+            return true;
+          } else if (isTerminalFailure) {
+            log(
+              "[MfuController] Pending mandate $mumrn failed with $mfu/$aggr. Clearing session.",
+            );
+            await session.clearPendingMandate();
+            return false;
+          }
+          return false;
+        },
+        (error) async {
+          log(
+            "[MfuController] Pending mandate reconciliation check failed: ${error.message}",
+          );
+          return false;
+        },
+      );
+    } catch (e) {
+      log("[MfuController] Error during pending mandate reconciliation: $e");
+      return false;
+    }
   }
 
   Future<void> normalTransaction(MfuNormalTxnRequest request) async {
