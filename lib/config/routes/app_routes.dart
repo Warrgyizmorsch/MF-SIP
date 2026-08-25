@@ -54,6 +54,7 @@ class AppRoutes {
   static const downloadStatement = '/downloadStatement';
   static const myTransactionsweb = '/my-transactions';
   static const managePortfolioweb = '/manage-portfolio';
+  static const mandateWaitingScreen = '/mandateWaitingScreen';
   static String webShell(String innerRoute) {
     return innerRoute;
   }

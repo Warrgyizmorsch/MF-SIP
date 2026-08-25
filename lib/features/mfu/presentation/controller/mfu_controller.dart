@@ -30,6 +30,7 @@ import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
+import 'package:my_sip/features/mfu/presentation/pages/mandate_waiting_screen.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -630,81 +631,48 @@ class MfuController extends GetxController {
 
             // 4. Handle WebView Result
             if (webViewResult == 'success' || webViewResult == 'check_status') {
-              CustomLoadingDialog.show(title: "Verifying status with bank...");
+              final uid =
+                  success.data?.mandate?.userId ?? session.getUserData?.id ?? 0;
+              final can =
+                  success.data?.can ?? session.getUserData?.canNumber ?? '';
+              final freshMmrn = success.data?.mmrn ?? '';
+              final freshMumrn = success.data?.mumrn ?? '';
 
-              try {
-                await Future.delayed(const Duration(seconds: 2));
-                final uid =
-                    success.data?.mandate?.userId ??
-                    session.getUserData?.id ??
-                    0;
-                // final can = session.getUserData?.canNumber ?? '';
-                // final can = mandateCreateResponse.value?.can ?? '';
-                final can =
-                    success.data?.can ?? session.getUserData?.canNumber ?? '';
-                // final mmrn =
-                //     mandateCreateResponse.value?.enachResponse?.mmrn ?? '';
-                // final mumrn =
-                //     mandateCreateResponse.value?.upiResponse?.mumrn ?? '';
-                final freshMmrn = success.data?.mmrn ?? '';
-                final freshMumrn = success.data?.mumrn ?? '';
-                if (mandateType == 'upi') {
-                  if (freshMumrn.isEmpty) {
-                    CustomSnackbar.error(
-                      title: 'Error',
-                      message: 'No UPI Mandate ID found to verify.',
-                    );
-                    return;
-                  }
-                  await getMandateStatus(
-                    MfuMandateStatusRequest.upi(
-                      userId: uid,
-                      can: can,
-                      mumrn: freshMumrn,
-                    ),
+              if (mandateType == 'upi') {
+                if (freshMumrn.isEmpty) {
+                  CustomSnackbar.error(
+                    title: 'Error',
+                    message: 'No UPI Mandate ID (MUMRN) found to verify.',
                   );
-                } else {
-                  if (freshMmrn.isEmpty) {
-                    CustomSnackbar.error(
-                      title: 'Error',
-                      message: 'No eNACH Mandate ID found to verify.',
-                    );
-                    return;
-                  }
-                  await getMandateStatus(
-                    MfuMandateStatusRequest.enach(
-                      userId: uid,
-                      can: can,
-                      mmrn: freshMmrn,
-                    ),
-                  );
+                  return;
                 }
-                // Call status API
-                // await getMandateStatus(mandateType: mandateType);
-              } finally {
-                CustomLoadingDialog.hide();
-              }
 
-              await Future.delayed(const Duration(milliseconds: 300));
-
-              // 5. Evaluate final status from backend
-              final actualStatus = mandateStatusResponse.value?.mandateStatus;
-
-              if (actualStatus == 'success' || actualStatus == 'approved') {
-                CustomSnackbar.success(
-                  title: 'Success',
-                  message: 'Mandate approved and verified successfully!',
-                );
-              } else if (actualStatus == 'pending') {
-                CustomSnackbar.success(
-                  title: 'Processing',
-                  message:
-                      'Your mandate is being processed. It may take a few minutes.',
+                // 4. Launch Native Mandate Waiting & Polling Screen
+                await Get.to(
+                  () => MandateWaitingScreen(
+                    userId: uid,
+                    can: can,
+                    mumrn: freshMumrn,
+                    upiId: request.upiId,
+                    maxAmount: request.amount?.toString(),
+                    deepLink: success.data?.deepLink,
+                  ),
                 );
               } else {
-                CustomSnackbar.error(
-                  title: 'Failed',
-                  message: 'Mandate verification failed. Status: $actualStatus',
+                // Handle eNACH verification
+                if (freshMmrn.isEmpty) {
+                  CustomSnackbar.error(
+                    title: 'Error',
+                    message: 'No eNACH Mandate ID found to verify.',
+                  );
+                  return;
+                }
+                await getMandateStatus(
+                  MfuMandateStatusRequest.enach(
+                    userId: uid,
+                    can: can,
+                    mmrn: freshMmrn,
+                  ),
                 );
               }
             } else if (webViewResult == 'failed') {
