@@ -783,32 +783,62 @@ void _showMandateSheet(BuildContext context, String amount) {
             const Gap(28),
 
             // Info rows
-            _mandateRow(
-              Icons.currency_rupee_rounded,
-              'Mandate Amount',
-              // '₹$amount',
-              '₹100,000.00',
-              // valueColor: const Color(0xFF4F46E5),
-              valueColor: Ucolors.darkBlue,
-            ),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
-            _mandateRow(
-              Icons.repeat_rounded,
-              'Frequency',
-              'As & when presented',
-            ),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
-            _mandateRow(
-              Icons.account_balance_rounded,
-              'Debit type',
-              'Auto-debit (e-NACH)',
-            ),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
-            _mandateRow(
-              Icons.calendar_today_rounded,
-              'Valid until',
-              'Until cancelled',
-            ),
+            Obx(() {
+              final paymentController = Get.find<MfuController>();
+              final method = paymentController.selectedMethod.value;
+
+              String debitTypeLabel = 'Auto-debit (e-NACH)';
+              if (method == 'upi') {
+                debitTypeLabel = 'UPI AutoPay';
+              } else if (method == 'netbanking') {
+                debitTypeLabel = 'NetBanking (e-NACH)';
+              } else if (method == 'debitcard') {
+                debitTypeLabel = 'Debit Card (e-NACH)';
+              } else if (method == 'enach') {
+                debitTypeLabel = 'Auto-debit (e-NACH)';
+              }
+
+              return Column(
+                children: [
+                  _mandateRow(
+                    Icons.currency_rupee_rounded,
+                    'Mandate Amount',
+                    '₹100,000.00',
+                    valueColor: Ucolors.darkBlue,
+                  ),
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFF0F2F8),
+                  ),
+                  _mandateRow(
+                    Icons.repeat_rounded,
+                    'Frequency',
+                    'As & when presented',
+                  ),
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFF0F2F8),
+                  ),
+                  _mandateRow(
+                    Icons.account_balance_rounded,
+                    'Debit type',
+                    debitTypeLabel,
+                  ),
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFF0F2F8),
+                  ),
+                  _mandateRow(
+                    Icons.calendar_today_rounded,
+                    'Valid until',
+                    'Until cancelled',
+                  ),
+                ],
+              );
+            }),
             const Gap(24),
 
             // Warning notice
