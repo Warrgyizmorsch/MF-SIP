@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/personalization/data/model/profile_update_model.dart';
 
-class ProfileUpdateResponseEntity {
+class ProfileUpdateResponseEntity extends Equatable {
   final bool? status;
   final String? message;
   final ProfileDataEntity? data;
@@ -62,11 +62,17 @@ class ProfileDataEntity extends Equatable {
   final String? canBlockRespList;
   final String? canAccountCategory;
   final String? canModeOfHolding;
+  final String? nomineeVerifyLinkH1;
+  final String? nomineeVerifyLinkH2;
+  final String? nomineeVerifyLinkH3;
+  final String? panCardImage;
+  final String? fcmToken;
+  final String? fcmTokenUpdatedAt;
 
   final CustomerDetailsEntity? customerDetails;
   final RiskProfileEntity? riskProfile;
   final NomineeEntity? nominee;
-  // final BankAccountEntity? bankAccount;
+  final List<NomineeEntity>? nominees;
   final List<BankAccountEntity>? bankAccounts;
   final MfuMandateEntity? mfuMandate;
 
@@ -87,8 +93,7 @@ class ProfileDataEntity extends Equatable {
     required this.status,
     required this.riskSlabId,
 
-    required this.riskScore, // Added
-    // --- NEW FIELDS ---
+    required this.riskScore,
     required this.modeOfHld,
     required this.resdStatus,
     required this.canNumber,
@@ -106,10 +111,17 @@ class ProfileDataEntity extends Equatable {
     required this.canBlockRespList,
     required this.canAccountCategory,
     required this.canModeOfHolding,
+    this.nomineeVerifyLinkH1,
+    this.nomineeVerifyLinkH2,
+    this.nomineeVerifyLinkH3,
+    this.panCardImage,
+    this.fcmToken,
+    this.fcmTokenUpdatedAt,
 
     required this.customerDetails,
     required this.riskProfile,
     required this.nominee,
+    this.nominees,
     required this.bankAccounts,
     required this.mfuMandate,
   });
@@ -132,8 +144,7 @@ class ProfileDataEntity extends Equatable {
     status,
     riskSlabId,
 
-    riskScore, // Added
-    // --- NEW FIELDS ---
+    riskScore,
     modeOfHld,
     resdStatus,
     canNumber,
@@ -151,11 +162,17 @@ class ProfileDataEntity extends Equatable {
     canBlockRespList,
     canAccountCategory,
     canModeOfHolding,
+    nomineeVerifyLinkH1,
+    nomineeVerifyLinkH2,
+    nomineeVerifyLinkH3,
+    panCardImage,
+    fcmToken,
+    fcmTokenUpdatedAt,
 
-    // ----------------
     customerDetails,
     riskProfile,
     nominee,
+    nominees,
     bankAccounts,
     mfuMandate,
   ];
@@ -181,7 +198,6 @@ extension ProfileDataEntityX on ProfileDataModel {
       riskSlabId: riskSlabId,
       riskScore: riskScore,
 
-      // --- NEW FIELDS ---
       modeOfHld: modeOfHld,
       resdStatus: resdStatus,
       canNumber: canNumber,
@@ -199,11 +215,17 @@ extension ProfileDataEntityX on ProfileDataModel {
       canBlockRespList: canBlockRespList,
       canAccountCategory: canAccountCategory,
       canModeOfHolding: canModeOfHolding,
+      nomineeVerifyLinkH1: nomineeVerifyLinkH1,
+      nomineeVerifyLinkH2: nomineeVerifyLinkH2,
+      nomineeVerifyLinkH3: nomineeVerifyLinkH3,
+      panCardImage: panCardImage,
+      fcmToken: fcmToken,
+      fcmTokenUpdatedAt: fcmTokenUpdatedAt,
 
       customerDetails: customerDetails?.toEntity(),
       riskProfile: riskProfile?.toEntity(),
       nominee: nominee?.toEntity(),
-      // bankAccounts: bankAccounts?.toen,
+      nominees: nominees?.map((e) => e.toEntity()).toList(),
       bankAccounts: bankAccounts?.map((e) => e.toEntity()).toList(),
       mfuMandate: mfuMandate?.toEntity(),
     );
@@ -411,41 +433,60 @@ extension NomineeEntityX on NomineeModel {
 }
 
 class BankAccountEntity extends Equatable {
- final int? id;
+  final int? id;
   final int? userId;
-  final String? accountType; // Added
+  final String? accountType;
   final String? accountHolderName;
   final String? accountNumberEncrypted;
+  final String? accountNumber;
   final String? ifscCode;
-  final String? micrCode; // Added
+  final String? micrCode;
   final String? bankName;
   final int? verified;
-  final String? verifiedAt; // Added
-  final String? createdAt; // Added
-  final String? updatedAt; // Added
+  final String? verifiedAt;
+  final String? proof;
+  final String? proofImage;
+  final String? createdAt;
+  final String? updatedAt;
+  final List<MfuMandateEntity>? approvedMandates;
 
   const BankAccountEntity({
     required this.id,
     required this.userId,
     required this.accountHolderName,
     required this.accountNumberEncrypted,
+    this.accountNumber,
     required this.ifscCode,
     required this.bankName,
     required this.verified,
-  
     this.accountType,
-  
     this.micrCode,
-   
     this.verifiedAt,
+    this.proof,
+    this.proofImage,
     this.createdAt,
     this.updatedAt,
+    this.approvedMandates,
   });
 
   @override
   List<Object?> get props => [
-   id, userId, accountType, accountHolderName, accountNumberEncrypted,
-        ifscCode, micrCode, bankName, verified, verifiedAt, createdAt, updatedAt
+    id,
+    userId,
+    accountType,
+    accountHolderName,
+    accountNumberEncrypted,
+    accountNumber,
+    ifscCode,
+    micrCode,
+    bankName,
+    verified,
+    verifiedAt,
+    proof,
+    proofImage,
+    createdAt,
+    updatedAt,
+    approvedMandates,
   ];
 }
 
@@ -454,16 +495,20 @@ extension BankAccountEntityX on BankAccountModel {
     return BankAccountEntity(
       id: id,
       userId: userId,
-      accountType: accountType, // Added
+      accountType: accountType,
       accountHolderName: accountHolderName,
       accountNumberEncrypted: accountNumberEncrypted,
+      accountNumber: accountNumber,
       ifscCode: ifscCode,
-      micrCode: micrCode, // Added
+      micrCode: micrCode,
       bankName: bankName,
       verified: verified,
-      verifiedAt: verifiedAt, // Added
-      createdAt: createdAt, // Added
-      updatedAt: updatedAt, // Added
+      verifiedAt: verifiedAt,
+      proof: proof,
+      proofImage: proofImage,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      approvedMandates: approvedMandates?.map((e) => e.toEntity()).toList(),
     );
   }
 }

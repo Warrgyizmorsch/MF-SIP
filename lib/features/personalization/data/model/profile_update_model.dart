@@ -54,12 +54,18 @@ class ProfileDataModel {
   final String? canBlockRespList;
   final String? canAccountCategory;
   final String? canModeOfHolding;
+  final String? nomineeVerifyLinkH1;
+  final String? nomineeVerifyLinkH2;
+  final String? nomineeVerifyLinkH3;
+  final String? panCardImage;
+  final String? fcmToken;
+  final String? fcmTokenUpdatedAt;
 
   // nested
   final CustomerDetailsModel? customerDetails;
   final RiskProfileModel? riskProfile;
   final NomineeModel? nominee;
-  // final BankAccountModel? bankAccount;
+  final List<NomineeModel>? nominees;
   final List<BankAccountModel>? bankAccounts;
   final MfuMandateModel? mfuMandate;
 
@@ -98,15 +104,28 @@ class ProfileDataModel {
     this.canBlockRespList,
     this.canAccountCategory,
     this.canModeOfHolding,
+    this.nomineeVerifyLinkH1,
+    this.nomineeVerifyLinkH2,
+    this.nomineeVerifyLinkH3,
+    this.panCardImage,
+    this.fcmToken,
+    this.fcmTokenUpdatedAt,
 
     this.riskProfile,
     this.customerDetails,
     this.bankAccounts,
     this.nominee,
+    this.nominees,
     this.mfuMandate,
   });
 
   factory ProfileDataModel.fromJson(Map<String, dynamic> json) {
+    final parsedNominees = json['nominees'] != null
+        ? (json['nominees'] as List)
+              .map((e) => NomineeModel.fromJson(e as Map<String, dynamic>))
+              .toList()
+        : null;
+
     return ProfileDataModel(
       id: json.parse<int>('id'),
       roleId: json.parse<int>('role_id'),
@@ -143,6 +162,12 @@ class ProfileDataModel {
       canBlockRespList: json.parse<String>('can_block_resp_list'),
       canAccountCategory: json.parse<String>('can_account_category'),
       canModeOfHolding: json.parse<String>('can_mode_of_holding'),
+      nomineeVerifyLinkH1: json.parse<String>('nominee_verify_link_h1'),
+      nomineeVerifyLinkH2: json.parse<String>('nominee_verify_link_h2'),
+      nomineeVerifyLinkH3: json.parse<String>('nominee_verify_link_h3'),
+      panCardImage: json.parse<String>('pan_card_image'),
+      fcmToken: json.parse<String>('fcm_token'),
+      fcmTokenUpdatedAt: json.parse<String>('fcm_token_updated_at'),
 
       riskProfile: json.parseNested<RiskProfileModel>(
         'risk_profile',
@@ -152,35 +177,23 @@ class ProfileDataModel {
         'customer_details',
         (m) => CustomerDetailsModel.fromJson(m),
       ),
-      nominee:
-          (json['nominees'] != null && (json['nominees'] as List).isNotEmpty)
-          ? NomineeModel.fromJson((json['nominees'] as List).first)
+      nominees: parsedNominees,
+      nominee: (parsedNominees != null && parsedNominees.isNotEmpty)
+          ? parsedNominees.first
           : null,
 
-      // bankAccount:
-      //     (json['bank_accounts'] != null &&
-      //         (json['bank_accounts'] as List).isNotEmpty)
-      //     ? BankAccountModel.fromJson((json['bank_accounts'] as List).first)
-      //     : null,
       bankAccounts: json['bank_accounts'] != null
           ? (json['bank_accounts'] as List)
-              .map((e) => BankAccountModel.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map(
+                  (e) => BankAccountModel.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
           : null,
       mfuMandate:
           (json['mfu_mandates'] != null &&
               (json['mfu_mandates'] as List).isNotEmpty)
           ? MfuMandateModel.fromJson((json['mfu_mandates'] as List).first)
           : null,
-
-      // nominee: json.parseNested<NomineeModel>(
-      //   'nominees',
-      //   (m) => NomineeModel.fromJson(m),
-      // ),
-      // bankAccount: json.parseNested<BankAccountModel>(
-      //   'bank_accounts',
-      //   (m) => BankAccountModel.fromJson(m),
-      // ),
     );
   }
 }
@@ -332,16 +345,20 @@ class NomineeModel {
 class BankAccountModel {
   final int? id;
   final int? userId;
-  final String? accountType; // Added
+  final String? accountType;
   final String? accountHolderName;
   final String? accountNumberEncrypted;
+  final String? accountNumber;
   final String? ifscCode;
-  final String? micrCode; // Added
+  final String? micrCode;
   final String? bankName;
   final int? verified;
-  final String? verifiedAt; // Added
-  final String? createdAt; // Added
-  final String? updatedAt; // Added
+  final String? verifiedAt;
+  final String? proof;
+  final String? proofImage;
+  final String? createdAt;
+  final String? updatedAt;
+  final List<MfuMandateModel>? approvedMandates;
 
   BankAccountModel({
     this.id,
@@ -349,29 +366,41 @@ class BankAccountModel {
     this.accountType,
     this.accountHolderName,
     this.accountNumberEncrypted,
+    this.accountNumber,
     this.ifscCode,
     this.micrCode,
     this.bankName,
     this.verified,
     this.verifiedAt,
+    this.proof,
+    this.proofImage,
     this.createdAt,
     this.updatedAt,
+    this.approvedMandates,
   });
 
   factory BankAccountModel.fromJson(Map<String, dynamic> json) {
     return BankAccountModel(
       id: json.parse<int>('id'),
       userId: json.parse<int>('user_id'),
-      accountType: json.parse<String>('account_type'), // Parses new field
+      accountType: json.parse<String>('account_type'),
       accountHolderName: json.parse<String>('account_holder_name'),
       accountNumberEncrypted: json.parse<String>('account_number_encrypted'),
+      accountNumber: json.parse<String>('account_number'),
       ifscCode: json.parse<String>('ifsc_code'),
-      micrCode: json.parse<String>('micr_code'), // Parses new field
+      micrCode: json.parse<String>('micr_code'),
       bankName: json.parse<String>('bank_name'),
       verified: json.parse<int>('verified'),
-      verifiedAt: json.parse<String>('verified_at'), // Parses new field
-      createdAt: json.parse<String>('created_at'), // Parses new field
-      updatedAt: json.parse<String>('updated_at'), // Parses new field
+      verifiedAt: json.parse<String>('verified_at'),
+      proof: json.parse<String>('proof'),
+      proofImage: json.parse<String>('proof_image'),
+      createdAt: json.parse<String>('created_at'),
+      updatedAt: json.parse<String>('updated_at'),
+      approvedMandates: json['approved_mandates'] != null
+          ? (json['approved_mandates'] as List)
+                .map((e) => MfuMandateModel.fromJson(e as Map<String, dynamic>))
+                .toList()
+          : null,
     );
   }
 }

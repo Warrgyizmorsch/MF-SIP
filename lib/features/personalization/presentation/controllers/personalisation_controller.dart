@@ -132,18 +132,63 @@ class PersonalisationController extends GetxController {
 
   // 2. Check if a mandate is fully approved and active
   bool get hasApprovedMandate {
-    final status = userData.value?.mfuMandate?.status?.toLowerCase();
-    return status == 'approved' || status == 'success';
-    //  || status == 'initiated';
+    // Check top-level mfuMandate
+    final mfuStatus = userData.value?.mfuMandate?.status?.toLowerCase();
+    if (mfuStatus == 'approved' || mfuStatus == 'success') {
+      return true;
+    }
+
+    // Check nested bankAccounts -> approvedMandates
+    final bankAccountsList = userData.value?.bankAccounts ?? linkedBankAccounts;
+    for (final bank in bankAccountsList) {
+      final mandates = bank.approvedMandates ?? [];
+      if (mandates.any(
+        (m) =>
+            m.status?.toLowerCase() == 'approved' ||
+            m.aggrStatus?.toUpperCase() == 'AC',
+      )) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
-  // 3. Grab the MMRN or MMURN to pass into the SIP API
+  // 3. Grab the MMRN or MUMRN to pass into the SIP API
   String? get activeMmrn {
-    return userData.value?.mfuMandate?.mmrn;
+    if (userData.value?.mfuMandate?.mmrn != null &&
+        userData.value!.mfuMandate!.mmrn!.isNotEmpty) {
+      return userData.value?.mfuMandate?.mmrn;
+    }
+
+    final bankAccountsList = userData.value?.bankAccounts ?? linkedBankAccounts;
+    for (final bank in bankAccountsList) {
+      final mandates = bank.approvedMandates ?? [];
+      for (final m in mandates) {
+        if (m.mmrn != null && m.mmrn!.isNotEmpty) {
+          return m.mmrn;
+        }
+      }
+    }
+    return null;
   }
 
   String? get activeMmurn {
-    return userData.value?.mfuMandate?.mumrn;
+    if (userData.value?.mfuMandate?.mumrn != null &&
+        userData.value!.mfuMandate!.mumrn!.isNotEmpty) {
+      return userData.value?.mfuMandate?.mumrn;
+    }
+
+    final bankAccountsList = userData.value?.bankAccounts ?? linkedBankAccounts;
+    for (final bank in bankAccountsList) {
+      final mandates = bank.approvedMandates ?? [];
+      for (final m in mandates) {
+        if (m.mumrn != null && m.mumrn!.isNotEmpty) {
+          return m.mumrn;
+        }
+      }
+    }
+    return null;
   }
 
   final nomineeDocumentSelectionList = [
