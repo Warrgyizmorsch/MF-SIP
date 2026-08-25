@@ -3983,38 +3983,37 @@ class PortfolioCard extends StatelessWidget {
                               break;
                           }
                         },
-                        itemBuilder: (context) => [
-                          // buildMenuItem(
-                          //   icon: Iconsax.card_send,
-                          //   text: 'Top Up',
-                          //   value: PortfolioMenuAction.topUp,
-                          // ),
-                          // buildMenuItem(
-                          //   icon: Iconsax.edit_2,
-                          //   text: 'Modify',
-                          //   value: PortfolioMenuAction.modify,
-                          // ),
-                          // buildMenuItem(
-                          //   icon: Iconsax.pause,
-                          //   text: 'Pause',
-                          //   value: PortfolioMenuAction.pause,
-                          // ),
-                          buildMenuItem(
-                            icon: Iconsax.trash,
-                            text: 'Cancel',
-                            value: PortfolioMenuAction.cancel,
-                          ),
-                          buildMenuItem(
-                            icon: Iconsax.receipt,
-                            text: 'Redemption',
-                            value: PortfolioMenuAction.redemption,
-                          ),
-                          // buildMenuItem(
-                          //   icon: Icons.arrow_outward,
-                          //   text: 'Add to Goal',
-                          //   value: PortfolioMenuAction.switchgoal,
-                          // ),
-                        ],
+                        itemBuilder: (context) {
+                          final List<PopupMenuEntry<PortfolioMenuAction>>
+                          items = [];
+
+                          final isSip = fund.isSip;
+                          final isLumpsum = fund.isLumpsum;
+
+                          // 1. SIP Only Actions -> Cancel SIP
+                          if (isSip) {
+                            items.add(
+                              buildMenuItem(
+                                icon: Iconsax.trash,
+                                text: 'Cancel',
+                                value: PortfolioMenuAction.cancel,
+                              ),
+                            );
+                          }
+
+                          // 2. Lumpsum & General Holdings -> Redemption
+                          if (isLumpsum || !isSip) {
+                            items.add(
+                              buildMenuItem(
+                                icon: Iconsax.receipt,
+                                text: 'Redemption',
+                                value: PortfolioMenuAction.redemption,
+                              ),
+                            );
+                          }
+
+                          return items;
+                        },
                       )
                     : SizedBox(),
               ],

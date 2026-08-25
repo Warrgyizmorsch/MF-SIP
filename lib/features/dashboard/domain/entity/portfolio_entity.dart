@@ -254,6 +254,11 @@ class MfuPortfolioItemEntity extends Equatable {
   // Computed properties for easy UI styling
   bool get isProfit => gainLoss >= 0;
   bool get isOneDayProfit => oneDayChange >= 0;
+  bool get isSip => investmentType.toLowerCase() == 'sip';
+  bool get isLumpsum =>
+      investmentType.toLowerCase() == 'lumpsum' ||
+      investmentType.toLowerCase() == 'normal' ||
+      investmentType.toLowerCase() == 'lump-sum';
 
   @override
   List<Object?> get props => [
