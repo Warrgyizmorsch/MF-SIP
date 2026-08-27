@@ -23,6 +23,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../controllers/dashboard_controller.dart';
 import '../widgets/comparison_chart.dart';
+import '../widgets/portfolio_fund_details_modal.dart';
 
 enum PortfolioMenuAction {
   topUp,
@@ -3747,7 +3748,7 @@ class PortfolioCard extends StatelessWidget {
     final isOverallProfit = fund.isProfit;
 
     return GestureDetector(
-      // onTap: () => Get.to(() => FundDetailsScreen(), arguments: fund),
+      onTap: () => PortfolioFundDetailsModal.show(context, fund),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(14),
@@ -3807,7 +3808,79 @@ class PortfolioCard extends StatelessWidget {
                           height: 1.3,
                         ),
                       ),
-                      if (fund.isRedemptionPending) ...[
+                      if (fund.isSipCancelledFlag) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.cancel_outlined,
+                                size: 12,
+                                color: Colors.grey.shade700,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  'SIP Cancelled',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else if (fund.isRedemptionSettled) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.green.shade200),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle_outline_rounded,
+                                size: 12,
+                                color: Colors.green.shade800,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  'Redeemed & Settled (₹${fund.redeemedAmount > 0 ? fund.redeemedAmount : fund.redemptionDetails?.amount ?? 0})',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.green.shade800,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else if (fund.isRedemptionPending) ...[
                         const SizedBox(height: 4),
                         GestureDetector(
                           onTap: () =>
@@ -3975,6 +4048,13 @@ class PortfolioCard extends StatelessWidget {
                             case PortfolioMenuAction.redemption:
                               createLog('tap for cancel redemption / lumpsum ');
 
+                              if (fund.isFullyRedeemed ||
+                                  (fund.isRedemptionSettled &&
+                                      fund.totalUnits == 0)) {
+                                PortfolioFundDetailsModal.show(context, fund);
+                                break;
+                              }
+
                               if (fund.isRedemptionPending) {
                                 _showPendingRedemptionDetailsModal(
                                   context,
@@ -3988,29 +4068,34 @@ class PortfolioCard extends StatelessWidget {
                                 break;
                               }
 
-                              Get.to(
-                                () => RedeemPage(),
-                                arguments: RedeemArgs(
-                                  mfuOrderFundId: fund.mfuOrderFundId,
-                                  amcLogo: fund.amcLogo,
-                                  schemeCode: fund.schemeCode,
-                                  schemeName: fund.fundName,
-                                  folioNumber: fund.folioNo,
-                                  folioType: 'Individual',
-                                  totalUnits: fund.totalUnits,
-                                  totalValue: fund.currentValue,
-                                  lockedUnits: 0.0,
-                                  lockedValue: 0,
-                                  freeUnits: fund.totalUnits,
-                                  freeValue: fund.currentValue,
-                                  investedAmt: fund.investedAmount,
-                                  hasPendingRedemption:
-                                      fund.hasPendingRedemption,
-                                  redemptionMessage: fund.redemptionMessage,
-                                  orderRefNo:
-                                      fund.redemptionDetails?.orderRefNo ?? '',
-                                ),
-                              );
+                              if (fund.totalUnits > 0) {
+                                Get.to(
+                                  () => RedeemPage(),
+                                  arguments: RedeemArgs(
+                                    mfuOrderFundId: fund.mfuOrderFundId,
+                                    amcLogo: fund.amcLogo,
+                                    schemeCode: fund.schemeCode,
+                                    schemeName: fund.fundName,
+                                    folioNumber: fund.folioNo,
+                                    folioType: 'Individual',
+                                    totalUnits: fund.totalUnits,
+                                    totalValue: fund.currentValue,
+                                    lockedUnits: 0.0,
+                                    lockedValue: 0,
+                                    freeUnits: fund.totalUnits,
+                                    freeValue: fund.currentValue,
+                                    investedAmt: fund.investedAmount,
+                                    hasPendingRedemption:
+                                        fund.hasPendingRedemption,
+                                    redemptionMessage: fund.redemptionMessage,
+                                    orderRefNo:
+                                        fund.redemptionDetails?.orderRefNo ??
+                                        '',
+                                  ),
+                                );
+                              } else {
+                                PortfolioFundDetailsModal.show(context, fund);
+                              }
 
                               break;
 
@@ -4023,7 +4108,15 @@ class PortfolioCard extends StatelessWidget {
                           final List<PopupMenuEntry<PortfolioMenuAction>>
                           items = [];
 
-                          if (fund.isRedemptionPending) {
+                          if (fund.isRedemptionSettled) {
+                            items.add(
+                              buildMenuItem(
+                                icon: Iconsax.receipt_2,
+                                text: 'Redemption Summary',
+                                value: PortfolioMenuAction.redemption,
+                              ),
+                            );
+                          } else if (fund.isRedemptionPending) {
                             items.add(
                               buildMenuItem(
                                 icon: Iconsax.receipt_2,
@@ -4039,7 +4132,7 @@ class PortfolioCard extends StatelessWidget {
                                 value: PortfolioMenuAction.redemption,
                               ),
                             );
-                          } else if (fund.isSip) {
+                          } else if (fund.isSipActive) {
                             items.add(
                               buildMenuItem(
                                 icon: Iconsax.trash,
@@ -4051,7 +4144,9 @@ class PortfolioCard extends StatelessWidget {
                             items.add(
                               buildMenuItem(
                                 icon: Iconsax.receipt,
-                                text: 'Redemption',
+                                text: fund.totalUnits > 0
+                                    ? 'Redeem'
+                                    : 'Redemption',
                                 value: PortfolioMenuAction.redemption,
                               ),
                             );

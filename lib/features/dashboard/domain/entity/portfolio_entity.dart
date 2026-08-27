@@ -192,6 +192,31 @@ class MfuRedemptionDetailsEntity extends Equatable {
   ];
 }
 
+class SipCancellationDetailsEntity extends Equatable {
+  final String status;
+  final String statusCode;
+  final String orderRefNo;
+  final String message;
+  final String cancelledDate;
+
+  const SipCancellationDetailsEntity({
+    this.status = '',
+    this.statusCode = '',
+    this.orderRefNo = '',
+    this.message = '',
+    this.cancelledDate = '',
+  });
+
+  @override
+  List<Object?> get props => [
+    status,
+    statusCode,
+    orderRefNo,
+    message,
+    cancelledDate,
+  ];
+}
+
 class MfuPortfolioItemEntity extends Equatable {
   final String schemeCode;
   final String fundName;
@@ -220,6 +245,13 @@ class MfuPortfolioItemEntity extends Equatable {
   final String redemptionStatus;
   final String redemptionMessage;
   final MfuRedemptionDetailsEntity? redemptionDetails;
+  final double redeemedAmount;
+  final double redeemedUnits;
+  final bool isSipFlag;
+  final String sipStatus;
+  final bool isSipCancelled;
+  final bool hasPendingSipCancellation;
+  final SipCancellationDetailsEntity? sipCancellationDetails;
 
   const MfuPortfolioItemEntity({
     required this.schemeCode,
@@ -249,30 +281,51 @@ class MfuPortfolioItemEntity extends Equatable {
     this.redemptionStatus = '',
     this.redemptionMessage = '',
     this.redemptionDetails,
+    this.redeemedAmount = 0.0,
+    this.redeemedUnits = 0.0,
+    this.isSipFlag = false,
+    this.sipStatus = '',
+    this.isSipCancelled = false,
+    this.hasPendingSipCancellation = false,
+    this.sipCancellationDetails,
   });
 
   // Computed properties for easy UI styling
   bool get isProfit => gainLoss >= 0;
   bool get isOneDayProfit => oneDayChange >= 0;
-  bool get isSip => investmentType.toLowerCase() == 'sip';
+  bool get isSip => investmentType.toLowerCase() == 'sip' || isSipFlag;
+  bool get isSipActive => isSip && !isSipCancelledFlag;
   bool get isLumpsum =>
       investmentType.toLowerCase() == 'lumpsum' ||
       investmentType.toLowerCase() == 'normal' ||
       investmentType.toLowerCase() == 'lump-sum';
 
-  /// Redemption is pending if type is redeem, hasPendingRedemption is true, or redemption_details exists
+  bool get isRedemptionSettled =>
+      redemptionStatus.toLowerCase() == 'settled' ||
+      (redemptionDetails?.statusCode.toLowerCase() == 'rp');
+
+  bool get isSipCancelledFlag =>
+      isSipCancelled || sipStatus.toLowerCase() == 'cancelled';
+
+  bool get isFullyRedeemed => isRedemptionSettled && totalUnits == 0;
+
+  bool get isPartiallyRedeemed => redeemedAmount > 0 && totalUnits > 0;
+
+  /// Redemption is pending if type is redeem or hasPendingRedemption is true, but NOT YET SETTLED
   bool get isRedemptionPending =>
-      hasPendingRedemption ||
-      investmentType.toLowerCase() == 'redeem' ||
-      investmentType.toLowerCase() == 'redemption' ||
-      redemptionDetails != null ||
-      (redemptionStatus.isNotEmpty &&
-          redemptionStatus.toLowerCase() != 'null' &&
-          redemptionStatus.toLowerCase() != 'none');
+      !isRedemptionSettled &&
+      (hasPendingRedemption ||
+          investmentType.toLowerCase() == 'redeem' ||
+          investmentType.toLowerCase() == 'redemption' ||
+          (redemptionStatus.isNotEmpty &&
+              redemptionStatus.toLowerCase() != 'null' &&
+              redemptionStatus.toLowerCase() != 'none' &&
+              redemptionStatus.toLowerCase() != 'settled'));
 
   /// Allotment is pending ONLY if NOT redeeming and allotment is in progress
   bool get isAllotmentPending =>
       !isRedemptionPending &&
+      !isRedemptionSettled &&
       (!isUnitAllotted ||
           allotmentStatus.toLowerCase() == 'allotment_in_progress' ||
           allotmentStatus.toLowerCase() == 'pending');
@@ -306,6 +359,13 @@ class MfuPortfolioItemEntity extends Equatable {
     redemptionStatus,
     redemptionMessage,
     redemptionDetails,
+    redeemedAmount,
+    redeemedUnits,
+    isSipFlag,
+    sipStatus,
+    isSipCancelled,
+    hasPendingSipCancellation,
+    sipCancellationDetails,
   ];
 }
 
@@ -350,6 +410,18 @@ extension MfuPortfolioModelMapper on MfuPortfolioModel {
             totalGainLoss: 0.0,
             totalGainLossPercent: 0.0,
           ),
+    );
+  }
+}
+
+extension SipCancellationDetailsMapper on SipCancellationDetailsModel {
+  SipCancellationDetailsEntity toEntity() {
+    return SipCancellationDetailsEntity(
+      status: status ?? '',
+      statusCode: statusCode ?? '',
+      orderRefNo: orderRefNo ?? '',
+      message: message ?? '',
+      cancelledDate: cancelledDate ?? '',
     );
   }
 }
@@ -402,6 +474,13 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       redemptionStatus: redemptionStatus ?? '',
       redemptionMessage: redemptionMessage ?? '',
       redemptionDetails: redemptionDetails?.toEntity(),
+      redeemedAmount: redeemedAmount ?? 0.0,
+      redeemedUnits: redeemedUnits ?? 0.0,
+      isSipFlag: isSip ?? false,
+      sipStatus: sipStatus ?? '',
+      isSipCancelled: isSipCancelled ?? false,
+      hasPendingSipCancellation: hasPendingSipCancellation ?? false,
+      sipCancellationDetails: sipCancellationDetails?.toEntity(),
     );
   }
 }

@@ -202,6 +202,32 @@ class MfuRedemptionDetailsModel {
   }
 }
 
+class SipCancellationDetailsModel {
+  final String? status;
+  final String? statusCode;
+  final String? orderRefNo;
+  final String? message;
+  final String? cancelledDate;
+
+  SipCancellationDetailsModel({
+    this.status,
+    this.statusCode,
+    this.orderRefNo,
+    this.message,
+    this.cancelledDate,
+  });
+
+  factory SipCancellationDetailsModel.fromJson(Map<String, dynamic> json) {
+    return SipCancellationDetailsModel(
+      status: json.parse<String>('status'),
+      statusCode: json.parse<String>('status_code'),
+      orderRefNo: json.parse<String>('order_ref_no'),
+      message: json.parse<String>('message'),
+      cancelledDate: json.parse<String>('cancelled_date'),
+    );
+  }
+}
+
 class MfuPortfolioItemModel {
   final String? schemeCode;
   final String? fundName;
@@ -234,6 +260,13 @@ class MfuPortfolioItemModel {
   final String? redemptionStatus;
   final String? redemptionMessage;
   final MfuRedemptionDetailsModel? redemptionDetails;
+  final double? redeemedAmount;
+  final double? redeemedUnits;
+  final bool? isSip;
+  final String? sipStatus;
+  final bool? isSipCancelled;
+  final bool? hasPendingSipCancellation;
+  final SipCancellationDetailsModel? sipCancellationDetails;
 
   MfuPortfolioItemModel({
     this.schemeCode,
@@ -267,6 +300,13 @@ class MfuPortfolioItemModel {
     this.redemptionStatus,
     this.redemptionMessage,
     this.redemptionDetails,
+    this.redeemedAmount,
+    this.redeemedUnits,
+    this.isSip,
+    this.sipStatus,
+    this.isSipCancelled,
+    this.hasPendingSipCancellation,
+    this.sipCancellationDetails,
   });
 
   factory MfuPortfolioItemModel.fromJson(Map<String, dynamic> json) {
@@ -349,6 +389,19 @@ class MfuPortfolioItemModel {
       redemptionDetails: json['redemption_details'] != null
           ? MfuRedemptionDetailsModel.fromJson(
               json['redemption_details'] as Map<String, dynamic>,
+            )
+          : null,
+      redeemedAmount: json.parse<double>('redeemed_amount'),
+      redeemedUnits: json.parse<double>('redeemed_units'),
+      isSip: json.parse<bool>('is_sip'),
+      sipStatus: json.parse<String>('sip_status'),
+      isSipCancelled: json.parse<bool>('is_sip_cancelled'),
+      hasPendingSipCancellation: json.parse<bool>(
+        'has_pending_sip_cancellation',
+      ),
+      sipCancellationDetails: json['sip_cancellation_details'] != null
+          ? SipCancellationDetailsModel.fromJson(
+              json['sip_cancellation_details'] as Map<String, dynamic>,
             )
           : null,
     );
