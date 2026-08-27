@@ -19,6 +19,7 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
+import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
@@ -59,103 +60,16 @@ class CartPage extends GetView<CartController> {
         : controller.sipAndStepUpItems;
     if (!controller.isListValid(targetItems)) return;
 
-    final bool isDesktop = Get.width > 800;
-
-    // 🚀 Access the user data controller to check mandate status
-    final userCtrl = Get.find<PersonalisationController>();
-    if (!userCtrl.isKycVerified.value) {
-      _showPrerequisiteDialog(
-        title: 'KYC Required',
-        message:
-            'Your KYC verification is pending or incomplete. Please complete your KYC to invest.',
-        buttonText: 'Complete KYC',
-        onTap: () {
-          Get.back();
-          Get.toNamed(AppRoutes.kycScreen, id: isDesktop ? 1 : null);
-        },
-      );
-      return;
-    }
-    if (!userCtrl.hasPersonalDetails.value) {
-      _showPrerequisiteDialog(
-        title: 'Additional Info Required',
-        message:
-            'Please provide a few more personal details (like family details) to complete your investor profile.',
-        buttonText: 'Add Details',
-        onTap: () {
-          Get.back();
-          // Route exactly where the user needs to fill out missing details
-          Get.toNamed(AppRoutes.additionalInfo, id: isDesktop ? 1 : null);
-        },
-      );
-      return;
-    }
-    if (!userCtrl.hasBank.value) {
-      _showPrerequisiteDialog(
-        title: 'Bank Account Required',
-        message:
-            'Please link a bank account to process your investments and receive withdrawals.',
-        buttonText: 'Add Bank',
-        onTap: () {
-          Get.back();
-          Get.toNamed(AppRoutes.addanotherbank, id: isDesktop ? 1 : null);
-        },
-      );
-      return;
-    }
-    final String? canNumber = userCtrl.userData.value?.canNumber;
-    final String? canError = userCtrl.userData.value?.canErrorMessage;
-
-    if (canNumber == null || canNumber.isEmpty) {
-      // 🚀 If there's a specific error from the API (like "Invalid KYC Status")
-      if (canError != null && canError.isNotEmpty) {
-        _showPrerequisiteDialog(
-          title: 'CAN Registration Failed',
-          message:
-              'We could not generate your CAN because: \n\n"$canError"\n\nPlease resolve this issue to proceed.',
-          buttonText: 'Try Again',
-          onTap: () {
-            userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
-            Get.back();
-          },
-        );
-      }
-      // 🚀 Fallback if it's just pending/processing with no explicit error
-      else {
-        _showPrerequisiteDialog(
-          title: 'CAN Registration Pending',
-          message:
-              'Your Common Account Number (CAN) has not been generated or approved yet. This is mandatory for mutual fund investments.',
-          buttonText: 'Check Status',
-          onTap: () {
-            Get.back();
-          },
-        );
-      }
-      return;
-    }
-    if (!isLumpsum && !userCtrl.hasApprovedMandate) {
-      _showPrerequisiteDialog(
-        title: 'Auto Pay Required',
-        message:
-            'Please set up your Auto Pay mandate to continue with your purchase.',
-        buttonText: 'Set Up Auto Pay',
-        onTap: () {
-          Get.back();
-          Get.toNamed(
-            AppRoutes.paymentScreen,
-            arguments: {'isMandate': true, 'amount': '100000'},
-            id: isDesktop ? 1 : null,
-          );
-        },
-      );
-      return;
-    }
-    if (isLumpsum) {
-      controller.checkoutLumpsum();
-    } else {
-      controller.checkoutSip();
-    }
+    GatekeeperHelper.runWithPrerequisites(
+      isLumpsum: isLumpsum,
+      onSuccess: () {
+        if (isLumpsum) {
+          controller.checkoutLumpsum();
+        } else {
+          controller.checkoutSip();
+        }
+      },
+    );
   }
 
   void _showPrerequisiteDialog({

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
+import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
 import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
@@ -350,25 +351,32 @@ class MfuController extends GetxController {
     final day = formatMfuSipDay();
     final folio = args.folio ?? 'NEW';
 
-    // 2. Dispatch investment API based on selected InvType
-    if (sipInvType.value == InvType.lumpsum) {
-      executeLumpsum(schemeCode: schemeCode, amount: amount, folio: folio);
-    } else if (sipInvType.value == InvType.sip) {
-      executeSip(
-        schemeCode: schemeCode,
-        amount: amount,
-        day: day,
-        frequency: formatMfuSipFrequency(),
-        folio: folio,
-      );
-    } else if (sipInvType.value == InvType.stepup) {
-      executeStepUp(
-        schemeCode: schemeCode,
-        amount: amount,
-        day: day,
-        frequency: 'M',
-      );
-    }
+    // 2. Dispatch investment API guarded by Gatekeeper with correct isLumpsum flag
+    final bool isLumpsum = sipInvType.value == InvType.lumpsum;
+
+    GatekeeperHelper.runWithPrerequisites(
+      isLumpsum: isLumpsum,
+      onSuccess: () {
+        if (isLumpsum) {
+          executeLumpsum(schemeCode: schemeCode, amount: amount, folio: folio);
+        } else if (sipInvType.value == InvType.sip) {
+          executeSip(
+            schemeCode: schemeCode,
+            amount: amount,
+            day: day,
+            frequency: formatMfuSipFrequency(),
+            folio: folio,
+          );
+        } else if (sipInvType.value == InvType.stepup) {
+          executeStepUp(
+            schemeCode: schemeCode,
+            amount: amount,
+            day: day,
+            frequency: 'M',
+          );
+        }
+      },
+    );
   }
 
   void selectMethod(String method) {

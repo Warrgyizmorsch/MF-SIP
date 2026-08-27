@@ -1233,6 +1233,7 @@ class WebFundListCard extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {
           GatekeeperHelper.runWithPrerequisites(
+            isLumpsum: true,
             onSuccess: () {
               final purchaseArgs = SipPurchaseArgs(
                 schemeCode: entity.schemeCode ?? '',
@@ -2075,6 +2076,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
       child: ElevatedButton(
         onPressed: () async {
           GatekeeperHelper.runWithPrerequisites(
+            isLumpsum: true,
             onSuccess: () {
               final purchaseArgs = SipPurchaseArgs(
                 schemeCode: entity.schemeCode ?? '',
@@ -2293,6 +2295,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
           // // await controller.fetchCart();
           GatekeeperHelper.runWithPrerequisites(
+            isLumpsum: true,
             onSuccess: () {
               // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
               final argVal = controller.fundDetail.value;

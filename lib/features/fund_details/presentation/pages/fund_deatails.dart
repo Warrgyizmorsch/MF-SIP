@@ -105,6 +105,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                             },
                             secondButtonP: () async {
                               GatekeeperHelper.runWithPrerequisites(
+                                isLumpsum: true,
                                 onSuccess: () {
                                   // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
                                   final argVal = controller.fundDetail.value;
@@ -562,6 +563,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
 
                             secondButtonP: () async {
                               GatekeeperHelper.runWithPrerequisites(
+                                isLumpsum: true,
                                 onSuccess: () {
                                   // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
                                   final argVal = controller.fundDetail.value;

@@ -6,7 +6,10 @@ import 'package:my_sip/features/personalization/presentation/controllers/persona
 
 class GatekeeperHelper {
   /// Runs the validation waterfall. If all checks pass, [onSuccess] is executed.
-  static void runWithPrerequisites({required Function() onSuccess}) {
+  static void runWithPrerequisites({
+    required Function() onSuccess,
+    bool isLumpsum = false,
+  }) {
     final userCtrl = Get.find<PersonalisationController>();
     final bool isDesktop = Get.width > 600;
 
@@ -61,7 +64,9 @@ class GatekeeperHelper {
     final String canStatus = (userData?.canStatus ?? '').trim().toLowerCase();
     final String? canError = userData?.canErrorMessage;
 
-    final bool isCanApproved = canNumber.isNotEmpty && canStatus == 'approved';
+    final bool isCanApproved =
+        canNumber.isNotEmpty &&
+        (canStatus == 'approved' || canStatus == 'active');
 
     if (!isCanApproved) {
       if (canStatus.contains('pending') ||
@@ -106,12 +111,12 @@ class GatekeeperHelper {
       return;
     }
 
-    // 🛑 5. Check Mandate (Auto Pay) Status
-    if (!userCtrl.hasApprovedMandate) {
+    // 🛑 5. Check Mandate (Auto Pay) Status - Required ONLY for SIP purchases
+    if (!isLumpsum && !userCtrl.hasApprovedMandate) {
       DialogHelper.showPrerequisiteDialog(
         title: 'Auto Pay Required',
         message:
-            'Please set up your Auto Pay mandate to continue with your purchase.',
+            'Please set up your Auto Pay mandate to continue with your SIP purchase.',
         buttonText: 'Set Up Auto Pay',
         onTap: () {
           Get.back();
