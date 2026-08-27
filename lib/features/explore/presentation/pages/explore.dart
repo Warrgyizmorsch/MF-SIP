@@ -2926,6 +2926,7 @@ class MutualFundCard extends StatelessWidget {
                                   'imgUrl':
                                       "${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}",
                                   'scheme_code': entity.schemeCode.toString(),
+                                  'isin': entity.isin,
                                 },
                               );
                               mutualFundController.addToLocalRecentlyViewed(
