@@ -9,6 +9,7 @@ import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_con
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/dashboard/presentation/widgets/portfolio_fund_details_modal.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
+import 'portfolio_fund_details_page.dart';
 
 class WebPortfolioScreen extends StatelessWidget {
   const WebPortfolioScreen({super.key});
@@ -727,6 +728,9 @@ class _PortfolioTableRow extends StatelessWidget {
                   offset: const Offset(0, 40),
                   onSelected: (value) {
                     switch (value) {
+                      case PortfolioMenuAction.viewDetails:
+                        Get.to(() => PortfolioFundDetailsPage(fund: fund));
+                        break;
                       case PortfolioMenuAction.topUp:
                         log('top up');
                         break;
@@ -743,7 +747,7 @@ class _PortfolioTableRow extends StatelessWidget {
                         if (fund.isFullyRedeemed ||
                             (fund.isRedemptionSettled &&
                                 fund.totalUnits == 0)) {
-                          PortfolioFundDetailsModal.show(context, fund);
+                          Get.to(() => PortfolioFundDetailsPage(fund: fund));
                           break;
                         }
 
@@ -781,7 +785,7 @@ class _PortfolioTableRow extends StatelessWidget {
                             ),
                           );
                         } else {
-                          PortfolioFundDetailsModal.show(context, fund);
+                          Get.to(() => PortfolioFundDetailsPage(fund: fund));
                         }
                         break;
                       case PortfolioMenuAction.switchgoal:
@@ -791,6 +795,14 @@ class _PortfolioTableRow extends StatelessWidget {
                   },
                   itemBuilder: (context) {
                     final List<PopupMenuEntry<PortfolioMenuAction>> items = [];
+
+                    items.add(
+                      buildMenuItem(
+                        icon: Iconsax.eye,
+                        text: 'View Details',
+                        value: PortfolioMenuAction.viewDetails,
+                      ),
+                    );
 
                     if (fund.isRedemptionSettled) {
                       items.add(

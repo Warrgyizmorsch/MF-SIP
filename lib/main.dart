@@ -35,6 +35,7 @@ Future<void> main() async {
     runApp(const MyApp());
   } catch (e, stackTrace) {
     createLog("Error in main initialization: $e");
+
     createLog("Stack trace: $stackTrace");
     runApp(const MyApp());
   }

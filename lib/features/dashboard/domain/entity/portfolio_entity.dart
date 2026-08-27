@@ -231,6 +231,8 @@ class MfuPortfolioItemEntity extends Equatable {
   final double gainLossPercent;
   final double oneDayChange;
   final double oneDayChangePercent;
+  final double purchaseNav;
+  final String purchaseDate;
   final String folioNo;
   final String lastTransactionDate;
   final String navDate;
@@ -267,6 +269,8 @@ class MfuPortfolioItemEntity extends Equatable {
     required this.gainLossPercent,
     required this.oneDayChange,
     required this.oneDayChangePercent,
+    this.purchaseNav = 0.0,
+    this.purchaseDate = '',
     required this.folioNo,
     required this.lastTransactionDate,
     this.navDate = '',
@@ -457,6 +461,8 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       gainLossPercent: gainLossPercent ?? 0.0,
       oneDayChange: oneDayChange ?? 0.0,
       oneDayChangePercent: oneDayChangePercent ?? 0.0,
+      purchaseNav: purchaseNav ?? averagePurchaseNav ?? 0.0,
+      purchaseDate: purchaseDate ?? lastTransactionDate ?? '',
       folioNo: folioNo ?? 'NEW',
       lastTransactionDate: lastTransactionDate ?? '',
       navDate: navDate ?? '',
