@@ -171,6 +171,7 @@ class CartController extends GetxController {
   final RxList<CartItem> wishlist = <CartItem>[].obs;
 
   final Rxn<CartResponseEntity> cartResponseEntity = Rxn<CartResponseEntity>();
+  List<CartItemEntity> get cartItems => cartResponseEntity.value?.items ?? [];
 
   final RxInt monthlyAmount = 0.obs;
   final TextEditingController invAmount = TextEditingController();
@@ -642,7 +643,7 @@ class CartController extends GetxController {
       if (transType != null) "trans_type": transType,
       if (sipDay != null) "sip_day": sipDay,
       if (amount != null) "amount": amount,
-      // if (frequency != null) 
+      // if (frequency != null)
       "frequency": frequency,
       if (topUpAmount != null) "top_up_amount": topUpAmount,
       if (capingDate != null) "caping_date": capingDate,

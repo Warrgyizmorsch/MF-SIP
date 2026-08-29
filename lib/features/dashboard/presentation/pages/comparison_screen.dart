@@ -158,6 +158,7 @@ class FundBottomBarButton extends StatelessWidget {
     this.firstButtonP,
     this.secondButtonP,
     this.isLoading = false,
+    this.isInCart = false,
   });
 
   final String firstButton;
@@ -165,6 +166,7 @@ class FundBottomBarButton extends StatelessWidget {
   final VoidCallback? firstButtonP;
   final VoidCallback? secondButtonP;
   final bool isLoading;
+  final bool isInCart;
 
   @override
   Widget build(BuildContext context) {
@@ -191,23 +193,25 @@ class FundBottomBarButton extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Secondary Button (Outlined)
+          // Secondary Cart Button
           Expanded(
             flex: 2,
-            child: UElevatedButton2(
-              onPressed: isLoading ? null : firstButtonP,
-              outlined: true,
-              width: double.infinity,
-              // height: 50, // Standardize height for both
-              child: Icon(Icons.shopping_cart_outlined),
-              // child: Text(
-              //   firstButton,
-              //   style: const TextStyle(fontFamily: FontFamily.medium,
-              //     color: Colors.black87,
-              //     fontWeight: FontWeight.w600,
-              //     fontSize: 14,
-              //   ),
-              // ),
+            child: Tooltip(
+              message: isInCart ? 'Go to Cart' : 'Add to Cart',
+              child: UElevatedButton2(
+                onPressed: isLoading ? null : firstButtonP,
+                outlined: !isInCart,
+                color: isInCart ? Colors.green.shade50 : null,
+                // borderColor: isInCart ? Colors.green.shade600 : null,
+                width: double.infinity,
+                child: Icon(
+                  isInCart
+                      ? Icons.shopping_cart_checkout_rounded
+                      : Icons.add_shopping_cart_rounded,
+                  color: isInCart ? Colors.green.shade700 : Ucolors.primary,
+                  size: 22,
+                ),
+              ),
             ),
           ),
 

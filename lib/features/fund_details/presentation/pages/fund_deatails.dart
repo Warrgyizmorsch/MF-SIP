@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/custom_footer.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
@@ -87,52 +88,70 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                             .value!
                             .riskStatisticsList
                             .isNotEmpty
-                        ? FundBottomBarButton(
-                            firstButton: 'Lumpsum',
-                            secondButton: 'Invest now',
-                            firstButtonP: () async {
-                              await cartController.addToCart(
-                                controller.schemeCode,
-                                controller.schemeName,
+                        ? Obx(() {
+                            final bool isAlreadyInCart = cartController
+                                .cartItems
+                                .any(
+                                  (item) =>
+                                      item.schemeCode.toString() ==
+                                      controller.schemeCode.toString(),
+                                );
 
-                                controller.fundDetail.value?.minimumInvestment
-                                        .toInt() ??
-                                    5000,
-                                transType: 'lumpsum',
-
-                                null,
-                              );
-                            },
-                            secondButtonP: () async {
-                              GatekeeperHelper.runWithPrerequisites(
-                                isLumpsum: true,
-                                onSuccess: () {
-                                  // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
-                                  final argVal = controller.fundDetail.value;
-
-                                  final purchaseArgs = SipPurchaseArgs(
-                                    schemeCode: controller.schemeCode,
-                                    fundName: controller.schemeName,
-                                    category: argVal?.schemeCategory ?? "",
-                                    riskLabel: argVal?.riskometerValue ?? "",
-                                    minSip: argVal?.sipMinimumAmount ?? 1000,
-                                    minLumpsum:
-                                        argVal?.minimumInvestment.toInt() ??
-                                        1000,
-                                    minTopup:
-                                        argVal?.minimumTopup.toInt() ?? 5000,
-                                    folio: null,
-                                    imgUrl: controller.imgUrl,
+                            return FundBottomBarButton(
+                              firstButton: isAlreadyInCart
+                                  ? 'In Cart'
+                                  : 'Add to Cart',
+                              secondButton: 'Invest now',
+                              isInCart: isAlreadyInCart,
+                              firstButtonP: () async {
+                                if (isAlreadyInCart) {
+                                  Get.toNamed(AppRoutes.cart);
+                                } else {
+                                  await cartController.addToCart(
+                                    controller.schemeCode,
+                                    controller.schemeName,
+                                    controller
+                                            .fundDetail
+                                            .value
+                                            ?.minimumInvestment
+                                            .toInt() ??
+                                        5000,
+                                    transType: 'sip',
+                                    null,
                                   );
+                                  
+                                }
+                              },
+                              secondButtonP: () async {
+                                GatekeeperHelper.runWithPrerequisites(
+                                  isLumpsum: true,
+                                  onSuccess: () {
+                                    final argVal = controller.fundDetail.value;
 
-                                  Get.to(
-                                    () => SIPPurchasePage(),
-                                    arguments: purchaseArgs,
-                                  );
-                                },
-                              );
-                            },
-                          )
+                                    final purchaseArgs = SipPurchaseArgs(
+                                      schemeCode: controller.schemeCode,
+                                      fundName: controller.schemeName,
+                                      category: argVal?.schemeCategory ?? "",
+                                      riskLabel: argVal?.riskometerValue ?? "",
+                                      minSip: argVal?.sipMinimumAmount ?? 1000,
+                                      minLumpsum:
+                                          argVal?.minimumInvestment.toInt() ??
+                                          1000,
+                                      minTopup:
+                                          argVal?.minimumTopup.toInt() ?? 5000,
+                                      folio: null,
+                                      imgUrl: controller.imgUrl,
+                                    );
+
+                                    Get.to(
+                                      () => SIPPurchasePage(),
+                                      arguments: purchaseArgs,
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          })
                         : const SizedBox.shrink(),
                   ),
                 ],
@@ -545,57 +564,73 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Center(
-                          child: FundBottomBarButton(
-                            firstButton: 'Lumpsum',
-                            secondButton: 'Invest now',
+                          child: Obx(() {
+                            final bool isAlreadyInCart = cartController
+                                .cartItems
+                                .any(
+                                  (item) =>
+                                      item.schemeCode.toString() ==
+                                      controller.schemeCode.toString(),
+                                );
 
-                            firstButtonP: () async {
-                              await cartController.addToCart(
-                                controller.schemeCode,
-                                controller.schemeName,
-                                controller.fundDetail.value?.minimumInvestment
-                                        .toInt() ??
-                                    5000,
-                                transType: 'lumpsum',
-                                null,
-                              );
-                            },
-
-                            secondButtonP: () async {
-                              GatekeeperHelper.runWithPrerequisites(
-                                isLumpsum: true,
-                                onSuccess: () {
-                                  // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
-                                  final argVal = controller.fundDetail.value;
-
-                                  final purchaseArgs = SipPurchaseArgs(
-                                    schemeCode: controller.schemeCode,
-                                    fundName: controller.schemeName,
-                                    category: argVal?.schemeCategory ?? "",
-                                    riskLabel: argVal?.riskometerValue ?? "",
-                                    minSip: argVal?.sipMinimumAmount ?? 1000,
-                                    minLumpsum:
-                                        argVal?.minimumInvestment.toInt() ??
-                                        1000,
-                                    minTopup:
-                                        argVal?.minimumTopup.toInt() ?? 5000,
-                                    folio: null,
-                                    imgUrl: controller.imgUrl,
+                            return FundBottomBarButton(
+                              firstButton: isAlreadyInCart
+                                  ? 'In Cart'
+                                  : 'Add to Cart',
+                              secondButton: 'Invest now',
+                              isInCart: isAlreadyInCart,
+                              firstButtonP: () async {
+                                if (isAlreadyInCart) {
+                                  Get.toNamed(AppRoutes.cart);
+                                } else {
+                                  await cartController.addToCart(
+                                    controller.schemeCode,
+                                    controller.schemeName,
+                                    controller
+                                            .fundDetail
+                                            .value
+                                            ?.minimumInvestment
+                                            .toInt() ??
+                                        5000,
+                                    transType: 'lumpsum',
+                                    null,
                                   );
+                              
+                                }
+                              },
+                              secondButtonP: () async {
+                                GatekeeperHelper.runWithPrerequisites(
+                                  isLumpsum: true,
+                                  onSuccess: () {
+                                    final argVal = controller.fundDetail.value;
 
-                                  SIPPurchasePage.tempData = purchaseArgs;
+                                    final purchaseArgs = SipPurchaseArgs(
+                                      schemeCode: controller.schemeCode,
+                                      fundName: controller.schemeName,
+                                      category: argVal?.schemeCategory ?? "",
+                                      riskLabel: argVal?.riskometerValue ?? "",
+                                      minSip: argVal?.sipMinimumAmount ?? 1000,
+                                      minLumpsum:
+                                          argVal?.minimumInvestment.toInt() ??
+                                          1000,
+                                      minTopup:
+                                          argVal?.minimumTopup.toInt() ?? 5000,
+                                      folio: null,
+                                      imgUrl: controller.imgUrl,
+                                    );
 
-                                  Get.toNamed(
-                                    AppRoutes.investNowPage,
-                                    // id: 1,
-                                    id: kIsWeb ? 1 : null,
+                                    SIPPurchasePage.tempData = purchaseArgs;
 
-                                    arguments: purchaseArgs,
-                                  );
-                                },
-                              );
-                            },
-                          ),
+                                    Get.toNamed(
+                                      AppRoutes.investNowPage,
+                                      id: kIsWeb ? 1 : null,
+                                      arguments: purchaseArgs,
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          }),
                         ),
                       ),
                     ),
