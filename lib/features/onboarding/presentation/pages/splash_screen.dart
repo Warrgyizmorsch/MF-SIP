@@ -76,8 +76,9 @@ class _SplashScreenState extends State<SplashScreen> {
         // --- MOBILE LOGIC ---
         // Show the Welcome/Intro screen
         Navigator.pushReplacement(
+          
           context,
-          MaterialPageRoute(builder: (context) => const WelcomePageScreen()),
+          MaterialPageRoute(builder: (context) => const WelcomePageScreen(),),
         );
       }
     }

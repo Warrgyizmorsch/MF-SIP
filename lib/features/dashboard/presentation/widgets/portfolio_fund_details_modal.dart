@@ -7,6 +7,8 @@ import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/portfolio_fund_details_page.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 
+import '../../../../config/routes/app_routes.dart';
+
 class PortfolioFundDetailsModal extends StatelessWidget {
   final MfuPortfolioItemEntity fund;
 
@@ -355,7 +357,8 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                   ),
                   onPressed: () {
                     Navigator.pop(context);
-                    Get.to(() => PortfolioFundDetailsPage(fund: fund));
+                    // Get.to(() => PortfolioFundDetailsPage(fund: fund));
+                    Get.toNamed(AppRoutes.portfolioDetails, arguments: fund);
                   },
                   icon: const Icon(
                     Iconsax.eye,

@@ -4038,9 +4038,14 @@ class PortfolioCard extends StatelessWidget {
                         onSelected: (value) {
                           switch (value) {
                             case PortfolioMenuAction.viewDetails:
-                              Get.to(
-                                () => PortfolioFundDetailsPage(fund: fund),
+                              // Get.to(
+                              //   () => PortfolioFundDetailsPage(fund: fund),
+                              // );
+                              Get.toNamed(
+                                AppRoutes.portfolioDetails,
+                                arguments: fund,
                               );
+
                               break;
                             case PortfolioMenuAction.topUp:
                               break;
@@ -4058,9 +4063,14 @@ class PortfolioCard extends StatelessWidget {
                               if (fund.isFullyRedeemed ||
                                   (fund.isRedemptionSettled &&
                                       fund.totalUnits == 0)) {
-                                Get.to(
-                                  () => PortfolioFundDetailsPage(fund: fund),
+                                // Get.to(
+                                //   () => PortfolioFundDetailsPage(fund: fund),
+                                // );
+                                Get.toNamed(
+                                  AppRoutes.portfolioDetails,
+                                  arguments: fund,
                                 );
+
                                 break;
                               }
 
@@ -4103,8 +4113,12 @@ class PortfolioCard extends StatelessWidget {
                                   ),
                                 );
                               } else {
-                                Get.to(
-                                  () => PortfolioFundDetailsPage(fund: fund),
+                                // Get.to(
+                                //   () => PortfolioFundDetailsPage(fund: fund),
+                                // );
+                                Get.toNamed(
+                                  AppRoutes.portfolioDetails,
+                                  arguments: fund,
                                 );
                               }
 
