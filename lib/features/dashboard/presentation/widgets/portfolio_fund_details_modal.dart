@@ -4,6 +4,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
+import 'package:my_sip/features/dashboard/presentation/pages/portfolio_fund_details_page.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 
 class PortfolioFundDetailsModal extends StatelessWidget {
@@ -344,21 +345,29 @@ class PortfolioFundDetailsModal extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
+                child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(color: Colors.grey.shade300),
+                    side: const BorderSide(color: Ucolors.primary),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Close',
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Get.to(() => PortfolioFundDetailsPage(fund: fund));
+                  },
+                  icon: const Icon(
+                    Iconsax.eye,
+                    size: 16,
+                    color: Ucolors.primary,
+                  ),
+                  label: const Text(
+                    'View Details',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Ucolors.primary,
                     ),
                   ),
                 ),
