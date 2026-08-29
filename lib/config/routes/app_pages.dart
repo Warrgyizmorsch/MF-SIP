@@ -73,28 +73,41 @@ import 'app_routes.dart';
 class AppPages {
   static List<GetPage> pages() => [
     /// Public / auth routes
-    GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
+    GetPage(
+      name: AppRoutes.splash,
+      page: () => const SplashScreen(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 350),
+    ),
 
     GetPage(
       bindings: navMenuBindings(),
       name: AppRoutes.navMenuBar,
       page: () => const NavigationMenuBar(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 350),
     ),
 
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginPage(),
       binding: AuthBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 350),
     ),
     GetPage(
       name: AppRoutes.registerAccountScreen,
       page: () => const RegisterAccountScreen(),
       binding: AuthBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 350),
     ),
     GetPage(
       name: AppRoutes.otpVerificationScreen,
       page: () => OtpVerificationScreen(),
       binding: AuthBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 350),
     ),
 
     /// Web: root URLs open NavigationMenuBar shell.
@@ -124,167 +137,331 @@ class AppPages {
       name: route,
       page: () => const NavigationMenuBar(),
       bindings: navMenuBindings(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 200),
     );
   }
 
   /// Actual pages loaded inside nested Navigator(id: 1)
   static List<GetPage> nestedPages() => [
-    GetPage(name: AppRoutes.home, page: () => HomeScreen()),
+    GetPage(
+      name: AppRoutes.home,
+      page: () => HomeScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
     GetPage(
       name: AppRoutes.freedomSipScreen,
       page: () => const FreedomSipScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.comparefund,
       page: () => CompareFundsPage(),
       binding: FundDetailBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.sipTenureScreen,
       page: () => const SipTenureScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.growthSchemeScreen,
       page: () => const GrowthSchemeScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.funddetails,
       page: () => FundDetailsScreen(),
       binding: FundDetailBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
 
     GetPage(
       name: AppRoutes.watchlist,
       page: () => WatchlistPage(),
       binding: WishlistBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
-    GetPage(name: AppRoutes.cart, page: () => CartPage()),
+    GetPage(
+      name: AppRoutes.cart,
+      page: () => CartPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
     GetPage(
       name: AppRoutes.notification,
       page: () => NotificationPage(),
       binding: HomeBindings(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
 
     GetPage(
       name: AppRoutes.accumulationanddistributionscreen,
       page: () => const Accumulationanddistributionscreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.startSipScreen,
       page: () => const MonthlySipScreen(),
       binding: SipProcessBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.investingApproachScreen,
       page: () => const InvestingApproachScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.selectFundsScreen,
       page: () => const SelectFundsScreen(),
       binding: SipProcessBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
 
     GetPage(
       name: AppRoutes.personaldetails,
       page: () => PersonalDetailsScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
 
     GetPage(
       name: AppRoutes.ihavegoal,
       page: () => IhavegoalPage(),
       binding: GoalBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.masterGoalsPage,
       page: () => MasterGoalsPage(),
       binding: GoalBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.webMasterGoalsPage,
       page: () => UnifiedGoalDashboard(),
       binding: GoalBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.goalScreen,
       page: () => GoalScreen(),
       binding: GoalBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.successfullcreategoal,
       page: () => GoalsuccessPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
-    GetPage(name: AppRoutes.goalviewcard, page: () => GoalviewcardPage()),
-    GetPage(name: AppRoutes.goaldetails, page: () => GoalDetailsPage()),
+    GetPage(
+      name: AppRoutes.goalviewcard,
+      page: () => GoalviewcardPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.goaldetails,
+      page: () => GoalDetailsPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
-    GetPage(name: AppRoutes.addanotherbank, page: () => AddAnotherBankPage()),
+    GetPage(
+      name: AppRoutes.addanotherbank,
+      page: () => AddAnotherBankPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
     GetPage(
       name: AppRoutes.riskProfile,
       page: () => RiskProfile(),
       binding: PersonalisationBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
 
-    GetPage(name: AppRoutes.filterpage, page: () => Filterpage()),
+    GetPage(
+      name: AppRoutes.filterpage,
+      page: () => Filterpage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
-    GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
-    GetPage(name: AppRoutes.explorePage, page: () => ExploreScreen()),
-    GetPage(name: AppRoutes.dashBoardPage, page: () => DashboardScreen()),
-    GetPage(name: AppRoutes.profilePage, page: () => ProfileScreen()),
+    GetPage(
+      name: AppRoutes.paymentScreen,
+      page: () => PaymentScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.explorePage,
+      page: () => ExploreScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.dashBoardPage,
+      page: () => DashboardScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.profilePage,
+      page: () => ProfileScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
     GetPage(
       name: AppRoutes.kycScreen,
       page: () => KycScreen(),
       binding: KycBindings(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
-    GetPage(name: AppRoutes.webView, page: () => HtmlWebViewPage()),
+    GetPage(
+      name: AppRoutes.webView,
+      page: () => HtmlWebViewPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
     GetPage(
       name: AppRoutes.nomineeList,
       page: () => NomineeListScreen(),
       binding: PersonalisationBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.nomineeDetail,
       page: () => NomineeDetailsScreen(),
       binding: PersonalisationBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
 
     GetPage(
       name: AppRoutes.nfolist,
       page: () => NfoListPage(),
       binding: NfoListBinding(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
-    GetPage(name: AppRoutes.nfodetailsPage, page: () => NfoDetailsPage1()),
+    GetPage(
+      name: AppRoutes.nfodetailsPage,
+      page: () => NfoDetailsPage1(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
-    GetPage(name: AppRoutes.kycDeatailScreen, page: () => KycDetailsScreen()),
-    GetPage(name: AppRoutes.documentsScreen, page: () => DocumentScreen()),
+    GetPage(
+      name: AppRoutes.kycDeatailScreen,
+      page: () => KycDetailsScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.documentsScreen,
+      page: () => DocumentScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
-    GetPage(name: AppRoutes.sipCalculator, page: () => SipCalculatorPage()),
-    GetPage(name: AppRoutes.swpCalculator, page: () => SwpCalciScreen()),
+    GetPage(
+      name: AppRoutes.sipCalculator,
+      page: () => SipCalculatorPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.swpCalculator,
+      page: () => SwpCalciScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
     GetPage(
       name: AppRoutes.stepUpCalculator,
       page: () => TopUpCalculatorPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
-    GetPage(name: AppRoutes.comingSoon, page: () => ComingSoon()),
-    GetPage(name: AppRoutes.bankDetails, page: () => BankDetailsScreen()),
-    GetPage(name: AppRoutes.videoList, page: () => VideoListScreen()),
+    GetPage(
+      name: AppRoutes.comingSoon,
+      page: () => ComingSoon(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.bankDetails,
+      page: () => BankDetailsScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.videoList,
+      page: () => VideoListScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
-    GetPage(name: AppRoutes.additionalInfo, page: () => AdditionalInfoScreen()),
-    GetPage(name: AppRoutes.investNow, page: () => InvestNowPage()),
-    GetPage(name: AppRoutes.investNowPage, page: () => SIPPurchasePage()),
+    GetPage(
+      name: AppRoutes.additionalInfo,
+      page: () => AdditionalInfoScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.investNow,
+      page: () => InvestNowPage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.investNowPage,
+      page: () => SIPPurchasePage(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
 
     GetPage(
       name: AppRoutes.downloadStatement,
       page: () => DownloadStatementsScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
 
     GetPage(
       name: AppRoutes.myTransactionsweb,
       page: () => const WebTransactionsScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.managePortfolioweb,
       page: () => const WebPortfolioScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.portfolioDetails,
@@ -514,10 +691,6 @@ class AppPages {
 //     bindings: navMenuBindings(),
 //   );
 
-  
 // }
 
-
-
-  
 // }
