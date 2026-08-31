@@ -52,11 +52,12 @@
 //   }
 // }
 
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:my_sip/common/widget/responsive/web_restriction_screen.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
@@ -183,6 +184,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           },
           builder: (context, widget) {
             final mediaQueryData = MediaQuery.of(context);
+
+            if (kIsWeb && mediaQueryData.size.width < 1024) {
+              return WebRestrictionScreen(
+                currentWidth: mediaQueryData.size.width,
+              );
+            }
+
             return NoInternetWidget(
               child: MediaQuery(
                 data: mediaQueryData.copyWith(textScaler: TextScaler.noScaling),
@@ -194,7 +202,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                         children: [
                           // This is your background app
                           widget!,
-              
+
                           // The system UI pop-up will appear over this blank screen
                           // if (!_hasUnlockedThisSession)
                           if (session.isAppLockEnabled.value &&
