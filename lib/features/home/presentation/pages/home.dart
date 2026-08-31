@@ -23,6 +23,7 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
@@ -270,98 +271,133 @@ class _WebDashboardLayout extends StatelessWidget {
   // HERO
   // =========================================================
   Widget _buildWelcomeHero() {
-    final name = authController.user.value?.name ?? 'Investor';
     final user = SessionManager.instance.userObs.value;
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFE3F5FF), Color(0xFFF2F9FF), Color(0xFFFFFFFF)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      clipBehavior: Clip
-          .antiAlias, // Background image corners ko clean round clip karne ke liye
-      child: Padding(
-        padding: const EdgeInsets.all(28.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AnimatedWelcomeText(name: user?.name ?? "Investor"),
-            const SizedBox(height: 6),
-            const Text(
-              'Stay consistent with your SIPs and reach your financial goals faster.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF475569),
-                fontWeight: FontWeight.w500,
-                fontFamily: FontFamily.regular,
-              ),
-            ),
-            const SizedBox(height: 24),
+    final DashboardController? dashboardController =
+        Get.isRegistered<DashboardController>()
+        ? Get.find<DashboardController>()
+        : null;
 
-            // Metrics horizontal mapping block row
-            Row(
-              children: [
-                Expanded(
-                  child: _heroMetric(
-                    icon: Icons.account_balance_wallet_rounded,
-                    iconBgColor: const Color(0xFF3B82F6),
-                    title: 'Portfolio Value',
-                    value: '₹2,75,430',
-                    subtitle: '+12.45%',
-                    trailing: 'All Time',
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: _heroMetric(
-                    icon: Icons.calendar_today_rounded,
-                    iconBgColor: const Color(0xFF0EA5E9),
-                    title: 'SIP Due This Month',
-                    value: '₹12,000',
-                    subtitle: 'Due on 05 Jun 2025',
-                    trailing: '',
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: _heroMetric(
-                    icon: Icons.track_changes_rounded,
-                    iconBgColor: const Color(0xFF6366F1),
-                    title: 'Active Goals',
-                    value: '4 Goals',
-                    subtitle: 'On Track',
-                    trailing: '',
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: _heroMetric(
-                    icon: Icons.trending_up_rounded,
-                    iconBgColor: const Color(0xFF22C55E),
-                    title: 'Overall Returns',
-                    value: '+₹35,430',
-                    subtitle: '+14.75%',
-                    trailing: '',
-                    isReturns: true,
-                  ),
-                ),
-              ],
+    return Obx(() {
+      final summary = dashboardController?.portfolioData.value?.summary;
+      final portfolio = dashboardController?.portfolioData.value;
+
+      final currentValue = summary?.totalCurrentValue ?? 0.0;
+      final totalGainLoss = summary?.totalGainLoss ?? 0.0;
+      final gainPercent = summary?.totalGainLossPercent ?? 0.0;
+      final isProfit = summary?.isOverallProfit ?? true;
+      final activeSipCount = portfolio?.sipFunds.length ?? 0;
+      final totalHoldings = portfolio?.portfolio.length ?? 0;
+
+      return Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFE3F5FF), Color(0xFFF2F9FF), Color(0xFFFFFFFF)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
-      ),
-    );
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(28.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AnimatedWelcomeText(name: user?.name ?? "Investor"),
+              const SizedBox(height: 6),
+              const Text(
+                'Stay consistent with your SIPs and reach your financial goals faster.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF475569),
+                  fontWeight: FontWeight.w500,
+                  fontFamily: FontFamily.regular,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Dynamic Metrics Row
+              Row(
+                children: [
+                  Expanded(
+                    child: _heroMetric(
+                      icon: Icons.account_balance_wallet_rounded,
+                      iconBgColor: const Color(0xFF3B82F6),
+                      title: 'Portfolio Value',
+                      value: _formatHeroAmount(currentValue),
+                      subtitle:
+                          '${isProfit ? "+" : ""}${gainPercent.toStringAsFixed(2)}%',
+                      trailing: 'All Time',
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: _heroMetric(
+                      icon: Icons.calendar_today_rounded,
+                      iconBgColor: const Color(0xFF0EA5E9),
+                      title: 'Active SIPs',
+                      value: '$activeSipCount SIPs',
+                      subtitle: activeSipCount > 0
+                          ? 'Active & Running'
+                          : 'No Active SIPs',
+                      trailing: '',
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: _heroMetric(
+                      icon: Icons.track_changes_rounded,
+                      iconBgColor: const Color(0xFF6366F1),
+                      title: 'Total Holdings',
+                      value: '$totalHoldings Funds',
+                      subtitle: totalHoldings > 0
+                          ? 'In Portfolio'
+                          : 'Start Investing',
+                      trailing: '',
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: _heroMetric(
+                      icon: Icons.trending_up_rounded,
+                      iconBgColor: isProfit
+                          ? const Color(0xFF22C55E)
+                          : const Color(0xFFEF4444),
+                      title: 'Overall Returns',
+                      value:
+                          '${isProfit ? "+" : ""}${_formatHeroAmount(totalGainLoss.abs())}',
+                      subtitle:
+                          '${isProfit ? "+" : ""}${gainPercent.toStringAsFixed(2)}%',
+                      trailing: '',
+                      isReturns: true,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  String _formatHeroAmount(double amount) {
+    if (amount >= 10000000) {
+      return '₹${(amount / 10000000).toStringAsFixed(2)}Cr';
+    } else if (amount >= 100000) {
+      return '₹${(amount / 100000).toStringAsFixed(2)}L';
+    } else if (amount >= 1000) {
+      return '₹${(amount / 1000).toStringAsFixed(2)}K';
+    }
+    return '₹${amount.toStringAsFixed(2)}';
   }
 
   Widget _heroMetric({
