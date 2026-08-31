@@ -49,7 +49,8 @@ class _WebTransactionsScreenState extends State<WebTransactionsScreen> {
           return Center(child: Text(controller.errorMessageTranscation.value));
         }
 
-        final allTransactions = controller.transactionList.value?.transactions ?? [];
+        final allTransactions =
+            controller.transactionList.value?.transactions ?? [];
         final filteredTransactions = controller.filteredTransactions;
 
         return Padding(
@@ -83,7 +84,10 @@ class _WebTransactionsScreenState extends State<WebTransactionsScreen> {
                     children: [
                       // Header Bar with Title and Filter Button (Static)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 20,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -107,23 +111,31 @@ class _WebTransactionsScreenState extends State<WebTransactionsScreen> {
                       // CONTENT AREA: Only data scrolls inside this Expanded block
                       Expanded(
                         child: allTransactions.isEmpty
-                            ? const _EmptyState(title: 'No Transaction found to show')
+                            ? const _EmptyState(
+                                title: 'No Transaction found to show',
+                              )
                             : filteredTransactions.isEmpty
                             ? _EmptyState(
-                          title: 'No matching transactions',
-                          message: 'No ${controller.selectedTxnFilter.value.toLowerCase()} transactions found.',
-                        )
+                                title: 'No matching transactions',
+                                message:
+                                    'No ${controller.selectedTxnFilter.value.toLowerCase()} transactions found.',
+                              )
                             : ListView.separated(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          itemCount: filteredTransactions.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF3F4F6)),
-                          itemBuilder: (context, index) {
-                            return _TransactionTableRow(
-                              transaction: filteredTransactions[index],
-                              columnWidths: _columnWidths,
-                            );
-                          },
-                        ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                itemCount: filteredTransactions.length,
+                                separatorBuilder: (_, __) => const Divider(
+                                  height: 1,
+                                  color: Color(0xFFF3F4F6),
+                                ),
+                                itemBuilder: (context, index) {
+                                  return _TransactionTableRow(
+                                    transaction: filteredTransactions[index],
+                                    columnWidths: _columnWidths,
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),
@@ -150,7 +162,9 @@ class _FilterDropdownButton extends StatelessWidget {
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       itemBuilder: (BuildContext context) {
-        return controller.txnFilters.map<PopupMenuEntry<String>>((String filter) {
+        return controller.txnFilters.map<PopupMenuEntry<String>>((
+          String filter,
+        ) {
           final bool isSelected = controller.selectedTxnFilter.value == filter;
           return PopupMenuItem<String>(
             value: filter,
@@ -208,7 +222,7 @@ class _FilterDropdownButton extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -233,12 +247,12 @@ class _TransactionTableHeader extends StatelessWidget {
           TableRow(
             children: [
               _HeaderText('FUND'),
-              _HeaderText('INV. SINCE'),
+              _HeaderText('TXN. DATE'),
               _HeaderText('INV. TYPE'),
               _HeaderText('MFU ORDER'),
               _HeaderText('INV. COST'),
               _HeaderText('STATUS'),
-              _HeaderText('ACTION', ),
+              _HeaderText('ACTION'),
             ],
           ),
         ],
@@ -280,6 +294,14 @@ class _TransactionTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String statusStr =
+        (transaction.status ?? transaction.allotmentStatus ?? 'Pending')
+            .toString();
+    final Color statusColor = _getStatusColor(statusStr);
+    final Color statusBgColor = statusColor.withValues(alpha: 0.12);
+
+    final double amount = (transaction.amount as num?)?.toDouble() ?? 0.0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Table(
@@ -292,55 +314,102 @@ class _TransactionTableRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: Text(
-                  transaction.fundName ?? '',
+                  transaction.fundName ?? 'Mutual Fund',
                   style: const TextStyle(
                     fontFamily: FontFamily.medium,
                     fontSize: 13,
-                    color: Colors.black87,
+                    color: Color(0xFF0F172A),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              // 2. INV. SINCE
+              // 2. INV. SINCE / DATE
               Text(
-                transaction.invSince ?? '',
-                style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 13, fontWeight: FontWeight.w600),
+                transaction.txnDate ?? transaction.invSince ?? '—',
+                style: const TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF475569),
+                ),
               ),
               // 3. INV. TYPE
-              Text(
-                transaction.investmentType?.toString() ?? '',
-                style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 13, fontWeight: FontWeight.w600),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    (transaction.investmentType ?? 'SIP')
+                        .toString()
+                        .toUpperCase(),
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF334155),
+                    ),
+                  ),
+                ),
               ),
-              // 4. MFU ORDER
+              // 4. MFU ORDER / GORN
               Padding(
                 padding: const EdgeInsets.only(right: 4.0),
                 child: Text(
-                  transaction.mfOrderId ?? '',
-                  style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 13, fontWeight: FontWeight.w600),
+                  transaction.mfOrderId ?? transaction.gorn ?? '—',
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-              // 5. INV. COST
+              // 5. INV. COST / AMOUNT
               Text(
-                transaction.amount?.toString() ?? '0',
-                style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 13, fontWeight: FontWeight.w600),
-              ),
-              // 6. STATUS
-              Text(
-                transaction.status ?? '',
-                style: TextStyle(
+                '₹${amount.toStringAsFixed(2)}',
+                style: const TextStyle(
                   fontFamily: FontFamily.medium,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: (transaction.status?.toString().toLowerCase() == 'failed')
-                      ? Colors.red
-                      : Colors.black87,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
                 ),
               ),
-              // 7. ACTION
+              // 6. STATUS BADGE
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusBgColor,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    statusStr.toUpperCase(),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: statusColor,
+                    ),
+                  ),
+                ),
+              ),
+              // 7. ACTION VIEW BUTTON
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () =>
+                      _showTransactionDetailModal(context, transaction),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 0),
@@ -351,7 +420,7 @@ class _TransactionTableRow extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: FontFamily.medium,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF6366F1), // Clean designer look for link
+                      color: Color(0xFF6366F1),
                     ),
                   ),
                 ),
@@ -360,6 +429,156 @@ class _TransactionTableRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    final s = status.toLowerCase();
+    if (s.contains('success') ||
+        s.contains('completed') ||
+        s.contains('approved') ||
+        s.contains('allotted')) {
+      return const Color(0xFF22C55E);
+    } else if (s.contains('failed') ||
+        s.contains('rejected') ||
+        s.contains('cancelled')) {
+      return const Color(0xFFEF4444);
+    }
+    return const Color(0xFFF59E0B);
+  }
+
+  void _showTransactionDetailModal(BuildContext context, dynamic txn) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Transaction Details',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  children: [
+                    _buildModalDetailRow('Fund Name', txn.fundName ?? '—'),
+                    const Divider(height: 16),
+                    _buildModalDetailRow(
+                      'Investment Type',
+                      (txn.investmentType ?? 'SIP').toString().toUpperCase(),
+                    ),
+                    const Divider(height: 16),
+                    _buildModalDetailRow(
+                      'Amount',
+                      '₹${((txn.amount as num?)?.toDouble() ?? 0.0).toStringAsFixed(2)}',
+                    ),
+                    if (txn.mfOrderId != null) ...[
+                      const Divider(height: 16),
+                      _buildModalDetailRow(
+                        'Order Reference',
+                        txn.mfOrderId.toString(),
+                      ),
+                    ],
+                    if (txn.gorn != null && txn.gorn.toString().isNotEmpty) ...[
+                      const Divider(height: 16),
+                      _buildModalDetailRow('MFU GORN', txn.gorn.toString()),
+                    ],
+                    const Divider(height: 16),
+                    _buildModalDetailRow(
+                      'Status',
+                      (txn.status ?? 'Pending').toString(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0F172A),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildModalDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -381,14 +600,21 @@ class _EmptyState extends StatelessWidget {
               Container(
                 width: 100,
                 height: 100,
-                decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  shape: BoxShape.circle,
+                ),
               ),
-              Icon(Iconsax.document_text5, size: 54, color: Colors.teal.shade300),
+              Icon(
+                Iconsax.document_text5,
+                size: 54,
+                color: Colors.teal.shade300,
+              ),
               Positioned(
                 right: 32,
                 bottom: 32,
                 child: Icon(Icons.search, size: 20, color: Colors.red.shade400),
-              )
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -411,8 +637,8 @@ class _EmptyState extends StatelessWidget {
                 color: Colors.grey,
                 fontWeight: FontWeight.w600,
               ),
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );

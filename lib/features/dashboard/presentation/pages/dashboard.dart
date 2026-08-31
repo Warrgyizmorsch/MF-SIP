@@ -169,6 +169,9 @@ class WebDashboardLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DashboardController dashboardController =
+        Get.find<DashboardController>();
+
     return Container(
       color: const Color(
         0xFFF8FAFC,
@@ -227,66 +230,140 @@ class WebDashboardLayout extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // --- ROW 1: DYNAMIC SUMMARY GRID ---
-                      GridView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: statCrossAxisCount,
-                          childAspectRatio: statAspectRatio,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                        children: const [
-                          ExactWebStatCard(
-                            title: "Current Value",
-                            value: "₹32,580",
-                            trendText: "1.24% vs last month",
-                            trendIcon: Icons.arrow_upward_rounded,
-                            valueColor: Color(0xFF0F172A),
-                            trendColor: Color(0xFF22C55E),
-                            icon: Icons.wallet,
-                            iconBgColor: Color(0xFFEFF6FF),
-                            iconColor: Color(0xFF1D4ED8),
-                            sparklineData: [20, 15, 25, 18, 30, 22, 35, 45],
-                          ),
-                          ExactWebStatCard(
-                            title: "Total Investment",
-                            value: "₹30,000",
-                            trendText: "0.00% vs last month",
-                            trendIcon: Icons.remove,
-                            valueColor: Color(0xFF0F172A),
-                            trendColor: Color(0xFF64748B),
-                            icon: Icons.paid,
-                            iconBgColor: Color(0xFFFFF7ED),
-                            iconColor: Color(0xFFEA580C),
-                            sparklineData: [15, 25, 12, 20, 15, 22, 18, 20],
-                          ),
-                          ExactWebStatCard(
-                            title: "Profit / Loss",
-                            value: "+₹2,580",
-                            trendText: "1.24% vs last month",
-                            trendIcon: Icons.arrow_upward_rounded,
-                            valueColor: Color(0xFF22C55E),
-                            trendColor: Color(0xFF22C55E),
-                            icon: Icons.trending_up_rounded,
-                            iconBgColor: Color(0xFFF0FDF4),
-                            iconColor: Color(0xFF16A34A),
-                            sparklineData: [10, 12, 22, 15, 20, 28, 35, 48],
-                          ),
-                          ExactWebStatCard(
-                            title: "Portfolio XIRR",
-                            value: "+15.06%",
-                            trendText: "15.06% all time",
-                            trendIcon: Icons.arrow_upward_rounded,
-                            valueColor: Color(0xFF9333EA),
-                            trendColor: Color(0xFF22C55E),
-                            icon: Icons.percent_rounded,
-                            iconBgColor: Color(0xFFFAF5FF),
-                            iconColor: Color(0xFF9333EA),
-                            sparklineData: [12, 20, 14, 18, 15, 25, 22, 30],
-                          ),
-                        ],
-                      ),
+                      Obx(() {
+                        final summary =
+                            dashboardController.portfolioData.value?.summary;
+                        final portfolio =
+                            dashboardController.portfolioData.value;
+
+                        final currentValue = summary?.totalCurrentValue ?? 0.0;
+                        final invested = summary?.totalInvested ?? 0.0;
+                        final totalReturns = summary?.totalGainLoss ?? 0.0;
+                        final returnsPercent =
+                            summary?.totalGainLossPercent ?? 0.0;
+                        final isProfit = summary?.isOverallProfit ?? true;
+                        final fundsCount = portfolio?.portfolio.length ?? 0;
+
+                        return GridView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: statCrossAxisCount,
+                                childAspectRatio: statAspectRatio,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                              ),
+                          children: [
+                            ExactWebStatCard(
+                              title: "Current Value",
+                              value: _formatCurrencyAmount(currentValue),
+                              trendText:
+                                  "${isProfit ? "+" : ""}${returnsPercent.toStringAsFixed(2)}% overall",
+                              trendIcon: isProfit
+                                  ? Icons.arrow_upward_rounded
+                                  : Icons.arrow_downward_rounded,
+                              valueColor: const Color(0xFF0F172A),
+                              trendColor: isProfit
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFFEF4444),
+                              icon: Icons.wallet,
+                              iconBgColor: const Color(0xFFEFF6FF),
+                              iconColor: const Color(0xFF1D4ED8),
+                              sparklineData: const [
+                                20,
+                                15,
+                                25,
+                                18,
+                                30,
+                                22,
+                                35,
+                                45,
+                              ],
+                            ),
+                            ExactWebStatCard(
+                              title: "Total Investment",
+                              value: _formatCurrencyAmount(invested),
+                              trendText: "$fundsCount Active Holdings",
+                              trendIcon: Icons.account_balance_outlined,
+                              valueColor: const Color(0xFF0F172A),
+                              trendColor: const Color(0xFF64748B),
+                              icon: Icons.paid,
+                              iconBgColor: const Color(0xFFFFF7ED),
+                              iconColor: const Color(0xFFEA580C),
+                              sparklineData: const [
+                                15,
+                                25,
+                                12,
+                                20,
+                                15,
+                                22,
+                                18,
+                                20,
+                              ],
+                            ),
+                            ExactWebStatCard(
+                              title: "Profit / Loss",
+                              value:
+                                  "${isProfit ? "+" : ""}${_formatCurrencyAmount(totalReturns.abs())}",
+                              trendText:
+                                  "${isProfit ? "+" : ""}${returnsPercent.toStringAsFixed(2)}% returns",
+                              trendIcon: isProfit
+                                  ? Icons.arrow_upward_rounded
+                                  : Icons.arrow_downward_rounded,
+                              valueColor: isProfit
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFFEF4444),
+                              trendColor: isProfit
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFFEF4444),
+                              icon: Icons.trending_up_rounded,
+                              iconBgColor: isProfit
+                                  ? const Color(0xFFF0FDF4)
+                                  : const Color(0xFFFEF2F2),
+                              iconColor: isProfit
+                                  ? const Color(0xFF16A34A)
+                                  : const Color(0xFFDC2626),
+                              sparklineData: const [
+                                10,
+                                12,
+                                22,
+                                15,
+                                20,
+                                28,
+                                35,
+                                48,
+                              ],
+                            ),
+                            ExactWebStatCard(
+                              title: "Overall Returns %",
+                              value:
+                                  "${isProfit ? "+" : ""}${returnsPercent.toStringAsFixed(2)}%",
+                              trendText: "All time growth",
+                              trendIcon: isProfit
+                                  ? Icons.arrow_upward_rounded
+                                  : Icons.arrow_downward_rounded,
+                              valueColor: const Color(0xFF9333EA),
+                              trendColor: isProfit
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFFEF4444),
+                              icon: Icons.percent_rounded,
+                              iconBgColor: const Color(0xFFFAF5FF),
+                              iconColor: const Color(0xFF9333EA),
+                              sparklineData: const [
+                                12,
+                                20,
+                                14,
+                                18,
+                                15,
+                                25,
+                                22,
+                                30,
+                              ],
+                            ),
+                          ],
+                        );
+                      }),
 
                       const Gap(24),
 
@@ -334,6 +411,17 @@ class WebDashboardLayout extends StatelessWidget {
     );
   }
 
+  String _formatCurrencyAmount(double amount) {
+    if (amount >= 10000000) {
+      return '₹${(amount / 10000000).toStringAsFixed(2)}Cr';
+    } else if (amount >= 100000) {
+      return '₹${(amount / 100000).toStringAsFixed(2)}L';
+    } else if (amount >= 1000) {
+      return '₹${(amount / 1000).toStringAsFixed(2)}K';
+    }
+    return '₹${amount.toStringAsFixed(2)}';
+  }
+
   Widget _buildPerformanceChartCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -349,157 +437,194 @@ class WebDashboardLayout extends StatelessWidget {
   // Modified Holdings layout to switch to SingleChildScrollView scrolling on compressed slots
   Widget _buildYourHoldingsTableCard(double totalWidth) {
     final bool isCompactTable = totalWidth < 750;
+    final DashboardController dashboardController =
+        Get.find<DashboardController>();
 
-    final tableWidget = Table(
-      columnWidths: isCompactTable
-          ? const {
-              0: FixedColumnWidth(
-                220,
-              ), // Lock sizing to prevent clipping text strings
-              1: FixedColumnWidth(90),
-              2: FixedColumnWidth(100),
-              3: FixedColumnWidth(100),
-              4: FixedColumnWidth(100),
-              5: FixedColumnWidth(90),
-              6: FixedColumnWidth(110),
-            }
-          : const {
-              0: FlexColumnWidth(3.8),
-              1: FlexColumnWidth(1.6),
-              2: FlexColumnWidth(1.4),
-              3: FlexColumnWidth(1.4),
-              4: FlexColumnWidth(1.4),
-              5: FlexColumnWidth(1.4),
-              6: FlexColumnWidth(1.5),
-            },
-      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      children: [
-        TableRow(
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.5),
-            ),
-          ),
-          children: [
-            _buildHeaderCell('Fund Name\nCategory'),
-            _buildHeaderCell('Type'),
-            _buildHeaderCell('Invested\nAmount'),
-            _buildHeaderCell('Current\nValue'),
-            _buildHeaderCell('Gain / Loss\n(₹)'),
-            _buildHeaderCell('Gain / Loss\n(%)'),
-            _buildHeaderCell('Monthly\nContribution'),
-          ],
-        ),
-        _buildTableRowItem(
-          logoWidget: const Icon(
-            Icons.account_balance_wallet_rounded,
-            color: Colors.white,
-            size: 18,
-          ),
-          logoBgColor: const Color(0xFF007AFF),
-          name: "Nippon India Large Cap Fund",
-          category: "Equity • Large Cap",
-          type: "SIP",
-          invested: "₹10,000",
-          current: "₹5,43,000",
-          gainAmt: "+₹43,000",
-          gainPct: "+8.60%",
-          monthlyContribution: "₹5,000",
-          isProfit: true,
-        ),
-        _buildTableRowItem(
-          logoWidget: const Center(
-            child: Text(
-              "i",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          logoBgColor: const Color(0xFFE11D48),
-          name: "ICICI Prudential Technology Fund",
-          category: "Equity • Sectoral / Tech",
-          type: "Lumpsum",
-          invested: "₹10,000",
-          current: "₹4,82,000",
-          gainAmt: "+₹82,000",
-          gainPct: "+20.50%",
-          monthlyContribution: "—\n(One-time)",
-          isProfit: true,
-          isMonthlyContributionSubtitled: true,
-        ),
-        _buildTableRowItem(
-          logoWidget: const Icon(
-            Icons.show_chart_rounded,
-            color: Colors.white,
-            size: 18,
-          ),
-          logoBgColor: const Color(0xFF0B3C5D),
-          name: "SBI Bluechip Fund",
-          category: "Equity • Large Cap",
-          type: "SIP",
-          invested: "₹15,000",
-          current: "₹4,21,000",
-          gainAmt: "+₹71,000",
-          gainPct: "+20.29%",
-          monthlyContribution: "₹2,000",
-          isProfit: true,
-        ),
-      ],
-    );
+    return Obx(() {
+      final holdings = dashboardController.portfolioData.value?.portfolio ?? [];
+      final isLoading = dashboardController.isLoadingPortfolio.value;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      final tableWidget = Table(
+        columnWidths: isCompactTable
+            ? const {
+                0: FixedColumnWidth(
+                  220,
+                ), // Lock sizing to prevent clipping text strings
+                1: FixedColumnWidth(90),
+                2: FixedColumnWidth(100),
+                3: FixedColumnWidth(100),
+                4: FixedColumnWidth(100),
+                5: FixedColumnWidth(90),
+                6: FixedColumnWidth(110),
+              }
+            : const {
+                0: FlexColumnWidth(3.8),
+                1: FlexColumnWidth(1.6),
+                2: FlexColumnWidth(1.4),
+                3: FlexColumnWidth(1.4),
+                4: FlexColumnWidth(1.4),
+                5: FlexColumnWidth(1.4),
+                6: FlexColumnWidth(1.5),
+              },
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          TableRow(
+            decoration: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.5),
+              ),
+            ),
             children: [
-              const Text(
-                "Your Holdings",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF0F172A),
-                  fontFamily: FontFamily.regular,
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  "View All",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF007AFF),
-                    fontWeight: FontWeight.w600,
-                    fontFamily: FontFamily.regular,
-                  ),
-                ),
-              ),
+              _buildHeaderCell('Fund Name\nCategory'),
+              _buildHeaderCell('Type'),
+              _buildHeaderCell('Invested\nAmount'),
+              _buildHeaderCell('Current\nValue'),
+              _buildHeaderCell('Gain / Loss\n(₹)'),
+              _buildHeaderCell('Gain / Loss\n(%)'),
+              _buildHeaderCell('Contribution'),
             ],
           ),
-          const Gap(20),
-          isCompactTable
-              ? Scrollbar(
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: tableWidget,
-                  ),
-                )
-              : tableWidget,
+          ...holdings.map((item) {
+            return _buildTableRowItem(
+              logoWidget: ClipOval(
+                child: item.amcLogo.isNotEmpty
+                    ? Image.network(
+                        item.amcLogo,
+                        width: 32,
+                        height: 32,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.account_balance,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+              ),
+              logoBgColor: const Color(0xFF0F172A),
+              name: item.fundName,
+              category: item.amcName.isNotEmpty ? item.amcName : "Mutual Fund",
+              type: item.investmentType.toUpperCase(),
+              invested: "₹${item.investedAmount.toStringAsFixed(2)}",
+              current: "₹${item.currentValue.toStringAsFixed(2)}",
+              gainAmt:
+                  "${item.isProfit ? "+" : ""}₹${item.gainLoss.abs().toStringAsFixed(2)}",
+              gainPct:
+                  "${item.isProfit ? "+" : ""}${item.gainLossPercent.toStringAsFixed(2)}%",
+              monthlyContribution: item.isSip ? "SIP" : "Lumpsum",
+              isProfit: item.isProfit,
+            );
+          }),
         ],
-      ),
-    );
+      );
+
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Your Holdings",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F172A),
+                        fontFamily: FontFamily.regular,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "${holdings.length} Active Investments",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () => Get.toNamed(AppRoutes.dashBoardPage),
+                  child: const Text(
+                    "View All",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF007AFF),
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(20),
+            if (isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (holdings.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: const Column(
+                  children: [
+                    Icon(
+                      Icons.inbox_outlined,
+                      size: 40,
+                      color: Color(0xFF94A3B8),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'No Active Investments Yet',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Start an SIP or Lumpsum investment to build your portfolio.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    ),
+                  ],
+                ),
+              )
+            else
+              isCompactTable
+                  ? Scrollbar(
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: tableWidget,
+                      ),
+                    )
+                  : tableWidget,
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildHeaderCell(String text) {
@@ -625,43 +750,104 @@ class WebDashboardLayout extends StatelessWidget {
   }
 
   Widget _buildUpcomingSIPsCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Upcoming SIPs",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF0F172A),
+    final DashboardController dashboardController =
+        Get.find<DashboardController>();
+
+    return Obx(() {
+      final sipFunds = dashboardController.portfolioData.value?.sipFunds ?? [];
+      final activeSips = sipFunds.where((s) => s.isSipActive).toList();
+      final isLoading = dashboardController.isLoadingPortfolio.value;
+
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Upcoming SIPs",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF0F172A),
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  "View All",
-                  style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6)),
+                TextButton(
+                  onPressed: () => Get.toNamed(AppRoutes.dashBoardPage),
+                  child: const Text(
+                    "View All",
+                    style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6)),
+                  ),
                 ),
+              ],
+            ),
+            const Gap(12),
+            if (isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (activeSips.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        color: Color(0xFF94A3B8),
+                        size: 28,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "No Active SIPs Scheduled",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF475569),
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        "Start a monthly SIP to build wealth consistently.",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: activeSips.take(4).length,
+                separatorBuilder: (_, __) =>
+                    const Divider(height: 20, color: Color(0xFFF1F5F9)),
+                itemBuilder: (context, index) {
+                  final sip = activeSips[index];
+                  final dateLabel = sip.lastTransactionDate.isNotEmpty
+                      ? sip.lastTransactionDate
+                      : "Monthly";
+                  final amountLabel =
+                      "₹${sip.investedAmount.toStringAsFixed(0)}";
+
+                  return _buildSipRowItem(dateLabel, sip.fundName, amountLabel);
+                },
               ),
-            ],
-          ),
-          const Gap(12),
-          _buildSipRowItem("10 Jun", "Kotak Bluechip Fund", "₹5,000"),
-          const Divider(height: 20, color: Color(0xFFF1F5F9)),
-          _buildSipRowItem("15 Jun", "ICICI Prudential Tech", "₹3,000"),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildSipRowItem(String date, String title, String value) {
@@ -710,69 +896,124 @@ class WebDashboardLayout extends StatelessWidget {
   }
 
   Widget _buildRecentActivityCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Recent Activity",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF6366F1),
-                  fontFamily: FontFamily.regular,
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  "View All",
+    final DashboardController dashboardController =
+        Get.find<DashboardController>();
+
+    return Obx(() {
+      final holdings = dashboardController.portfolioData.value?.portfolio ?? [];
+      final isLoading = dashboardController.isLoadingPortfolio.value;
+
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Recent Activity",
                   style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6366F1),
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    color: Color(0xFF6366F1),
                     fontFamily: FontFamily.regular,
                   ),
                 ),
+                TextButton(
+                  onPressed: () => Get.toNamed(AppRoutes.dashBoardPage),
+                  child: const Text(
+                    "View All",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF6366F1),
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(12),
+            if (isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (holdings.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.history_outlined,
+                        color: Color(0xFF94A3B8),
+                        size: 28,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "No Recent Activity",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF475569),
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        "Your recent transactions and SIP activities will appear here.",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: holdings.take(3).length,
+                separatorBuilder: (_, __) => const Divider(
+                  height: 24,
+                  thickness: 0.8,
+                  color: Color(0xFFF1F5F9),
+                ),
+                itemBuilder: (context, index) {
+                  final item = holdings[index];
+                  final String activityType = item.isRedemptionPending
+                      ? "Redemption Pending"
+                      : (item.isSip ? "SIP Transaction" : "Investment");
+                  final IconData activityIcon = item.isRedemptionPending
+                      ? Iconsax.clock
+                      : (item.isSip
+                            ? Iconsax.calendar_tick
+                            : Iconsax.document_text5);
+                  final String timeLabel = item.lastTransactionDate.isNotEmpty
+                      ? item.lastTransactionDate
+                      : "Recent";
+
+                  return _buildActivityRowItem(
+                    icon: activityIcon,
+                    title: activityType,
+                    subtitle: item.fundName,
+                    amount: "₹${item.investedAmount.toStringAsFixed(0)}",
+                    timeAgo: timeLabel,
+                  );
+                },
               ),
-            ],
-          ),
-          const Gap(12),
-          _buildActivityRowItem(
-            icon: Iconsax.document_text5,
-            title: "SIP Invested",
-            subtitle: "Kotak Bluechip Fund",
-            amount: "₹5,000",
-            timeAgo: "Today",
-          ),
-          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
-          _buildActivityRowItem(
-            icon: Iconsax.calendar_tick,
-            title: "SIP Invested",
-            subtitle: "ICICI Prudential Tech",
-            amount: "₹3,000",
-            timeAgo: "2 days ago",
-          ),
-          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
-          _buildActivityRowItem(
-            icon: Iconsax.clock,
-            title: "Redemption",
-            subtitle: "SBI Small Cap Fund",
-            amount: "₹2,000",
-            timeAgo: "5 days ago",
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildActivityRowItem({
@@ -1611,154 +1852,226 @@ class TopPerformingFundCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DashboardController dashboardController =
+        Get.find<DashboardController>();
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       height: 200,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Top Performing Fund",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF22C55E),
-                  fontFamily: FontFamily.regular,
-                ), // Green text
-              ),
-              Icon(
-                Icons.trending_up_rounded,
-                color: const Color(0xFF22C55E),
-                size: 20,
-              ),
-            ],
-          ),
-          Gap(14),
+      child: Obx(() {
+        final holdings =
+            dashboardController.portfolioData.value?.portfolio ?? [];
+        final isLoading = dashboardController.isLoadingPortfolio.value;
 
-          // Fund Details and Mini Graph Split Row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Left: Logo & Returns Text
-              Expanded(
-                flex: 5,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Brand Logo (Placeholder matching your asset configuration)
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFF1F2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "i",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.red,
-                            fontFamily: FontFamily.regular,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Gap(12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            "ICICI Prudential Technology Fund",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0F172A),
-                              fontFamily: FontFamily.regular,
-                            ),
-                          ),
-                          const Gap(6),
-                          Text(
-                            "Return (YTD)",
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade400,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: FontFamily.regular,
-                            ),
-                          ),
-                          const Gap(4),
-                          const Text(
-                            "+24.58%",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF22C55E),
-                              fontFamily: FontFamily.regular,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+        if (isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (holdings.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.trending_up_rounded,
+                  color: Color(0xFF94A3B8),
+                  size: 32,
                 ),
-              ),
-
-              // Right: Smooth Sparkline Mini Wave Graph
-              Expanded(
-                flex: 4,
-                child: SizedBox(
-                  height: 50,
-                  child: CustomPaint(
-                    painter: SmoothSparkPainter(
-                      data: [10, 12, 11, 15, 14, 22, 20, 26, 24, 32, 36],
-                      lineColor: const Color(0xFF22C55E),
-                    ),
+                SizedBox(height: 8),
+                Text(
+                  "No Active Holdings",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const Spacer(),
+                SizedBox(height: 2),
+                Text(
+                  "Top performing investments will appear here.",
+                  style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                ),
+              ],
+            ),
+          );
+        }
 
-          // Footer Navigation Bar
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                onTap: () {},
-                child: const Text(
-                  "View Fund Details",
+        // Dynamically find the highest performing fund by return %
+        final topFund = holdings.reduce(
+          (max, current) =>
+              current.gainLossPercent > max.gainLossPercent ? current : max,
+        );
+
+        final String returnsPercent =
+            "${topFund.isProfit ? "+" : ""}${topFund.gainLossPercent.toStringAsFixed(2)}%";
+        final String gainAmount =
+            "${topFund.isProfit ? "+" : ""}₹${topFund.gainLoss.abs().toStringAsFixed(2)}";
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Row
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Top Performing Fund",
                   style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF007AFF),
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    color: Color(0xFF22C55E),
                     fontFamily: FontFamily.regular,
                   ),
                 ),
-              ),
-              const Icon(
-                Icons.arrow_forward_rounded,
-                size: 16,
-                color: Color(0xFF007AFF),
-              ),
-            ],
+                Icon(
+                  Icons.trending_up_rounded,
+                  color: Color(0xFF22C55E),
+                  size: 20,
+                ),
+              ],
+            ),
+            const Gap(14),
+
+            // Fund Details & Mini Sparkline Row
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Brand Logo (AMC logo with network fallback)
+                      ClipOval(
+                        child: topFund.amcLogo.isNotEmpty
+                            ? Image.network(
+                                topFund.amcLogo,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    _buildLogoPlaceholder(topFund),
+                              )
+                            : _buildLogoPlaceholder(topFund),
+                      ),
+                      const Gap(12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              topFund.fundName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF0F172A),
+                                fontFamily: FontFamily.regular,
+                              ),
+                            ),
+                            const Gap(6),
+                            Text(
+                              "Total Return ($gainAmount)",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: FontFamily.regular,
+                              ),
+                            ),
+                            const Gap(4),
+                            Text(
+                              returnsPercent,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: topFund.isProfit
+                                    ? const Color(0xFF22C55E)
+                                    : const Color(0xFFEF4444),
+                                fontFamily: FontFamily.regular,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Right: Smooth Sparkline Mini Wave Graph
+                Expanded(
+                  flex: 4,
+                  child: SizedBox(
+                    height: 50,
+                    child: CustomPaint(
+                      painter: SmoothSparkPainter(
+                        data: topFund.isProfit
+                            ? const [10, 12, 11, 15, 14, 22, 20, 26, 24, 32, 36]
+                            : const [36, 32, 28, 25, 22, 20, 18, 15, 12, 10],
+                        lineColor: topFund.isProfit
+                            ? const Color(0xFF22C55E)
+                            : const Color(0xFFEF4444),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+
+            // Footer Navigation Bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () => PortfolioFundDetailsModal.show(context, topFund),
+                  child: const Text(
+                    "View Fund Details",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF007AFF),
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 16,
+                  color: Color(0xFF007AFF),
+                ),
+              ],
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildLogoPlaceholder(MfuPortfolioItemEntity fund) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        color: Color(0xFFEFF6FF),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          fund.fundName.isNotEmpty ? fund.fundName[0].toUpperCase() : "M",
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1D4ED8),
           ),
-        ],
+        ),
       ),
     );
   }
