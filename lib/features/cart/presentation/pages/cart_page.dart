@@ -231,7 +231,7 @@ class CartPage extends GetView<CartController> {
     }
 
     // --- EMPTY STATE ---
-    if (items.isEmpty) {
+    if (items.isEmpty && controller.displayedItems.isEmpty) {
       return SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
