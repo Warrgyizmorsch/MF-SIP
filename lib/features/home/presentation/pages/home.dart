@@ -1443,6 +1443,20 @@ class _WebDashboardLayout extends StatelessWidget {
         builder: (context, constraints) {
           final bool compact = constraints.maxWidth < 200;
 
+          void openSipMode(bool isLumpsum) {
+            Get.delete<SipProcessController>();
+            SipProcessController.navIsLumpsum = isLumpsum;
+            navController.openNestedRoute(
+              AppRoutes.startSipScreen,
+              queryParameters: {'type': isLumpsum ? 'lumpsum' : 'sip'},
+              arguments: {'isLumpsum': isLumpsum},
+              beforeOpen: () {
+                Get.delete<SipProcessController>();
+                SipProcessController.navIsLumpsum = isLumpsum;
+              },
+            );
+          }
+
           if (compact) {
             return Column(
               children: [
@@ -1450,44 +1464,14 @@ class _WebDashboardLayout extends StatelessWidget {
                   icon: UImages.startsip,
                   title: 'Start SIP',
                   subtitle: 'Invest regularly',
-                  onTap: () {
-                    SipProcessController.navIsLumpsum = false;
-                    // Get.toNamed(
-                    //   AppRoutes.startSipScreen,
-                    //   id: 1,
-                    //   arguments: {'isLumpsum': false},
-                    // );
-                    navController.openNestedRoute(
-                      AppRoutes.startSipScreen,
-                      queryParameters: {'type': 'sip'},
-                      arguments: {'isLumpsum': false},
-                      beforeOpen: () {
-                        SipProcessController.navIsLumpsum = false;
-                      },
-                    );
-                  },
+                  onTap: () => openSipMode(false),
                 ),
                 const SizedBox(height: 14),
                 _investModeCard(
                   icon: UImages.glyph,
                   title: 'Invest Lumpsum',
                   subtitle: 'Invest once',
-                  onTap: () {
-                    SipProcessController.navIsLumpsum = true;
-                    // Get.toNamed(
-                    //   AppRoutes.startSipScreen,
-                    //   id: 1,
-                    //   arguments: {'isLumpsum': true},
-                    // );
-                    navController.openNestedRoute(
-                      AppRoutes.startSipScreen,
-                      queryParameters: {'type': 'lumpsum'},
-                      arguments: {'isLumpsum': true},
-                      beforeOpen: () {
-                        SipProcessController.navIsLumpsum = true;
-                      },
-                    );
-                  },
+                  onTap: () => openSipMode(true),
                 ),
               ],
             );
@@ -1500,22 +1484,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   icon: UImages.startsip,
                   title: 'Start SIP',
                   subtitle: 'Invest regularly',
-                  onTap: () {
-                    SipProcessController.navIsLumpsum = false;
-                    // Get.toNamed(
-                    //   AppRoutes.startSipScreen,
-                    //   id: 1,
-                    //   arguments: {'isLumpsum': false},
-                    // );
-                    navController.openNestedRoute(
-                      AppRoutes.startSipScreen,
-                      queryParameters: {'type': 'sip'},
-                      arguments: {'isLumpsum': false},
-                      beforeOpen: () {
-                        SipProcessController.navIsLumpsum = false;
-                      },
-                    );
-                  },
+                  onTap: () => openSipMode(false),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1524,22 +1493,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   icon: UImages.glyph,
                   title: 'Invest Lumpsum',
                   subtitle: 'Invest once',
-                  onTap: () {
-                    SipProcessController.navIsLumpsum = true;
-                    // Get.toNamed(
-                    //   AppRoutes.startSipScreen,
-                    //   id: 1,
-                    //   arguments: {'isLumpsum': true},
-                    // );
-                    navController.openNestedRoute(
-                      AppRoutes.startSipScreen,
-                      queryParameters: {'type': 'lumpsum'},
-                      arguments: {'isLumpsum': true},
-                      beforeOpen: () {
-                        SipProcessController.navIsLumpsum = true;
-                      },
-                    );
-                  },
+                  onTap: () => openSipMode(true),
                 ),
               ),
             ],
