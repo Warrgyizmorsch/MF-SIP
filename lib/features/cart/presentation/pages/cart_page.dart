@@ -466,354 +466,477 @@ class CartPage extends GetView<CartController> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 6,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          gradient: Ucolors.backgroundGradient,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Ucolors.primary.withOpacity(0.25),
-                              blurRadius: 18,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
+        child: Obx(() {
+          final isLumpsumTab = controller.activeTabIndex.value == 1;
+          final activeItems = isLumpsumTab
+              ? controller.lumpsumItems
+              : controller.sipAndStepUpItems;
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            gradient: Ucolors.backgroundGradient,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Ucolors.primary.withValues(alpha: 0.25),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.shopping_bag_rounded,
+                            color: Colors.white,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.shopping_bag_rounded,
-                          color: Colors.white,
+                        const Gap(14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Investment Checkout',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w600,
+                                  color: Ucolors.dark,
+                                  letterSpacing: -0.8,
+                                ),
+                              ),
+                              const Gap(4),
+                              Text(
+                                '${activeItems.length} fund${activeItems.length == 1 ? '' : 's'} in ${isLumpsumTab ? "Lumpsum" : "SIP & Step-Up"}. Review and complete checkout.',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(20),
+
+                    // Web Tab Switcher Pills
+                    Row(
+                      children: [
+                        _buildDesktopTabPill(
+                          title:
+                              'SIP & Step-Up (${controller.sipAndStepUpItems.length})',
+                          isSelected: !isLumpsumTab,
+                          onTap: () => controller.activeTabIndex.value = 0,
+                        ),
+                        const Gap(12),
+                        _buildDesktopTabPill(
+                          title:
+                              'Lumpsum Orders (${controller.lumpsumItems.length})',
+                          isSelected: isLumpsumTab,
+                          onTap: () => controller.activeTabIndex.value = 1,
+                        ),
+                      ],
+                    ),
+                    const Gap(22),
+                    _buildDesktopAmountCards(),
+                    const Gap(18),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 24,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                isLumpsumTab ? 'Lumpsum Items' : 'SIP Items',
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Ucolors.dark,
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Ucolors.primary.withValues(
+                                    alpha: 0.08,
+                                  ),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  '${activeItems.length} Items',
+                                  style: const TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    color: Ucolors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(8),
+                          if (activeItems.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Center(
+                                child: Text(
+                                  isLumpsumTab
+                                      ? "No Lumpsum orders in your cart."
+                                      : "No SIP orders in your cart.",
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            ...List.generate(
+                              activeItems.length,
+                              (index) => CartItemCard(
+                                key: ValueKey(
+                                  activeItems[index].id ??
+                                      activeItems[index].schemeCode ??
+                                      index,
+                                ),
+                                index: index,
+                                itemEntity: activeItems[index],
+                              ),
+                            ),
+                          DistributionRemainderCard(),
+                        ],
+                      ),
+                    ),
+                    const Gap(24),
+                    _buildRecentlyViewed(),
+                  ],
+                ),
+              ),
+              const Gap(24),
+              Expanded(flex: 4, child: _buildWebCheckoutSummary(items)),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildDesktopTabPill({
+    required String title,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Ucolors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Ucolors.primary : Colors.grey.shade300,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Ucolors.primary.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.grey.shade700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDesktopAmountCards() {
+    return Obx(() {
+      final sipTotal = controller.totalSipStepUpAmount;
+      final lumpsumTotal = controller.totalLumpsumAmount;
+      final payableAmount = sipTotal + lumpsumTotal;
+      final isLumpsumTab = controller.activeTabIndex.value == 1;
+
+      return Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => controller.activeTabIndex.value = 0,
+              child: _AmountSummaryCard(
+                title: 'SIP Total (${controller.sipAndStepUpItems.length})',
+                amount: _formatAmount(sipTotal),
+                icon: Icons.repeat_rounded,
+                color: Ucolors.primary,
+                highlighted: !isLumpsumTab,
+              ),
+            ),
+          ),
+          const Gap(14),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => controller.activeTabIndex.value = 1,
+              child: _AmountSummaryCard(
+                title: 'Lumpsum Total (${controller.lumpsumItems.length})',
+                amount: _formatAmount(lumpsumTotal),
+                icon: Icons.bolt_rounded,
+                color: const Color(0xFF8B5CF6),
+                highlighted: isLumpsumTab,
+              ),
+            ),
+          ),
+          const Gap(14),
+          Expanded(
+            child: _AmountSummaryCard(
+              title: 'Overall Cart Value',
+              amount: _formatAmount(payableAmount),
+              icon: Icons.account_balance_wallet_rounded,
+              color: Ucolors.success,
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildWebCheckoutSummary(List<CartItemEntity> items) {
+    return Obx(() {
+      final isLumpsumTab = controller.activeTabIndex.value == 1;
+      final mfuCtrl = Get.find<MfuController>();
+      final isSubmitting = isLumpsumTab
+          ? mfuCtrl.isSubmittingLumpsum.value
+          : mfuCtrl.isSubmittingSip.value;
+
+      final targetItems = isLumpsumTab
+          ? controller.lumpsumItems
+          : controller.sipAndStepUpItems;
+      final targetAmount = isLumpsumTab
+          ? controller.totalLumpsumAmount
+          : controller.totalSipStepUpAmount;
+      final isValid = controller.isListValid(targetItems);
+
+      final sipTotal = controller.totalSipStepUpAmount;
+      final lumpsumTotal = controller.totalLumpsumAmount;
+
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 28,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.receipt_long_rounded,
+                    color: Ucolors.primary,
+                    size: 22,
+                  ),
+                ),
+                const Gap(12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${isLumpsumTab ? "Lumpsum" : "SIP"} Payment Summary',
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Ucolors.dark,
                         ),
                       ),
-                      const Gap(14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Investment Checkout',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w600,
-                                color: Ucolors.dark,
-                                letterSpacing: -0.8,
-                              ),
-                            ),
-                            const Gap(4),
-                            Text(
-                              '${items.length} fund${items.length == 1 ? '' : 's'} selected. Review details and complete payment on this page.',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
+                      const Gap(2),
+                      const Text(
+                        'Complete payment securely',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
                       ),
                     ],
                   ),
-                  const Gap(22),
-                  _buildDesktopAmountCards(items),
-                  const Gap(18),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.grey.shade200),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 24,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Text(
-                              'Cart Items',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Ucolors.dark,
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Ucolors.primary.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                '${items.length} Items',
-                                style: const TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  color: Ucolors.primary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Gap(8),
-                        ...List.generate(
-                          items.length,
-                          (index) => CartItemCard(
-                            key: ValueKey(
-                              items[index].id ??
-                                  items[index].schemeCode ??
-                                  index,
-                            ),
-                            index: index,
-                            itemEntity: items[index],
-                          ),
-                        ),
-                        DistributionRemainderCard(),
-                      ],
-                    ),
+                ),
+              ],
+            ),
+            const Gap(20),
+            _CheckoutBreakupRow(
+              label: 'SIP Investments',
+              value: _formatAmount(sipTotal),
+              icon: Icons.repeat_rounded,
+            ),
+            const Gap(10),
+            _CheckoutBreakupRow(
+              label: 'Lumpsum Investments',
+              value: _formatAmount(lumpsumTotal),
+              icon: Icons.bolt_rounded,
+            ),
+            const Gap(16),
+            Divider(color: Colors.grey.shade200),
+            const Gap(16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: Ucolors.backgroundGradient,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Ucolors.primary.withValues(alpha: 0.25),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
-            ),
-            Gap(24),
-            Expanded(flex: 4, child: _buildWebCheckoutSummary(items)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDesktopAmountCards(List<CartItemEntity> items) {
-    final sipTotal = _calculateSipTotal(items);
-    final lumpsumTotal = _calculateLumpsumTotal(items);
-    final payableAmount = sipTotal + lumpsumTotal;
-
-    return Row(
-      children: [
-        Expanded(
-          child: _AmountSummaryCard(
-            title: 'SIP Total',
-            amount: _formatAmount(sipTotal),
-            icon: Icons.repeat_rounded,
-            color: Ucolors.primary,
-          ),
-        ),
-        const Gap(14),
-        Expanded(
-          child: _AmountSummaryCard(
-            title: 'Lumpsum Total',
-            amount: _formatAmount(lumpsumTotal),
-            icon: Icons.bolt_rounded,
-            color: const Color(0xFF8B5CF6),
-          ),
-        ),
-        const Gap(14),
-        Expanded(
-          child: _AmountSummaryCard(
-            title: 'Payable Now',
-            amount: _formatAmount(payableAmount),
-            icon: Icons.account_balance_wallet_rounded,
-            color: Ucolors.success,
-            highlighted: true,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWebCheckoutSummary(List<CartItemEntity> items) {
-    final sipTotal = _calculateSipTotal(items);
-    final lumpsumTotal = _calculateLumpsumTotal(items);
-    final payableAmount = sipTotal + lumpsumTotal;
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 28,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: Ucolors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.receipt_long_rounded,
-                  color: Ucolors.primary,
-                  size: 22,
-                ),
-              ),
-              const Gap(12),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Payment Summary',
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Ucolors.dark,
-                      ),
-                    ),
-                    Gap(2),
-                    Text(
-                      'Complete payment without leaving cart',
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const Gap(20),
-          _CheckoutBreakupRow(
-            label: 'SIP Investments',
-            value: _formatAmount(sipTotal),
-            icon: Icons.repeat_rounded,
-          ),
-          const Gap(10),
-          _CheckoutBreakupRow(
-            label: 'Lumpsum Investments',
-            value: _formatAmount(lumpsumTotal),
-            icon: Icons.bolt_rounded,
-          ),
-          const Gap(16),
-          Divider(color: Colors.grey.shade200),
-          const Gap(16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              gradient: Ucolors.backgroundGradient,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Ucolors.primary.withOpacity(0.25),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Overall Payable Amount',
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.78),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Gap(6),
-                Text(
-                  _formatAmount(payableAmount),
-                  style: const TextStyle(
-                    fontFamily: FontFamily.medium,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    letterSpacing: -1.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Gap(22),
-          const _InlinePaymentSection(),
-          const Gap(18),
-          const TermAndPolicy(term: 'By Proceeding I accept the '),
-          const Gap(18),
-          Obx(() {
-            final isValid = controller.isCartValid1;
-            return UElevatedBUtton(
-              color: isValid ? Ucolors.primary : Colors.grey,
-              height: 54,
-              onPressed: isValid ? _handlePurchase : null,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.lock_rounded, color: Colors.white, size: 17),
-                  const Gap(8),
                   Text(
-                    'Pay ${_formatAmount(payableAmount)}',
+                    '${isLumpsumTab ? "Lumpsum" : "SIP"} Selected Amount',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.78),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Gap(6),
+                  Text(
+                    _formatAmount(targetAmount.toInt()),
                     style: const TextStyle(
                       fontFamily: FontFamily.medium,
-                      fontSize: 16,
+                      fontSize: 30,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
+                      letterSpacing: -1.0,
                     ),
                   ),
                 ],
               ),
-            );
-          }),
-          const Gap(12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.verified_user_rounded, size: 14, color: Colors.grey),
-              Gap(5),
-              Text(
-                'Payments are encrypted & secured',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 11,
-                  color: Colors.grey,
+            ),
+            const Gap(22),
+            const _InlinePaymentSection(),
+            const Gap(18),
+            const TermAndPolicy(term: 'By Proceeding I accept the '),
+            const Gap(18),
+            UElevatedBUtton(
+              color: isValid ? Ucolors.primary : Colors.grey,
+              height: 54,
+              onPressed: (isValid && !isSubmitting)
+                  ? () => _handlePurchase(isLumpsum: isLumpsumTab)
+                  : null,
+              child: isSubmitting
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.lock_rounded,
+                          color: Colors.white,
+                          size: 17,
+                        ),
+                        const Gap(8),
+                        Text(
+                          'Proceed to Pay ${_formatAmount(targetAmount.toInt())}',
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+            const Gap(12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.verified_user_rounded, size: 14, color: Colors.grey),
+                Gap(5),
+                Text(
+                  'Payments are encrypted & secured',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   int _calculateSipTotal(List<CartItemEntity> items) {
