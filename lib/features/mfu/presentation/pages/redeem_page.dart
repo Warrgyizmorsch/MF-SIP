@@ -286,7 +286,6 @@ class _RedeemPageState extends State<RedeemPage> {
                           folio: _args.folioNumber,
                           freeUnits: _args.freeUnits,
                           freeValue: _args.freeValue,
-                          onSuccess: (_) => Navigator.maybePop(context),
                         );
                       },
                       child: const Text(

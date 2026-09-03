@@ -50,3 +50,25 @@ class MfuCanValRequest extends MfuCallRequestBase {
     "emailId": emailId,
   };
 }
+
+class MfuStatusChkTxnRequest extends MfuCallRequestBase {
+  final String entGroupRefNo;
+  final String orderDate;
+  final String stType;
+
+  MfuStatusChkTxnRequest({
+    required this.entGroupRefNo,
+    required this.orderDate,
+    this.stType = 'NORMAL-TXN',
+  });
+
+  @override
+  String get apiType => "STATUS-CHK-TXN";
+
+  @override
+  Map<String, dynamic> buildPayload() => {
+    "stType": stType,
+    "entGroupRefNo": entGroupRefNo,
+    "orderDate": orderDate,
+  };
+}

@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_call_request_base.dart';
 import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
@@ -918,29 +919,64 @@ class MfuController extends GetxController {
 
     final res = await mfuUseCases.postRedeemUseCase(req);
 
-    res.fold(
-      (success) {
+    await res.fold(
+      (success) async {
         final data = success.data;
         redeemResponse.value = data;
         log(
           "[MfuController] Redeem Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
         );
 
-        // CustomSnackbar.success(
-        //   title: 'Redemption Submitted 🎉',
-        //   message:
-        //       data?.message ?? 'Redemption request submitted successfully.',
-        // );
-
+        String? webViewResult;
+        String? latestOrderStatus;
         if (data?.hasApprovalLink == true) {
-          openApprovalLink(data!.approvalLink!, title: 'Confirm Redemption');
+          webViewResult = await openApprovalLink(
+            data!.approvalLink!,
+            title: 'Confirm Redemption',
+          );
+
+          if (webViewResult == 'success' || webViewResult == 'check_status') {
+            final String todayStr = DateTime.now().toIso8601String().split(
+              'T',
+            )[0];
+            final String groupRef = data.entGroupRef ?? '';
+            if (groupRef.isNotEmpty) {
+              latestOrderStatus = await checkTxnStatus(
+                entGroupRefNo: groupRef,
+                orderDate: todayStr,
+              );
+            }
+          }
+        }
+
+        if (Get.currentRoute.contains('Redeem') ||
+            Get.currentRoute == '/RedeemPage') {
+          Get.back();
+        }
+
+        if (latestOrderStatus == 'AC' || latestOrderStatus == 'OA') {
+          CustomSnackbar.success(
+            title: 'Redemption Approved 🎉',
+            message: 'Your redemption order has been approved by MFU.',
+          );
+        } else if (latestOrderStatus == 'RJ' || latestOrderStatus == 'OR') {
+          CustomSnackbar.error(
+            title: 'Redemption Order Rejected ❌',
+            message: 'Your redemption order was rejected.',
+          );
+        } else {
+          CustomSnackbar.success(
+            title: 'Redemption Request Submitted 🎉',
+            message:
+                data?.message ?? 'Redemption request submitted successfully.',
+          );
         }
 
         if (onSuccess != null && data != null) {
           onSuccess(data);
         }
       },
-      (error) {
+      (error) async {
         errorMessage.value = error.message;
         log("[MfuController] Redeem Error → ${error.message}");
         CustomSnackbar.error(
@@ -951,6 +987,42 @@ class MfuController extends GetxController {
     );
 
     isSubmittingRedeem.value = false;
+  }
+
+  /// Status Check API (`STATUS-CHK-TXN`) for normal and systematic MFU transactions
+  Future<String?> checkTxnStatus({
+    required String entGroupRefNo,
+    required String orderDate,
+    String stType = 'NORMAL-TXN',
+  }) async {
+    try {
+      final req = MfuStatusChkTxnRequest(
+        entGroupRefNo: entGroupRefNo,
+        orderDate: orderDate,
+        stType: stType,
+      );
+      final res = await mfuUseCases.mfuCallUseCase(req);
+      String? parsedStatus;
+      res.fold(
+        (success) {
+          final mfuResp = success.data?.mfuResponse;
+          log("[MfuController] Status Check Response → $mfuResp");
+          if (mfuResp != null && mfuResp['respBody'] != null) {
+            final respBody = mfuResp['respBody'] as Map<String, dynamic>?;
+            final ordDtl = respBody?['orderDetail'] as Map<String, dynamic>?;
+            parsedStatus = ordDtl?['orderstatus'] as String?;
+            log("[MfuController] GORN OrderStatus → $parsedStatus");
+          }
+        },
+        (error) {
+          log("[MfuController] Status Check Error → ${error.message}");
+        },
+      );
+      return parsedStatus;
+    } catch (e) {
+      log("[MfuController] checkTxnStatus Exception → $e");
+      return null;
+    }
   }
 
   void processRedemption({
@@ -1067,18 +1139,20 @@ class MfuController extends GetxController {
   }
 
   /// Opens MFU payment/order confirmation approval link (InAppWebView on mobile, external browser tab on Web)
-  void openApprovalLink(
+  Future<String?> openApprovalLink(
     String url, {
     String title = 'Order Confirmation',
   }) async {
-    if (url.isEmpty) return;
+    if (url.isEmpty) return null;
     if (kIsWeb) {
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
+      return 'external';
     } else {
-      Get.to(() => MandateWebView(url: url, title: title));
+      final result = await Get.to(() => MandateWebView(url: url, title: title));
+      return result as String?;
     }
   }
 
