@@ -742,26 +742,26 @@ class _PortfolioTableRow extends StatelessWidget {
                         break;
                       case PortfolioMenuAction.cancel:
                         log('cancel');
+                        Get.to(() => PortfolioFundDetailsPage(fund: fund));
                         break;
-                      case PortfolioMenuAction.redemption:
-                        if (fund.isFullyRedeemed ||
-                            (fund.isRedemptionSettled &&
-                                fund.totalUnits == 0)) {
-                          Get.to(() => PortfolioFundDetailsPage(fund: fund));
-                          break;
-                        }
 
+                      case PortfolioMenuAction.redemptionDetails:
+                        log('redemption details');
                         if (fund.isRedemptionPending) {
                           _showPendingRedemptionDetailsModal(context, fund);
-                          break;
+                        } else {
+                          Get.to(() => PortfolioFundDetailsPage(fund: fund));
                         }
+                        break;
 
-                        if (fund.isAllotmentPending) {
-                          _showAllotmentInfoModal(context, fund);
-                          break;
-                        }
+                      case PortfolioMenuAction.allotmentDetails:
+                        log('allotment details');
+                        _showAllotmentInfoModal(context, fund);
+                        break;
 
-                        if (fund.totalUnits > 0) {
+                      case PortfolioMenuAction.redemption:
+                        log('redeem');
+                        if (fund.totalUnits > 0 && !fund.isFullyRedeemed) {
                           Get.to(
                             () => const RedeemPage(),
                             arguments: RedeemArgs(
@@ -792,6 +792,7 @@ class _PortfolioTableRow extends StatelessWidget {
                           Get.to(() => PortfolioFundDetailsPage(fund: fund));
                         }
                         break;
+
                       case PortfolioMenuAction.switchgoal:
                         log('switch goal');
                         break;
@@ -808,44 +809,53 @@ class _PortfolioTableRow extends StatelessWidget {
                       ),
                     );
 
-                    if (fund.isRedemptionSettled) {
-                      items.add(
-                        buildMenuItem(
-                          icon: Iconsax.receipt_2,
-                          text: 'Redemption Summary',
-                          value: PortfolioMenuAction.redemption,
-                        ),
-                      );
-                    } else if (fund.isRedemptionPending) {
+                    if (fund.isRedemptionPending) {
                       items.add(
                         buildMenuItem(
                           icon: Iconsax.receipt_2,
                           text: 'Redemption Details',
-                          value: PortfolioMenuAction.redemption,
+                          value: PortfolioMenuAction.redemptionDetails,
                         ),
                       );
-                    } else if (fund.isAllotmentPending) {
+                    } else if (fund.isRedemptionSettled &&
+                        fund.totalUnits == 0) {
+                      items.add(
+                        buildMenuItem(
+                          icon: Iconsax.receipt_2,
+                          text: 'Redemption Summary',
+                          value: PortfolioMenuAction.redemptionDetails,
+                        ),
+                      );
+                    }
+
+                    if (fund.isAllotmentPending) {
                       items.add(
                         buildMenuItem(
                           icon: Iconsax.info_circle,
                           text: 'Allotment Details',
+                          value: PortfolioMenuAction.allotmentDetails,
+                        ),
+                      );
+                    }
+
+                    if (fund.totalUnits > 0 && !fund.isAllotmentPending) {
+                      items.add(
+                        buildMenuItem(
+                          icon: Iconsax.receipt,
+                          text: fund.isRedemptionPending
+                              ? 'Redeem Remaining'
+                              : 'Redeem',
                           value: PortfolioMenuAction.redemption,
                         ),
                       );
-                    } else if (fund.isSipActive) {
+                    }
+
+                    if (fund.isSipActive) {
                       items.add(
                         buildMenuItem(
                           icon: Iconsax.trash,
                           text: 'Cancel SIP',
                           value: PortfolioMenuAction.cancel,
-                        ),
-                      );
-                    } else {
-                      items.add(
-                        buildMenuItem(
-                          icon: Iconsax.receipt,
-                          text: fund.totalUnits > 0 ? 'Redeem' : 'Redemption',
-                          value: PortfolioMenuAction.redemption,
                         ),
                       );
                     }

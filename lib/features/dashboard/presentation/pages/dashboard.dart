@@ -33,6 +33,8 @@ enum PortfolioMenuAction {
   pause,
   cancel,
   redemption,
+  redemptionDetails,
+  allotmentDetails,
   switchgoal,
 }
 
@@ -4351,14 +4353,10 @@ class PortfolioCard extends StatelessWidget {
                         onSelected: (value) {
                           switch (value) {
                             case PortfolioMenuAction.viewDetails:
-                              // Get.to(
-                              //   () => PortfolioFundDetailsPage(fund: fund),
-                              // );
                               Get.toNamed(
                                 AppRoutes.portfolioDetails,
                                 arguments: fund,
                               );
-
                               break;
                             case PortfolioMenuAction.topUp:
                               break;
@@ -4369,38 +4367,36 @@ class PortfolioCard extends StatelessWidget {
                               break;
                             case PortfolioMenuAction.cancel:
                               createLog('tap for cancel sip / lumpsum ');
+                              Get.toNamed(
+                                AppRoutes.portfolioDetails,
+                                arguments: fund,
+                              );
                               break;
-                            case PortfolioMenuAction.redemption:
-                              createLog('tap for cancel redemption / lumpsum ');
 
-                              if (fund.isFullyRedeemed ||
-                                  (fund.isRedemptionSettled &&
-                                      fund.totalUnits == 0)) {
-                                // Get.to(
-                                //   () => PortfolioFundDetailsPage(fund: fund),
-                                // );
-                                Get.toNamed(
-                                  AppRoutes.portfolioDetails,
-                                  arguments: fund,
-                                );
-
-                                break;
-                              }
-
+                            case PortfolioMenuAction.redemptionDetails:
+                              createLog('tap for redemption details');
                               if (fund.isRedemptionPending) {
                                 _showPendingRedemptionDetailsModal(
                                   context,
                                   fund,
                                 );
-                                break;
+                              } else {
+                                Get.toNamed(
+                                  AppRoutes.portfolioDetails,
+                                  arguments: fund,
+                                );
                               }
+                              break;
 
-                              if (fund.isAllotmentPending) {
-                                _showAllotmentInfoModal(context, fund);
-                                break;
-                              }
+                            case PortfolioMenuAction.allotmentDetails:
+                              createLog('tap for allotment details');
+                              _showAllotmentInfoModal(context, fund);
+                              break;
 
-                              if (fund.totalUnits > 0) {
+                            case PortfolioMenuAction.redemption:
+                              createLog('tap for redeem');
+                              if (fund.totalUnits > 0 &&
+                                  !fund.isFullyRedeemed) {
                                 Get.to(
                                   () => RedeemPage(),
                                   arguments: RedeemArgs(
@@ -4430,15 +4426,11 @@ class PortfolioCard extends StatelessWidget {
                                   ),
                                 );
                               } else {
-                                // Get.to(
-                                //   () => PortfolioFundDetailsPage(fund: fund),
-                                // );
                                 Get.toNamed(
                                   AppRoutes.portfolioDetails,
                                   arguments: fund,
                                 );
                               }
-
                               break;
 
                             case PortfolioMenuAction.switchgoal:
@@ -4458,46 +4450,53 @@ class PortfolioCard extends StatelessWidget {
                             ),
                           );
 
-                          if (fund.isRedemptionSettled) {
-                            items.add(
-                              buildMenuItem(
-                                icon: Iconsax.receipt_2,
-                                text: 'Redemption Summary',
-                                value: PortfolioMenuAction.redemption,
-                              ),
-                            );
-                          } else if (fund.isRedemptionPending) {
+                          if (fund.isRedemptionPending) {
                             items.add(
                               buildMenuItem(
                                 icon: Iconsax.receipt_2,
                                 text: 'Redemption Details',
-                                value: PortfolioMenuAction.redemption,
+                                value: PortfolioMenuAction.redemptionDetails,
                               ),
                             );
-                          } else if (fund.isAllotmentPending) {
+                          } else if (fund.isRedemptionSettled &&
+                              fund.totalUnits == 0) {
+                            items.add(
+                              buildMenuItem(
+                                icon: Iconsax.receipt_2,
+                                text: 'Redemption Summary',
+                                value: PortfolioMenuAction.redemptionDetails,
+                              ),
+                            );
+                          }
+
+                          if (fund.isAllotmentPending) {
                             items.add(
                               buildMenuItem(
                                 icon: Iconsax.info_circle,
                                 text: 'Allotment Details',
+                                value: PortfolioMenuAction.allotmentDetails,
+                              ),
+                            );
+                          }
+
+                          if (fund.totalUnits > 0 && !fund.isAllotmentPending) {
+                            items.add(
+                              buildMenuItem(
+                                icon: Iconsax.receipt,
+                                text: fund.isRedemptionPending
+                                    ? 'Redeem Remaining'
+                                    : 'Redeem',
                                 value: PortfolioMenuAction.redemption,
                               ),
                             );
-                          } else if (fund.isSipActive) {
+                          }
+
+                          if (fund.isSipActive) {
                             items.add(
                               buildMenuItem(
                                 icon: Iconsax.trash,
                                 text: 'Cancel SIP',
                                 value: PortfolioMenuAction.cancel,
-                              ),
-                            );
-                          } else {
-                            items.add(
-                              buildMenuItem(
-                                icon: Iconsax.receipt,
-                                text: fund.totalUnits > 0
-                                    ? 'Redeem'
-                                    : 'Redemption',
-                                value: PortfolioMenuAction.redemption,
                               ),
                             );
                           }

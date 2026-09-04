@@ -373,37 +373,38 @@ class _RedeemPageState extends State<RedeemPage> {
                     fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFFCD34D)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Net Redeemable Available:',
-                        style: UTextStyles.bodyMediumW500.copyWith(
-                          color: const Color(0xFF92400E),
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        '₹${_fmtVal(_args.netFreeValue)} (${_args.netFreeUnits.toStringAsFixed(3)} Units)',
-                        style: UTextStyles.bodyMediumBold.copyWith(
-                          color: const Color(0xFF92400E),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+
+                // const SizedBox(height: 8),
+                // Container(
+                //   padding: const EdgeInsets.symmetric(
+                //     horizontal: 10,
+                //     vertical: 6,
+                //   ),
+                //   decoration: BoxDecoration(
+                //     color: Colors.white.withOpacity(0.8),
+                //     borderRadius: BorderRadius.circular(8),
+                //     border: Border.all(color: const Color(0xFFFCD34D)),
+                //   ),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //     children: [
+                //       Text(
+                //         'Net Redeemable Available:',
+                //         style: UTextStyles.bodyMediumW500.copyWith(
+                //           color: const Color(0xFF92400E),
+                //           fontSize: 12,
+                //         ),
+                //       ),
+                //       Text(
+                //         '₹${_fmtVal(_args.netFreeValue)} (${_args.netFreeUnits.toStringAsFixed(3)} Units)',
+                //         style: UTextStyles.bodyMediumBold.copyWith(
+                //           color: const Color(0xFF92400E),
+                //           fontSize: 12,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),
