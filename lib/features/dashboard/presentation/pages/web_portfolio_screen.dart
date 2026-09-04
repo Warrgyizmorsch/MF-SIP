@@ -782,6 +782,10 @@ class _PortfolioTableRow extends StatelessWidget {
                               redemptionMessage: fund.redemptionMessage,
                               orderRefNo:
                                   fund.redemptionDetails?.orderRefNo ?? '',
+                              pendingRedemptionAmount:
+                                  fund.redemptionDetails?.amount ??
+                                  fund.redeemedAmount,
+                              pendingRedemptionUnits: fund.redeemedUnits,
                             ),
                           );
                         } else {

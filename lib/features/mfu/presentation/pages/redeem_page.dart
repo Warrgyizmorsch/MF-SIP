@@ -46,6 +46,8 @@ class RedeemArgs {
   final bool hasPendingRedemption;
   final String redemptionMessage;
   final String orderRefNo;
+  final double pendingRedemptionAmount;
+  final double pendingRedemptionUnits;
 
   const RedeemArgs({
     this.mfuOrderFundId,
@@ -68,7 +70,14 @@ class RedeemArgs {
     this.hasPendingRedemption = false,
     this.redemptionMessage = '',
     this.orderRefNo = '',
+    this.pendingRedemptionAmount = 0.0,
+    this.pendingRedemptionUnits = 0.0,
   });
+
+  double get netFreeValue =>
+      (freeValue - pendingRedemptionAmount).clamp(0.0, freeValue);
+  double get netFreeUnits =>
+      (freeUnits - pendingRedemptionUnits).clamp(0.0, freeUnits);
 }
 
 class RedeemPage extends StatefulWidget {
@@ -158,9 +167,10 @@ class _RedeemPageState extends State<RedeemPage> {
         _mfu.redeemInputError.value = 'Please enter an amount';
         return;
       }
-      if (_args.freeValue > 0 && v > _args.freeValue) {
+      final maxVal = _args.netFreeValue;
+      if (maxVal > 0 && v > maxVal) {
         _mfu.redeemInputError.value =
-            'Exceeds free value (Max: ₹${_args.freeValue.toStringAsFixed(2)})';
+            'Exceeds net available value (Max: ₹${maxVal.toStringAsFixed(2)})';
         return;
       }
       redeemSummary = '₹${_fmtVal(v)}';
@@ -170,15 +180,16 @@ class _RedeemPageState extends State<RedeemPage> {
         _mfu.redeemInputError.value = 'Please enter units';
         return;
       }
-      if (_args.freeUnits > 0 && v > _args.freeUnits) {
+      final maxUnits = _args.netFreeUnits;
+      if (maxUnits > 0 && v > maxUnits) {
         _mfu.redeemInputError.value =
-            'Exceeds free units (Max: ${_args.freeUnits.toStringAsFixed(3)})';
+            'Exceeds net available units (Max: ${maxUnits.toStringAsFixed(3)})';
         return;
       }
       redeemSummary = '${v.toStringAsFixed(3)} Units';
     } else {
       redeemSummary =
-          'Full Redemption (${_args.freeUnits.toStringAsFixed(3)} Units / ₹${_fmtVal(_args.freeValue)})';
+          'Full Available Redemption (${_args.netFreeUnits.toStringAsFixed(3)} Units / ₹${_fmtVal(_args.netFreeValue)})';
     }
 
     _showConfirmationBottomSheet(context, redeemSummary);
@@ -284,8 +295,8 @@ class _RedeemPageState extends State<RedeemPage> {
                           mfuOrderFundId: _args.mfuOrderFundId,
                           schemeCode: _args.schemeCode,
                           folio: _args.folioNumber,
-                          freeUnits: _args.freeUnits,
-                          freeValue: _args.freeValue,
+                          freeUnits: _args.netFreeUnits,
+                          freeValue: _args.netFreeValue,
                         );
                       },
                       child: const Text(
@@ -333,6 +344,7 @@ class _RedeemPageState extends State<RedeemPage> {
         border: Border.all(color: const Color(0xFFFDE68A)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(
             Icons.warning_amber_rounded,
@@ -348,17 +360,48 @@ class _RedeemPageState extends State<RedeemPage> {
                   'Pending Redemption Request Found',
                   style: UTextStyles.bodyMediumBold.copyWith(
                     color: const Color(0xFF92400E),
-                    fontSize: 13,
+                    fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   _args.redemptionMessage.isNotEmpty
                       ? _args.redemptionMessage
-                      : 'A redemption request is already in progress for this folio. Payout will be processed in 1-2 working days.',
+                      : 'A redemption request (${_args.pendingRedemptionAmount > 0 ? "₹${_fmtVal(_args.pendingRedemptionAmount)}" : "in-progress"}) is currently processing for this folio.',
                   style: UTextStyles.bodyMedium.copyWith(
                     color: const Color(0xFFB45309),
                     fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFFCD34D)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Net Redeemable Available:',
+                        style: UTextStyles.bodyMediumW500.copyWith(
+                          color: const Color(0xFF92400E),
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        '₹${_fmtVal(_args.netFreeValue)} (${_args.netFreeUnits.toStringAsFixed(3)} Units)',
+                        style: UTextStyles.bodyMediumBold.copyWith(
+                          color: const Color(0xFF92400E),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

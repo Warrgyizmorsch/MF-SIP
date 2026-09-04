@@ -341,9 +341,129 @@ class PortfolioFundDetailsModal extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 18),
 
-          // ── 6. Bottom Action Buttons ───────────────────
+          // ── 5. Redemption Payout Details Card ──────────
+          if (fund.redemptionDetails != null ||
+              fund.redeemedAmount > 0 ||
+              fund.redeemedUnits > 0 ||
+              fund.hasPendingRedemption) ...[
+            Builder(
+              builder: (_) {
+                final dtl = fund.redemptionDetails;
+                final double amt = dtl?.amount ?? fund.redeemedAmount;
+                final double units = (dtl?.units ?? 0) > 0
+                    ? dtl!.units
+                    : fund.redeemedUnits;
+                final String volType =
+                    dtl?.transactionVolumeType ?? (amt > 0 ? 'A' : 'U');
+                final String statusStr = dtl?.statusLabel.isNotEmpty == true
+                    ? dtl!.statusLabel
+                    : (dtl?.status.isNotEmpty == true
+                          ? dtl!.status
+                          : (fund.latestOrderStatusLabel.isNotEmpty
+                                ? fund.latestOrderStatusLabel
+                                : (fund.hasPendingRedemption
+                                      ? "In Progress"
+                                      : "Settled")));
+
+                final String displayPayout =
+                    volType.toUpperCase() == 'U' || amt == 0
+                    ? '${units.toStringAsFixed(3)} Units (By Units)'
+                    : '₹${amt.toStringAsFixed(2)}';
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: fund.hasPendingRedemption
+                        ? const Color(0xFFFFFBEB)
+                        : const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: fund.hasPendingRedemption
+                          ? const Color(0xFFFDE68A)
+                          : const Color(0xFFBBF7D0),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Redemption Payout',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                          Text(
+                            statusStr,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: fund.hasPendingRedemption
+                                  ? const Color(0xFFD97706)
+                                  : Colors.green.shade800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Payout: $displayPayout ${dtl?.orderRefNo.isNotEmpty == true ? "(Ref: ${dtl!.orderRefNo})" : ""}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 18),
+          ],
+
+          // ── 6. SIP Cancellation Card ───────────────────
+          if (fund.sipCancellationDetails != null) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'SIP Cancellation Audit',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    fund.sipCancellationDetails!.message.isNotEmpty
+                        ? fund.sipCancellationDetails!.message
+                        : 'Your SIP has been cancelled. (Ref: ${fund.sipCancellationDetails!.orderRefNo})',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+
+          // ── 7. Bottom Action Buttons ───────────────────
           Row(
             children: [
               Expanded(
@@ -417,6 +537,10 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                             redemptionMessage: fund.redemptionMessage,
                             orderRefNo:
                                 fund.redemptionDetails?.orderRefNo ?? '',
+                            pendingRedemptionAmount:
+                                fund.redemptionDetails?.amount ??
+                                fund.redeemedAmount,
+                            pendingRedemptionUnits: fund.redeemedUnits,
                           ),
                         );
                       }

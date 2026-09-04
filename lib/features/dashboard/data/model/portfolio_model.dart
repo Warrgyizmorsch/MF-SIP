@@ -171,8 +171,12 @@ class MfuRedemptionDetailsModel {
   final String? orderRefNo;
   final String? gorn;
   final double? amount;
+  final double? units;
+  final String? transactionVolumeType;
   final String? requestedDate;
   final String? status;
+  final String? statusLabel;
+  final String? orderStatusLabel;
   final String? statusCode;
   final String? estimatedPayoutDays;
   final String? message;
@@ -181,8 +185,12 @@ class MfuRedemptionDetailsModel {
     this.orderRefNo,
     this.gorn,
     this.amount,
+    this.units,
+    this.transactionVolumeType,
     this.requestedDate,
     this.status,
+    this.statusLabel,
+    this.orderStatusLabel,
     this.statusCode,
     this.estimatedPayoutDays,
     this.message,
@@ -193,8 +201,12 @@ class MfuRedemptionDetailsModel {
       orderRefNo: json.parse<String>('order_ref_no'),
       gorn: json.parse<String>('gorn'),
       amount: json.parse<double>('amount'),
+      units: json.parse<double>('units'),
+      transactionVolumeType: json.parse<String>('transaction_volume_type'),
       requestedDate: json.parse<String>('requested_date'),
       status: json.parse<String>('status'),
+      statusLabel: json.parse<String>('status_label'),
+      orderStatusLabel: json.parse<String>('order_status_label'),
       statusCode: json.parse<String>('status_code'),
       estimatedPayoutDays: json.parse<String>('estimated_payout_days'),
       message: json.parse<String>('message'),
@@ -260,6 +272,7 @@ class MfuPortfolioItemModel {
   final String? redemptionStatus;
   final String? redemptionMessage;
   final MfuRedemptionDetailsModel? redemptionDetails;
+  final List<MfuRedemptionDetailsModel>? redemptionDetailsList;
   final double? redeemedAmount;
   final double? redeemedUnits;
   final bool? isSip;
@@ -267,6 +280,8 @@ class MfuPortfolioItemModel {
   final bool? isSipCancelled;
   final bool? hasPendingSipCancellation;
   final SipCancellationDetailsModel? sipCancellationDetails;
+  final String? latestOrderStatus;
+  final String? latestOrderStatusLabel;
 
   MfuPortfolioItemModel({
     this.schemeCode,
@@ -300,6 +315,7 @@ class MfuPortfolioItemModel {
     this.redemptionStatus,
     this.redemptionMessage,
     this.redemptionDetails,
+    this.redemptionDetailsList,
     this.redeemedAmount,
     this.redeemedUnits,
     this.isSip,
@@ -307,7 +323,37 @@ class MfuPortfolioItemModel {
     this.isSipCancelled,
     this.hasPendingSipCancellation,
     this.sipCancellationDetails,
+    this.latestOrderStatus,
+    this.latestOrderStatusLabel,
   });
+
+  static MfuRedemptionDetailsModel? _parseRedemptionDetails(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is Map<String, dynamic>) {
+      return MfuRedemptionDetailsModel.fromJson(raw);
+    } else if (raw is List && raw.isNotEmpty) {
+      final first = raw.first;
+      if (first is Map<String, dynamic>) {
+        return MfuRedemptionDetailsModel.fromJson(first);
+      }
+    }
+    return null;
+  }
+
+  static List<MfuRedemptionDetailsModel>? _parseRedemptionDetailsList(
+    dynamic raw,
+  ) {
+    if (raw == null) return null;
+    if (raw is List) {
+      return raw
+          .whereType<Map<String, dynamic>>()
+          .map((e) => MfuRedemptionDetailsModel.fromJson(e))
+          .toList();
+    } else if (raw is Map<String, dynamic>) {
+      return [MfuRedemptionDetailsModel.fromJson(raw)];
+    }
+    return null;
+  }
 
   factory MfuPortfolioItemModel.fromJson(Map<String, dynamic> json) {
     final String? parsedLogo =
@@ -380,17 +426,15 @@ class MfuPortfolioItemModel {
       isUnitAllotted: json.parse<bool>('is_unit_allotted'),
       mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
       hasPendingRedemption:
-          (json.parse<bool>('has_pending_redemption') ?? false) ||
-          parsedType?.toLowerCase() == 'redeem' ||
-          parsedType?.toLowerCase() == 'redemption' ||
-          json['redemption_details'] != null,
+          json.parse<bool>('has_pending_redemption') ??
+          (json.parse<String>('redemption_status')?.toLowerCase() ==
+              'in_progress'),
       redemptionStatus: json.parse<String>('redemption_status'),
       redemptionMessage: json.parse<String>('redemption_message'),
-      redemptionDetails: json['redemption_details'] != null
-          ? MfuRedemptionDetailsModel.fromJson(
-              json['redemption_details'] as Map<String, dynamic>,
-            )
-          : null,
+      redemptionDetails: _parseRedemptionDetails(json['redemption_details']),
+      redemptionDetailsList: _parseRedemptionDetailsList(
+        json['redemption_details'],
+      ),
       redeemedAmount: json.parse<double>('redeemed_amount'),
       redeemedUnits: json.parse<double>('redeemed_units'),
       isSip: json.parse<bool>('is_sip'),
@@ -404,6 +448,8 @@ class MfuPortfolioItemModel {
               json['sip_cancellation_details'] as Map<String, dynamic>,
             )
           : null,
+      latestOrderStatus: json.parse<String>('latest_order_status'),
+      latestOrderStatusLabel: json.parse<String>('latest_order_status_label'),
     );
   }
 }

@@ -162,8 +162,12 @@ class MfuRedemptionDetailsEntity extends Equatable {
   final String orderRefNo;
   final String gorn;
   final double amount;
+  final double units;
+  final String transactionVolumeType;
   final String requestedDate;
   final String status;
+  final String statusLabel;
+  final String orderStatusLabel;
   final String statusCode;
   final String estimatedPayoutDays;
   final String message;
@@ -172,8 +176,12 @@ class MfuRedemptionDetailsEntity extends Equatable {
     required this.orderRefNo,
     required this.gorn,
     required this.amount,
+    this.units = 0.0,
+    this.transactionVolumeType = '',
     required this.requestedDate,
     required this.status,
+    this.statusLabel = '',
+    this.orderStatusLabel = '',
     required this.statusCode,
     required this.estimatedPayoutDays,
     required this.message,
@@ -184,8 +192,12 @@ class MfuRedemptionDetailsEntity extends Equatable {
     orderRefNo,
     gorn,
     amount,
+    units,
+    transactionVolumeType,
     requestedDate,
     status,
+    statusLabel,
+    orderStatusLabel,
     statusCode,
     estimatedPayoutDays,
     message,
@@ -254,6 +266,8 @@ class MfuPortfolioItemEntity extends Equatable {
   final bool isSipCancelled;
   final bool hasPendingSipCancellation;
   final SipCancellationDetailsEntity? sipCancellationDetails;
+  final String latestOrderStatus;
+  final String latestOrderStatusLabel;
 
   const MfuPortfolioItemEntity({
     required this.schemeCode,
@@ -292,6 +306,8 @@ class MfuPortfolioItemEntity extends Equatable {
     this.isSipCancelled = false,
     this.hasPendingSipCancellation = false,
     this.sipCancellationDetails,
+    this.latestOrderStatus = '',
+    this.latestOrderStatusLabel = '',
   });
 
   // Computed properties for easy UI styling
@@ -436,8 +452,12 @@ extension MfuRedemptionDetailsMapper on MfuRedemptionDetailsModel {
       orderRefNo: orderRefNo ?? '',
       gorn: gorn ?? '',
       amount: amount ?? 0.0,
+      units: units ?? 0.0,
+      transactionVolumeType: transactionVolumeType ?? '',
       requestedDate: requestedDate ?? '',
       status: status ?? '',
+      statusLabel: statusLabel ?? '',
+      orderStatusLabel: orderStatusLabel ?? '',
       statusCode: statusCode ?? '',
       estimatedPayoutDays: estimatedPayoutDays ?? '',
       message: message ?? '',
@@ -487,6 +507,8 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       isSipCancelled: isSipCancelled ?? false,
       hasPendingSipCancellation: hasPendingSipCancellation ?? false,
       sipCancellationDetails: sipCancellationDetails?.toEntity(),
+      latestOrderStatus: latestOrderStatus ?? '',
+      latestOrderStatusLabel: latestOrderStatusLabel ?? '',
     );
   }
 }

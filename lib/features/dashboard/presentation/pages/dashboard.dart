@@ -4423,6 +4423,10 @@ class PortfolioCard extends StatelessWidget {
                                     orderRefNo:
                                         fund.redemptionDetails?.orderRefNo ??
                                         '',
+                                    pendingRedemptionAmount:
+                                        fund.redemptionDetails?.amount ??
+                                        fund.redeemedAmount,
+                                    pendingRedemptionUnits: fund.redeemedUnits,
                                   ),
                                 );
                               } else {

@@ -365,7 +365,10 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ── 4. Redemption Payout Details Card ───
-            if (fund.redemptionDetails != null || fund.redeemedAmount > 0) ...[
+            if (fund.redemptionDetails != null ||
+                fund.redeemedAmount > 0 ||
+                fund.redeemedUnits > 0 ||
+                fund.hasPendingRedemption) ...[
               const Text(
                 'Redemption Payout Details',
                 style: TextStyle(
@@ -375,54 +378,121 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFBBF7D0)),
-                ),
-                child: Column(
-                  children: [
-                    if (fund.redemptionDetails?.orderRefNo.isNotEmpty == true)
-                      _infoRow(
-                        'Order Ref No',
-                        fund.redemptionDetails!.orderRefNo,
-                        icon: Iconsax.document_text,
+              Builder(
+                builder: (_) {
+                  final dtl = fund.redemptionDetails;
+                  final double amt = dtl?.amount ?? fund.redeemedAmount;
+                  final double units = (dtl?.units ?? 0) > 0
+                      ? dtl!.units
+                      : fund.redeemedUnits;
+                  final String volType =
+                      dtl?.transactionVolumeType ?? (amt > 0 ? 'A' : 'U');
+                  final String statusStr = dtl?.statusLabel.isNotEmpty == true
+                      ? dtl!.statusLabel
+                      : (dtl?.status.isNotEmpty == true
+                            ? dtl!.status
+                            : (fund.latestOrderStatusLabel.isNotEmpty
+                                  ? fund.latestOrderStatusLabel
+                                  : (fund.hasPendingRedemption
+                                        ? "In Progress"
+                                        : "Settled")));
+
+                  final String displayPayout =
+                      volType.toUpperCase() == 'U' || amt == 0
+                      ? '${units.toStringAsFixed(3)} Units (By Units)'
+                      : '₹${amt.toStringAsFixed(2)}';
+
+                  final double estValue =
+                      (volType.toUpperCase() == 'U' || amt == 0) &&
+                          fund.currentNav > 0
+                      ? (units * fund.currentNav)
+                      : amt;
+
+                  return Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: fund.hasPendingRedemption
+                          ? const Color(0xFFFFFBEB)
+                          : const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: fund.hasPendingRedemption
+                            ? const Color(0xFFFDE68A)
+                            : const Color(0xFFBBF7D0),
                       ),
-                    if (fund.redemptionDetails?.gorn.isNotEmpty == true) ...[
-                      const Divider(height: 20),
-                      _infoRow(
-                        'GORN Ref',
-                        fund.redemptionDetails!.gorn,
-                        icon: Iconsax.code,
-                      ),
-                    ],
-                    const Divider(height: 20),
-                    _infoRow(
-                      'Payout Amount',
-                      '₹${(fund.redeemedAmount > 0 ? fund.redeemedAmount : fund.redemptionDetails?.amount ?? 0).toStringAsFixed(2)}',
-                      icon: Iconsax.money_send,
-                      valueColor: Colors.green.shade800,
                     ),
-                    if (fund.redeemedUnits > 0) ...[
-                      const Divider(height: 20),
-                      _infoRow(
-                        'Redeemed Units',
-                        fund.redeemedUnits.toStringAsFixed(3),
-                        icon: Iconsax.box_remove,
-                      ),
-                    ],
-                    if (fund.redemptionDetails?.status.isNotEmpty == true) ...[
-                      const Divider(height: 20),
-                      _infoRow(
-                        'Payout Status',
-                        fund.redemptionDetails!.status,
-                        icon: Iconsax.verify,
-                      ),
-                    ],
-                  ],
-                ),
+                    child: Column(
+                      children: [
+                        if (dtl?.orderRefNo.isNotEmpty == true)
+                          _infoRow(
+                            'Order Ref No',
+                            dtl!.orderRefNo,
+                            icon: Iconsax.document_text,
+                          ),
+                        if (dtl?.gorn.isNotEmpty == true) ...[
+                          const Divider(height: 20),
+                          _infoRow('GORN Ref', dtl!.gorn, icon: Iconsax.code),
+                        ],
+                        const Divider(height: 20),
+                        _infoRow(
+                          'Redemption Payout',
+                          displayPayout,
+                          icon: Iconsax.money_send,
+                          valueColor: fund.hasPendingRedemption
+                              ? const Color(0xFFD97706)
+                              : Colors.green.shade800,
+                        ),
+                        if (estValue > 0 &&
+                            (volType.toUpperCase() == 'U' || amt == 0)) ...[
+                          const Divider(height: 20),
+                          _infoRow(
+                            'Estimated Value',
+                            '~₹${estValue.toStringAsFixed(2)}',
+                            icon: Iconsax.wallet_money,
+                          ),
+                        ],
+                        if (units > 0) ...[
+                          const Divider(height: 20),
+                          _infoRow(
+                            'Redeemed Units',
+                            '${units.toStringAsFixed(3)} Units',
+                            icon: Iconsax.box_remove,
+                          ),
+                        ],
+                        if (statusStr.isNotEmpty) ...[
+                          const Divider(height: 20),
+                          _infoRow(
+                            'Payout Status',
+                            statusStr,
+                            icon: Iconsax.verify,
+                            valueColor: fund.hasPendingRedemption
+                                ? const Color(0xFFB45309)
+                                : Colors.green.shade800,
+                          ),
+                        ],
+                        if (dtl?.estimatedPayoutDays.isNotEmpty == true) ...[
+                          const Divider(height: 20),
+                          _infoRow(
+                            'Payout Timeline',
+                            dtl!.estimatedPayoutDays,
+                            icon: Iconsax.clock,
+                          ),
+                        ],
+                        if (dtl?.message.isNotEmpty == true ||
+                            fund.redemptionMessage.isNotEmpty) ...[
+                          const Divider(height: 20),
+                          _infoRow(
+                            'Note',
+                            dtl?.message.isNotEmpty == true
+                                ? dtl!.message
+                                : fund.redemptionMessage,
+                            icon: Iconsax.info_circle,
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 20),
             ],
@@ -532,6 +602,10 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                           hasPendingRedemption: fund.hasPendingRedemption,
                           redemptionMessage: fund.redemptionMessage,
                           orderRefNo: fund.redemptionDetails?.orderRefNo ?? '',
+                          pendingRedemptionAmount:
+                              fund.redemptionDetails?.amount ??
+                              fund.redeemedAmount,
+                          pendingRedemptionUnits: fund.redeemedUnits,
                         ),
                       );
                     }
