@@ -14,7 +14,7 @@ class DashboardRemoteDatasources {
 
   DashboardRemoteDatasources(this._apiService, this.sessionManager);
 
-   Future<Either<Result<MfuTransactionListModel>, ApiError>> getTransactions({
+  Future<Either<Result<MfuTransactionListModel>, ApiError>> getTransactions({
     required int uid,
   }) async {
     try {
@@ -77,5 +77,4 @@ class DashboardRemoteDatasources {
       return Right(ApiError(message: 'getPortfolio Exception: $e'));
     }
   }
-
 }

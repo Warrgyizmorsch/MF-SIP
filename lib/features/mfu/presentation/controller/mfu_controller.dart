@@ -10,6 +10,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
+import 'package:my_sip/features/mfu/data/datasource/mfu_remote_data_source.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
 import 'package:my_sip/features/mfu/data/model/mfu_call_request_base.dart';
 import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
@@ -27,6 +28,7 @@ import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
 import 'package:my_sip/features/mfu/data/model/redeem_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/redeem_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_cancel_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
@@ -1341,6 +1343,88 @@ class MfuController extends GetxController {
     );
 
     isSubmittingStepUp.value = false;
+  }
+
+  /// ─── SIP Cancellation Flow (Send & Verify OTP) ──────────────────────
+  final isSendingSipCancelOtp = false.obs;
+  final isVerifyingSipCancelOtp = false.obs;
+
+  Future<SipCancelSendOtpResModel?> sendSipCancelOtp(
+    dynamic mfuOrderFundId,
+  ) async {
+    isSendingSipCancelOtp.value = true;
+    try {
+      final remoteDS = Get.find<MfuRemoteDataSource>();
+      final req = SipCancelSendOtpReqModel(mfuOrderFundId: mfuOrderFundId);
+      final result = await remoteDS.sendSipCancelOtp(req);
+
+      return result.fold(
+        (success) {
+          isSendingSipCancelOtp.value = false;
+          return success.data;
+        },
+        (error) {
+          isSendingSipCancelOtp.value = false;
+          showCustomToast(
+            title: 'Error',
+            message: error.message ?? 'Failed to send OTP for SIP cancellation',
+            backgroundColor: Colors.red,
+            icon: Icons.error_outline,
+          );
+          return null;
+        },
+      );
+    } catch (e) {
+      isSendingSipCancelOtp.value = false;
+      showCustomToast(
+        title: 'Error',
+        message: 'Error: $e',
+        backgroundColor: Colors.red,
+        icon: Icons.error_outline,
+      );
+      return null;
+    }
+  }
+
+  Future<SipCancelVerifyOtpResModel?> verifySipCancelOtp(
+    dynamic mfuOrderFundId,
+    dynamic otp,
+  ) async {
+    isVerifyingSipCancelOtp.value = true;
+    try {
+      final remoteDS = Get.find<MfuRemoteDataSource>();
+      final req = SipCancelVerifyOtpReqModel(
+        mfuOrderFundId: mfuOrderFundId,
+        otp: otp,
+      );
+      final result = await remoteDS.verifySipCancelOtp(req);
+
+      return result.fold(
+        (success) {
+          isVerifyingSipCancelOtp.value = false;
+          return success.data;
+        },
+        (error) {
+          isVerifyingSipCancelOtp.value = false;
+          showCustomToast(
+            title: 'Error',
+            message: error.message ?? 'OTP verification failed',
+            backgroundColor: Colors.red,
+            icon: Icons.error_outline,
+          );
+          return null;
+        },
+      );
+    } catch (e) {
+      isVerifyingSipCancelOtp.value = false;
+      showCustomToast(
+        title: 'Error',
+        message: 'Error: $e',
+        backgroundColor: Colors.red,
+        icon: Icons.error_outline,
+      );
+      return null;
+    }
   }
 
   @override

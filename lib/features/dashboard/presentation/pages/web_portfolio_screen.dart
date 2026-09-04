@@ -8,6 +8,7 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/dashboard/presentation/widgets/portfolio_fund_details_modal.dart';
+import 'package:my_sip/features/dashboard/presentation/widgets/sip_cancel_otp_modal.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'portfolio_fund_details_page.dart';
 
@@ -742,7 +743,7 @@ class _PortfolioTableRow extends StatelessWidget {
                         break;
                       case PortfolioMenuAction.cancel:
                         log('cancel');
-                        Get.to(() => PortfolioFundDetailsPage(fund: fund));
+                        SipCancelOtpModal.show(context, fund);
                         break;
 
                       case PortfolioMenuAction.redemptionDetails:

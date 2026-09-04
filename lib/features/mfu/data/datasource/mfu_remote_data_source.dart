@@ -25,6 +25,7 @@ import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
 import 'package:my_sip/features/mfu/data/model/redeem_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/redeem_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_cancel_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class MfuRemoteDataSource {
@@ -516,6 +517,80 @@ class MfuRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'postRedeem Exception: $e'));
+    }
+  }
+
+  /// POST /api/v1/invest/cancel/send-otp
+  Future<Either<Result<SipCancelSendOtpResModel>, ApiError>> sendSipCancelOtp(
+    SipCancelSendOtpReqModel req,
+  ) async {
+    try {
+      createLog(
+        "[MfuRemoteDataSource] sendSipCancelOtp Request: ${req.toJson()}",
+      );
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/invest/cancel/send-otp",
+        data: req.toJson(),
+      );
+
+      createLog("[MfuRemoteDataSource] sendSipCancelOtp Response: $resp");
+
+      if (resp != null) {
+        final result = SipCancelSendOtpResModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(
+              message: result.message ?? 'Failed to send SIP cancellation OTP',
+            ),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'sendSipCancelOtp: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'sendSipCancelOtp Exception: $e'));
+    }
+  }
+
+  /// POST /api/v1/invest/cancel/verify-otp
+  Future<Either<Result<SipCancelVerifyOtpResModel>, ApiError>>
+  verifySipCancelOtp(SipCancelVerifyOtpReqModel req) async {
+    try {
+      createLog(
+        "[MfuRemoteDataSource] verifySipCancelOtp Request: ${req.toJson()}",
+      );
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/invest/cancel/verify-otp",
+        data: req.toJson(),
+      );
+
+      createLog("[MfuRemoteDataSource] verifySipCancelOtp Response: $resp");
+
+      if (resp != null) {
+        final result = SipCancelVerifyOtpResModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(
+              message:
+                  result.message ?? 'SIP cancellation OTP verification failed',
+            ),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'verifySipCancelOtp: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'verifySipCancelOtp Exception: $e'));
     }
   }
 }

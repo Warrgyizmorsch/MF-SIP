@@ -6,12 +6,10 @@ import 'package:my_sip/features/dashboard/domain/entity/transactionlist_entity.d
 
 abstract class DashboardRepoAbs {
   Future<Either<Result<MfuTransactionListEntity>, ApiError>> getTransactions({
-  required int uid,
-});
+    required int uid,
+  });
 
-
-Future<Either<Result<MfuPortfolioEntity>, ApiError>> getPortfolio({
-  required int uid,
-});
-
+  Future<Either<Result<MfuPortfolioEntity>, ApiError>> getPortfolio({
+    required int uid,
+  });
 }

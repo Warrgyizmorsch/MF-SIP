@@ -24,6 +24,7 @@ import 'package:shimmer/shimmer.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/comparison_chart.dart';
 import '../widgets/portfolio_fund_details_modal.dart';
+import '../widgets/sip_cancel_otp_modal.dart';
 import 'portfolio_fund_details_page.dart';
 
 enum PortfolioMenuAction {
@@ -4366,11 +4367,8 @@ class PortfolioCard extends StatelessWidget {
                             case PortfolioMenuAction.pause:
                               break;
                             case PortfolioMenuAction.cancel:
-                              createLog('tap for cancel sip / lumpsum ');
-                              Get.toNamed(
-                                AppRoutes.portfolioDetails,
-                                arguments: fund,
-                              );
+                              createLog('tap for cancel sip');
+                              SipCancelOtpModal.show(context, fund);
                               break;
 
                             case PortfolioMenuAction.redemptionDetails:

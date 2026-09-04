@@ -35,7 +35,6 @@ class FundComparisonChartWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,10 +45,11 @@ class FundComparisonChartWidget extends StatelessWidget {
             children: [
               Text(
                 "Portfolio Performance",
-                style: TextStyle(fontFamily: FontFamily.medium,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: isDesktop ? 18 : 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87
+                  color: Colors.black87,
                 ),
               ),
               if (showLegend) _buildLegend(isDesktop),
@@ -81,15 +81,13 @@ class FundComparisonChartWidget extends StatelessWidget {
         Container(
           width: isDesktop ? 10 : 8,
           height: isDesktop ? 10 : 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(fontFamily: FontFamily.medium,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: isDesktop ? 13 : 11,
             color: Colors.grey.shade700,
             fontWeight: FontWeight.w500,
@@ -125,14 +123,10 @@ class FundComparisonChartWidget extends StatelessWidget {
           show: showGrid,
           drawVerticalLine: true,
           horizontalInterval: 20000,
-          getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.grey.shade100,
-            strokeWidth: 1,
-          ),
-          getDrawingVerticalLine: (value) => FlLine(
-            color: Colors.grey.shade100,
-            strokeWidth: 1,
-          ),
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: Colors.grey.shade100, strokeWidth: 1),
+          getDrawingVerticalLine: (value) =>
+              FlLine(color: Colors.grey.shade100, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
           show: true,
@@ -157,7 +151,8 @@ class FundComparisonChartWidget extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       months[value.toInt()],
-                      style: TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: isDesktop ? 12 : 10,
                         color: Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
@@ -179,7 +174,8 @@ class FundComparisonChartWidget extends StatelessWidget {
                 if (value.toInt() % 20000 == 0) {
                   return Text(
                     '₹${(value / 1000).toStringAsFixed(0)}k',
-                    style: TextStyle(fontFamily: FontFamily.medium,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: isDesktop ? 11 : 10,
                       color: Colors.grey.shade600,
                     ),
@@ -220,7 +216,7 @@ class FundComparisonChartWidget extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.green.withValues(alpha:0.12),
+              color: Colors.green.withValues(alpha: 0.12),
             ),
           ),
           // Benchmark (Blue)
@@ -233,14 +229,15 @@ class FundComparisonChartWidget extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue.withValues(alpha:0.05),
+              color: Colors.blue.withValues(alpha: 0.05),
             ),
           ),
         ],
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (touchedSpots) => Colors.black.withValues(alpha:0.8),
+            getTooltipColor: (touchedSpots) =>
+                Colors.black.withValues(alpha: 0.8),
             tooltipBorderRadius: BorderRadius.circular(8),
             tooltipPadding: const EdgeInsets.all(12),
             fitInsideHorizontally: true,
@@ -252,10 +249,11 @@ class FundComparisonChartWidget extends StatelessWidget {
 
                 return LineTooltipItem(
                   '$value\n${months[monthIndex]}',
-                  const TextStyle(fontFamily: FontFamily.medium,
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold
+                  const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
                   ),
                 );
               }).toList();
@@ -265,9 +263,9 @@ class FundComparisonChartWidget extends StatelessWidget {
             return spotIndexes.map((index) {
               return TouchedSpotIndicatorData(
                 FlLine(
-                    color: Colors.grey.withValues(alpha:0.5),
-                    strokeWidth: 1,
-                    dashArray: [5, 5]
+                  color: Colors.grey.withValues(alpha: 0.5),
+                  strokeWidth: 1,
+                  dashArray: [5, 5],
                 ),
                 FlDotData(
                   getDotPainter: (spot, percent, bar, index) =>
