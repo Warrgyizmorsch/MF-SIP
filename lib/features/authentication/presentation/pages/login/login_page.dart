@@ -37,7 +37,8 @@ class LoginPage extends GetView<AuthController> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  physics: isDesktop
+                  // physics: const ClampingScrollPhysics(),
+                    physics: isDesktop
                       ? const ClampingScrollPhysics()
                       : const NeverScrollableScrollPhysics(),
                   padding: UPadding.screenPadding.copyWith(
@@ -86,14 +87,14 @@ class LoginPage extends GetView<AuthController> {
 
                                 children: [
                                   if (isDesktop) ...[
-                                    HeadingText(title: 'Login Account'),
-                                    SubtitleText(
+                                    const HeadingText(title: 'Welcome back'),
+                                    const SubtitleText(
                                       subtitle:
-                                          'Please login into your account',
+                                          'Sign in with your registered mobile number. We\u2019ll send you a one-time password (OTP).',
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                   ],
-                                  SizedBox(height: 20),
+                                  const SizedBox(height: 20),
                                   Obx(
                                     () => CustomTextField(
                                       minLength: 10,
@@ -108,11 +109,11 @@ class LoginPage extends GetView<AuthController> {
                                       maxLength: 10,
                                       errorText:
                                           controller.isPhoneNotRegistered.value
-                                          ? 'Not registered. Please create an account'
+                                          ? 'No account found for this mobile number.'
                                           : '',
-                                      hint: 'Enter Register Number',
+                                      hint: 'Enter your 10-digit mobile number',
                                       controller: controller.mobileController,
-                                      label: "Phone Number",
+                                      label: 'Mobile number',
                                       hintColor: Colors.grey.shade600,
                                       validationType: ValidationType.phone,
                                       keyboardType: TextInputType.phone,
@@ -165,7 +166,7 @@ class LoginPage extends GetView<AuthController> {
                                                 : null,
                                             child: Center(
                                               child: const Text(
-                                                'Login',
+                                                'Send OTP',
                                                 style: TextStyle(
                                                   color: Ucolors.light,
                                                   fontSize: 16,
@@ -177,13 +178,15 @@ class LoginPage extends GetView<AuthController> {
                                   ),
 
                                   SizedBox(height: Get.height * 0.01),
-                                  SmallHeading(smallheading: 'or login with'),
+                                  const SmallHeading(
+                                    smallheading: 'Or continue with',
+                                  ),
                                   SizedBox(height: Get.height * 0.01),
                                   USocialButton(),
                                   SizedBox(height: Get.height * 0.02),
                                   CreataAccountIfNot(
-                                    firstPart: 'Dont have an account? ',
-                                    textButton: 'Create Account',
+                                    firstPart: 'New to MF SIP? ',
+                                    textButton: 'Create an account',
                                     voidCallback: () {
                                       // Get.toNamed(
                                       //   AppRoutes.registerAccountScreen,
@@ -246,12 +249,17 @@ class LoginTopSection extends StatelessWidget {
           SizedBox(height: size.height * 0.01),
 
           //title heading
-          isDesktop ? SizedBox.shrink() : HeadingText(title: 'Login Account'),
+          isDesktop
+              ? const SizedBox.shrink()
+              : const HeadingText(title: 'Welcome back'),
 
           //Subtile Heading
           isDesktop
-              ? SizedBox.shrink()
-              : SubtitleText(subtitle: 'Please login into your account'),
+              ? const SizedBox.shrink()
+              : const SubtitleText(
+                  subtitle:
+                      'Sign in with your registered mobile number. We\u2019ll send you a one-time password (OTP).',
+                ),
 
           //Image
           Image.asset(

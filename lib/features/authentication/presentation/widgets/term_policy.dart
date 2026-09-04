@@ -20,7 +20,10 @@ class TermAndPolicy extends StatelessWidget {
         text: TextSpan(
           style: TextStyle(fontSize: 14, color: Ucolors.darkgrey),
           children: [
-            TextSpan(text: term ?? 'By "Login Account", you agree to the ',style: TextStyle(fontSize: 13)),
+            TextSpan(
+              text: term ?? 'By continuing, you agree to our ',
+              style: const TextStyle(fontSize: 13),
+            ),
             TextSpan(
               text: 'Terms of Use',
               style: const TextStyle(
@@ -28,7 +31,7 @@ class TermAndPolicy extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const TextSpan(text: ' and ',style: TextStyle(fontSize: 13)),
+            const TextSpan(text: ' and ', style: TextStyle(fontSize: 13)),
             TextSpan(
               text: 'Privacy Policy.',
               style: const TextStyle(

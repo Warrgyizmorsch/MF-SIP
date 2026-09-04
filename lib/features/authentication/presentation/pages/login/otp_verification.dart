@@ -21,10 +21,13 @@ class OtpVerificationScreen extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final pinWidth = isDesktop
+        ? 50.0
+        : ((MediaQuery.sizeOf(context).width - 72) / 6).clamp(40.0, 50.0);
 
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: TopBottomDecoration(
         child: SafeArea(
           child: GestureDetector(
@@ -32,8 +35,8 @@ class OtpVerificationScreen extends GetView<AuthController> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  // Enable scrolling on desktop if height is small
-                  physics: isDesktop
+                  // physics: const ClampingScrollPhysics(),
+                   physics: isDesktop
                       ? const ClampingScrollPhysics()
                       : const NeverScrollableScrollPhysics(),
                   padding: UPadding.screenPadding,
@@ -98,7 +101,7 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                     forceErrorState:
                                         controller.isOtpError.value,
                                     defaultPinTheme: PinTheme(
-                                      width: 50,
+                                      width: pinWidth,
                                       height: 50,
                                       textStyle: const TextStyle(
                                         fontSize: 24,
@@ -113,7 +116,7 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                       ),
                                     ),
                                     focusedPinTheme: PinTheme(
-                                      width: 50,
+                                      width: pinWidth,
                                       height: 50,
                                       textStyle: const TextStyle(
                                         fontSize: 24,
@@ -128,7 +131,7 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                       ),
                                     ),
                                     errorPinTheme: PinTheme(
-                                      width: 50,
+                                      width: pinWidth,
                                       height: 50,
                                       textStyle: const TextStyle(
                                         fontSize: 24,
@@ -145,6 +148,9 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                     onTap: () {
                                       controller.isOtpError.value = false;
                                     },
+                                    onChanged: (_) {
+                                      controller.isOtpError.value = false;
+                                    },
                                     onCompleted: (pin) {
                                       controller.verifyOtpAndLogin();
                                     },
@@ -154,8 +160,11 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                 const SizedBox(height: 15),
                                 Obx(
                                   () => Text(
-                                    "00:${controller.remainingSeconds.value.toString().padLeft(2, '0')}",
-                                    style: UTextStyles.heading2.copyWith(
+                                    controller.remainingSeconds.value > 0
+                                        ? 'You can request a new OTP in ${controller.formattedResendTime}'
+                                        : 'You can now request a new OTP.',
+                                    textAlign: TextAlign.center,
+                                    style: UTextStyles.subtitle1.copyWith(
                                       color:
                                           controller.remainingSeconds.value > 0
                                           ? Ucolors.blue
@@ -165,7 +174,7 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                 ),
                                 const SizedBox(height: 10),
                                 const SmallHeading(
-                                  smallheading: "Didn't get the code?",
+                                  smallheading: "Didn\u2019t receive the OTP?",
                                 ),
                                 const SizedBox(height: 15),
 
@@ -221,7 +230,7 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                                     .verifyOtpAndLogin(),
                                           child: Center(
                                             child: Text(
-                                              "Verify",
+                                              'Verify OTP',
                                               style: AppTextStyles.bodyLarge(
                                                 color: Colors.white,
                                               ),
@@ -259,7 +268,7 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                               : null,
                                           child: Center(
                                             child: Text(
-                                              'Resend Code',
+                                              'Resend OTP',
                                               style: UTextStyles.buttonText
                                                   .copyWith(
                                                     color: Colors.white,
@@ -278,7 +287,7 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                   outlined: true,
                                   child: Center(
                                     child: Text(
-                                      "Back",
+                                      'Change mobile number',
                                       style: AppTextStyles.bodyLarge(),
                                     ),
                                   ),
@@ -337,11 +346,12 @@ class OtpTopSection extends StatelessWidget {
 
           const SizedBox(height: 15),
 
-          const HeadingText(title: 'Verify Your Number'),
+          const HeadingText(title: 'Verify your mobile number'),
           const SizedBox(height: 10),
           SubtitleText(
             subtitle:
-                'To verify your account, Enter the 6 digit OTP code that we sent to +91${controller.mobileController.text}.',
+                'Enter the 6-digit OTP sent to '
+                '${controller.maskedMobileNumber}.',
           ),
           const SizedBox(height: 25),
         ],

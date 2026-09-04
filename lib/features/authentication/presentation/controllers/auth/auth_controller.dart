@@ -60,6 +60,21 @@ class AuthController extends GetxController {
   final GoogleSignIn _googleSignIn = GoogleSignIn.standard();
   RxString applicationId = ''.obs;
 
+  String get maskedMobileNumber {
+    final mobileNumber = mobileController.text.trim();
+    if (mobileNumber.length < 4) return 'your mobile number';
+
+    final hiddenDigits = List.filled(mobileNumber.length - 4, '\u2022').join();
+    return '+91 $hiddenDigits${mobileNumber.substring(mobileNumber.length - 4)}';
+  }
+
+  String get formattedResendTime {
+    final minutes = remainingSeconds.value ~/ 60;
+    final seconds = remainingSeconds.value % 60;
+    return '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
+  }
+
   /// GOOGLE SIGN IN
   /// GOOGLE SIGN IN
 
@@ -325,7 +340,9 @@ class AuthController extends GetxController {
   //   );
   // }
 
-  Future<void> sendOtp() async {
+  Future<void> sendOtp({bool navigateToVerification = true}) async {
+    if (isOtpSendLoading.value) return;
+
     if (mobileController.text.isEmpty) {
       Get.snackbar(
         "Phone number required",
@@ -338,7 +355,6 @@ class AuthController extends GetxController {
     isOtpSendLoading.value = true;
     isLoginLoading.value = true;
 
-    startResendTimer();
     final requestData = {"phone": mobileController.text.trim()};
     final result = await _authUseCases.sendOtpUseCase.call(requestData);
 
@@ -346,6 +362,7 @@ class AuthController extends GetxController {
       (success) {
         isOtpSendLoading.value = false;
         isLoginLoading.value = false;
+        startResendTimer();
 
         // Get.snackbar(
 
@@ -355,9 +372,8 @@ class AuthController extends GetxController {
         //   backgroundColor: Colors.green,
         // );
         CustomSnackbar.success(
-          title: 'OTP Sent Successfully',
-          message:
-              'Hey, we just sent an OTP to ${mobileController.text.trim()}',
+          title: navigateToVerification ? 'OTP sent' : 'New OTP sent',
+          message: 'We\u2019ve sent a 6-digit OTP to $maskedMobileNumber.',
         );
         // Get.snackbar(
         //   "", // Leave empty because we are using custom titleText
@@ -419,7 +435,9 @@ class AuthController extends GetxController {
         //   dismissDirection: DismissDirection.horizontal,
         // );
 
-        Get.toNamed(AppRoutes.otpVerificationScreen);
+        if (navigateToVerification) {
+          Get.toNamed(AppRoutes.otpVerificationScreen);
+        }
       },
       // (error) {
       //   isNumberValid.value = false;
@@ -525,6 +543,17 @@ class AuthController extends GetxController {
   }
 
   Future<void> verifyOtpAndLogin() async {
+    if (isOtpVerifyLoading.value) return;
+
+    if (otpController.text.trim().length != 6) {
+      isOtpError.value = true;
+      CustomSnackbar.error(
+        title: 'Enter the complete OTP',
+        message: 'Enter the 6-digit OTP sent to your mobile number.',
+      );
+      return;
+    }
+
     isOtpVerifyLoading.value = true;
 
     final requestData = {
@@ -599,8 +628,8 @@ class AuthController extends GetxController {
         user.value = success.data!.userModel.toEntity();
 
         ULoaders.success(
-          title: 'Verify Otp Success',
-          message: 'OTP Verified Successfully',
+          title: 'Mobile number verified',
+          message: 'You\u2019re now signed in.',
         );
 
         await Future.delayed(const Duration(seconds: 2));
@@ -617,8 +646,8 @@ class AuthController extends GetxController {
         createLog("Verify Otp Error $error");
 
         CustomSnackbar.error(
-          title: 'Invalid OTP',
-          message: 'The OTP you entered is incorrect. Please try again.',
+          title: 'Incorrect OTP',
+          message: 'That OTP is incorrect. Check the code and try again.',
         );
 
         isOtpVerifyLoading.value = false;
@@ -627,8 +656,7 @@ class AuthController extends GetxController {
   }
 
   Future<void> resendOtp() async {
-    // We can reuse sendOtp logic
-    await sendOtp();
+    await sendOtp(navigateToVerification: false);
   }
 
   Future<void> register(
