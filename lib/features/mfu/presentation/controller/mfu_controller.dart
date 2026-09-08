@@ -968,7 +968,7 @@ class MfuController extends GetxController {
             message: 'Your redemption order was rejected.',
           );
         } else {
-          CustomSnackbar.success(
+          CustomSnackbar.info(
             title: 'Redemption Request Submitted 🎉',
             message:
                 data?.message ?? 'Redemption request submitted successfully.',
@@ -1028,14 +1028,14 @@ class MfuController extends GetxController {
     }
   }
 
-  void processRedemption({
+  Future<void> processRedemption({
     dynamic mfuOrderFundId,
     required String schemeCode,
     required String folio,
     required double freeUnits,
     required double freeValue,
     Function(RedeemResModel)? onSuccess,
-  }) {
+  }) async {
     redeemInputError.value = null;
 
     final targetId = mfuOrderFundId ?? schemeCode;
@@ -1052,7 +1052,7 @@ class MfuController extends GetxController {
               'Exceeds free value (Max: ₹${freeValue.toStringAsFixed(2)})';
           return;
         }
-        executeRedeem(
+        await executeRedeem(
           RedeemReqModel(mfuOrderFundId: targetId, folio: folio, amount: v),
           onSuccess: onSuccess,
         );
@@ -1069,14 +1069,14 @@ class MfuController extends GetxController {
               'Exceeds free units (Max: ${freeUnits.toStringAsFixed(3)})';
           return;
         }
-        executeRedeem(
+        await executeRedeem(
           RedeemReqModel(mfuOrderFundId: targetId, folio: folio, units: v),
           onSuccess: onSuccess,
         );
         break;
 
       case RedeemType.allFree:
-        executeRedeem(
+        await executeRedeem(
           RedeemReqModel(
             mfuOrderFundId: targetId,
             folio: folio,

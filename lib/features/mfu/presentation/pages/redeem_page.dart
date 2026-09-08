@@ -266,49 +266,65 @@ class _RedeemPageState extends State<RedeemPage> {
               ),
               const SizedBox(height: 20),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+              Obx(() {
+                final loading = _mfu.isSubmittingRedeem.value;
+                return Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Ucolors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        _mfu.processRedemption(
-                          mfuOrderFundId: _args.mfuOrderFundId,
-                          schemeCode: _args.schemeCode,
-                          folio: _args.folioNumber,
-                          freeUnits: _args.netFreeUnits,
-                          freeValue: _args.netFreeValue,
-                        );
-                      },
-                      child: const Text(
-                        'Confirm & Submit',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        onPressed: loading ? null : () => Navigator.pop(ctx),
+                        child: const Text('Cancel'),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Ucolors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: loading
+                            ? null
+                            : () async {
+                                await _mfu.processRedemption(
+                                  mfuOrderFundId: _args.mfuOrderFundId,
+                                  schemeCode: _args.schemeCode,
+                                  folio: _args.folioNumber,
+                                  freeUnits: _args.netFreeUnits,
+                                  freeValue: _args.netFreeValue,
+                                );
+                                if (ctx.mounted) {
+                                  Navigator.pop(ctx);
+                                }
+                              },
+                        child: loading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Confirm & Submit',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         );
@@ -996,15 +1012,16 @@ class _RedeemPageState extends State<RedeemPage> {
       padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPad),
       // color: _T.bg,
       child: Obx(() {
-        final loading = _mfu.isSubmittingTxn.value;
+        final loading = _mfu.isSubmittingRedeem.value;
         return GestureDetector(
           onTap: loading ? null : _onProceed,
           child: Container(
             width: double.infinity,
             height: 54,
             decoration: BoxDecoration(
-              // gradient: loading ? null : Ucolors.backgroundGradient,
-              color: loading ? null : Ucolors.primary,
+              color: loading
+                  ? Ucolors.primary.withValues(alpha: 0.7)
+                  : Ucolors.primary,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
@@ -1013,7 +1030,7 @@ class _RedeemPageState extends State<RedeemPage> {
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
-                        color: Ucolors.primary,
+                        color: Colors.white,
                         strokeWidth: 2.5,
                       ),
                     )
