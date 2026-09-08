@@ -125,7 +125,7 @@ class _StepUpSection extends StatelessWidget {
                         const SizedBox(height: 8),
                         _NumberField(
                           value: byPct ? stepUpPct : stepUpAmt,
-                          hint: byPct ? 'e.g. 10' : 'e.g. ${minTopup}',
+                          hint: byPct ? 'e.g. 10' : 'e.g. $minTopup',
                           error: stepUpError,
                           onChanged: (v) =>
                               byPct ? onStepPctChanged(v) : onStepAmtChanged(v),
@@ -667,6 +667,238 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     super.dispose();
   }
 
+  void _onInvestClicked() {
+    if (!_c.validateSipInputs()) return;
+    _showDividendOptionModal();
+  }
+
+  void _showDividendOptionModal() {
+    FocusScope.of(context).unfocus();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            final selected = _c.selectedDivOpt.value;
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Select Dividend Option',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: _C.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFBFDBFE)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.info_outline_rounded,
+                            color: _C.primary,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Choose how your fund dividends are handled. Payout credits money to your bank account, while Re-invest automatically buys more units.',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 12,
+                                color: Colors.blue.shade900,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () {
+                        setModalState(() {
+                          _c.setDividendOption('P');
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: selected == 'P'
+                              ? const Color(0xFFEFF6FF)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: selected == 'P' ? _C.primary : _C.border,
+                            width: selected == 'P' ? 1.8 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              selected == 'P'
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_off,
+                              color: selected == 'P'
+                                  ? _C.primary
+                                  : _C.textMuted,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Dividend Payout',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: _C.textPrimary,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Dividends will be credited directly to your registered bank account.',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 12,
+                                      color: _C.textSec,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        setModalState(() {
+                          _c.setDividendOption('R');
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: selected == 'R'
+                              ? const Color(0xFFEFF6FF)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: selected == 'R' ? _C.primary : _C.border,
+                            width: selected == 'R' ? 1.8 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              selected == 'R'
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_off,
+                              color: selected == 'R'
+                                  ? _C.primary
+                                  : _C.textMuted,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Dividend Re-invest',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: _C.textPrimary,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Dividends will be automatically reinvested to purchase more scheme units.',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 12,
+                                      color: _C.textSec,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _C.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          _c.proceedWithInvestment();
+                        },
+                        child: const Text(
+                          'Continue to Invest',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   // ── Pickers (UI concerns — stay in View) ─────────────────────────────────
   void _showFrequencyPicker() {
     FocusScope.of(context).unfocus();
@@ -851,7 +1083,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                     invType: _c.sipInvType.value,
                     isLoading: _c.isSubmittingAny,
                     isValid: _c.sipIsValid,
-                    onInvest: _c.onSipInvest,
+                    onInvest: _onInvestClicked,
                   ),
                 ),
               ),
@@ -1205,7 +1437,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
             Divider(color: _C.border.withValues(alpha: 0.8)),
             const SizedBox(height: 18),
             GestureDetector(
-              onTap: canTap ? _c.onSipInvest : null,
+              onTap: canTap ? _onInvestClicked : null,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 width: double.infinity,

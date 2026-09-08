@@ -324,20 +324,22 @@ class MfuController extends GetxController {
     }
   }
 
-  // ─── Invest ───────────────────────────────────────────────────────────────────
+  // Dividend option selection ('P' = Payout, 'R' = Re-invest, 'N' = Growth)
+  final selectedDivOpt = 'P'.obs;
 
-  void onSipInvest() {
-    //Step up block
+  void setDividendOption(String val) {
+    selectedDivOpt.value = val;
+  }
+
+  bool validateSipInputs() {
     if (sipInvType.value == InvType.stepup) {
       CustomSnackbar.warning(
         title: 'Step-Up SIP Coming Soon 🚀',
         message:
             'Step-Up SIP is currently unavailable. Please select Normal SIP or Lump Sum to proceed.',
       );
-
-      return;
+      return false;
     }
-    // 1. Validate inputs
     final aErr = _validateSipAmount(sipAmount.value);
     final sErr = sipInvType.value == InvType.stepup ? _validateStepUp() : null;
     final cErr = sipInvType.value == InvType.stepup ? _validateCap() : null;
@@ -346,15 +348,16 @@ class MfuController extends GetxController {
     sipStepUpError.value = sErr;
     sipCapError.value = cErr;
 
-    if (aErr != null || sErr != null || cErr != null) return;
+    return aErr == null && sErr == null && cErr == null;
+  }
 
+  void proceedWithInvestment() {
     final args = sipArgs.value;
     final schemeCode = args.schemeCode;
     final amount = sipAmount.value.toDouble();
     final day = formatMfuSipDay();
     final folio = args.folio ?? 'NEW';
 
-    // 2. Dispatch investment API guarded by Gatekeeper with correct isLumpsum flag
     final bool isLumpsum = sipInvType.value == InvType.lumpsum;
 
     GatekeeperHelper.runWithPrerequisites(
@@ -380,6 +383,11 @@ class MfuController extends GetxController {
         }
       },
     );
+  }
+
+  void onSipInvest() {
+    if (!validateSipInputs()) return;
+    proceedWithInvestment();
   }
 
   void selectMethod(String method) {
