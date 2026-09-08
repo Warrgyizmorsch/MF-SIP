@@ -74,10 +74,12 @@ class RedeemArgs {
     this.pendingRedemptionUnits = 0.0,
   });
 
-  double get netFreeValue =>
-      (freeValue - pendingRedemptionAmount).clamp(0.0, freeValue);
-  double get netFreeUnits =>
-      (freeUnits - pendingRedemptionUnits).clamp(0.0, freeUnits);
+  double get netFreeValue => hasPendingRedemption
+      ? (freeValue - pendingRedemptionAmount).clamp(0.0, freeValue)
+      : freeValue;
+  double get netFreeUnits => hasPendingRedemption
+      ? (freeUnits - pendingRedemptionUnits).clamp(0.0, freeUnits)
+      : freeUnits;
 }
 
 class RedeemPage extends StatefulWidget {
@@ -728,7 +730,7 @@ class _RedeemPageState extends State<RedeemPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      _mfu.useMaxRedeemAmount(_args.freeValue);
+                      _mfu.useMaxRedeemAmount(_args.netFreeValue);
                       _amountFocus.requestFocus();
                     },
                     child: Text(
@@ -763,7 +765,7 @@ class _RedeemPageState extends State<RedeemPage> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        '${_args.freeUnits.toStringAsFixed(3)} units  ·  ₹${_fmtVal(_args.freeValue)} will be redeemed',
+                        '${_args.netFreeUnits.toStringAsFixed(3)} units  ·  ₹${_fmtVal(_args.netFreeValue)} will be redeemed',
                         style: UTextStyles.bodyMediumSemiBold.copyWith(
                           color: const Color(0xFF065F46),
                           fontSize: 13,
@@ -797,11 +799,11 @@ class _RedeemPageState extends State<RedeemPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Available: ${_args.freeUnits.toStringAsFixed(3)} units',
+                    'Available: ${_args.netFreeUnits.toStringAsFixed(3)} units',
                     style: UTextStyles.bodyMedium.copyWith(color: _T.textSec),
                   ),
                   GestureDetector(
-                    onTap: () => _mfu.useMaxRedeemUnits(_args.freeUnits),
+                    onTap: () => _mfu.useMaxRedeemUnits(_args.netFreeUnits),
                     child: Text(
                       'Use Max',
                       style: UTextStyles.bodyMediumBold.copyWith(

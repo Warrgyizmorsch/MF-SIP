@@ -904,6 +904,7 @@ class MfuController extends GetxController {
 
   void useMaxRedeemAmount(double maxAmount) {
     redeemAmountCtrl.text = maxAmount.toStringAsFixed(2);
+    redeemInputError.value = null;
   }
 
   void useMaxRedeemUnits(double maxUnits) {
