@@ -1245,6 +1245,7 @@ class WebFundListCard extends StatelessWidget {
                 minTopup: entity.minTopUp ?? 5000,
                 folio: null,
                 imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+                divoption: entity.divoption,
               );
 
               SIPPurchasePage.tempData = purchaseArgs;
@@ -2088,6 +2089,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                 minTopup: entity.minTopUp ?? 5000,
                 folio: null,
                 imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+                divoption: entity.divoption,
               );
 
               SIPPurchasePage.tempData = purchaseArgs;
@@ -2310,6 +2312,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                 minTopup: entity.minTopUp ?? 5000,
                 folio: null,
                 imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}' ?? "",
+                divoption: entity.divoption,
               );
 
               SIPPurchasePage.tempData = purchaseArgs;

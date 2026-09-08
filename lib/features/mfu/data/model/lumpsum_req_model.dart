@@ -2,24 +2,31 @@ class LumpsumFundItemModel {
   final String schemeCode;
   final num amount;
   final String folio;
+  final String? devopt;
 
   LumpsumFundItemModel({
     required this.schemeCode,
     required this.amount,
     this.folio = 'NEW',
+    this.devopt,
   });
 
-  Map<String, dynamic> toJson() => {
-    'scheme_code': schemeCode,
-    'amount': amount,
-    'folio': folio,
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      'scheme_code': schemeCode,
+      'amount': amount,
+      'folio': folio,
+    };
+    if (devopt != null) data['devopt'] = devopt;
+    return data;
+  }
 
   factory LumpsumFundItemModel.fromJson(Map<String, dynamic> json) {
     return LumpsumFundItemModel(
       schemeCode: json['scheme_code']?.toString() ?? '',
       amount: json['amount'] ?? 0,
       folio: json['folio']?.toString() ?? 'NEW',
+      devopt: json['devopt']?.toString(),
     );
   }
 }

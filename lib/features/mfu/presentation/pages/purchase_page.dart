@@ -567,6 +567,7 @@ class SipPurchaseArgs {
   final int minSip;
   final int minLumpsum;
   final int minTopup;
+  final String? divoption;
 
   const SipPurchaseArgs({
     required this.schemeCode,
@@ -578,6 +579,7 @@ class SipPurchaseArgs {
     this.minSip = 500,
     this.minLumpsum = 1000,
     this.minTopup = 500,
+    this.divoption,
   });
 }
 
@@ -669,7 +671,21 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
 
   void _onInvestClicked() {
     if (!_c.validateSipInputs()) return;
-    _showDividendOptionModal();
+
+    final opt = (_c.sipArgs.value.divoption ?? '').trim().toUpperCase();
+
+    if (opt == 'GR' || opt == 'NA') {
+      _c.setDividendOption('N');
+      _c.proceedWithInvestment();
+    } else if (opt == 'PAYOUT') {
+      _c.setDividendOption('P');
+      _showDividendOptionModal();
+    } else if (opt == 'REINV') {
+      _c.setDividendOption('R');
+      _showDividendOptionModal();
+    } else {
+      _showDividendOptionModal();
+    }
   }
 
   void _showDividendOptionModal() {

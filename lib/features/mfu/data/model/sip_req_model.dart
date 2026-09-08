@@ -4,6 +4,7 @@ class SipFundItemModel {
   final String folio;
   final String frequency;
   final String day;
+  final String? devopt;
 
   SipFundItemModel({
     required this.schemeCode,
@@ -11,15 +12,20 @@ class SipFundItemModel {
     this.folio = 'NEW',
     this.frequency = 'M',
     required this.day,
+    this.devopt,
   });
 
-  Map<String, dynamic> toJson() => {
-    'scheme_code': schemeCode,
-    'amount': amount,
-    'folio': folio,
-    'frequency': frequency,
-    'day': day,
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      'scheme_code': schemeCode,
+      'amount': amount,
+      'folio': folio,
+      'frequency': frequency,
+      'day': day,
+    };
+    if (devopt != null) data['devopt'] = devopt;
+    return data;
+  }
 
   factory SipFundItemModel.fromJson(Map<String, dynamic> json) {
     return SipFundItemModel(
@@ -28,6 +34,7 @@ class SipFundItemModel {
       folio: json['folio']?.toString() ?? 'NEW',
       frequency: json['frequency']?.toString() ?? 'M',
       day: json['day']?.toString() ?? '25',
+      devopt: json['devopt']?.toString(),
     );
   }
 }

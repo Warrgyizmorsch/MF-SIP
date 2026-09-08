@@ -119,7 +119,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                                     transType: 'sip',
                                     null,
                                   );
-                                  
                                 }
                               },
                               secondButtonP: () async {
@@ -141,6 +140,10 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                                           argVal?.minimumTopup.toInt() ?? 5000,
                                       folio: null,
                                       imgUrl: controller.imgUrl,
+                                      divoption:
+                                          argVal?.isDividendScheme == true
+                                          ? 'BOTH'
+                                          : 'GR',
                                     );
 
                                     Get.to(
@@ -595,7 +598,6 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                                     transType: 'lumpsum',
                                     null,
                                   );
-                              
                                 }
                               },
                               secondButtonP: () async {
@@ -617,6 +619,10 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                                           argVal?.minimumTopup.toInt() ?? 5000,
                                       folio: null,
                                       imgUrl: controller.imgUrl,
+                                      divoption:
+                                          argVal?.isDividendScheme == true
+                                          ? 'BOTH'
+                                          : 'GR',
                                     );
 
                                     SIPPurchasePage.tempData = purchaseArgs;

@@ -39,7 +39,9 @@ class MutualFundListEntity extends Equatable {
   final int? minSipAmount;
   final int? minLumpsum;
   final int? minTopUp;
-  final String?  schemecategory;
+  final String? schemecategory;
+
+  final String? divoption;
 
   final List<VariantModelEntity> variants;
 
@@ -57,7 +59,8 @@ class MutualFundListEntity extends Equatable {
     required this.minLumpsum,
     required this.minTopUp,
     required this.variants,
-    required this.schemecategory
+    required this.schemecategory,
+    this.divoption,
   });
 
   @override
@@ -73,7 +76,8 @@ class MutualFundListEntity extends Equatable {
     minLumpsum,
     minTopUp,
     variants,
-    nav
+    nav,
+    divoption,
   ];
 }
 
@@ -92,6 +96,7 @@ extension MutualFundListEntityX on MutualFundListModel {
       minSipAmount: minSipAmount,
       minLumpsum: minLumpsum,
       minTopUp: minTopUp,
+      divoption: divoption,
       variants: variants.map((e) => e.toEntity()).toList(),
     );
   }

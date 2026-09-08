@@ -41,6 +41,8 @@ class MutualFundListModel {
   final int? minTopUp;
   final List<VariantModel> variants;
 
+  final String? divoption;
+
   MutualFundListModel({
     this.returns,
     required this.schemeCode,
@@ -55,6 +57,7 @@ class MutualFundListModel {
     required this.minTopUp,
     required this.schemecategory,
     required this.nav,
+    this.divoption,
   });
 
   factory MutualFundListModel.fromJson(Map<String, dynamic> json) {
@@ -69,6 +72,7 @@ class MutualFundListModel {
       nav: json.parse<double>('nav'),
       schemecategory: json.parse<String>('scheme_category'),
       riskLevel: json.parse<String>('risk_level'),
+      divoption: json.parse<String>('divoption'),
       amc: json.parseNested('amc', (e) => AmcModel.fromJson(e)),
       returns: json.parseNested('returns', (e) => ReturnsModel.fromJson(e)),
 

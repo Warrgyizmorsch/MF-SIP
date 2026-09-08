@@ -196,6 +196,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                           minTopup: 5000,
                           folio: null,
                           imgUrl: '${Appurl.baseUrl}${fund1.amc?.amcLogoUrl}',
+                          divoption: fund1.divoption,
                         );
 
                         Get.to(
@@ -216,6 +217,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                           minTopup: 5000,
                           folio: null,
                           imgUrl: '${Appurl.baseUrl}${fund2.amc?.amcLogoUrl}',
+                          divoption: fund2.divoption,
                         );
 
                         Get.to(

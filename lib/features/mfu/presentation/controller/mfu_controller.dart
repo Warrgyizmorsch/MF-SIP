@@ -331,6 +331,18 @@ class MfuController extends GetxController {
     selectedDivOpt.value = val;
   }
 
+  String get formatDevoptPayload {
+    switch (selectedDivOpt.value) {
+      case 'P':
+        return 'payout';
+      case 'R':
+        return 'reinvest';
+      case 'N':
+      default:
+        return 'growth';
+    }
+  }
+
   bool validateSipInputs() {
     if (sipInvType.value == InvType.stepup) {
       CustomSnackbar.warning(
@@ -1186,6 +1198,7 @@ class MfuController extends GetxController {
               schemeCode: schemeCode,
               amount: amount,
               folio: folio,
+              devopt: formatDevoptPayload,
             ),
         ];
 
@@ -1256,6 +1269,7 @@ class MfuController extends GetxController {
               folio: folio,
               frequency: frequency,
               day: day,
+              devopt: formatDevoptPayload,
             ),
         ];
 
