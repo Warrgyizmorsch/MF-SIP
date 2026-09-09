@@ -4136,7 +4136,7 @@ class PortfolioCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.grey.shade300),
+                            // border: Border.all(color: Colors.grey.shade300),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -4172,7 +4172,7 @@ class PortfolioCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.green.shade50,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.green.shade200),
+                            // border: Border.all(color: Colors.green.shade200),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -4185,7 +4185,7 @@ class PortfolioCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Flexible(
                                 child: Text(
-                                  'Redeemed & Settled (₹${fund.redeemedAmount > 0 ? fund.redeemedAmount : fund.redemptionDetails?.amount ?? 0})',
+                                  'Redeemed (₹${fund.redeemedAmount > 0 ? fund.redeemedAmount : fund.redemptionDetails?.amount ?? 0})',
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
@@ -4211,7 +4211,7 @@ class PortfolioCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.orange.shade50,
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.orange.shade200),
+                              // border: Border.all(color: Colors.orange.shade200),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -4252,7 +4252,7 @@ class PortfolioCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.blue.shade50,
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.blue.shade200),
+                              // border: Border.all(color: Colors.blue.shade200),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
