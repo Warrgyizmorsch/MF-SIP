@@ -763,12 +763,17 @@ class MandateWaitingScreen extends StatelessWidget {
                 'Frequency & Validity',
                 style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
               ),
-              Text(
-                'As presented • Until Revoked',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF334155),
+              SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'As presented • Until Revoked',
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF334155),
+                  ),
                 ),
               ),
             ],
@@ -792,49 +797,55 @@ class MandateWaitingScreen extends StatelessWidget {
           label,
           style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                displayValue,
-                style: TextStyle(
-                  overflow: TextOverflow.clip,
-                  fontSize: 11.5,
-                  fontFamily: isMonospace ? 'monospace' : null,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(width: 6),
-              InkWell(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: copyValue));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('$label copied to clipboard'),
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
+        const SizedBox(width: 8),
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    displayValue,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontFamily: isMonospace ? 'monospace' : null,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1E293B),
                     ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(4),
-                child: const Padding(
-                  padding: EdgeInsets.all(2.0),
-                  child: Icon(
-                    Icons.copy_rounded,
-                    size: 13,
-                    color: Color(0xFF64748B),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 6),
+                InkWell(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: copyValue));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('$label copied to clipboard'),
+                        duration: const Duration(seconds: 2),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(4),
+                  child: const Padding(
+                    padding: EdgeInsets.all(2.0),
+                    child: Icon(
+                      Icons.copy_rounded,
+                      size: 13,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
