@@ -3702,10 +3702,10 @@ class _MobileDashboardLayout extends StatelessWidget {
               }
 
               // 2. Extract portfolio list
-              final funds = controller.portfolioData.value?.portfolio ?? [];
+              final allFunds = controller.portfolioData.value?.portfolio ?? [];
 
               // 3. Handle Empty State
-              if (funds.isEmpty) {
+              if (allFunds.isEmpty) {
                 return const SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.all(32.0),
@@ -3716,21 +3716,46 @@ class _MobileDashboardLayout extends StatelessWidget {
                 );
               }
 
+              final funds = controller.filteredPortfolio;
+
               return SliverList(
                 delegate: SliverChildListDelegate([
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: SectionHeading(
-                      sectionTitle: 'My Portfolio',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      textcolor: const Color(0xff787878),
+                  // Enhanced Filter & Sort Bar
+                  _buildPortfolioFilterAndSortBar(controller, allFunds.length),
+                  const SizedBox(height: 8),
+
+                  if (funds.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 36,
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.filter_list_off_rounded,
+                              size: 36,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No funds found matching "${controller.selectedPortfolioFilter.value}"',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    // 4. Map the filtered and sorted funds to PortfolioCard
+                    ...funds.map(
+                      (fund) => PortfolioCard(fund: fund, isVisible: true),
                     ),
-                  ),
-                  // 4. Map the actual funds to PortfolioCard
-                  ...funds
-                      .map((fund) => PortfolioCard(fund: fund, isVisible: true))
-                      .toList(),
                 ]),
               );
             } else {
@@ -3864,6 +3889,195 @@ class _MobileDashboardLayout extends StatelessWidget {
           }),
 
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPortfolioFilterAndSortBar(
+    DashboardController controller,
+    int totalFundsCount,
+  ) {
+    final filters = [
+      'All Funds',
+      'Active SIP',
+      'Lump Sum',
+      'Redeem',
+      'Cancelled SIP',
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row: "My Portfolio" & "Sort by Gain"
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'My Portfolio',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              InkWell(
+                onTap: () => controller.toggleSortByGain(),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.sort_rounded,
+                        size: 15,
+                        color: controller.isSortByGain.value
+                            ? const Color(0xFF2563EB)
+                            : const Color(0xFF64748B),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        controller.isSortByGain.value
+                            ? 'Sorted by Gain'
+                            : 'Sort by Gain',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: controller.isSortByGain.value
+                              ? const Color(0xFF2563EB)
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Horizontally Scrollable Filter Chips Bar
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              children: filters.map((filter) {
+                final isSelected =
+                    controller.selectedPortfolioFilter.value == filter;
+
+                Widget? leadingIcon;
+                if (filter == 'Active SIP') {
+                  leadingIcon = Container(
+                    width: 7,
+                    height: 7,
+                    margin: const EdgeInsets.only(right: 6),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF10B981),
+                      shape: BoxShape.circle,
+                    ),
+                  );
+                } else if (filter == 'Redeem') {
+                  leadingIcon = Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Icon(
+                      Icons.check,
+                      size: 13,
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFF059669),
+                    ),
+                  );
+                }
+
+                Widget? trailingBadge;
+                if (filter == 'All Funds') {
+                  trailingBadge = Container(
+                    margin: const EdgeInsets.only(left: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 1.5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '$totalFundsCount',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected
+                            ? const Color(0xFFE2E8F0)
+                            : const Color(0xFF475569),
+                      ),
+                    ),
+                  );
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: InkWell(
+                    onTap: () => controller.setPortfolioFilter(filter),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFF0F172A)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFF0F172A)
+                              : const Color(0xFFE2E8F0),
+                        ),
+                        boxShadow: isSelected
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x14000000),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (leadingIcon != null) leadingIcon,
+                          Text(
+                            filter,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF334155),
+                            ),
+                          ),
+                          if (trailingBadge != null) trailingBadge,
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );

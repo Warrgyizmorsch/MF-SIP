@@ -43,6 +43,49 @@ class DashboardController extends GetxController {
   final transactionList = Rxn<MfuTransactionListEntity>();
   final portfolioData = Rxn<MfuPortfolioEntity>();
 
+  final selectedPortfolioFilter = 'All Funds'.obs;
+  final isSortByGain = false.obs;
+
+  void setPortfolioFilter(String filter) {
+    selectedPortfolioFilter.value = filter;
+  }
+
+  void toggleSortByGain() {
+    isSortByGain.value = !isSortByGain.value;
+  }
+
+  List<MfuPortfolioItemEntity> get filteredPortfolio {
+    final allFunds = portfolioData.value?.portfolio ?? [];
+    List<MfuPortfolioItemEntity> result;
+
+    switch (selectedPortfolioFilter.value) {
+      case 'Active SIP':
+        result = allFunds.where((f) => f.isSipActive).toList();
+        break;
+      case 'Lump Sum':
+        result = allFunds.where((f) => f.isLumpsum).toList();
+        break;
+      case 'Redeem':
+        result = allFunds
+            .where((f) => f.isRedemptionSettled || f.redeemedAmount > 0)
+            .toList();
+        break;
+      case 'Cancelled SIP':
+        result = allFunds.where((f) => f.isSipCancelledFlag).toList();
+        break;
+      case 'All Funds':
+      default:
+        result = List<MfuPortfolioItemEntity>.from(allFunds);
+        break;
+    }
+
+    if (isSortByGain.value) {
+      result.sort((a, b) => b.gainLossPercent.compareTo(a.gainLossPercent));
+    }
+
+    return result;
+  }
+
   void changeTab(int index) {
     selectedIndex.value = index;
     if (index == 1) {
