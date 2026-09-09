@@ -104,6 +104,37 @@ class BottomDashedLinePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
+///----------- Filter & Sort Sticky Header Delegate ----------///
+class _FilterSortStickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+
+  const _FilterSortStickyHeaderDelegate({
+    required this.child,
+    required this.height,
+  });
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(color: Colors.white, height: height, child: child);
+  }
+
+  @override
+  bool shouldRebuild(covariant _FilterSortStickyHeaderDelegate oldDelegate) {
+    return oldDelegate.height != height || oldDelegate.child != child;
+  }
+}
+
 ///-----------Bottom Clliper ----------///
 class BottomWaveClipper extends CustomClipper<Path> {
   @override
@@ -3682,7 +3713,21 @@ class _MobileDashboardLayout extends StatelessWidget {
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+
+          /// Pinned Sticky Header: ONLY Filter & Sort Chips
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _FilterSortStickyHeaderDelegate(
+              height: 84.0,
+              child: _buildFilterAndSortStickyHeader(
+                context,
+                dashboardController,
+              ),
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
           Obx(() {
             final controller = Get.find<DashboardController>();
@@ -3720,10 +3765,6 @@ class _MobileDashboardLayout extends StatelessWidget {
 
               return SliverList(
                 delegate: SliverChildListDelegate([
-                  // Enhanced Filter & Sort Bar
-                  _buildPortfolioFilterAndSortBar(controller, allFunds.length),
-                  const SizedBox(height: 8),
-
                   if (funds.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -3783,79 +3824,6 @@ class _MobileDashboardLayout extends StatelessWidget {
               /// 🟩 TRANSACTIONS TAB
               return SliverList(
                 delegate: SliverChildListDelegate([
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: SectionHeading(
-                      sectionTitle: 'Transactions',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      textcolor: const Color(0xff787878),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 36, // Height of the filter bar
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: controller.txnFilters.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final filter = controller.txnFilters[index];
-                        final isSelected =
-                            controller.selectedTxnFilter.value == filter;
-
-                        return GestureDetector(
-                          onTap: () => controller.setTxnFilter(filter),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              // Smooth color transitions
-                              color: isSelected
-                                  ? Ucolors.primary
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: isSelected
-                                    ? Ucolors.primary
-                                    : Colors.grey.shade300,
-                                width: 1,
-                              ),
-                              // Add a subtle glow/shadow to the active pill
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: Ucolors.primary.withOpacity(0.3),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ]
-                                  : [],
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              filter,
-                              style: TextStyle(
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.grey.shade700,
-                                fontSize: 13,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-                  // ...txns
-                  //     .map((txn) => TransactionCardDash(transaction: txn))
-                  //     .toList(),
                   ...filteredTxns.isEmpty
                       ? [
                           Padding(
@@ -3894,6 +3862,103 @@ class _MobileDashboardLayout extends StatelessWidget {
     );
   }
 
+  Widget _buildFilterAndSortStickyHeader(
+    BuildContext context,
+    DashboardController controller,
+  ) {
+    return Obx(() {
+      final selectedTab = controller.selectedIndex.value;
+      final allFunds = controller.portfolioData.value?.portfolio ?? [];
+
+      return Container(
+        color: Colors.white,
+        padding: const EdgeInsets.only(top: 4, bottom: 8),
+        child: selectedTab == 0
+            ? _buildPortfolioFilterAndSortBar(controller, allFunds.length)
+            : _buildTransactionsFilterBar(controller),
+      );
+    });
+  }
+
+  Widget _buildTransactionsFilterBar(DashboardController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            'Transactions',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+              letterSpacing: -0.2,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Obx(() {
+            final selectedFilter = controller.selectedTxnFilter.value;
+            return Row(
+              children: controller.txnFilters.map((filter) {
+                final isSelected = selectedFilter == filter;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: GestureDetector(
+                    onTap: () => controller.setTxnFilter(filter),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Ucolors.primary : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected
+                              ? Ucolors.primary
+                              : Colors.grey.shade300,
+                          width: 1,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: Ucolors.primary.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        filter,
+                        style: TextStyle(
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.grey.shade700,
+                          fontSize: 13,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
   Widget _buildPortfolioFilterAndSortBar(
     DashboardController controller,
     int totalFundsCount,
@@ -3906,13 +3971,13 @@ class _MobileDashboardLayout extends StatelessWidget {
       'Cancelled SIP',
     ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row: "My Portfolio" & "Sort by Gain"
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header Row: "My Portfolio" & "Sort by Gain"
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
@@ -3961,125 +4026,124 @@ class _MobileDashboardLayout extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+        ),
+        const SizedBox(height: 10),
 
-          // Horizontally Scrollable Filter Chips Bar
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              children: filters.map((filter) {
-                final isSelected =
-                    controller.selectedPortfolioFilter.value == filter;
+        // Horizontally Scrollable Filter Chips Bar
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: filters.map((filter) {
+              final isSelected =
+                  controller.selectedPortfolioFilter.value == filter;
 
-                Widget? leadingIcon;
-                if (filter == 'Active SIP') {
-                  leadingIcon = Container(
-                    width: 7,
-                    height: 7,
-                    margin: const EdgeInsets.only(right: 6),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF10B981),
-                      shape: BoxShape.circle,
-                    ),
-                  );
-                } else if (filter == 'Redeem') {
-                  leadingIcon = Padding(
-                    padding: const EdgeInsets.only(right: 4),
-                    child: Icon(
-                      Icons.check,
-                      size: 13,
+              Widget? leadingIcon;
+              if (filter == 'Active SIP') {
+                leadingIcon = Container(
+                  width: 7,
+                  height: 7,
+                  margin: const EdgeInsets.only(right: 6),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF10B981),
+                    shape: BoxShape.circle,
+                  ),
+                );
+              } else if (filter == 'Redeem') {
+                leadingIcon = Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    Icons.check,
+                    size: 13,
+                    color: isSelected ? Colors.white : const Color(0xFF059669),
+                  ),
+                );
+              }
+
+              Widget? trailingBadge;
+              if (filter == 'All Funds') {
+                trailingBadge = Container(
+                  margin: const EdgeInsets.only(left: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1.5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFF334155)
+                        : const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '$totalFundsCount',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
                       color: isSelected
-                          ? Colors.white
-                          : const Color(0xFF059669),
-                    ),
-                  );
-                }
-
-                Widget? trailingBadge;
-                if (filter == 'All Funds') {
-                  trailingBadge = Container(
-                    margin: const EdgeInsets.only(left: 6),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 1.5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFF334155)
-                          : const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '$totalFundsCount',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected
-                            ? const Color(0xFFE2E8F0)
-                            : const Color(0xFF475569),
-                      ),
-                    ),
-                  );
-                }
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: InkWell(
-                    onTap: () => controller.setPortfolioFilter(filter),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFF0F172A)
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFF0F172A)
-                              : const Color(0xFFE2E8F0),
-                        ),
-                        boxShadow: isSelected
-                            ? const [
-                                BoxShadow(
-                                  color: Color(0x14000000),
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (leadingIcon != null) leadingIcon,
-                          Text(
-                            filter,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              color: isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF334155),
-                            ),
-                          ),
-                          if (trailingBadge != null) trailingBadge,
-                        ],
-                      ),
+                          ? const Color(0xFFE2E8F0)
+                          : const Color(0xFF475569),
                     ),
                   ),
                 );
-              }).toList(),
-            ),
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: InkWell(
+                  onTap: () => controller.setPortfolioFilter(filter),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFF0F172A)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF0F172A)
+                            : const Color(0xFFE2E8F0),
+                      ),
+                      boxShadow: isSelected
+                          ? const [
+                              BoxShadow(
+                                color: Color(0x14000000),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (leadingIcon != null) leadingIcon,
+                        Text(
+                          filter,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: isSelected
+                                ? Colors.white
+                                : const Color(0xFF334155),
+                          ),
+                        ),
+                        if (trailingBadge != null) trailingBadge,
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
