@@ -733,7 +733,19 @@ class _PortfolioTableRow extends StatelessWidget {
                   onSelected: (value) {
                     switch (value) {
                       case PortfolioMenuAction.viewDetails:
-                        Get.to(() => PortfolioFundDetailsPage(fund: fund));
+                        PortfolioFundDetailsPage.navFund = fund;
+                        if (kIsWeb &&
+                            Get.isRegistered<NavigationBarController>()) {
+                          Get.find<NavigationBarController>().openNestedRoute(
+                            AppRoutes.portfolioDetails,
+                            arguments: fund,
+                          );
+                        } else {
+                          Get.toNamed(
+                            AppRoutes.portfolioDetails,
+                            arguments: fund,
+                          );
+                        }
                         break;
                       case PortfolioMenuAction.topUp:
                         log('top up');
@@ -754,7 +766,19 @@ class _PortfolioTableRow extends StatelessWidget {
                         if (fund.isRedemptionPending) {
                           _showPendingRedemptionDetailsModal(context, fund);
                         } else {
-                          Get.to(() => PortfolioFundDetailsPage(fund: fund));
+                          PortfolioFundDetailsPage.navFund = fund;
+                          if (kIsWeb &&
+                              Get.isRegistered<NavigationBarController>()) {
+                            Get.find<NavigationBarController>().openNestedRoute(
+                              AppRoutes.portfolioDetails,
+                              arguments: fund,
+                            );
+                          } else {
+                            Get.toNamed(
+                              AppRoutes.portfolioDetails,
+                              arguments: fund,
+                            );
+                          }
                         }
                         break;
 
@@ -805,7 +829,19 @@ class _PortfolioTableRow extends StatelessWidget {
                             );
                           }
                         } else {
-                          Get.to(() => PortfolioFundDetailsPage(fund: fund));
+                          PortfolioFundDetailsPage.navFund = fund;
+                          if (kIsWeb &&
+                              Get.isRegistered<NavigationBarController>()) {
+                            Get.find<NavigationBarController>().openNestedRoute(
+                              AppRoutes.portfolioDetails,
+                              arguments: fund,
+                            );
+                          } else {
+                            Get.toNamed(
+                              AppRoutes.portfolioDetails,
+                              arguments: fund,
+                            );
+                          }
                         }
                         break;
 
