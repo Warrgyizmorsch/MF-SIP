@@ -653,7 +653,7 @@ class _PortfolioTableHeader extends StatelessWidget {
       child: Row(
         children: const [
           Expanded(flex: 4, child: _HeaderText('Fund')),
-          Expanded(flex: 2, child: _HeaderText('1D Change')),
+          Expanded(flex: 2, child: _HeaderText('1D Change', alignRight: true)),
           Expanded(flex: 2, child: _HeaderText('Invested', alignRight: true)),
           Expanded(
             flex: 2,
@@ -927,6 +927,7 @@ class _PortfolioTableRow extends StatelessWidget {
             Expanded(
               flex: 2,
               child: _ChangeText(
+                alignRight: true,
                 value: oneDayChange,
                 percent: oneDayChangePercent,
                 isProfit: isOneDayProfit,
