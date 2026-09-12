@@ -28,7 +28,8 @@ class WebPortfolioScreen extends StatelessWidget {
       color: const Color(0xFFF5F7FA),
       child: Obx(() {
         final summary = controller.portfolioData.value?.summary;
-        final funds = controller.portfolioData.value?.portfolio ?? [];
+        final allFunds = controller.portfolioData.value?.portfolio ?? [];
+        final displayedFunds = controller.filteredPortfolio;
         final bool isVisible = controller.isBalanceVisible.value;
 
         final double currentValue =
@@ -96,7 +97,7 @@ class WebPortfolioScreen extends StatelessWidget {
                     Expanded(
                       child: _HeroCountMetric(
                         title: 'Funds',
-                        value: funds.length.toString(),
+                        value: allFunds.length.toString(),
                       ),
                     ),
                   ],
@@ -123,39 +124,96 @@ class WebPortfolioScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Header Row: Section Title, Count & Sort by Gain button
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text(
-                          'All Funds',
-                          style: TextStyle(
-                            fontFamily: FontFamily.medium,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Ucolors.dark,
-                          ),
+                        Row(
+                          children: [
+                            const Text(
+                              'My Portfolio',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Ucolors.dark,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF0F5FF),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                '${displayedFunds.length} ${displayedFunds.length == 1 ? "fund" : "funds"}',
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 12,
+                                  color: Ucolors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF0F5FF),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            '${funds.length} funds',
-                            style: const TextStyle(
-                              fontFamily: FontFamily.medium,
-                              fontSize: 12,
-                              color: Ucolors.primary,
-                              fontWeight: FontWeight.w600,
+                        InkWell(
+                          onTap: () => controller.toggleSortByGain(),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 7,
+                            ),
+                            decoration: BoxDecoration(
+                              color: controller.isSortByGain.value
+                                  ? const Color(0xFFEFF6FF)
+                                  : const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: controller.isSortByGain.value
+                                    ? const Color(0xFF93C5FD)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.sort_rounded,
+                                  size: 16,
+                                  color: controller.isSortByGain.value
+                                      ? const Color(0xFF2563EB)
+                                      : const Color(0xFF64748B),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  controller.isSortByGain.value
+                                      ? 'Sorted by Gain'
+                                      : 'Sort by Gain',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: controller.isSortByGain.value
+                                        ? const Color(0xFF2563EB)
+                                        : const Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 16),
+
+                    // Filter Chips Bar (matching mobile styling)
+                    _buildWebFilterChips(controller, allFunds.length),
                     const SizedBox(height: 20),
 
                     if (controller.isLoadingPortfolio.value)
@@ -167,12 +225,66 @@ class WebPortfolioScreen extends StatelessWidget {
                           ),
                         ),
                       )
-                    else if (funds.isEmpty)
+                    else if (allFunds.isEmpty)
                       const _EmptyState(
                         icon: Iconsax.wallet_minus,
                         title: 'No funds in portfolio',
                         message:
                             'Your invested mutual funds will appear here after your first purchase.',
+                      )
+                    else if (displayedFunds.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 48,
+                          horizontal: 24,
+                        ),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Icon(
+                                Iconsax.filter_search,
+                                size: 48,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No funds found for "${controller.selectedPortfolioFilter.value}"',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF1E293B),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Try selecting "All Funds" or another filter to view your investments.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Ucolors.primary,
+                                  side: const BorderSide(
+                                    color: Ucolors.primary,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: () =>
+                                    controller.setPortfolioFilter('All Funds'),
+                                icon: const Icon(
+                                  Icons.refresh_rounded,
+                                  size: 16,
+                                ),
+                                label: const Text('Show All Funds'),
+                              ),
+                            ],
+                          ),
+                        ),
                       )
                     else ...[
                       const _PortfolioTableHeader(),
@@ -180,12 +292,12 @@ class WebPortfolioScreen extends StatelessWidget {
                       ListView.separated(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: funds.length,
+                        itemCount: displayedFunds.length,
                         separatorBuilder: (_, __) =>
                             Divider(height: 1, color: Colors.grey.shade100),
                         itemBuilder: (context, index) {
                           return _PortfolioTableRow(
-                            fund: funds[index],
+                            fund: displayedFunds[index],
                             isVisible: true,
                           );
                         },
@@ -198,6 +310,126 @@ class WebPortfolioScreen extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildWebFilterChips(
+    DashboardController controller,
+    int totalFundsCount,
+  ) {
+    final filters = [
+      'All Funds',
+      'Active SIP',
+      'Lump Sum',
+      'Redeem',
+      'Cancelled SIP',
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: filters.map((filter) {
+          final isSelected = controller.selectedPortfolioFilter.value == filter;
+
+          Widget? leadingIcon;
+          if (filter == 'Active SIP') {
+            leadingIcon = Container(
+              width: 7,
+              height: 7,
+              margin: const EdgeInsets.only(right: 6),
+              decoration: const BoxDecoration(
+                color: Color(0xFF10B981),
+                shape: BoxShape.circle,
+              ),
+            );
+          } else if (filter == 'Redeem') {
+            leadingIcon = Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Icon(
+                Icons.check,
+                size: 13,
+                color: isSelected ? Colors.white : const Color(0xFF059669),
+              ),
+            );
+          }
+
+          Widget? trailingBadge;
+          if (filter == 'All Funds') {
+            trailingBadge = Container(
+              margin: const EdgeInsets.only(left: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF334155)
+                    : const Color(0xFFE2E8F0),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$totalFundsCount',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? const Color(0xFFE2E8F0)
+                      : const Color(0xFF475569),
+                ),
+              ),
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: InkWell(
+              onTap: () => controller.setPortfolioFilter(filter),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF0F172A) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFFE2E8F0),
+                  ),
+                  boxShadow: isSelected
+                      ? const [
+                          BoxShadow(
+                            color: Color(0x14000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (leadingIcon != null) leadingIcon,
+                    Text(
+                      filter,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF334155),
+                      ),
+                    ),
+                    if (trailingBadge != null) trailingBadge,
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
