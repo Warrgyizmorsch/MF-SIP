@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -183,7 +184,7 @@ class WebPortfolioScreen extends StatelessWidget {
                         itemBuilder: (context, index) {
                           return _PortfolioTableRow(
                             fund: funds[index],
-                            isVisible: isVisible,
+                            isVisible: true,
                           );
                         },
                       ),
@@ -1006,22 +1007,22 @@ class _EmptyState extends StatelessWidget {
 
 void _showPendingRedemptionDetailsModal(BuildContext context, dynamic fund) {
   final details = fund.redemptionDetails;
+  final bool isDesktopWeb = kIsWeb || MediaQuery.of(context).size.width > 768;
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (ctx) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+  Widget buildContent(BuildContext ctx) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: isDesktopWeb
+            ? BorderRadius.circular(24)
+            : const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!isDesktopWeb)
             Center(
               child: Container(
                 width: 40,
@@ -1031,116 +1032,165 @@ void _showPendingRedemptionDetailsModal(BuildContext context, dynamic fund) {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Icon(
-                  Icons.hourglass_top_rounded,
-                  color: Colors.orange,
-                  size: 24,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Redemption In Progress',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0D1117),
-                    ),
+            )
+          else
+            Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () => Navigator.of(ctx).pop(),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 18,
+                    color: Colors.black54,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              fund.redemptionMessage.isNotEmpty
-                  ? fund.redemptionMessage
-                  : 'A redemption request is currently being processed by the AMC.',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
               ),
-              child: Column(
-                children: [
-                  _buildWebModalRow('Fund', fund.fundName),
+            ),
+          SizedBox(height: isDesktopWeb ? 8 : 16),
+          Row(
+            children: [
+              const Icon(
+                Icons.hourglass_top_rounded,
+                color: Colors.orange,
+                size: 24,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Redemption In Progress',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0D1117),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            fund.redemptionMessage.isNotEmpty
+                ? fund.redemptionMessage
+                : 'A redemption request is currently being processed by the AMC.',
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              children: [
+                _buildWebModalRow('Fund', fund.fundName),
+                const Divider(height: 16),
+                _buildWebModalRow('Folio', fund.folioNo),
+                if (details != null) ...[
                   const Divider(height: 16),
-                  _buildWebModalRow('Folio', fund.folioNo),
-                  if (details != null) ...[
+                  _buildWebModalRow('Order Reference', details.orderRefNo),
+                  if (details.gorn.isNotEmpty) ...[
                     const Divider(height: 16),
-                    _buildWebModalRow('Order Reference', details.orderRefNo),
-                    if (details.gorn.isNotEmpty) ...[
-                      const Divider(height: 16),
-                      _buildWebModalRow('MFU GORN', details.gorn),
-                    ],
-                    if (details.amount > 0) ...[
-                      const Divider(height: 16),
-                      _buildWebModalRow('Amount', '₹${details.amount}'),
-                    ],
-                    if (details.status.isNotEmpty) ...[
-                      const Divider(height: 16),
-                      _buildWebModalRow('Status', details.status),
-                    ],
-                    if (details.estimatedPayoutDays.isNotEmpty) ...[
-                      const Divider(height: 16),
-                      _buildWebModalRow(
-                        'Payout Window',
-                        details.estimatedPayoutDays,
-                      ),
-                    ],
+                    _buildWebModalRow('MFU GORN', details.gorn),
+                  ],
+                  if (details.amount > 0) ...[
+                    const Divider(height: 16),
+                    _buildWebModalRow('Amount', '₹${details.amount}'),
+                  ],
+                  if (details.status.isNotEmpty) ...[
+                    const Divider(height: 16),
+                    _buildWebModalRow('Status', details.status),
+                  ],
+                  if (details.estimatedPayoutDays.isNotEmpty) ...[
+                    const Divider(height: 16),
+                    _buildWebModalRow(
+                      'Payout Window',
+                      details.estimatedPayoutDays,
+                    ),
                   ],
                 ],
-              ),
+              ],
             ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F172A),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text(
-                  'Got it',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F172A),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'Got it',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  if (isDesktopWeb) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Material(
+              color: Colors.white,
+              child: SingleChildScrollView(child: buildContent(ctx)),
+            ),
+          ),
         ),
-      );
-    },
-  );
+      ),
+    );
+  } else {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => buildContent(ctx),
+    );
+  }
 }
 
 void _showAllotmentInfoModal(BuildContext context, dynamic fund) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (ctx) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+  final bool isDesktopWeb = kIsWeb || MediaQuery.of(context).size.width > 768;
+
+  Widget buildContent(BuildContext ctx) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: isDesktopWeb
+            ? BorderRadius.circular(24)
+            : const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!isDesktopWeb)
             Center(
               child: Container(
                 width: 40,
@@ -1150,115 +1200,163 @@ void _showAllotmentInfoModal(BuildContext context, dynamic fund) {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.access_time_rounded,
-                  size: 40,
-                  color: Colors.blue.shade700,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Center(
-              child: Text(
-                'Unit Allotment In Progress',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
+            )
+          else
+            Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () => Navigator.of(ctx).pop(),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 18,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              fund.allotmentMessage.isNotEmpty
-                  ? fund.allotmentMessage
-                  : 'Your investment request has been submitted to the Mutual Fund AMC. Unit allocation and NAV credit take 1 to 2 business days. Your portfolio balance will update automatically once AMC approves the allotment.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade600,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(14),
+          SizedBox(height: isDesktopWeb ? 8 : 20),
+          Center(
+            child: Container(
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                color: Colors.blue.shade50,
+                shape: BoxShape.circle,
               ),
-              child: Column(
-                children: [
-                  _buildWebModalRow('Scheme Name', fund.fundName),
-                  if (fund.investmentType.isNotEmpty) ...[
-                    const Divider(height: 16),
-                    _buildWebModalRow(
-                      'Investment Type',
-                      fund.investmentType.toUpperCase(),
-                    ),
-                  ],
-                  if (fund.investedAmount > 0) ...[
-                    const Divider(height: 16),
-                    _buildWebModalRow(
-                      'Amount',
-                      '₹${fund.investedAmount.toStringAsFixed(2)}',
-                    ),
-                  ],
-                  if (fund.folioNo != null && fund.folioNo.isNotEmpty) ...[
-                    const Divider(height: 16),
-                    _buildWebModalRow('Folio No', fund.folioNo),
-                  ],
-                  if (fund.lastTransactionDate.isNotEmpty) ...[
-                    const Divider(height: 16),
-                    _buildWebModalRow(
-                      'Transaction Date',
-                      fund.lastTransactionDate,
-                    ),
-                  ],
+              child: Icon(
+                Icons.access_time_rounded,
+                size: 40,
+                color: Colors.blue.shade700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Center(
+            child: Text(
+              'Unit Allotment In Progress',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            fund.allotmentMessage.isNotEmpty
+                ? fund.allotmentMessage
+                : 'Your investment request has been submitted to the Mutual Fund AMC. Unit allocation and NAV credit take 1 to 2 business days. Your portfolio balance will update automatically once AMC approves the allotment.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade600,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              children: [
+                _buildWebModalRow('Scheme Name', fund.fundName),
+                if (fund.investmentType.isNotEmpty) ...[
                   const Divider(height: 16),
                   _buildWebModalRow(
-                    'Status',
-                    fund.allotmentStatusLabel.isNotEmpty
-                        ? fund.allotmentStatusLabel
-                        : 'Allotment In Progress',
+                    'Investment Type',
+                    fund.investmentType.toUpperCase(),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F172A),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                if (fund.investedAmount > 0) ...[
+                  const Divider(height: 16),
+                  _buildWebModalRow(
+                    'Amount',
+                    '₹${fund.investedAmount.toStringAsFixed(2)}',
                   ),
+                ],
+                if (fund.folioNo != null && fund.folioNo.isNotEmpty) ...[
+                  const Divider(height: 16),
+                  _buildWebModalRow('Folio No', fund.folioNo),
+                ],
+                if (fund.lastTransactionDate.isNotEmpty) ...[
+                  const Divider(height: 16),
+                  _buildWebModalRow(
+                    'Transaction Date',
+                    fund.lastTransactionDate,
+                  ),
+                ],
+                const Divider(height: 16),
+                _buildWebModalRow(
+                  'Status',
+                  fund.allotmentStatusLabel.isNotEmpty
+                      ? fund.allotmentStatusLabel
+                      : 'Allotment In Progress',
                 ),
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text(
-                  'Got it',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F172A),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'Got it',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  if (isDesktopWeb) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Material(
+              color: Colors.white,
+              child: SingleChildScrollView(child: buildContent(ctx)),
+            ),
+          ),
         ),
-      );
-    },
-  );
+      ),
+    );
+  } else {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => buildContent(ctx),
+    );
+  }
 }
 
 Widget _buildWebModalRow(String label, String value) {

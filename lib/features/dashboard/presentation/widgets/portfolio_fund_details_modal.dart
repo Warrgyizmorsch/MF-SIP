@@ -1,26 +1,60 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
-import 'package:my_sip/features/dashboard/presentation/pages/portfolio_fund_details_page.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 
 import '../../../../config/routes/app_routes.dart';
 
 class PortfolioFundDetailsModal extends StatelessWidget {
   final MfuPortfolioItemEntity fund;
+  final bool isWeb;
 
-  const PortfolioFundDetailsModal({super.key, required this.fund});
+  const PortfolioFundDetailsModal({
+    super.key,
+    required this.fund,
+    this.isWeb = false,
+  });
 
   static void show(BuildContext context, MfuPortfolioItemEntity fund) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => PortfolioFundDetailsModal(fund: fund),
-    );
+    final bool isDesktopWeb = kIsWeb || MediaQuery.of(context).size.width > 768;
+
+    if (isDesktopWeb) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        barrierColor: Colors.black.withValues(alpha: 0.5),
+        builder: (ctx) => Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 32,
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 580, maxHeight: 880),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Material(
+                color: Colors.white,
+                child: SingleChildScrollView(
+                  child: PortfolioFundDetailsModal(fund: fund, isWeb: true),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => PortfolioFundDetailsModal(fund: fund, isWeb: false),
+      );
+    }
   }
 
   @override
@@ -29,32 +63,55 @@ class PortfolioFundDetailsModal extends StatelessWidget {
     final is1DProfit = fund.oneDayChange >= 0;
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: isWeb
+            ? BorderRadius.circular(24)
+            : const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.fromLTRB(
-        20,
-        14,
-        20,
-        MediaQuery.of(context).padding.bottom + 24,
+        24,
+        isWeb ? 20 : 14,
+        24,
+        isWeb ? 24 : MediaQuery.of(context).padding.bottom + 24,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── 1. Top Drag Handle ─────────────────────────
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(10),
+          // ── 1. Top Drag Handle or Web Header Close Button ────────
+          if (!isWeb)
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            )
+          else
+            Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 18,
+                    color: Colors.black54,
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 18),
+          SizedBox(height: isWeb ? 10 : 18),
 
           // ── 2. Header: Logo, Name & Type Tag ───────────
           Row(
