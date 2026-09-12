@@ -10,7 +10,9 @@ import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_con
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/dashboard/presentation/widgets/portfolio_fund_details_modal.dart';
 import 'package:my_sip/features/dashboard/presentation/widgets/sip_cancel_otp_modal.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'portfolio_fund_details_page.dart';
 
 class WebPortfolioScreen extends StatelessWidget {
@@ -764,32 +766,44 @@ class _PortfolioTableRow extends StatelessWidget {
                       case PortfolioMenuAction.redemption:
                         log('redeem');
                         if (fund.totalUnits > 0 && !fund.isFullyRedeemed) {
-                          Get.to(
-                            () => const RedeemPage(),
-                            arguments: RedeemArgs(
-                              mfuOrderFundId: fund.mfuOrderFundId,
-                              amcLogo: fund.amcLogo,
-                              schemeCode: fund.schemeCode,
-                              schemeName: fund.fundName,
-                              folioNumber: fund.folioNo,
-                              folioType: 'Individual',
-                              totalUnits: fund.totalUnits,
-                              totalValue: fund.currentValue,
-                              lockedUnits: 0.0,
-                              lockedValue: 0,
-                              freeUnits: fund.totalUnits,
-                              freeValue: fund.currentValue,
-                              investedAmt: fund.investedAmount,
-                              hasPendingRedemption: fund.hasPendingRedemption,
-                              redemptionMessage: fund.redemptionMessage,
-                              orderRefNo:
-                                  fund.redemptionDetails?.orderRefNo ?? '',
-                              pendingRedemptionAmount:
-                                  fund.redemptionDetails?.amount ??
-                                  fund.redeemedAmount,
-                              pendingRedemptionUnits: fund.redeemedUnits,
-                            ),
+                          final redeemArgs = RedeemArgs(
+                            mfuOrderFundId: fund.mfuOrderFundId,
+                            amcLogo: fund.amcLogo,
+                            schemeCode: fund.schemeCode,
+                            schemeName: fund.fundName,
+                            folioNumber: fund.folioNo,
+                            folioType: 'Individual',
+                            totalUnits: fund.totalUnits,
+                            totalValue: fund.currentValue,
+                            lockedUnits: 0.0,
+                            lockedValue: 0,
+                            freeUnits: fund.totalUnits,
+                            freeValue: fund.currentValue,
+                            investedAmt: fund.investedAmount,
+                            hasPendingRedemption: fund.hasPendingRedemption,
+                            redemptionMessage: fund.redemptionMessage,
+                            orderRefNo:
+                                fund.redemptionDetails?.orderRefNo ?? '',
+                            pendingRedemptionAmount:
+                                fund.redemptionDetails?.amount ??
+                                fund.redeemedAmount,
+                            pendingRedemptionUnits: fund.redeemedUnits,
                           );
+
+                          RedeemPage.navArgs = redeemArgs;
+
+                          if (kIsWeb &&
+                              Get.isRegistered<NavigationBarController>()) {
+                            Get.find<NavigationBarController>().openNestedRoute(
+                              AppRoutes.redeemPage,
+                              arguments: redeemArgs,
+                            );
+                          } else {
+                            Get.toNamed(
+                              AppRoutes.redeemPage,
+                              arguments: redeemArgs,
+                            );
+                          }
                         } else {
                           Get.to(() => PortfolioFundDetailsPage(fund: fund));
                         }

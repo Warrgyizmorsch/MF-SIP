@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -5,12 +6,14 @@ import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 class _T {
   static const bg = Color(0xFFF0F4F8); // light grey page bg
@@ -83,27 +86,66 @@ class RedeemArgs {
 }
 
 class RedeemPage extends StatefulWidget {
-  const RedeemPage({super.key});
+  static RedeemArgs? navArgs;
+  final RedeemArgs? args;
+
+  const RedeemPage({super.key, this.args});
 
   @override
   State<RedeemPage> createState() => _RedeemPageState();
 }
 
 class _RedeemPageState extends State<RedeemPage> {
-  late final RedeemArgs _args;
+  RedeemArgs? _args;
   late final MfuController _mfu;
   final _amountFocus = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _args = Get.arguments as RedeemArgs;
     _mfu = Get.find<MfuController>();
+
+    final rawArgs =
+        widget.args ??
+        RedeemPage.navArgs ??
+        (Get.arguments is RedeemArgs ? Get.arguments as RedeemArgs : null);
+
+    if (rawArgs != null) {
+      _args = rawArgs;
+      RedeemPage.navArgs = null; // Consume
+    }
 
     _mfu.selectRedeemType(RedeemType.amount);
     _mfu.redeemAmountCtrl.clear();
     _mfu.redeemUnitsCtrl.clear();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_args == null) {
+      final modalArgs = ModalRoute.of(context)?.settings.arguments;
+      if (modalArgs is RedeemArgs) {
+        _args = modalArgs;
+      }
+    }
+  }
+
+  RedeemArgs get args =>
+      _args ??
+      const RedeemArgs(
+        schemeCode: '',
+        schemeName: '',
+        folioNumber: '',
+        folioType: '',
+        totalUnits: 0,
+        totalValue: 0,
+        lockedUnits: 0,
+        lockedValue: 0,
+        freeUnits: 0,
+        freeValue: 0,
+        investedAmt: 0,
+      );
 
   @override
   void dispose() {
@@ -130,9 +172,7 @@ class _RedeemPageState extends State<RedeemPage> {
     if (b?.bankName != null && b!.bankName!.isNotEmpty) {
       return b.bankName!;
     }
-    return _args.bankName.isNotEmpty
-        ? _args.bankName
-        : 'Registered Bank Account';
+    return args.bankName.isNotEmpty ? args.bankName : 'Registered Bank Account';
   }
 
   String get _displayBankAccount {
@@ -144,7 +184,7 @@ class _RedeemPageState extends State<RedeemPage> {
       }
       return raw.length >= 4 ? '• • • • ${raw.substring(raw.length - 4)}' : raw;
     }
-    return _args.bankAccount;
+    return args.bankAccount;
   }
 
   String get _displayIfsc {
@@ -152,7 +192,7 @@ class _RedeemPageState extends State<RedeemPage> {
     if (b?.ifscCode != null && b!.ifscCode!.isNotEmpty) {
       return b.ifscCode!;
     }
-    return _args.ifsc;
+    return args.ifsc;
   }
 
   void _onProceed() {
@@ -169,7 +209,7 @@ class _RedeemPageState extends State<RedeemPage> {
         _mfu.redeemInputError.value = 'Please enter an amount';
         return;
       }
-      final maxVal = _args.netFreeValue;
+      final maxVal = args.netFreeValue;
       if (maxVal > 0 && v > maxVal) {
         _mfu.redeemInputError.value =
             'Exceeds net available value (Max: ₹${maxVal.toStringAsFixed(2)})';
@@ -182,7 +222,7 @@ class _RedeemPageState extends State<RedeemPage> {
         _mfu.redeemInputError.value = 'Please enter units';
         return;
       }
-      final maxUnits = _args.netFreeUnits;
+      final maxUnits = args.netFreeUnits;
       if (maxUnits > 0 && v > maxUnits) {
         _mfu.redeemInputError.value =
             'Exceeds net available units (Max: ${maxUnits.toStringAsFixed(3)})';
@@ -191,7 +231,7 @@ class _RedeemPageState extends State<RedeemPage> {
       redeemSummary = '${v.toStringAsFixed(3)} Units';
     } else {
       redeemSummary =
-          'Full Available Redemption (${_args.netFreeUnits.toStringAsFixed(3)} Units / ₹${_fmtVal(_args.netFreeValue)})';
+          'Full Available Redemption (${args.netFreeUnits.toStringAsFixed(3)} Units / ₹${_fmtVal(args.netFreeValue)})';
     }
 
     _showConfirmationBottomSheet(context, redeemSummary);
@@ -201,21 +241,23 @@ class _RedeemPageState extends State<RedeemPage> {
     BuildContext context,
     String redeemSummary,
   ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    final isDesktopWeb = kIsWeb || MediaQuery.of(context).size.width > 768;
+
+    Widget contentBuilder(BuildContext ctx) {
+      return Container(
+        width: isDesktopWeb ? 460 : double.infinity,
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: isDesktopWeb
+              ? BorderRadius.circular(20)
+              : const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!isDesktopWeb) ...[
               Center(
                 child: Container(
                   width: 40,
@@ -227,109 +269,131 @@ class _RedeemPageState extends State<RedeemPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Confirm Redemption',
-                style: UTextStyles.bodyLargeBold.copyWith(
-                  color: _T.textPrimary,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Please verify your request details before submitting.',
-                style: UTextStyles.bodyMedium.copyWith(color: _T.textSec),
-              ),
-              const SizedBox(height: 16),
-
-              // Detail box
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _T.border),
-                ),
-                child: Column(
-                  children: [
-                    _buildConfirmRow('Fund', _args.schemeName),
-                    const Divider(height: 16),
-                    _buildConfirmRow('Folio', _args.folioNumber),
-                    const Divider(height: 16),
-                    _buildConfirmRow('Redemption', redeemSummary),
-                    const Divider(height: 16),
-                    _buildConfirmRow(
-                      'Payout Bank',
-                      '$_displayBankName\n(A/c ending $_displayBankAccount)',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Obx(() {
-                final loading = _mfu.isSubmittingRedeem.value;
-                return Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: loading ? null : () => Navigator.pop(ctx),
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Ucolors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: loading
-                            ? null
-                            : () async {
-                                await _mfu.processRedemption(
-                                  mfuOrderFundId: _args.mfuOrderFundId,
-                                  schemeCode: _args.schemeCode,
-                                  folio: _args.folioNumber,
-                                  freeUnits: _args.netFreeUnits,
-                                  freeValue: _args.netFreeValue,
-                                );
-                                if (ctx.mounted) {
-                                  Navigator.pop(ctx);
-                                }
-                              },
-                        child: loading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text(
-                                'Confirm & Submit',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
             ],
+            Text(
+              'Confirm Redemption',
+              style: UTextStyles.bodyLargeBold.copyWith(
+                color: _T.textPrimary,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Please verify your request details before submitting.',
+              style: UTextStyles.bodyMedium.copyWith(color: _T.textSec),
+            ),
+            const SizedBox(height: 16),
+
+            // Detail box
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: _T.border),
+              ),
+              child: Column(
+                children: [
+                  _buildConfirmRow('Fund', args.schemeName),
+                  const Divider(height: 16),
+                  _buildConfirmRow('Folio', args.folioNumber),
+                  const Divider(height: 16),
+                  _buildConfirmRow('Redemption', redeemSummary),
+                  const Divider(height: 16),
+                  _buildConfirmRow(
+                    'Payout Bank',
+                    '$_displayBankName\n(A/c ending $_displayBankAccount)',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            Obx(() {
+              final loading = _mfu.isSubmittingRedeem.value;
+              return Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: loading ? null : () => Navigator.pop(ctx),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Ucolors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: loading
+                          ? null
+                          : () async {
+                              await _mfu.processRedemption(
+                                mfuOrderFundId: args.mfuOrderFundId,
+                                schemeCode: args.schemeCode,
+                                folio: args.folioNumber,
+                                freeUnits: args.netFreeUnits,
+                                freeValue: args.netFreeValue,
+                              );
+                              if (ctx.mounted) {
+                                Navigator.pop(ctx);
+                              }
+                            },
+                      child: loading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'Confirm & Submit',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ],
+        ),
+      );
+    }
+
+    if (isDesktopWeb) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (ctx) => Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
           ),
-        );
-      },
-    );
+          child: contentBuilder(ctx),
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (ctx) => contentBuilder(ctx),
+      );
+    }
   }
 
   Widget _buildConfirmRow(String label, String value) {
@@ -383,9 +447,9 @@ class _RedeemPageState extends State<RedeemPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _args.redemptionMessage.isNotEmpty
-                      ? _args.redemptionMessage
-                      : 'A redemption request (${_args.pendingRedemptionAmount > 0 ? "₹${_fmtVal(_args.pendingRedemptionAmount)}" : "in-progress"}) is currently processing for this folio.',
+                  args.redemptionMessage.isNotEmpty
+                      ? args.redemptionMessage
+                      : 'A redemption request (${args.pendingRedemptionAmount > 0 ? "₹${_fmtVal(args.pendingRedemptionAmount)}" : "in-progress"}) is currently processing for this folio.',
                   style: UTextStyles.bodyMedium.copyWith(
                     color: const Color(0xFFB45309),
                     fontSize: 12,
@@ -433,47 +497,262 @@ class _RedeemPageState extends State<RedeemPage> {
 
   // ── Build ─────────────────────────────────────────────────────────────────────
 
+  void _handleBack(BuildContext context) {
+    if (kIsWeb) {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+        return;
+      }
+      if (Get.isRegistered<NavigationBarController>()) {
+        Get.find<NavigationBarController>().backNested(
+          fallbackRoute: AppRoutes.managePortfolioweb,
+        );
+        return;
+      }
+    }
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      Get.back();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_args == null) {
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: Scaffold(
+          backgroundColor: _T.bg,
+          appBar: CustomAppBarNormal(
+            title: 'Redeem',
+            onpressed: () => _handleBack(context),
+          ),
+          body: Center(
+            child: Container(
+              margin: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(32),
+              constraints: const BoxConstraints(maxWidth: 480),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEFF6FF),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.inventory_2_outlined,
+                      size: 40,
+                      color: Ucolors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'No Fund Selected for Redemption',
+                    textAlign: TextAlign.center,
+                    style: UTextStyles.bodyLargeBold.copyWith(
+                      fontSize: 18,
+                      color: _T.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please select an active fund from your portfolio to proceed with redemption.',
+                    textAlign: TextAlign.center,
+                    style: UTextStyles.bodyMedium.copyWith(
+                      color: _T.textSec,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Ucolors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () => _handleBack(context),
+                      child: const Text(
+                        'Back to Portfolio',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = kIsWeb && screenWidth >= 960;
+    final isTablet = kIsWeb && screenWidth >= 640 && screenWidth < 960;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        appBar: CustomAppBarNormal(title: 'Redeem'),
+        backgroundColor: _T.bg,
+        appBar: CustomAppBarNormal(
+          title: 'Redeem',
+          onpressed: () => _handleBack(context),
+        ),
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
-          child: Stack(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (isDesktop) {
+                return _buildDesktopLayout(context);
+              } else if (isTablet) {
+                return _buildTabletLayout(context);
+              }
+              return _buildMobileLayout(context);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Desktop Layout (2-Column) ────────────────────────────────────────────────
+  Widget _buildDesktopLayout(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_args.hasPendingRedemption) ...[
-                      _buildPendingRedemptionBanner(),
-                      const SizedBox(height: 12),
-                    ],
-                    _buildFundCard(),
-                    const SizedBox(height: 12),
-                    _buildSelectionCard(context),
-                    const SizedBox(height: 12),
-                    _buildBankCard(),
-                    const SizedBox(height: 12),
-                    _buildNoticeCard(),
-                    const SizedBox(height: 12),
-                    CustomFooter(),
-                  ],
-                ),
+              if (args.hasPendingRedemption) ...[
+                _buildPendingRedemptionBanner(),
+                const SizedBox(height: 16),
+              ],
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Left Column (flex: 3): Fund Details + Selection Criteria
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFundCard(),
+                        const SizedBox(height: 16),
+                        _buildSelectionCard(context),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  // Right Column (flex: 2): Bank Payout + Notice + Proceed Card
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildBankCard(),
+                        const SizedBox(height: 16),
+                        _buildNoticeCard(),
+                        const SizedBox(height: 16),
+                        _buildProceedCard(context),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: _buildProceedButton(context),
-              ),
+              const SizedBox(height: 32),
+              CustomFooter(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // ── Tablet Layout (Centered Constrained) ──────────────────────────────────────
+  Widget _buildTabletLayout(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 680),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (args.hasPendingRedemption) ...[
+                _buildPendingRedemptionBanner(),
+                const SizedBox(height: 14),
+              ],
+              _buildFundCard(),
+              const SizedBox(height: 14),
+              _buildSelectionCard(context),
+              const SizedBox(height: 14),
+              _buildBankCard(),
+              const SizedBox(height: 14),
+              _buildNoticeCard(),
+              const SizedBox(height: 16),
+              _buildProceedCard(context),
+              const SizedBox(height: 24),
+              CustomFooter(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Mobile Layout (Original Fixed Bottom Button) ─────────────────────────────
+  Widget _buildMobileLayout(BuildContext context) {
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (args.hasPendingRedemption) ...[
+                _buildPendingRedemptionBanner(),
+                const SizedBox(height: 12),
+              ],
+              _buildFundCard(),
+              const SizedBox(height: 12),
+              _buildSelectionCard(context),
+              const SizedBox(height: 12),
+              _buildBankCard(),
+              const SizedBox(height: 12),
+              _buildNoticeCard(),
+              const SizedBox(height: 12),
+              CustomFooter(),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: _buildProceedButton(context),
+        ),
+      ],
     );
   }
 
@@ -499,7 +778,7 @@ class _RedeemPageState extends State<RedeemPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${_args.folioNumber}-${_args.folioType}',
+                      '${args.folioNumber}-${args.folioType}',
                       style: UTextStyles.bodyMediumSemiBold.copyWith(
                         color: _T.textPrimary,
                         fontSize: 13,
@@ -548,8 +827,8 @@ class _RedeemPageState extends State<RedeemPage> {
                 ),
                 child: ClipOval(
                   child: CustomCachedImage(
-                    imageUrl: _args.amcLogo.isNotEmpty
-                        ? _args.amcLogo
+                    imageUrl: args.amcLogo.isNotEmpty
+                        ? args.amcLogo
                         : '${Appurl.baseUrl}/assets/amc-logos/axis_groww.webp',
                     height: 40,
                     width: 40,
@@ -560,7 +839,7 @@ class _RedeemPageState extends State<RedeemPage> {
               // Fund Name (Expanded so it wraps if long)
               Expanded(
                 child: Text(
-                  _args.schemeName,
+                  args.schemeName,
                   style: UTextStyles.heading2.copyWith(
                     color: _T.textPrimary,
                     fontSize: 18, // Slightly reduced to balance with logo
@@ -604,7 +883,7 @@ class _RedeemPageState extends State<RedeemPage> {
                             ),
                           ),
                           Text(
-                            _fmtVal(_args.totalValue),
+                            _fmtVal(args.totalValue),
                             style: UTextStyles.heading1.copyWith(
                               color: _T.textPrimary,
                               fontSize: 26,
@@ -617,7 +896,7 @@ class _RedeemPageState extends State<RedeemPage> {
                   ),
                 ),
                 Text(
-                  '${_args.totalUnits.toStringAsFixed(3)} Units',
+                  '${args.totalUnits.toStringAsFixed(3)} Units',
                   style: UTextStyles.bodyMediumW500.copyWith(
                     color: _T.textSec,
                     fontSize: 13,
@@ -632,8 +911,8 @@ class _RedeemPageState extends State<RedeemPage> {
               Expanded(
                 child: _ValueBox(
                   label: 'Locked Value',
-                  value: _args.lockedValue,
-                  units: _args.lockedUnits,
+                  value: args.lockedValue,
+                  units: args.lockedUnits,
                   color: _T.textPrimary,
                 ),
               ),
@@ -641,8 +920,8 @@ class _RedeemPageState extends State<RedeemPage> {
               Expanded(
                 child: _ValueBox(
                   label: 'Free Value',
-                  value: _args.freeValue,
-                  units: _args.freeUnits,
+                  value: args.freeValue,
+                  units: args.freeUnits,
                   color: Ucolors.primary,
                   showInfo: true,
                 ),
@@ -699,7 +978,7 @@ class _RedeemPageState extends State<RedeemPage> {
               label: 'All Free units',
               selected: rType == RedeemType.allFree,
               trailing: Text(
-                '${_args.freeUnits.toStringAsFixed(3)} units',
+                '${args.freeUnits.toStringAsFixed(3)} units',
                 style: UTextStyles.bodyMediumW500.copyWith(
                   color: _T.textSec,
                   fontSize: 13,
@@ -746,7 +1025,7 @@ class _RedeemPageState extends State<RedeemPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      _mfu.useMaxRedeemAmount(_args.netFreeValue);
+                      _mfu.useMaxRedeemAmount(args.netFreeValue);
                       _amountFocus.requestFocus();
                     },
                     child: Text(
@@ -781,7 +1060,7 @@ class _RedeemPageState extends State<RedeemPage> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        '${_args.netFreeUnits.toStringAsFixed(3)} units  ·  ₹${_fmtVal(_args.netFreeValue)} will be redeemed',
+                        '${args.netFreeUnits.toStringAsFixed(3)} units  ·  ₹${_fmtVal(args.netFreeValue)} will be redeemed',
                         style: UTextStyles.bodyMediumSemiBold.copyWith(
                           color: const Color(0xFF065F46),
                           fontSize: 13,
@@ -815,11 +1094,11 @@ class _RedeemPageState extends State<RedeemPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Available: ${_args.netFreeUnits.toStringAsFixed(3)} units',
+                    'Available: ${args.netFreeUnits.toStringAsFixed(3)} units',
                     style: UTextStyles.bodyMedium.copyWith(color: _T.textSec),
                   ),
                   GestureDetector(
-                    onTap: () => _mfu.useMaxRedeemUnits(_args.netFreeUnits),
+                    onTap: () => _mfu.useMaxRedeemUnits(args.netFreeUnits),
                     child: Text(
                       'Use Max',
                       style: UTextStyles.bodyMediumBold.copyWith(
@@ -945,7 +1224,7 @@ class _RedeemPageState extends State<RedeemPage> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      _args.payoutMode,
+                      args.payoutMode,
                       style: UTextStyles.bodyLargeBold.copyWith(
                         color: _T.textPrimary,
                         fontSize: 14,
@@ -1005,19 +1284,28 @@ class _RedeemPageState extends State<RedeemPage> {
     );
   }
 
-  // ── Proceed button ────────────────────────────────────────────────────────────
+  // ── Proceed button (Mobile Bottom Bar) ──────────────────────────────────────────
   Widget _buildProceedButton(BuildContext context) {
     final bottomPad = MediaQuery.of(context).padding.bottom;
     return Container(
       padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPad),
-      // color: _T.bg,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
       child: Obx(() {
         final loading = _mfu.isSubmittingRedeem.value;
         return GestureDetector(
           onTap: loading ? null : _onProceed,
           child: Container(
             width: double.infinity,
-            height: 54,
+            height: 52,
             decoration: BoxDecoration(
               color: loading
                   ? Ucolors.primary.withValues(alpha: 0.7)
@@ -1045,6 +1333,68 @@ class _RedeemPageState extends State<RedeemPage> {
           ),
         );
       }),
+    );
+  }
+
+  // ── Proceed Card (Desktop / Tablet In-Page Card) ──────────────────────────────
+  Widget _buildProceedCard(BuildContext context) {
+    return _WhiteCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Confirm & Authorize',
+            style: UTextStyles.bodyLargeBold.copyWith(
+              color: _T.textPrimary,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Review all the redemption parameters above before placing your request.',
+            style: UTextStyles.bodyMedium.copyWith(
+              color: _T.textSec,
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Obx(() {
+            final loading = _mfu.isSubmittingRedeem.value;
+            return SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Ucolors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                onPressed: loading ? null : _onProceed,
+                child: loading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Text(
+                        'Proceed to Redeem',
+                        style: UTextStyles.bodyLargeBold.copyWith(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                      ),
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 

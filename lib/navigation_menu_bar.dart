@@ -70,12 +70,16 @@ class NavigationBarController extends GetxController {
     ever(SessionManager.instance.isKycPending, (bool pending) {
       if (pending) {
         if (_camsPollingTimer == null || !_camsPollingTimer!.isActive) {
-          debugPrint("[NavigationBarController] isKycPending became true. Starting polling timer.");
+          debugPrint(
+            "[NavigationBarController] isKycPending became true. Starting polling timer.",
+          );
           _startBackgroundCamsCheck();
         }
       } else {
         if (_camsPollingTimer != null) {
-          debugPrint("[NavigationBarController] isKycPending became false. Cancelling polling timer.");
+          debugPrint(
+            "[NavigationBarController] isKycPending became false. Cancelling polling timer.",
+          );
           _camsPollingTimer?.cancel();
           _camsPollingTimer = null;
         }
@@ -86,7 +90,6 @@ class NavigationBarController extends GetxController {
       _startBackgroundCamsCheck();
     }
   }
-
 
   void _startBackgroundCamsCheck() {
     _checkCamsStatusSilently();
@@ -555,6 +558,7 @@ class NavigationBarController extends GetxController {
         return 7;
 
       case AppRoutes.managePortfolioweb:
+      case AppRoutes.redeemPage:
         return 8;
 
       case AppRoutes.profilePage:

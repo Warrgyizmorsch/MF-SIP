@@ -1,12 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 class PortfolioFundDetailsPage extends StatelessWidget {
   final MfuPortfolioItemEntity fund;
@@ -583,31 +586,43 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                         message: "Navigating to SIP Cancellation...",
                       );
                     } else {
-                      Get.to(
-                        () => const RedeemPage(),
-                        arguments: RedeemArgs(
-                          mfuOrderFundId: fund.mfuOrderFundId,
-                          amcLogo: fund.amcLogo,
-                          schemeCode: fund.schemeCode,
-                          schemeName: fund.fundName,
-                          folioNumber: fund.folioNo,
-                          folioType: 'Individual',
-                          totalUnits: fund.totalUnits,
-                          totalValue: fund.currentValue,
-                          lockedUnits: 0.0,
-                          lockedValue: 0,
-                          freeUnits: fund.totalUnits,
-                          freeValue: fund.currentValue,
-                          investedAmt: fund.investedAmount,
-                          hasPendingRedemption: fund.hasPendingRedemption,
-                          redemptionMessage: fund.redemptionMessage,
-                          orderRefNo: fund.redemptionDetails?.orderRefNo ?? '',
-                          pendingRedemptionAmount:
-                              fund.redemptionDetails?.amount ??
-                              fund.redeemedAmount,
-                          pendingRedemptionUnits: fund.redeemedUnits,
-                        ),
+                      final redeemArgs = RedeemArgs(
+                        mfuOrderFundId: fund.mfuOrderFundId,
+                        amcLogo: fund.amcLogo,
+                        schemeCode: fund.schemeCode,
+                        schemeName: fund.fundName,
+                        folioNumber: fund.folioNo,
+                        folioType: 'Individual',
+                        totalUnits: fund.totalUnits,
+                        totalValue: fund.currentValue,
+                        lockedUnits: 0.0,
+                        lockedValue: 0,
+                        freeUnits: fund.totalUnits,
+                        freeValue: fund.currentValue,
+                        investedAmt: fund.investedAmount,
+                        hasPendingRedemption: fund.hasPendingRedemption,
+                        redemptionMessage: fund.redemptionMessage,
+                        orderRefNo: fund.redemptionDetails?.orderRefNo ?? '',
+                        pendingRedemptionAmount:
+                            fund.redemptionDetails?.amount ??
+                            fund.redeemedAmount,
+                        pendingRedemptionUnits: fund.redeemedUnits,
                       );
+
+                      RedeemPage.navArgs = redeemArgs;
+
+                      if (kIsWeb &&
+                          Get.isRegistered<NavigationBarController>()) {
+                        Get.find<NavigationBarController>().openNestedRoute(
+                          AppRoutes.redeemPage,
+                          arguments: redeemArgs,
+                        );
+                      } else {
+                        Get.toNamed(
+                          AppRoutes.redeemPage,
+                          arguments: redeemArgs,
+                        );
+                      }
                     }
                   },
                   child: Text(
