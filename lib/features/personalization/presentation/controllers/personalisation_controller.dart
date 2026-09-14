@@ -277,6 +277,45 @@ class PersonalisationController extends GetxController {
   final nomineeCityTextEditingController = TextEditingController();
   final nomineeContryTextEditingController = TextEditingController();
 
+  // Dynamic multi-nominee list
+  final RxList<NomineeFormItem> nomineeForms = <NomineeFormItem>[].obs;
+
+  void initNomineeForms() {
+    if (nomineeForms.isEmpty) {
+      nomineeForms.add(NomineeFormItem(defaultAllocation: '100'));
+    }
+  }
+
+  void addNomineeForm() {
+    if (nomineeForms.length >= 3) {
+      CustomSnackbar.warning(
+        title: "Limit Reached",
+        message: "You can add a maximum of 3 nominees",
+      );
+      return;
+    }
+    nomineeForms.add(NomineeFormItem());
+  }
+
+  void removeNomineeForm(int index) {
+    if (nomineeForms.length <= 1) {
+      CustomSnackbar.warning(
+        title: "Minimum Required",
+        message: "At least one nominee is required",
+      );
+      return;
+    }
+    nomineeForms[index].dispose();
+    nomineeForms.removeAt(index);
+  }
+
+  double get totalFormAllocation {
+    return nomineeForms.fold(0.0, (sum, item) {
+      final val = double.tryParse(item.allocationController.text.trim()) ?? 0.0;
+      return sum + val;
+    });
+  }
+
   // ------------------------ Update Profile ---------------------------------------///
 
   // Observable states
@@ -1358,20 +1397,45 @@ class PersonalisationController extends GetxController {
   // Add Nominee
 
   Future<void> addNominee() async {
-    if (nomineeFormKey.currentState?.validate() != true) {
+    if (nomineeForms.isEmpty) {
       CustomSnackbar.warning(
         title: "Required",
-        message: "Please fill all the fields",
+        message: "Please add at least one nominee",
       );
       return;
     }
 
-    // Additional validation for Guardian
-    if (isNomineeMinor.value &&
-        nomineeMinorsGuardianTextEditingController.text.isEmpty) {
+    // Validate each nominee form
+    bool allValid = true;
+    for (int i = 0; i < nomineeForms.length; i++) {
+      final item = nomineeForms[i];
+      if (item.formKey.currentState?.validate() != true) {
+        allValid = false;
+      }
+      if (item.isMinor.value && item.guardianController.text.trim().isEmpty) {
+        CustomSnackbar.warning(
+          title: "Required",
+          message: "Guardian Name is required for minor (Nominee #${i + 1})",
+        );
+        return;
+      }
+    }
+
+    if (!allValid) {
       CustomSnackbar.warning(
-        title: "Required",
-        message: "Guardian Name is required for minors",
+        title: "Incomplete Fields",
+        message: "Please fill all required fields correctly",
+      );
+      return;
+    }
+
+    // Strict 100% allocation check
+    final totalAlloc = totalFormAllocation;
+    if ((totalAlloc - 100.0).abs() > 0.01) {
+      CustomSnackbar.warning(
+        title: "Allocation Error",
+        message:
+            "Total allocation must be exactly 100%. Current total: ${totalAlloc.toStringAsFixed(totalAlloc.truncateToDouble() == totalAlloc ? 0 : 2)}%",
       );
       return;
     }
@@ -1384,39 +1448,50 @@ class PersonalisationController extends GetxController {
         return;
       }
 
-      final requestData = {
-        "customer_id": userId,
-        "name": nomineeNameTextEditingController.text,
-        "relation": nomineeRelationTextEditingController.text,
-        "dob": nomineeDobTextEditingController.text,
-        "allocation_percent":
-            nomineeAllocationPercentTextEditingController.text,
-        // Send 1 if minor, 0 if not
-        "is_minor": isNomineeMinor.value ? 1 : 0,
-        "guardian_name": nomineeMinorsGuardianTextEditingController.text,
-        "email": nomineeEmailTextEditingController.text,
-        "phone_number": nomineePhoneTextEditingController.text,
-        "document_type": nomineeDocumentTypeTextEditingController.text,
-        "document_number": nomineeDocumentNumberTextEditingController.text,
-        "address": nomineeAddressTextEditingController.text,
-        "pin_code": nomineePincodeTextEditingController.text,
-        "city": nomineeCityTextEditingController.text,
-      };
+      final List<Map<String, dynamic>> nomineesList = nomineeForms.map((item) {
+        final allocVal =
+            num.tryParse(item.allocationController.text.trim()) ?? 0;
+        final map = <String, dynamic>{
+          "name": item.nameController.text.trim(),
+          "relation": item.relationController.text.trim(),
+          "dob": item.dobController.text.trim(),
+          "allocation_percent": allocVal,
+          "is_minor": item.isMinor.value ? 1 : 0,
+          "document_type": item.documentTypeController.text.trim(),
+          "document_number": item.documentNumberController.text.trim(),
+          "phone_number": item.phoneController.text.trim(),
+          "address": item.addressController.text.trim(),
+          "city": item.cityController.text.trim(),
+          "pin_code": item.pincodeController.text.trim(),
+        };
+
+        if (item.isMinor.value &&
+            item.guardianController.text.trim().isNotEmpty) {
+          map["guardian_name"] = item.guardianController.text.trim();
+        }
+
+        if (item.emailController.text.trim().isNotEmpty) {
+          map["email"] = item.emailController.text.trim();
+        }
+
+        return map;
+      }).toList();
+
+      final requestData = {"customer_id": userId, "nominees": nomineesList};
 
       final result = await _useCases.addNomineeUseCase.call(requestData);
       fetchUserDetails();
-
-      Get.back();
 
       result.fold(
         (success) {
           getNominee();
           _clearNomineeFields();
+          nomineeForms.clear();
+          initNomineeForms();
 
-          // Get.snackbar("Success", "Nominee added successfully");
           CustomSnackbar.success(
             title: 'Success',
-            message: 'Nominee added successfully',
+            message: 'Nominees added successfully',
           );
 
           Get.back();
@@ -2054,6 +2129,61 @@ class PersonalisationController extends GetxController {
     panController.removeListener(_onPanTextChanged);
     panFocusNode.dispose();
     pageController.dispose();
+    for (final item in nomineeForms) {
+      item.dispose();
+    }
     super.onClose();
+  }
+}
+
+class NomineeFormItem {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController relationController = TextEditingController();
+  final TextEditingController allocationController = TextEditingController();
+  final RxBool isMinor = false.obs;
+  final TextEditingController guardianController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController documentTypeController = TextEditingController();
+  final TextEditingController documentNumberController =
+      TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController pincodeController = TextEditingController();
+
+  NomineeFormItem({String? defaultAllocation}) {
+    if (defaultAllocation != null) {
+      allocationController.text = defaultAllocation;
+    }
+  }
+
+  void updateMinorStatus(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    isMinor.value = age < 18;
+    if (!isMinor.value) {
+      guardianController.clear();
+    }
+  }
+
+  void dispose() {
+    nameController.dispose();
+    dobController.dispose();
+    relationController.dispose();
+    allocationController.dispose();
+    guardianController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    documentTypeController.dispose();
+    documentNumberController.dispose();
+    addressController.dispose();
+    cityController.dispose();
+    pincodeController.dispose();
   }
 }

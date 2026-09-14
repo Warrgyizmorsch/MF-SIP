@@ -6,6 +6,9 @@ class NomineeResponseModel {
   final int? customerId;
   final int? count;
   final double? totalAllocation; // Changed to double to handle numeric safety
+  final bool? isNct;
+  final String? nctStatus;
+  final String? nctUniqId;
   final List<NomineeModel>? data;
 
   NomineeResponseModel({
@@ -14,6 +17,9 @@ class NomineeResponseModel {
     this.customerId,
     this.count,
     this.totalAllocation,
+    this.isNct,
+    this.nctStatus,
+    this.nctUniqId,
     this.data,
   });
 
@@ -24,10 +30,14 @@ class NomineeResponseModel {
       customerId: json.parse<int>('customer_id'),
       count: json.parse<int>('count'),
       totalAllocation: json.parse<double>('total_allocation'),
+      isNct: json.parse<bool>('is_nct'),
+      nctStatus: json.parse<String>('nct_status'),
+      nctUniqId:
+          json.parse<String>('nctUniqId') ?? json.parse<String>('nct_uniq_id'),
       // Using parseListOf from your custom parser
       data: json.parseListOf<NomineeModel>(
         'data',
-            (item) => NomineeModel.fromJson(item as Map<String, dynamic>),
+        (item) => NomineeModel.fromJson(item as Map<String, dynamic>),
       ),
     );
   }
@@ -39,8 +49,9 @@ class NomineeModel {
   final String? name;
   final String? relation;
   final String? dob;
-  final double? allocationPercent; // Parser converts "50.00" string to double here
-  final bool? isMinor;             // Parser converts 0/1 int to bool here
+  final double?
+  allocationPercent; // Parser converts "50.00" string to double here
+  final bool? isMinor; // Parser converts 0/1 int to bool here
   final String? guardianName;
   final String? email;
   final String? phoneNumber;
@@ -48,6 +59,9 @@ class NomineeModel {
   final String? documentNumber;
   final String? address;
   final String? createdAt;
+  final bool? isNct;
+  final String? nctStatus;
+  final String? nctUniqId;
 
   NomineeModel({
     this.id,
@@ -64,6 +78,9 @@ class NomineeModel {
     this.documentNumber,
     this.address,
     this.createdAt,
+    this.isNct,
+    this.nctStatus,
+    this.nctUniqId,
   });
 
   factory NomineeModel.fromJson(Map<String, dynamic> json) {
@@ -84,6 +101,10 @@ class NomineeModel {
       documentNumber: json.parse<String>('document_number'),
       address: json.parse<String>('address'),
       createdAt: json.parse<String>('created_at'),
+      isNct: json.parse<bool>('is_nct'),
+      nctStatus: json.parse<String>('nct_status'),
+      nctUniqId:
+          json.parse<String>('nctUniqId') ?? json.parse<String>('nct_uniq_id'),
     );
   }
 }

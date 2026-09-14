@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +21,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
 
   @override
   Widget build(BuildContext context) {
-    // 🚀 Check if Desktop/Web or Mobile
+    controller.initNomineeForms();
+
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
@@ -31,25 +30,132 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
       appBar: (isDesktop || kIsWeb)
           ? null
           : const CustomAppBarNormal(title: 'Nominee Details'),
-
-      // 🚀 FIX: Removed bottomNavigationBar for Web.
-      bottomNavigationBar: isDesktop ? null : _buildMobileBottomBar(),
-
+      bottomNavigationBar: isDesktop ? null : _buildMobileBottomBar(context),
       body: SingleChildScrollView(
         padding: isDesktop
             ? const EdgeInsets.symmetric(vertical: 40, horizontal: 20)
             : UPadding.screenPadding,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 1000,
-            ), // Wide constraint for 2-column form
-            child: Form(
-              key: controller.nomineeFormKey,
-              child: isDesktop
-                  ? _buildWebCardLayout(context)
-                  : _buildMobileLayout(context),
-            ),
+            constraints: const BoxConstraints(maxWidth: 1000),
+            child: Obx(() {
+              final forms = controller.nomineeForms;
+              final totalAlloc = controller.totalFormAllocation;
+              final isExact100 = (totalAlloc - 100.0).abs() <= 0.01;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- Total Allocation Banner ---
+                  _buildAllocationProgressBanner(totalAlloc, isExact100),
+                  const SizedBox(height: 24),
+
+                  // --- List of Nominee Form Cards ---
+                  ...List.generate(forms.length, (index) {
+                    final item = forms[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 24.0),
+                      child: isDesktop
+                          ? _buildWebNomineeCard(context, item, index)
+                          : _buildMobileNomineeCard(context, item, index),
+                    );
+                  }),
+
+                  // --- Add Another Nominee Button (Max 3) ---
+                  if (forms.length < 3)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24.0),
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Ucolors.primary,
+                          side: const BorderSide(
+                            color: Ucolors.primary,
+                            width: 1.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 14,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () => controller.addNomineeForm(),
+                        icon: const Icon(Icons.add_circle_outline, size: 20),
+                        label: Text(
+                          "Add Another Nominee (${forms.length}/3)",
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  // --- Desktop Web Action Buttons ---
+                  if (isDesktop) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 18,
+                            ),
+                          ),
+                          child: const Text(
+                            "Cancel",
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        ElevatedButton(
+                          onPressed: controller.addNomineeLoading.value
+                              ? null
+                              : () => controller.addNominee(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isExact100
+                                ? Ucolors.primary
+                                : Colors.grey.shade400,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 36,
+                              vertical: 18,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: controller.addNomineeLoading.value
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  "Save Nominees",
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              );
+            }),
           ),
         ),
       ),
@@ -57,155 +163,303 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
   }
 
   // =========================================
-  // 💻 WEB / DESKTOP: 2-Column Grid inside a Card
+  // 📊 ALLOCATION PROGRESS BANNER
   // =========================================
-  Widget _buildWebCardLayout(BuildContext context) {
-    return Card(
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.shade200),
+  Widget _buildAllocationProgressBanner(double totalAlloc, bool isExact100) {
+    Color bannerColor;
+    IconData bannerIcon;
+    String statusText;
+
+    if (isExact100) {
+      bannerColor = Colors.green;
+      bannerIcon = Icons.check_circle_rounded;
+      statusText = "Allocation complete (100%)";
+    } else if (totalAlloc < 100) {
+      bannerColor = Colors.orange.shade700;
+      bannerIcon = Icons.info_outline_rounded;
+      statusText =
+          "Total allocation must be 100%. Remaining: ${(100 - totalAlloc).toStringAsFixed(totalAlloc.truncateToDouble() == totalAlloc ? 0 : 2)}%";
+    } else {
+      bannerColor = Colors.red;
+      bannerIcon = Icons.warning_amber_rounded;
+      statusText =
+          "Total allocation exceeds 100% by ${(totalAlloc - 100).toStringAsFixed(totalAlloc.truncateToDouble() == totalAlloc ? 0 : 2)}%";
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: bannerColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: bannerColor.withValues(alpha: 0.3)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(40.0),
+      child: Row(
+        children: [
+          Icon(bannerIcon, color: bannerColor, size: 22),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Total Allocation",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    Text(
+                      "${totalAlloc.toStringAsFixed(totalAlloc.truncateToDouble() == totalAlloc ? 0 : 2)}% / 100%",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: bannerColor,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: (totalAlloc / 100.0).clamp(0.0, 1.0),
+                    backgroundColor: Colors.grey.shade200,
+                    valueColor: AlwaysStoppedAnimation<Color>(bannerColor),
+                    minHeight: 6,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  statusText,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: bannerColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================
+  // 💻 WEB / DESKTOP: Nominee Card
+  // =========================================
+  Widget _buildWebNomineeCard(
+    BuildContext context,
+    NomineeFormItem item,
+    int index,
+  ) {
+    return Form(
+      key: item.formKey,
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.grey.shade200),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Ucolors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          "Nominee #${index + 1}",
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Ucolors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (controller.nomineeForms.length > 1)
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.redAccent,
+                      ),
+                      tooltip: "Remove Nominee",
+                      onPressed: () => controller.removeNomineeForm(index),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Row 1: Full Name & DOB
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildFullNameField(item)),
+                  const SizedBox(width: 24),
+                  Expanded(child: _buildDobField(context, item)),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Conditional Row: Guardian Name
+              Obx(
+                () => item.isMinor.value
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: _buildGuardianField(item),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+
+              // Row 2: Relation & Allocation
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildRelationField(context, item)),
+                  const SizedBox(width: 24),
+                  Expanded(child: _buildAllocationField(item)),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Row 3: Doc Type & Doc Number
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildDocTypeField(context, item)),
+                  const SizedBox(width: 24),
+                  Expanded(child: _buildDocNumberField(item)),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Row 4: Email & Phone
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildEmailField(item)),
+                  const SizedBox(width: 24),
+                  Expanded(child: _buildPhoneField(item)),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Row 5: Address, City, Pincode
+              _buildAddressBlock(item),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =========================================
+  // 📱 MOBILE: Nominee Card
+  // =========================================
+  Widget _buildMobileNomineeCard(
+    BuildContext context,
+    NomineeFormItem item,
+    int index,
+  ) {
+    return Form(
+      key: item.formKey,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Add Nominee',
-              style: TextStyle(
-                fontFamily: FontFamily.medium,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add a nominee to secure your investments for your loved ones.',
-              style: TextStyle(
-                fontFamily: FontFamily.medium,
-                color: Colors.grey.shade600,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Row 1: Full Name & DOB
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: _buildFullNameField()),
-                const SizedBox(width: 24),
-                Expanded(child: _buildDobField(context)),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    "Nominee #${index + 1}",
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Ucolors.primary,
+                    ),
+                  ),
+                ),
+                if (controller.nomineeForms.length > 1)
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.redAccent,
+                      size: 22,
+                    ),
+                    onPressed: () => controller.removeNomineeForm(index),
+                  ),
               ],
             ),
-            const SizedBox(height: 20),
-
-            // Conditional Row: Guardian (Takes full width if active)
+            const SizedBox(height: 16),
+            _buildFullNameField(item),
+            const SizedBox(height: 12),
+            _buildDobField(context, item),
+            const SizedBox(height: 12),
             Obx(
-              () => controller.isNomineeMinor.value
+              () => item.isMinor.value
                   ? Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: _buildGuardianField(),
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildGuardianField(item),
                     )
                   : const SizedBox.shrink(),
             ),
-
-            // Row 2: Relation & Allocation
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildRelationField(context)),
-                const SizedBox(width: 24),
-                Expanded(child: _buildAllocationField()),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Row 3: Doc Type & Doc Number
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildDocTypeField(context)),
-                const SizedBox(width: 24),
-                Expanded(child: _buildDocNumberField()),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Row 4: Email & Phone
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildEmailField()),
-                const SizedBox(width: 24),
-                Expanded(child: _buildPhoneField()),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Row 5: Address (Full Width)
-            _buildAddressField(),
-            const SizedBox(height: 40),
-
-            // Web Action Buttons (Inside the card)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 20,
-                    ),
-                  ),
-                  child: const Text(
-                    "Cancel",
-                    style: TextStyle(
-                      fontFamily: FontFamily.medium,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Obx(
-                  () => ElevatedButton(
-                    onPressed: controller.addNomineeLoading.value
-                        ? null
-                        : () => controller.addNominee(),
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Ucolors.primary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 20,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: controller.addNomineeLoading.value
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            "Save Details",
-                            style: TextStyle(
-                              fontFamily: FontFamily.medium,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
+            _buildAllocationField(item),
+            const SizedBox(height: 12),
+            _buildRelationField(context, item),
+            const SizedBox(height: 12),
+            _buildEmailField(item),
+            const SizedBox(height: 12),
+            _buildPhoneField(item),
+            const SizedBox(height: 12),
+            _buildDocTypeField(context, item),
+            const SizedBox(height: 12),
+            _buildDocNumberField(item),
+            const SizedBox(height: 12),
+            _buildAddressBlock(item),
           ],
         ),
       ),
@@ -213,50 +467,10 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
   }
 
   // =========================================
-  // 📱 MOBILE: Stacked Layout
-  // =========================================
-  Widget _buildMobileLayout(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20),
-        _buildFullNameField(),
-        const SizedBox(height: 10),
-        _buildDobField(context),
-        const SizedBox(height: 10),
-
-        Obx(
-          () => controller.isNomineeMinor.value
-              ? Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _buildGuardianField(),
-                )
-              : const SizedBox.shrink(),
-        ),
-
-        _buildAllocationField(),
-        const SizedBox(height: 10),
-        _buildEmailField(),
-        const SizedBox(height: 10),
-        _buildPhoneField(),
-        const SizedBox(height: 10),
-        _buildDocTypeField(context),
-        const SizedBox(height: 10),
-        _buildDocNumberField(),
-        const SizedBox(height: 10),
-        _buildRelationField(context),
-        const SizedBox(height: 10),
-        _buildAddressField1(),
-        const SizedBox(height: 40),
-      ],
-    );
-  }
-
-  // =========================================
   // 🧩 REUSABLE FORM COMPONENTS
   // =========================================
 
-  Widget _buildFullNameField() {
+  Widget _buildFullNameField(NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -268,14 +482,14 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
         CustomTextField(
           height: 60,
           hint: 'Enter nominee full name',
-          controller: controller.nomineeNameTextEditingController,
+          controller: item.nameController,
           validationType: ValidationType.required,
         ),
       ],
     );
   }
 
-  Widget _buildDobField(BuildContext context) {
+  Widget _buildDobField(BuildContext context, NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -287,15 +501,15 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
         InkWell(
           onTap: () {
             FocusScope.of(context).unfocus();
-            _smartDatePicker(context);
+            _smartDatePicker(context, item);
           },
           child: AbsorbPointer(
             absorbing: true,
             child: CustomTextField(
               height: 60,
-              controller: controller.nomineeDobTextEditingController,
+              controller: item.dobController,
               validationType: ValidationType.required,
-              hint: 'DD/MM/YYYY',
+              hint: 'YYYY-MM-DD',
               trailing: const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Icon(Icons.calendar_month),
@@ -307,64 +521,49 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
     );
   }
 
-  Widget _buildGuardianField() {
+  Widget _buildGuardianField(NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SmallHeading(
-          smallheading: 'Guardian Name',
+          smallheading: 'Guardian Name (Required for Minor)',
           fontWeight: FontWeight.w600,
         ),
         const SizedBox(height: 5),
         CustomTextField(
           height: 60,
           hint: 'Enter guardian name',
-          controller: controller.nomineeMinorsGuardianTextEditingController,
+          controller: item.guardianController,
           validationType: ValidationType.required,
         ),
       ],
     );
   }
 
-  Widget _buildAllocationField() {
+  Widget _buildAllocationField(NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const SmallHeading(
-              smallheading: 'Allocation (%)',
-              fontWeight: FontWeight.w600,
-            ),
-            Obx(
-              () => Text(
-                "Available: ${controller.remainingAllocation.toStringAsFixed(0)}%",
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 12,
-                  color: controller.remainingAllocation == 0
-                      ? Colors.red
-                      : Colors.green,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
+        const SmallHeading(
+          smallheading: 'Allocation (%)',
+          fontWeight: FontWeight.w600,
         ),
         const SizedBox(height: 5),
         CustomTextField(
           height: 60,
           hint: 'e.g. 50',
-          controller: controller.nomineeAllocationPercentTextEditingController,
+          controller: item.allocationController,
           keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(3),
+          ],
           customValidator: (value) {
-            if (value == null || value.isEmpty) return "Required";
-            final parsed = double.tryParse(value);
+            if (value == null || value.trim().isEmpty) return "Required";
+            final parsed = double.tryParse(value.trim());
             if (parsed == null) return "Invalid number";
             if (parsed <= 0) return "Must be greater than 0";
-            if (parsed > controller.remainingAllocation)
-              return "Max allowed is ${controller.remainingAllocation}%";
+            if (parsed > 100) return "Cannot exceed 100%";
             return null;
           },
         ),
@@ -372,23 +571,26 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SmallHeading(smallheading: 'Email', fontWeight: FontWeight.w600),
+        const SmallHeading(
+          smallheading: 'Email (Optional)',
+          fontWeight: FontWeight.w600,
+        ),
         const SizedBox(height: 5),
         CustomTextField(
           height: 60,
           hint: 'Enter nominee email ID',
-          controller: controller.nomineeEmailTextEditingController,
-          validationType: ValidationType.email,
+          controller: item.emailController,
+          validationType: ValidationType.none,
         ),
       ],
     );
   }
 
-  Widget _buildPhoneField() {
+  Widget _buildPhoneField(NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -400,8 +602,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
         CustomTextField(
           keyboardType: TextInputType.number,
           height: 60,
-          controller: controller.nomineePhoneTextEditingController,
-          hint: '+91 Enter nominee mobile no.',
+          controller: item.phoneController,
+          hint: 'Enter nominee mobile no.',
           validationType: ValidationType.phone,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
@@ -412,7 +614,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
     );
   }
 
-  Widget _buildDocTypeField(BuildContext context) {
+  Widget _buildDocTypeField(BuildContext context, NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -428,7 +630,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
             _smartSelectionSheet(
               context,
               controller.nomineeDocumentSelectionList,
-              controller.nomineeDocumentTypeTextEditingController,
+              item.documentTypeController,
+              item.documentNumberController,
               "Select Document Type",
             );
           },
@@ -436,9 +639,9 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
             absorbing: true,
             child: CustomTextField(
               height: 60,
-              controller: controller.nomineeDocumentTypeTextEditingController,
+              controller: item.documentTypeController,
               leading: const Icon(Iconsax.document),
-              hint: 'Aadhar / PAN / DL',
+              hint: 'Aadhar / Pan / Driving License',
               trailing: const Icon(Icons.arrow_drop_down),
               validationType: ValidationType.required,
             ),
@@ -448,7 +651,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
     );
   }
 
-  Widget _buildDocNumberField() {
+  Widget _buildDocNumberField(NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -457,33 +660,29 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
           fontWeight: FontWeight.w600,
         ),
         const SizedBox(height: 5),
-        // Obx(
-        //   () =>
         CustomTextField(
-          // Obx added to react to doc type change
           height: 60,
-          controller: controller.nomineeDocumentNumberTextEditingController,
+          controller: item.documentNumberController,
           hint: DocumentFormatterFactory.getHint(
-            controller.nomineeDocumentTypeTextEditingController.text,
+            item.documentTypeController.text,
           ),
           keyboardType: DocumentFormatterFactory.getKeyboardType(
-            controller.nomineeDocumentTypeTextEditingController.text,
+            item.documentTypeController.text,
           ),
           inputFormatters: DocumentFormatterFactory.getFormatters(
-            controller.nomineeDocumentTypeTextEditingController.text,
+            item.documentTypeController.text,
           ),
           validationType: ValidationType.custom,
           customValidator: (value) => DocumentFormatterFactory.validate(
-            controller.nomineeDocumentTypeTextEditingController.text,
+            item.documentTypeController.text,
             value,
           ),
         ),
-        // ),
       ],
     );
   }
 
-  Widget _buildRelationField(BuildContext context) {
+  Widget _buildRelationField(BuildContext context, NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -499,7 +698,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
             _smartSelectionSheet(
               context,
               controller.nomineeRelationSelectionList,
-              controller.nomineeRelationTextEditingController,
+              item.relationController,
+              null,
               "Select Relation",
             );
           },
@@ -508,7 +708,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
             child: CustomTextField(
               height: 60,
               trailing: const Icon(Icons.arrow_drop_down),
-              controller: controller.nomineeRelationTextEditingController,
+              controller: item.relationController,
               leading: const Icon(Iconsax.user),
               hint: 'Select Relation',
               validationType: ValidationType.required,
@@ -519,7 +719,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
     );
   }
 
-  Widget _buildAddressField1() {
+  Widget _buildAddressBlock(NomineeFormItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -528,57 +728,36 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
           fontWeight: FontWeight.w600,
         ),
         const SizedBox(height: 5),
-
-        // Address Line 1 (MANDATORY - Max 40 Chars)
         CustomTextField(
           height: 60,
-          controller: controller.nomineeAddressTextEditingController,
+          controller: item.addressController,
           validationType: ValidationType.required,
-          hint: 'Flat, House no., Building., etc (Max 40 chars)',
-          inputFormatters: [LengthLimitingTextInputFormatter(40)],
+          hint: 'Flat, House no., Area, Street (Max 60 chars)',
+          inputFormatters: [LengthLimitingTextInputFormatter(60)],
         ),
         const SizedBox(height: 12),
-
-        // Address Line 2 (OPTIONAL - Max 40 Chars)
-        // CustomTextField(
-        //   height: 60,
-        //   controller: controller.nomineeAddress2TextEditingController,
-        //   // Assuming your CustomTextField has a way to bypass required validation
-        //   // or set it to whatever maps to 'optional' in your app
-        //   validationType: ValidationType.none,
-        //   hint: 'Area, Street, Village (Optional)',
-        //   inputFormatters: [LengthLimitingTextInputFormatter(40)],
-        // ),
-        // const SizedBox(height: 12),
-
-        // City and PIN Code Row
         Row(
           children: [
-            // City (MANDATORY - Max 30 Chars)
             Expanded(
               child: CustomTextField(
                 height: 60,
-                controller: controller.nomineeCityTextEditingController,
+                controller: item.cityController,
                 validationType: ValidationType.required,
                 hint: 'City',
                 inputFormatters: [LengthLimitingTextInputFormatter(30)],
               ),
             ),
             const SizedBox(width: 12),
-
-            // PIN Code (MANDATORY - 6 Digits)
             Expanded(
               child: CustomTextField(
                 height: 60,
-                controller: controller.nomineePincodeTextEditingController,
+                controller: item.pincodeController,
                 validationType: ValidationType.required,
                 keyboardType: TextInputType.number,
                 hint: 'PIN Code',
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(
-                    6,
-                  ), // Standard India PIN length
+                  LengthLimitingTextInputFormatter(6),
                 ],
               ),
             ),
@@ -588,29 +767,10 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
     );
   }
 
-  Widget _buildAddressField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SmallHeading(
-          smallheading: 'Address',
-          fontWeight: FontWeight.w600,
-        ),
-        const SizedBox(height: 5),
-        CustomTextField(
-          height: 60,
-          controller: controller.nomineeAddressTextEditingController,
-          validationType: ValidationType.required,
-          hint: 'Enter your full address',
-        ),
-      ],
-    );
-  }
-
   // =========================================
   // 📱 MOBILE BOTTOM BAR
   // =========================================
-  Widget _buildMobileBottomBar() {
+  Widget _buildMobileBottomBar(BuildContext context) {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -641,8 +801,11 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Obx(
-                () => UElevatedBUtton(
+              child: Obx(() {
+                final totalAlloc = controller.totalFormAllocation;
+                final isExact100 = (totalAlloc - 100.0).abs() <= 0.01;
+
+                return UElevatedBUtton(
                   onPressed: controller.addNomineeLoading.value
                       ? () {}
                       : () => controller.addNominee(),
@@ -659,12 +822,14 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                         )
                       : Center(
                           child: Text(
-                            "Save Changes",
+                            isExact100
+                                ? "Save Nominees"
+                                : "Save (${totalAlloc.toStringAsFixed(0)}%)",
                             style: UTextStyles.buttonText,
                           ),
                         ),
-                ),
-              ),
+                );
+              }),
             ),
           ],
         ),
@@ -673,22 +838,18 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
   }
 
   // =========================================
-  // 🧠 SMART LOGIC: Date Picker (Web vs Mobile)
+  // 🧠 SMART LOGIC: Date Picker
   // =========================================
-  void _smartDatePicker(BuildContext context) async {
+  void _smartDatePicker(BuildContext context, NomineeFormItem item) async {
     final bool isDesktop = MediaQuery.of(context).size.width > 600;
-    DateTime initialDate = DateTime(2005, 1, 1);
+    DateTime initialDate = DateTime(2000, 1, 1);
 
-    if (controller.nomineeDobTextEditingController.text.isNotEmpty) {
-      try {
-        initialDate = DateFormat(
-          'yyyy-MM-dd',
-        ).parse(controller.nomineeDobTextEditingController.text);
-      } catch (e) {}
+    if (item.dobController.text.isNotEmpty) {
+      initialDate =
+          DateTime.tryParse(item.dobController.text) ?? DateTime(2000, 1, 1);
     }
 
     if (isDesktop) {
-      // 💻 WEB: Material Dialog Picker
       final picked = await showDatePicker(
         context: context,
         initialDate: initialDate,
@@ -707,14 +868,10 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
         },
       );
       if (picked != null) {
-        controller.nomineeDobTextEditingController.text = DateFormat(
-          'yyyy-MM-dd',
-        ).format(picked);
-        controller.updateMinorStatus(picked);
-        Get.back();
+        item.dobController.text = DateFormat('yyyy-MM-dd').format(picked);
+        item.updateMinorStatus(picked);
       }
     } else {
-      // 📱 MOBILE: Cupertino Bottom Sheet
       DateTime tempDate = initialDate;
       showModalBottomSheet(
         context: context,
@@ -750,9 +907,10 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                   padding: const EdgeInsets.all(20.0),
                   child: UElevatedBUtton(
                     onPressed: () {
-                      controller.nomineeDobTextEditingController.text =
-                          DateFormat('yyyy-MM-dd').format(tempDate);
-                      controller.updateMinorStatus(tempDate);
+                      item.dobController.text = DateFormat(
+                        'yyyy-MM-dd',
+                      ).format(tempDate);
+                      item.updateMinorStatus(tempDate);
                       Navigator.pop(context);
                     },
                     child: Center(
@@ -769,12 +927,13 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
   }
 
   // =========================================
-  // 🧠 SMART LOGIC: Selection Sheet (Web vs Mobile)
+  // 🧠 SMART LOGIC: Selection Sheet
   // =========================================
   void _smartSelectionSheet(
     BuildContext context,
     List<String> list,
     TextEditingController textController,
+    TextEditingController? docNumberController,
     String title,
   ) {
     final bool isDesktop = MediaQuery.of(context).size.width > 600;
@@ -782,18 +941,14 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
     void onItemSelected(String value) {
       if (textController.text != value) {
         textController.text = value;
-        // Clear document number if document type changes
-        if (textController ==
-            controller.nomineeDocumentTypeTextEditingController) {
-          controller.nomineeDocumentNumberTextEditingController.clear();
+        if (docNumberController != null) {
+          docNumberController.clear();
         }
       }
-      // Navigator.pop(context);
       Get.back();
     }
 
     if (isDesktop) {
-      // 💻 WEB: Centered Dialog
       showDialog(
         context: context,
         builder: (_) => Dialog(
@@ -848,7 +1003,6 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
         ),
       );
     } else {
-      // 📱 MOBILE: Bottom Sheet
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,

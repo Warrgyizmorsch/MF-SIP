@@ -61,8 +61,9 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                     ],
                   ),
                   Obx(() {
-                    if (controller.remainingAllocation <= 0)
+                    if (controller.remainingAllocation <= 0) {
                       return const SizedBox.shrink();
+                    }
                     return ElevatedButton.icon(
                       onPressed: () =>
                           Get.toNamed(AppRoutes.nomineeDetail, id: 1),
@@ -191,6 +192,9 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                                   documentType: nominee.documentType,
                                   guardianName: nominee.guardianName,
                                   dob: nominee.dob,
+                                  isNct: nominee.isNct,
+                                  nctStatus: nominee.nctStatus,
+                                  nctUniqId: nominee.nctUniqId,
                                 );
                               }),
                             );
@@ -225,6 +229,9 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                           documentType: nominee.documentType,
                           guardianName: nominee.guardianName,
                           dob: nominee.dob,
+                          isNct: nominee.isNct,
+                          nctStatus: nominee.nctStatus,
+                          nctUniqId: nominee.nctUniqId,
                         );
                       });
                     },
@@ -237,8 +244,9 @@ class NomineeListScreen extends GetView<PersonalisationController> {
             if (!isDesktop) ...[
               const Gap(12),
               Obx(() {
-                if (controller.remainingAllocation <= 0)
+                if (controller.remainingAllocation <= 0) {
                   return const SizedBox.shrink();
+                }
                 return UElevatedBUtton(
                   outlined: true,
                   onPressed: () => Get.toNamed(AppRoutes.nomineeDetail),
@@ -411,6 +419,9 @@ class NomineeDetailsCard extends StatelessWidget {
     required this.documentType,
     this.guardianName,
     required this.dob,
+    this.isNct,
+    this.nctStatus,
+    this.nctUniqId,
   });
 
   final String name;
@@ -426,6 +437,9 @@ class NomineeDetailsCard extends StatelessWidget {
   final String? guardianName;
   final String dob;
   final bool isDeleting;
+  final bool? isNct;
+  final String? nctStatus;
+  final String? nctUniqId;
 
   // Helper to extract initials for the premium avatar
   String get _initials {
@@ -523,6 +537,15 @@ class NomineeDetailsCard extends StatelessWidget {
                                 isDark,
                                 isSuccess: true,
                               ),
+                              if (nctStatus != null && nctStatus!.isNotEmpty)
+                                _buildBadge(
+                                  nctStatus!.toUpperCase(),
+                                  isDark,
+                                  isSuccess:
+                                      nctStatus!.toLowerCase() == 'approved',
+                                  isPrimary:
+                                      nctStatus!.toLowerCase() != 'approved',
+                                ),
                             ],
                           ),
                         ],
@@ -632,6 +655,15 @@ class NomineeDetailsCard extends StatelessWidget {
           value: documentNumber,
           isDark: isDark,
         ),
+        if (nctUniqId != null && nctUniqId!.isNotEmpty)
+          _buildGridItem(
+            context,
+            icon: Icons.verified_user_outlined,
+            iconColor: Colors.teal,
+            label: 'NCT REF ID',
+            value: nctUniqId!,
+            isDark: isDark,
+          ),
         _buildGridItem(
           context,
           icon: Icons.location_on_outlined,
@@ -690,6 +722,15 @@ class NomineeDetailsCard extends StatelessWidget {
           value: documentNumber,
           isDark: isDark,
         ),
+        if (nctUniqId != null && nctUniqId!.isNotEmpty)
+          _buildListItem(
+            context,
+            icon: Icons.verified_user_outlined,
+            iconColor: Colors.teal,
+            label: 'NCT REF ID',
+            value: nctUniqId!,
+            isDark: isDark,
+          ),
         _buildListItem(
           context,
           icon: Icons.location_on_outlined,

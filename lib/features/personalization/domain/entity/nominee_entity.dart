@@ -8,6 +8,9 @@ class NomineeResponseEntity extends Equatable {
   final int customerId;
   final int count;
   final num totalAllocation;
+  final bool isNct;
+  final String nctStatus;
+  final String nctUniqId;
   final List<NomineeEntity> nominees;
 
   const NomineeResponseEntity({
@@ -16,11 +19,24 @@ class NomineeResponseEntity extends Equatable {
     required this.customerId,
     required this.count,
     required this.totalAllocation,
+    this.isNct = false,
+    this.nctStatus = '',
+    this.nctUniqId = '',
     required this.nominees,
   });
 
   @override
-  List<Object?> get props => [status, message, customerId, count, totalAllocation, nominees];
+  List<Object?> get props => [
+    status,
+    message,
+    customerId,
+    count,
+    totalAllocation,
+    isNct,
+    nctStatus,
+    nctUniqId,
+    nominees,
+  ];
 }
 
 class NomineeEntity extends Equatable {
@@ -38,6 +54,9 @@ class NomineeEntity extends Equatable {
   final String documentNumber;
   final String address;
   final String createdAt;
+  final bool isNct;
+  final String nctStatus;
+  final String nctUniqId;
 
   const NomineeEntity({
     required this.id,
@@ -54,12 +73,30 @@ class NomineeEntity extends Equatable {
     required this.documentNumber,
     required this.address,
     required this.createdAt,
+    this.isNct = false,
+    this.nctStatus = '',
+    this.nctUniqId = '',
   });
 
   @override
   List<Object?> get props => [
-    id, customerId, name, relation, dob, allocationPercent, isMinor,
-    guardianName, email, phoneNumber, documentType, documentNumber, address, createdAt
+    id,
+    customerId,
+    name,
+    relation,
+    dob,
+    allocationPercent,
+    isMinor,
+    guardianName,
+    email,
+    phoneNumber,
+    documentType,
+    documentNumber,
+    address,
+    createdAt,
+    isNct,
+    nctStatus,
+    nctUniqId,
   ];
 }
 
@@ -71,6 +108,9 @@ extension NomineeResponseMapper on NomineeResponseModel {
       customerId: customerId ?? 0,
       count: count ?? 0,
       totalAllocation: totalAllocation ?? 0,
+      isNct: isNct ?? false,
+      nctStatus: nctStatus ?? '',
+      nctUniqId: nctUniqId ?? '',
       nominees: data?.map((e) => e.toEntity()).toList() ?? [],
     );
   }
@@ -93,6 +133,9 @@ extension NomineeMapper on NomineeModel {
       documentNumber: documentNumber ?? '',
       address: address ?? '',
       createdAt: createdAt ?? '',
+      isNct: isNct ?? false,
+      nctStatus: nctStatus ?? '',
+      nctUniqId: nctUniqId ?? '',
     );
   }
 }
