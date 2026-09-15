@@ -4,13 +4,15 @@ class ProfileUpdateModel {
   final bool? status;
   final String? message;
   final ProfileDataModel? data;
+  final List<String>? folios;
 
-  ProfileUpdateModel({this.status, this.message, this.data});
+  ProfileUpdateModel({this.status, this.message, this.data, this.folios});
 
   factory ProfileUpdateModel.fromJson(Map<String, dynamic> json) {
     return ProfileUpdateModel(
       status: json.parse<bool>('status'),
       message: json.parse<String>('message'),
+      folios: (json['folios'] as List?)?.map((e) => e.toString()).toList(),
       data: json.parseNested<ProfileDataModel>(
         'data',
         (m) => ProfileDataModel.fromJson(m),
@@ -68,6 +70,7 @@ class ProfileDataModel {
   final List<NomineeModel>? nominees;
   final List<BankAccountModel>? bankAccounts;
   final MfuMandateModel? mfuMandate;
+  final List<String>? folios;
 
   ProfileDataModel({
     this.id,
@@ -117,6 +120,7 @@ class ProfileDataModel {
     this.nominee,
     this.nominees,
     this.mfuMandate,
+    this.folios,
   });
 
   factory ProfileDataModel.fromJson(Map<String, dynamic> json) {
@@ -194,6 +198,7 @@ class ProfileDataModel {
               (json['mfu_mandates'] as List).isNotEmpty)
           ? MfuMandateModel.fromJson((json['mfu_mandates'] as List).first)
           : null,
+      folios: (json['folios'] as List?)?.map((e) => e.toString()).toList(),
     );
   }
 }

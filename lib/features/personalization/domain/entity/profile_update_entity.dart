@@ -5,15 +5,17 @@ class ProfileUpdateResponseEntity extends Equatable {
   final bool? status;
   final String? message;
   final ProfileDataEntity? data;
+  final List<String>? folios;
 
   const ProfileUpdateResponseEntity({
     required this.status,
     required this.message,
     required this.data,
+    this.folios,
   });
 
   @override
-  List<Object?> get props => [status, message, data];
+  List<Object?> get props => [status, message, data, folios];
 }
 
 extension ProfileUpdateResponseX on ProfileUpdateModel {
@@ -21,6 +23,7 @@ extension ProfileUpdateResponseX on ProfileUpdateModel {
     return ProfileUpdateResponseEntity(
       status: status,
       message: message,
+      folios: folios ?? data?.folios,
       data: data?.toEntity(),
     );
   }
@@ -75,6 +78,7 @@ class ProfileDataEntity extends Equatable {
   final List<NomineeEntity>? nominees;
   final List<BankAccountEntity>? bankAccounts;
   final MfuMandateEntity? mfuMandate;
+  final List<String>? folios;
 
   const ProfileDataEntity({
     required this.id,
@@ -124,6 +128,7 @@ class ProfileDataEntity extends Equatable {
     this.nominees,
     required this.bankAccounts,
     required this.mfuMandate,
+    this.folios,
   });
 
   @override
@@ -175,6 +180,7 @@ class ProfileDataEntity extends Equatable {
     nominees,
     bankAccounts,
     mfuMandate,
+    folios,
   ];
 }
 
@@ -228,6 +234,7 @@ extension ProfileDataEntityX on ProfileDataModel {
       nominees: nominees?.map((e) => e.toEntity()).toList(),
       bankAccounts: bankAccounts?.map((e) => e.toEntity()).toList(),
       mfuMandate: mfuMandate?.toEntity(),
+      folios: folios,
     );
   }
 }

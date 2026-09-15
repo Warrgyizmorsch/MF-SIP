@@ -52,6 +52,7 @@ class UserEntity extends Equatable {
   final String? canStatus;
   final RiskProfileEntity? riskProfileEntity;
   final CustomerDetailsEntity1? customerDetailsEntity;
+  final List<String>? folios;
 
   const UserEntity({
     required this.id,
@@ -74,6 +75,7 @@ class UserEntity extends Equatable {
     this.canStatus,
     this.riskProfileEntity,
     this.customerDetailsEntity,
+    this.folios,
   });
 
   @override
@@ -98,6 +100,7 @@ class UserEntity extends Equatable {
     riskScore,
     riskProfileEntity,
     customerDetailsEntity,
+    folios,
   ];
 }
 
@@ -185,6 +188,7 @@ extension UserModelx on UserModel {
 
       riskProfileEntity: riskProfileModel?.toEntity(),
       customerDetailsEntity: customerDetailsModel?.toEntity(),
+      folios: folios,
     );
   }
 }
@@ -253,30 +257,23 @@ extension CustomerDetailsEntityX on CustomerDetailsModel1 {
     );
   }
 }
+
 class FcmDeviceTokenEntity extends Equatable {
   final String? status;
   final String? message;
 
-  const FcmDeviceTokenEntity({
-    required this.status,
-    required this.message,
-  });
+  const FcmDeviceTokenEntity({required this.status, required this.message});
 
   @override
-  List<Object?> get props => [
-    status,
-    message,
-  ];
+  List<Object?> get props => [status, message];
 }
+
 /// ===============================
 /// MODEL TO ENTITY EXTENSION
 /// ===============================
 
 extension FcmDeviceTokenModelX on FcmDeviceTokenModel {
   FcmDeviceTokenEntity toEntity() {
-    return FcmDeviceTokenEntity(
-      status: status,
-      message: message,
-    );
+    return FcmDeviceTokenEntity(status: status, message: message);
   }
 }

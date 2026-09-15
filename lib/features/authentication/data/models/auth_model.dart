@@ -47,6 +47,7 @@ class UserModel {
   final String? canStatus;
   final RiskProfileModel? riskProfileModel;
   final CustomerDetailsModel1? customerDetailsModel;
+  final List<String>? folios;
 
   const UserModel({
     this.id,
@@ -69,6 +70,7 @@ class UserModel {
     this.riskScore,
     this.canNumber,
     this.canStatus,
+    this.folios,
   });
 
   UserModel copyWith({
@@ -80,20 +82,22 @@ class UserModel {
     String? panCard,
     String? kycStatus,
     String? canNumber,
-
+    String? canStatus,
     CustomerDetailsModel1? customerDetails,
+    List<String>? folios,
   }) {
     return UserModel(
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
       mobile: mobile ?? this.mobile,
-      img: image ?? this.img,
+      img: image ?? img,
       panCard: panCard ?? this.panCard,
       kycStatus: kycStatus ?? this.kycStatus,
       canNumber: canNumber ?? this.canNumber,
       canStatus: canStatus ?? this.canStatus,
-      customerDetailsModel: customerDetails ?? this.customerDetailsModel,
+      customerDetailsModel: customerDetails ?? customerDetailsModel,
+      folios: folios ?? this.folios,
     );
   }
 
@@ -128,6 +132,7 @@ class UserModel {
         'customer_details',
         (e) => CustomerDetailsModel1.fromJson(e),
       ),
+      folios: (userData['folios'] as List?)?.map((e) => e.toString()).toList(),
     );
   }
 
@@ -152,6 +157,7 @@ class UserModel {
       'can_status': canStatus,
       'risk_profile': riskProfileModel,
       'customer_details': customerDetailsModel,
+      'folios': folios,
     };
   }
 }
@@ -278,6 +284,7 @@ class CustomerDetailsModel1 {
     };
   }
 }
+
 class FcmDeviceTokenModel {
   final String status;
   final String message;
