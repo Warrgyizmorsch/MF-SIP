@@ -537,7 +537,9 @@ class NomineeDetailsCard extends StatelessWidget {
                                 isDark,
                                 isSuccess: true,
                               ),
-                              if (nctStatus != null && nctStatus!.isNotEmpty)
+                              if (nctStatus != null &&
+                                  nctStatus!.isNotEmpty &&
+                                  nctStatus != 'rejected')
                                 _buildBadge(
                                   nctStatus!.toUpperCase(),
                                   isDark,
