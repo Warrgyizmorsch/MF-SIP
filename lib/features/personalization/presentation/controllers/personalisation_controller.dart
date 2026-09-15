@@ -41,6 +41,7 @@ class PersonalisationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    initFolios();
     panController.addListener(_onPanTextChanged);
     loadRiskQuestions();
     _checkPanEditPermission();
@@ -473,6 +474,20 @@ class PersonalisationController extends GetxController {
           if (profileData != null) {
             // 1. Check Bank Account
             userData.value = profileData;
+
+            // Sync folios from profile
+            final folios = profileData.folios ?? success.data?.folios;
+            if (folios != null && folios.isNotEmpty) {
+              userFolios.assignAll(folios);
+              if (selectedFolio.value.isEmpty ||
+                  !userFolios.contains(selectedFolio.value)) {
+                selectedFolio.value = userFolios.first;
+              }
+              final currentUser = session.getUserData;
+              if (currentUser != null) {
+                session.updateUserData(currentUser.copyWith(folios: folios));
+              }
+            }
             // linkedBankAccount.value = profileData.bankAccount;
             // hasBank.value = profileData.bankAccount != null;
             // final hasBanks =
@@ -1062,7 +1077,7 @@ class PersonalisationController extends GetxController {
               image: apiData.data?.image,
               panCard: apiData.data?.panCard,
               kycStatus: apiData.data?.kycStatus,
-
+              folios: apiData.data?.folios ?? apiData.folios,
               // ... map other fields
             );
 
@@ -1679,8 +1694,9 @@ class PersonalisationController extends GetxController {
   // PAN input
   final panControllerDownload = TextEditingController(text: 'ABCDE1234F');
 
-  // Folio / scheme selections (mock values)
-  final selectedFolio = 'CGFOLIO13001'.obs;
+  // Folio / scheme selections
+  final selectedFolio = ''.obs;
+  final userFolios = <String>[].obs;
   final selectedScheme = 'Growth Fund - Direct'.obs;
 
   // Duration: 0=Current FY, 1=Previous FY, 2=Full Statement, 3=Custom
@@ -1692,6 +1708,23 @@ class PersonalisationController extends GetxController {
     'Full Statement',
     'Custom',
   ];
+
+  void selectFolio(String folio) => selectedFolio.value = folio;
+
+  void initFolios() {
+    final folios = session.getUserData?.folios;
+    if (folios != null && folios.isNotEmpty) {
+      userFolios.assignAll(folios);
+      if (selectedFolio.value.isEmpty ||
+          !userFolios.contains(selectedFolio.value)) {
+        selectedFolio.value = userFolios.first;
+      }
+    } else if (userFolios.isNotEmpty &&
+        (selectedFolio.value.isEmpty ||
+            !userFolios.contains(selectedFolio.value))) {
+      selectedFolio.value = userFolios.first;
+    }
+  }
 
   void selectStatementType(int index) => statementTypeIndex.value = index;
   // void selectDuration(int index) => selectedDuration.value = index;
@@ -1713,6 +1746,7 @@ class PersonalisationController extends GetxController {
     // Optional: Reset other variables to default when opening the screen
     isCapital ? statementTypeIndex.value = 1 : statementTypeIndex.value = 0;
     // panController.text = 'ABCDE1234F';
+    initFolios();
   }
 
   // void onDownload() {
@@ -1727,6 +1761,13 @@ class PersonalisationController extends GetxController {
   //   CustomSnackbar.success(title: 'Download', message: 'Generating statement…');
   // }
   void onDownload() {
+    // Validation for folio if in Capital Gain or Folio mode
+    if ((isCapitalGain.value || statementTypeIndex.value == 1) &&
+        selectedFolio.value.trim().isEmpty) {
+      Get.snackbar('Missing Info', 'Please select a valid folio number');
+      return;
+    }
+
     // Validation for custom dates
     if (selectedDuration.value == 3 &&
         (startDate.value == null || endDate.value == null)) {
@@ -1774,6 +1815,13 @@ class PersonalisationController extends GetxController {
   //   );
   // }
   void onEmail() {
+    // Validation for folio if in Capital Gain or Folio mode
+    if ((isCapitalGain.value || statementTypeIndex.value == 1) &&
+        selectedFolio.value.trim().isEmpty) {
+      Get.snackbar('Missing Info', 'Please select a valid folio number');
+      return;
+    }
+
     if (selectedDuration.value == 3 &&
         (startDate.value == null || endDate.value == null)) {
       Get.snackbar('Missing Info', 'Please select both start and end dates');
@@ -1798,8 +1846,6 @@ class PersonalisationController extends GetxController {
         type: "email", // Change to "email" if user selects email
         email: userData.value?.email, // Pass user's email if type == "email"
         // folioNo: "CGFOLIO13001",
-        // startDate: "2020-01-01",
-        // endDate: "2030-01-01",
         folioNo: selectedFolio.value,
         startDate: dates['start']!,
         endDate: dates['end']!,
@@ -2025,7 +2071,7 @@ class PersonalisationController extends GetxController {
 
     // Make the API call
     final result = await _useCases.requestCapitalGainStatementUseCase(
-      uid: 13001, // for testing
+      uid: uid, // for testing
       // uid: uid,
       type: type,
       email: email,
@@ -2081,7 +2127,7 @@ class PersonalisationController extends GetxController {
     final uid = session.getUserData?.id ?? 0;
 
     final result = await useCases.requestAccountStatementUseCase(
-      uid: 13001, // for testing
+      uid: uid, // for testing
       // uid: uid,
       type: type,
       email: email,

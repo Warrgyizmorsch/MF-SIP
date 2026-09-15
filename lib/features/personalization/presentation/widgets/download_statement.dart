@@ -1027,8 +1027,6 @@ class _WebStatementHeader extends StatelessWidget {
 
       return Row(
         children: [
-
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1125,26 +1123,33 @@ class _WebStatementFormCard extends StatelessWidget {
         builder: (context, constraints) {
           final bool compact = constraints.maxWidth < 950;
 
-          return Obx(()=> Column(
+          return Obx(
+            () => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 compact
                     ? Column(
                         children: [
-                          ctrl.isCapitalGain.value? const SizedBox.shrink() :
-                          _WebStatementSource(ctrl: ctrl),
-                          ctrl.isCapitalGain.value? const SizedBox.shrink() :
-                          const SizedBox(height: 18),
+                          ctrl.isCapitalGain.value
+                              ? const SizedBox.shrink()
+                              : _WebStatementSource(ctrl: ctrl),
+                          ctrl.isCapitalGain.value
+                              ? const SizedBox.shrink()
+                              : const SizedBox(height: 18),
                           _WebPanFolioInput(ctrl: ctrl),
                         ],
                       )
                     : Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ctrl.isCapitalGain.value? const SizedBox.shrink() :
-                          Expanded(child: _WebStatementSource(ctrl: ctrl)),
-                          ctrl.isCapitalGain.value? const SizedBox.shrink() :
-                          const SizedBox(width: 42),
+                          ctrl.isCapitalGain.value
+                              ? const SizedBox.shrink()
+                              : Expanded(
+                                  child: _WebStatementSource(ctrl: ctrl),
+                                ),
+                          ctrl.isCapitalGain.value
+                              ? const SizedBox.shrink()
+                              : const SizedBox(width: 42),
                           Expanded(child: _WebPanFolioInput(ctrl: ctrl)),
                         ],
                       ),
@@ -1292,9 +1297,7 @@ class _WebSegmentButton extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
-            gradient: active
-                ? Ucolors.backgroundGradient
-                : null,
+            gradient: active ? Ucolors.backgroundGradient : null,
           ),
           child: Text(
             label,
@@ -1374,7 +1377,7 @@ class _WebReadOnlyPanField extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color:Ucolors.primary, width: 1.2),
+          border: Border.all(color: Ucolors.primary, width: 1.2),
         ),
         child: TextField(
           controller: ctrl.panController,
@@ -1414,10 +1417,48 @@ class _WebFolioDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {},
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
+    return Obx(() {
+      final folios = ctrl.userFolios.isNotEmpty
+          ? ctrl.userFolios.toList()
+          : (ctrl.selectedFolio.value.isNotEmpty
+                ? [ctrl.selectedFolio.value]
+                : <String>[]);
+
+      if (folios.isEmpty) {
+        return Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFD8E1F0)),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.description_outlined,
+                size: 20,
+                color: Color(0xFF344054),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'No Folios Available',
+                style: UTextStyles.bodyMedium.copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF98A2B3),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      final currentValue = folios.contains(ctrl.selectedFolio.value)
+          ? ctrl.selectedFolio.value
+          : folios.first;
+
+      return Container(
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
@@ -1425,37 +1466,51 @@ class _WebFolioDropdown extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: const Color(0xFFD8E1F0)),
         ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.description_outlined,
-              size: 20,
-              color: Color(0xFF344054),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                ctrl.selectedFolio.value.isEmpty
-                    ? 'Select Folio'
-                    : ctrl.selectedFolio.value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: UTextStyles.bodyMedium.copyWith(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF344054),
-                ),
-              ),
-            ),
-            const Icon(
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: currentValue,
+            isExpanded: true,
+            icon: const Icon(
               Icons.keyboard_arrow_down_rounded,
               size: 24,
               color: Color(0xFF667085),
             ),
-          ],
+            items: folios.map((folio) {
+              return DropdownMenuItem<String>(
+                value: folio,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.description_outlined,
+                      size: 20,
+                      color: Color(0xFF344054),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        folio,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: UTextStyles.bodyMedium.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF344054),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) {
+                ctrl.selectFolio(val);
+              }
+            },
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -1468,7 +1523,10 @@ class _WebDurationSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _WebStepTitle(number:  ctrl.statementTypeIndex.value == 0 ? '3.' : '2.', title: 'Select Duration'),
+        _WebStepTitle(
+          number: ctrl.statementTypeIndex.value == 0 ? '3.' : '2.',
+          title: 'Select Duration',
+        ),
 
         const SizedBox(height: 12),
 
@@ -1593,9 +1651,7 @@ class _WebDurationTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          gradient: active
-              ? Ucolors.backgroundGradient
-              : null,
+          gradient: active ? Ucolors.backgroundGradient : null,
           color: active ? null : const Color(0xFFFBFCFF),
           border: Border.all(
             color: active ? Ucolors.primary : const Color(0xFFDCE3EF),
@@ -1877,7 +1933,7 @@ class _WebStatementPreviewCard extends StatelessWidget {
                       color: const Color(0xFFEFF4FF),
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child:  Icon(
+                    child: Icon(
                       Icons.manage_search_rounded,
                       size: 40,
                       color: Ucolors.primary,
@@ -2670,12 +2726,156 @@ class _FolioInputCard extends StatelessWidget {
           Obx(
             () => _DropdownTile(
               label: 'Select Folio',
-              value: ctrl.selectedFolio.value,
-              onTap: () {},
+              value: ctrl.selectedFolio.value.isEmpty
+                  ? 'Select Folio'
+                  : ctrl.selectedFolio.value,
+              onTap: () => _showFolioPicker(context, ctrl),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showFolioPicker(BuildContext context, PersonalisationController ctrl) {
+    final folios = ctrl.userFolios.isNotEmpty
+        ? ctrl.userFolios.toList()
+        : (ctrl.selectedFolio.value.isNotEmpty
+              ? [ctrl.selectedFolio.value]
+              : <String>[]);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    height: 4,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Select Folio Number',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                if (folios.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Text(
+                        'No folios available for this account',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.45,
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: folios.length,
+                      separatorBuilder: (_, __) =>
+                          const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      itemBuilder: (context, index) {
+                        final folio = folios[index];
+                        final isSelected = folio == ctrl.selectedFolio.value;
+
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Ucolors.primary.withValues(alpha: 0.1)
+                                  : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.description_outlined,
+                              size: 20,
+                              color: isSelected
+                                  ? Ucolors.primary
+                                  : Colors.grey.shade700,
+                            ),
+                          ),
+                          title: Text(
+                            folio,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 15,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? Ucolors.primary
+                                  : const Color(0xFF1E293B),
+                            ),
+                          ),
+                          trailing: isSelected
+                              ? const Icon(
+                                  Icons.check_circle,
+                                  color: Ucolors.primary,
+                                  size: 22,
+                                )
+                              : null,
+                          onTap: () {
+                            ctrl.selectFolio(folio);
+                            Navigator.pop(ctx);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
