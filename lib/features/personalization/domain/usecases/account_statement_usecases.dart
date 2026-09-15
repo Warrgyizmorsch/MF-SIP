@@ -15,7 +15,8 @@ class RequestAccountStatementUseCase {
     required int uid,
     required String type,
     String? email,
-    required String folioNo,
+    String? folioNo,
+    String? pan,
     required String startDate,
     required String endDate,
   }) async {
@@ -24,6 +25,7 @@ class RequestAccountStatementUseCase {
       type: type,
       email: email,
       folioNo: folioNo,
+      pan: pan,
       startDate: startDate,
       endDate: endDate,
     );

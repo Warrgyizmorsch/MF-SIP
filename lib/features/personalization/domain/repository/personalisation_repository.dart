@@ -52,7 +52,8 @@ abstract class PersonalisationRepository {
     required int uid,
     required String type,
     String? email,
-    required String folioNo,
+    String? folioNo,
+    String? pan,
     required String startDate,
     required String endDate,
   });

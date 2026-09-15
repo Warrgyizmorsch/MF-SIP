@@ -1787,13 +1787,17 @@ class PersonalisationController extends GetxController {
       );
     } else {
       // Handle normal account statement download here
+      final isFolioMode = statementTypeIndex.value == 1;
+      final folioParam = isFolioMode ? selectedFolio.value : null;
+      final panParam = !isFolioMode
+          ? (session.getUserData?.panCard ?? panController.text.trim())
+          : null;
+
       requestAccountStatement(
-        type: "download", // Change to "email" if user selects email
-        email: null, // Pass user's email if type == "email"
-        // folioNo: "CGFOLIO13001",
-        // startDate: "2020-01-01",
-        // endDate: "2030-01-01",
-        folioNo: selectedFolio.value, // passing the dynamically selected folio
+        type: "download",
+        email: null,
+        folioNo: folioParam,
+        pan: panParam,
         startDate: dates['start']!,
         endDate: dates['end']!,
       );
@@ -1842,11 +1846,17 @@ class PersonalisationController extends GetxController {
       );
     } else {
       // Handle normal account statement email here
+      final isFolioMode = statementTypeIndex.value == 1;
+      final folioParam = isFolioMode ? selectedFolio.value : null;
+      final panParam = !isFolioMode
+          ? (session.getUserData?.panCard ?? panController.text.trim())
+          : null;
+
       requestAccountStatement(
-        type: "email", // Change to "email" if user selects email
-        email: userData.value?.email, // Pass user's email if type == "email"
-        // folioNo: "CGFOLIO13001",
-        folioNo: selectedFolio.value,
+        type: "email",
+        email: userData.value?.email,
+        folioNo: folioParam,
+        pan: panParam,
         startDate: dates['start']!,
         endDate: dates['end']!,
       );
@@ -2116,7 +2126,8 @@ class PersonalisationController extends GetxController {
   Future<void> requestAccountStatement({
     required String type, // "email" or "download"
     String? email,
-    required String folioNo,
+    String? folioNo,
+    String? pan,
     required String startDate,
     required String endDate,
   }) async {
@@ -2132,6 +2143,7 @@ class PersonalisationController extends GetxController {
       type: type,
       email: email,
       folioNo: folioNo,
+      pan: pan,
       startDate: startDate,
       endDate: endDate,
     );
@@ -2144,7 +2156,10 @@ class PersonalisationController extends GetxController {
           if (data.isDownload && data.downloadUrl.isNotEmpty) {
             ULoaders.stopLoading();
             log("[MfuController] Download link ready: ${data.downloadUrl}");
-            await _downloadAndSavePdf(data.downloadUrl, folioNo);
+            await _downloadAndSavePdf(
+              data.downloadUrl,
+              folioNo ?? pan ?? 'statement',
+            );
           } else if (data.isEmail) {
             ULoaders.stopLoading();
             log("[MfuController] Email sent to: ${data.emailTo}");

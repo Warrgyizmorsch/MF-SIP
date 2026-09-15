@@ -238,7 +238,8 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
     required int uid,
     required String type,
     String? email,
-    required String folioNo,
+    String? folioNo,
+    String? pan,
     required String startDate,
     required String endDate,
   }) async {
@@ -248,6 +249,7 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
         type: type,
         email: email,
         folioNo: folioNo,
+        pan: pan,
         startDate: startDate,
         endDate: endDate,
       );
