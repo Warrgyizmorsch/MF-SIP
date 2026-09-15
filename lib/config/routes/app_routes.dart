@@ -56,6 +56,8 @@ class AppRoutes {
   static const managePortfolioweb = '/manage-portfolio';
   static const mandateWaitingScreen = '/mandateWaitingScreen';
   static const portfolioDetails = '/portfolioDetails';
+  static const paymentSuccess = '/paymentSuccess';
+  static const redeemPage = '/redeem';
 
   static String webShell(String innerRoute) {
     return innerRoute;

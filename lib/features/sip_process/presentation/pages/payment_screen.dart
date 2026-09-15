@@ -694,11 +694,17 @@ class _BottomBar extends StatelessWidget {
   }
 
   void _processCartPayment() {
-    // For example: controller.normalTransaction(request);
-    CustomSnackbar.info(
-      title: "Processing",
-      message: "Initializing secure cart checkout...",
-    );
+    final cartController = Get.find<CartController>();
+    if (cartController.lumpsumItems.isNotEmpty) {
+      cartController.checkoutLumpsum();
+    } else if (cartController.sipAndStepUpItems.isNotEmpty) {
+      cartController.checkoutSip();
+    } else {
+      CustomSnackbar.error(
+        title: 'Empty Cart',
+        message: 'No items found in your cart to checkout.',
+      );
+    }
   }
 }
 

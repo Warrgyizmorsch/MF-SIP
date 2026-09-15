@@ -33,6 +33,7 @@ import 'package:my_sip/features/kyc/presentation/binding/kyc_bindings.dart';
 import 'package:my_sip/features/kyc/presentation/pages/kyc_screen.dart';
 import 'package:my_sip/features/mfu/presentation/Binding/mfu_binding.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
+import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'package:my_sip/features/nfo/presentation/bindings/nfo_list_binding.dart';
 import 'package:my_sip/features/nfo/presentation/page/nfo_details_page.dart';
 import 'package:my_sip/features/nfo/presentation/page/nfo_list_page.dart';
@@ -56,6 +57,7 @@ import '../../features/freedom_sip/presentation/pages/accumulationAndDistributio
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
 import '../../features/fund_details/presentation/pages/fund_deatails.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/cart/presentation/pages/payment_confirmation_screen.dart';
 import '../../features/goal/presentation/pages/master_goals_page.dart';
 import '../../features/goal/presentation/pages/web_master_goals_view.dart';
 import '../../features/home/presentation/binding/home_bindings.dart';
@@ -314,6 +316,12 @@ class AppPages {
       transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
+      name: AppRoutes.paymentSuccess,
+      page: () => const PaymentConfirmationScreen(),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
       name: AppRoutes.explorePage,
       page: () => ExploreScreen(),
       transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
@@ -466,9 +474,23 @@ class AppPages {
     GetPage(
       name: AppRoutes.portfolioDetails,
       page: () => PortfolioFundDetailsPage(
-        fund: Get.arguments as MfuPortfolioItemEntity,
+        fund:
+            PortfolioFundDetailsPage.navFund ??
+            (Get.arguments is MfuPortfolioItemEntity
+                ? Get.arguments as MfuPortfolioItemEntity
+                : null),
       ),
       transition: kIsWeb ? Transition.fadeIn : Transition.downToUp,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.redeemPage,
+      page: () => RedeemPage(
+        args:
+            RedeemPage.navArgs ??
+            (Get.arguments is RedeemArgs ? Get.arguments as RedeemArgs : null),
+      ),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
       transitionDuration: const Duration(milliseconds: 300),
     ),
   ];

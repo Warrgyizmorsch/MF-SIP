@@ -36,11 +36,19 @@ import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/features/mfu/presentation/pages/mandate_waiting_screen.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum RedeemType { amount, allFree, units }
+
+class MfuStatusCheckResult {
+  final String orderStatus;
+  final String itrnOrdStatus;
+
+  MfuStatusCheckResult({this.orderStatus = '', this.itrnOrdStatus = ''});
+}
 
 class MfuController extends GetxController {
   final MfuUseCases mfuUseCases;
@@ -1019,13 +1027,33 @@ class MfuController extends GetxController {
     String stType = 'NORMAL-TXN',
   }) async {
     try {
+      final res = await checkTxnAndItrnStatus(
+        entGroupRefNo: entGroupRefNo,
+        orderDate: orderDate,
+        stType: stType,
+      );
+      return res.orderStatus.isNotEmpty ? res.orderStatus : res.itrnOrdStatus;
+    } catch (e) {
+      log("[MfuController] checkTxnStatus Exception → $e");
+      return null;
+    }
+  }
+
+  /// Checks both GORN orderstatus and first ITRN itrnOrdStatus
+  Future<MfuStatusCheckResult> checkTxnAndItrnStatus({
+    required String entGroupRefNo,
+    required String orderDate,
+    String stType = 'NORMAL-TXN',
+  }) async {
+    try {
       final req = MfuStatusChkTxnRequest(
         entGroupRefNo: entGroupRefNo,
         orderDate: orderDate,
         stType: stType,
       );
       final res = await mfuUseCases.mfuCallUseCase(req);
-      String? parsedStatus;
+      String orderStatus = '';
+      String itrnOrdStatus = '';
       res.fold(
         (success) {
           final mfuResp = success.data?.mfuResponse;
@@ -1033,18 +1061,139 @@ class MfuController extends GetxController {
           if (mfuResp != null && mfuResp['respBody'] != null) {
             final respBody = mfuResp['respBody'] as Map<String, dynamic>?;
             final ordDtl = respBody?['orderDetail'] as Map<String, dynamic>?;
-            parsedStatus = ordDtl?['orderstatus'] as String?;
-            log("[MfuController] GORN OrderStatus → $parsedStatus");
+            orderStatus = (ordDtl?['orderstatus'] as String?) ?? '';
+            final itrnList = ordDtl?['itrnWiseStatus'] as List?;
+            if (itrnList != null && itrnList.isNotEmpty) {
+              final firstItrn = itrnList.first as Map<String, dynamic>?;
+              itrnOrdStatus = (firstItrn?['itrnOrdStatus'] as String?) ?? '';
+            }
+            log(
+              "[MfuController] Parsed orderStatus='$orderStatus', itrnOrdStatus='$itrnOrdStatus'",
+            );
           }
         },
         (error) {
-          log("[MfuController] Status Check Error → ${error.message}");
+          log("[MfuController] checkTxnAndItrnStatus Error → ${error.message}");
         },
       );
-      return parsedStatus;
+      return MfuStatusCheckResult(
+        orderStatus: orderStatus,
+        itrnOrdStatus: itrnOrdStatus,
+      );
     } catch (e) {
-      log("[MfuController] checkTxnStatus Exception → $e");
-      return null;
+      log("[MfuController] checkTxnAndItrnStatus Exception → $e");
+      return MfuStatusCheckResult();
+    }
+  }
+
+  /// Fetches event list from TXN-HISTORY API
+  Future<List<String>> fetchTxnHistoryEvents({
+    required String entGroupRefNo,
+    required String mfuGorn,
+  }) async {
+    if (entGroupRefNo.isEmpty || mfuGorn.isEmpty) return [];
+    try {
+      final req = MfuTxnHistoryRequest(
+        entGroupRefNo: entGroupRefNo,
+        mfuGorn: mfuGorn,
+      );
+      final res = await mfuUseCases.mfuCallUseCase(req);
+      final List<String> events = [];
+      res.fold(
+        (success) {
+          final mfuResp = success.data?.mfuResponse;
+          log("[MfuController] TXN-HISTORY Response → $mfuResp");
+          if (mfuResp != null && mfuResp['respBody'] != null) {
+            final body = mfuResp['respBody'] as Map<String, dynamic>?;
+            final rawList = body?['orderHistList'] as List?;
+            if (rawList != null) {
+              for (final item in rawList) {
+                if (item is Map<String, dynamic> && item['event'] != null) {
+                  events.add(item['event'].toString().trim());
+                }
+              }
+            }
+          }
+        },
+        (error) {
+          log("[MfuController] fetchTxnHistoryEvents Error → ${error.message}");
+        },
+      );
+      return events;
+    } catch (e) {
+      log("[MfuController] fetchTxnHistoryEvents Exception → $e");
+      return [];
+    }
+  }
+
+  /// Evaluates overall payment status based on STATUS-CHK-TXN and TXN-HISTORY:
+  /// - "CONFIRMED": (orderstatus == "AC" && itrnOrdStatus == "OA") OR events contain "Payment Confirmed"
+  /// - "REJECTED": orderstatus == "RJ" OR itrnOrdStatus in ["OR", "RR", "CL", "RJ", "SS"] OR events contain rejection
+  /// - "PROCESSING": any other intermediate/pending status
+  Future<String> evaluateOverallTxnStatus({
+    required String entGroupRefNo,
+    required String mfuGorn,
+    required String orderDate,
+    String stType = 'NORMAL-TXN',
+  }) async {
+    try {
+      final statusFuture = checkTxnAndItrnStatus(
+        entGroupRefNo: entGroupRefNo,
+        orderDate: orderDate,
+        stType: stType,
+      );
+
+      final historyFuture = fetchTxnHistoryEvents(
+        entGroupRefNo: entGroupRefNo,
+        mfuGorn: mfuGorn,
+      );
+
+      final results = await Future.wait([statusFuture, historyFuture]);
+      final statusResult = results[0] as MfuStatusCheckResult;
+      final events = results[1] as List<String>;
+
+      log(
+        "[MfuController] evaluateOverallTxnStatus: orderStatus='${statusResult.orderStatus}', itrnOrdStatus='${statusResult.itrnOrdStatus}', events=$events",
+      );
+
+      // 1. Check for Rejection
+      final isRejected =
+          statusResult.orderStatus == "RJ" ||
+          statusResult.itrnOrdStatus == "OR" ||
+          statusResult.itrnOrdStatus == "RR" ||
+          statusResult.itrnOrdStatus == "CL" ||
+          statusResult.itrnOrdStatus == "RJ" ||
+          statusResult.itrnOrdStatus == "SS" ||
+          events.contains("Payment Rejected") ||
+          events.contains("Order Rejected") ||
+          events.contains("Order Cancelled") ||
+          events.contains("Payment Expired") ||
+          events.contains("RTA Rejected");
+
+      if (isRejected) {
+        return "REJECTED";
+      }
+
+      // 2. Strict Payment Confirmation Check:
+      // In MFU, orderstatus "AC" and itrnOrdStatus "OA" only mean order entry is accepted.
+      // Payment is ONLY confirmed when MFU records "Payment Confirmed" in TXN-HISTORY.
+      final hasPaymentConfirmed =
+          events.contains("Payment Confirmed") ||
+          events.contains("Credit Received") ||
+          events.contains("Credit Received by AMC") ||
+          events.contains("Sent to RTA") ||
+          events.contains("RTA Accepted") ||
+          events.contains("RTA Processed");
+
+      if (hasPaymentConfirmed) {
+        return "CONFIRMED";
+      }
+
+      // 3. Otherwise in Processing (e.g. Order Placed / Investor Confirmed, awaiting payment)
+      return "PROCESSING";
+    } catch (e) {
+      log("[MfuController] evaluateOverallTxnStatus Exception → $e");
+      return "PROCESSING";
     }
   }
 
@@ -1206,32 +1355,57 @@ class MfuController extends GetxController {
 
     final res = await mfuUseCases.postLumpsumUseCase(req);
 
-    res.fold(
-      (success) {
+    await res.fold(
+      (success) async {
         final data = success.data;
         lumpsumResponse.value = data;
         log(
           "[MfuController] Lumpsum Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
         );
 
+        if (data?.approvalLink != null && data!.approvalLink!.isNotEmpty) {
+          await openApprovalLink(
+            data.approvalLink!,
+            title: 'Confirm Investment',
+          );
+        }
+
+        final groupRef = data?.entGroupRef ?? data?.mfuGorn ?? '';
+        final gornRef = data?.mfuGorn ?? groupRef;
+        final String todayStr = DateTime.now().toIso8601String().split('T')[0];
+
+        // Evaluate overall status using both STATUS-CHK-TXN and TXN-HISTORY
+        final evaluatedStatus = await evaluateOverallTxnStatus(
+          entGroupRefNo: groupRef,
+          mfuGorn: gornRef,
+          orderDate: todayStr,
+          stType: 'NORMAL-TXN',
+        );
+
         if (onSuccess != null && data != null) {
           onSuccess(data);
-          if (data.approvalLink != null && data.approvalLink!.isNotEmpty) {
-            openApprovalLink(data.approvalLink!, title: 'Confirm Investment');
-          }
-        } else if (data?.approvalLink != null &&
-            data!.approvalLink!.isNotEmpty) {
-          // CustomSnackbar.success(
-          //   title: 'Lumpsum Submitted 🎉',
-          //   message: 'Opening MFU approval page for payment confirmation.',
-          // );
-          openApprovalLink(data.approvalLink!, title: 'Confirm Investment');
-        } else {
-          // CustomSnackbar.success(
-          //   title: 'Lumpsum Order Placed 🎉',
-          //   message: 'Reference (GORN): ${data?.mfuGorn ?? "N/A"}',
-          // );
         }
+
+        // Calculate total amount for summary display
+        final double totalAmt = lumpsumFunds.fold<double>(
+          0.0,
+          (sum, item) => sum + (item.amount.toDouble()),
+        );
+
+        // Navigate to payment confirmation screen
+        Get.offNamed(
+          AppRoutes.paymentSuccess,
+          arguments: {
+            'orderId': data?.mfuOrderId?.toString() ?? '',
+            'gorn': gornRef,
+            'entGroupRefNo': groupRef,
+            'orderDate': todayStr,
+            'amount': totalAmt,
+            'isLumpsum': true,
+            'status': evaluatedStatus,
+            'fundsCount': lumpsumFunds.length,
+          },
+        );
       },
       (error) {
         errorMessage.value = error.message;
@@ -1277,32 +1451,57 @@ class MfuController extends GetxController {
 
     final res = await mfuUseCases.postSipUseCase(req);
 
-    res.fold(
-      (success) {
+    await res.fold(
+      (success) async {
         final data = success.data;
         sipResponse.value = data;
         log(
           "[MfuController] SIP Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
         );
 
+        if (data?.approvalLink != null && data!.approvalLink!.isNotEmpty) {
+          await openApprovalLink(
+            data.approvalLink!,
+            title: 'Confirm SIP Order',
+          );
+        }
+
+        final groupRef = data?.entGroupRef ?? data?.mfuGorn ?? '';
+        final gornRef = data?.mfuGorn ?? groupRef;
+        final String todayStr = DateTime.now().toIso8601String().split('T')[0];
+
+        // Evaluate overall status using both STATUS-CHK-TXN and TXN-HISTORY
+        final evaluatedStatus = await evaluateOverallTxnStatus(
+          entGroupRefNo: groupRef,
+          mfuGorn: gornRef,
+          orderDate: todayStr,
+          stType: 'SYS-TXN',
+        );
+
         if (onSuccess != null && data != null) {
           onSuccess(data);
-          if (data.approvalLink != null && data.approvalLink!.isNotEmpty) {
-            openApprovalLink(data.approvalLink!, title: 'Confirm SIP Order');
-          }
-        } else if (data?.approvalLink != null &&
-            data!.approvalLink!.isNotEmpty) {
-          // CustomSnackbar.success(
-          //   title: 'SIP Submitted 🎉',
-          //   message: 'Opening MFU approval page for SIP confirmation.',
-          // );
-          openApprovalLink(data.approvalLink!, title: 'Confirm SIP Order');
-        } else {
-          // CustomSnackbar.success(
-          //   title: 'SIP Registered 🎉',
-          //   message: 'Reference (GORN): ${data?.mfuGorn ?? "N/A"}',
-          // );
         }
+
+        // Calculate total amount for summary display
+        final double totalAmt = sipFunds.fold<double>(
+          0.0,
+          (sum, item) => sum + (item.amount.toDouble()),
+        );
+
+        // Navigate to payment confirmation screen
+        Get.offNamed(
+          AppRoutes.paymentSuccess,
+          arguments: {
+            'orderId': data?.mfuOrderId?.toString() ?? '',
+            'gorn': gornRef,
+            'entGroupRefNo': groupRef,
+            'orderDate': todayStr,
+            'amount': totalAmt,
+            'isLumpsum': false,
+            'status': evaluatedStatus,
+            'fundsCount': sipFunds.length,
+          },
+        );
       },
       (error) {
         errorMessage.value = error.message;

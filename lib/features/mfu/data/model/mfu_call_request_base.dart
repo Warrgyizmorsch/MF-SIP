@@ -72,3 +72,19 @@ class MfuStatusChkTxnRequest extends MfuCallRequestBase {
     "orderDate": orderDate,
   };
 }
+
+class MfuTxnHistoryRequest extends MfuCallRequestBase {
+  final String entGroupRefNo;
+  final String mfuGorn;
+
+  MfuTxnHistoryRequest({required this.entGroupRefNo, required this.mfuGorn});
+
+  @override
+  String get apiType => "TXN-HISTORY";
+
+  @override
+  Map<String, dynamic> buildPayload() => {
+    "entGroupRefNo": entGroupRefNo,
+    "mfuGorn": mfuGorn,
+  };
+}
