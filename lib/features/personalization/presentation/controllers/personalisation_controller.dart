@@ -361,22 +361,84 @@ class PersonalisationController extends GetxController {
     {"code": "78", "label": "Bank Letter"},
   ];
 
+  /// Checks if the bank is being added as an NCT bank to an existing approved CAN
+  bool get isAddingBankForNct {
+    // 1. Explicit route argument override (if passed)
+    final arg = Get.arguments as Map<String, dynamic>?;
+    if (arg != null && arg.containsKey('isNct')) {
+      return arg['isNct'] == true;
+    }
+
+    // 2. CAN number check
+    final canNumber =
+        (session.getUserData?.canNumber ?? userData.value?.canNumber ?? '')
+            .trim();
+    if (canNumber.isEmpty) return false;
+
+    // 3. CAN status check (must be 'approved')
+    final canStatus =
+        (userData.value?.canStatus ?? session.getUserData?.canStatus ?? '')
+            .trim()
+            .toLowerCase();
+    if (canStatus != 'approved') return false;
+
+    // 4. Existing linked bank check (user must already have at least 1 active bank linked to CAN)
+    final hasExistingBanks =
+        linkedBankAccounts.isNotEmpty ||
+        (userData.value?.bankAccounts?.isNotEmpty ?? false);
+    if (!hasExistingBanks) return false;
+
+    return true;
+  }
+
   Future<void> pickBankProof(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
       source: source,
-      imageQuality: 50,
-      maxHeight: 1024,
-      maxWidth: 1024,
+      imageQuality: 70,
+      maxHeight: 1200,
+      maxWidth: 1200,
     );
     if (image != null) {
+      final ext = image.name.split('.').last.toLowerCase();
+      final allowedExts = isAddingBankForNct
+          ? ['jpg', 'jpeg', 'png', 'bmp']
+          : ['jpg', 'jpeg', 'png', 'pdf'];
+
+      if (!allowedExts.contains(ext)) {
+        CustomSnackbar.warning(
+          title: "Invalid Format",
+          message:
+              "Only ${allowedExts.join(', ').toUpperCase()} formats are allowed.",
+        );
+        return;
+      }
+
+      final bytes = await image.readAsBytes();
+      if (bytes.lengthInBytes > 500 * 1024) {
+        CustomSnackbar.warning(
+          title: "File Too Large",
+          message: "Image size must not exceed 500 KB.",
+        );
+        return;
+      }
+
       bankProofPath.value = image.path;
       bankProofFileName.value = image.name;
-      bankProofBytes.value = await image.readAsBytes();
+      bankProofBytes.value = bytes;
     }
   }
 
   Future<void> pickBankProofPdf() async {
+    if (isAddingBankForNct) {
+      CustomSnackbar.warning(
+        title: "PDF Not Allowed",
+        message:
+            "PDF format is not supported for additional bank accounts. Please upload an image (JPG, JPEG, PNG, BMP).",
+      );
+      return;
+    }
+
     try {
       final result = await FilePicker.pickFiles(
         type: FileType.custom,
@@ -384,14 +446,32 @@ class PersonalisationController extends GetxController {
       );
       if (result != null && result.files.single.path != null) {
         final file = result.files.single;
+        final ext = file.name.split('.').last.toLowerCase();
+        if (!['pdf', 'jpg', 'png', 'jpeg'].contains(ext)) {
+          CustomSnackbar.warning(
+            title: "Invalid Format",
+            message: "Only PDF, JPG, JPEG, and PNG formats are allowed.",
+          );
+          return;
+        }
+
+        Uint8List? bytes = file.bytes;
+        if (bytes == null && file.path != null) {
+          final ioFile = File(file.path!);
+          bytes = await ioFile.readAsBytes();
+        }
+
+        if (bytes != null && bytes.lengthInBytes > 500 * 1024) {
+          CustomSnackbar.warning(
+            title: "File Too Large",
+            message: "File size must not exceed 500 KB.",
+          );
+          return;
+        }
+
         bankProofPath.value = file.path!;
         bankProofFileName.value = file.name;
-        if (file.bytes != null) {
-          bankProofBytes.value = file.bytes;
-        } else {
-          final ioFile = File(file.path!);
-          bankProofBytes.value = await ioFile.readAsBytes();
-        }
+        bankProofBytes.value = bytes;
       }
     } catch (e) {
       log("Error picking file: $e");
@@ -784,6 +864,25 @@ class PersonalisationController extends GetxController {
       CustomSnackbar.warning(
         title: "Required",
         message: "Please upload a bank proof document",
+      );
+      return;
+    }
+
+    if (isAddingBankForNct &&
+        bankProofFileName.value.toLowerCase().endsWith('.pdf')) {
+      CustomSnackbar.warning(
+        title: "Invalid Format",
+        message:
+            "PDF format is not supported for additional bank accounts. Please upload an image (JPG, JPEG, PNG, BMP).",
+      );
+      return;
+    }
+
+    if (bankProofBytes.value != null &&
+        bankProofBytes.value!.lengthInBytes > 500 * 1024) {
+      CustomSnackbar.warning(
+        title: "File Too Large",
+        message: "Bank proof size must not exceed 500 KB.",
       );
       return;
     }

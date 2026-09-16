@@ -13,7 +13,6 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 
 // Ensure this path points to your actual PersonalisationController
@@ -361,20 +360,21 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
                           controller.pickBankProof(ImageSource.gallery);
                         },
                       ),
-                      ListTile(
-                        leading: const Icon(
-                          Icons.picture_as_pdf_outlined,
-                          color: Colors.red,
+                      if (!controller.isAddingBankForNct)
+                        ListTile(
+                          leading: const Icon(
+                            Icons.picture_as_pdf_outlined,
+                            color: Colors.red,
+                          ),
+                          title: const Text(
+                            'Document (PDF / File)',
+                            style: TextStyle(fontFamily: FontFamily.medium),
+                          ),
+                          onTap: () {
+                            Get.back();
+                            controller.pickBankProofPdf();
+                          },
                         ),
-                        title: const Text(
-                          'Document (PDF / File)',
-                          style: TextStyle(fontFamily: FontFamily.medium),
-                        ),
-                        onTap: () {
-                          Get.back();
-                          controller.pickBankProofPdf();
-                        },
-                      ),
                     ],
                   ),
                 ),
@@ -467,7 +467,9 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Supported formats: JPG, PNG (Max 1MB)',
+                          controller.isAddingBankForNct
+                              ? 'Supported formats: JPG, JPEG, PNG, BMP (Max 500 KB)'
+                              : 'Supported formats: JPG, JPEG, PNG, PDF (Max 500 KB)',
                           style: TextStyle(
                             fontFamily: FontFamily.medium,
                             fontSize: 11,

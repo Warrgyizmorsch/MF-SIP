@@ -111,6 +111,7 @@ class MfuBindings extends Bindings {
         postStepUpUseCase: Get.find<PostStepUpUseCase>(),
         postRedeemUseCase: Get.find<PostRedeemUseCase>(),
       ),
+      fenix: true,
     );
 
     // 5. Controller
