@@ -31,6 +31,7 @@ import 'package:my_sip/features/personalization/domain/entity/profile_update_ent
     as profileEntity;
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_html/html.dart' as html;
 
 class PersonalisationController extends GetxController {
   final PersonalisationUseCases _useCases;
@@ -2056,12 +2057,62 @@ class PersonalisationController extends GetxController {
   // ── IN-APP DOWNLOAD TO PUBLIC FOLDER ──────────────────────
   Future<void> _downloadAndSavePdf(String url, String folio) async {
     try {
+      // 1. Create a unique filename
+      final String fileName = isCapitalGain.value
+          ? "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf"
+          : "AccountStatement_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+
+      // 2. Handle web platform download (avoids dart:io Platform & filesystem crashes)
+      if (kIsWeb) {
+        CustomSnackbar.info(
+          title: 'Downloading',
+          message: 'Preparing your statement for download...',
+        );
+
+        try {
+          // Attempt downloading bytes and triggering blob download
+          final response = await Dio().get<List<int>>(
+            url,
+            options: Options(responseType: ResponseType.bytes),
+          );
+          if (response.data != null) {
+            final blob = html.Blob([response.data], 'application/pdf');
+            final blobUrl = html.Url.createObjectUrlFromBlob(blob);
+            html.AnchorElement(href: blobUrl)
+              ..setAttribute('download', fileName)
+              ..click();
+            html.Url.revokeObjectUrl(blobUrl);
+
+            CustomSnackbar.success(
+              title: 'Download Complete',
+              message: 'Statement downloaded successfully.',
+            );
+            return;
+          }
+        } catch (webErr) {
+          log("[MfuController] Web blob download fallback: $webErr");
+          // Fallback: trigger direct anchor click or open in new tab
+          final anchor = html.AnchorElement(href: url)
+            ..target = '_blank'
+            ..setAttribute('download', fileName);
+          html.document.body?.append(anchor);
+          anchor.click();
+          anchor.remove();
+
+          CustomSnackbar.success(
+            title: 'Opening Statement',
+            message: 'Statement is opening in a new tab.',
+          );
+          return;
+        }
+      }
+
       CustomSnackbar.info(
         title: 'Downloading',
         message: 'Please wait while your statement downloads...',
       );
 
-      // 1. Determine the correct public directory based on the OS
+      // 3. Determine the correct public directory based on the OS (Mobile only)
       Directory? directory;
       if (Platform.isAndroid) {
         // Target the public Downloads folder on Android
@@ -2082,11 +2133,6 @@ class PersonalisationController extends GetxController {
         );
         return;
       }
-
-      // 2. Create a unique filename and path
-      final String fileName = isCapitalGain.value
-          ? "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf"
-          : "AccountStatement_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
 
       final String savePath = '${directory.path}/$fileName';
 
