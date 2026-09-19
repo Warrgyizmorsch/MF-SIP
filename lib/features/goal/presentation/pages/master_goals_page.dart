@@ -1894,7 +1894,7 @@ class _SipTabContent extends GetView<GoalSipController> {
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Duration',
-              value: controller.years.value,
+              value: controller.years.value.clamp(1.0, 30.0),
               min: 1,
               max: 30,
               suffix: 'Yrs',
@@ -2052,7 +2052,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Duration',
-              value: controller.years.value,
+              value: controller.years.value.clamp(1.0, 30.0),
               min: 1,
               max: 30,
               suffix: 'Yrs',

@@ -241,26 +241,35 @@ class GoalSipController extends GetxController {
 
   ///
   void loadGoalForAddFund(UserGoalEntity? goal) {
-    goalNameTextEditingController.text = goal!.goalName;
+    if (goal == null) return;
+    goalNameTextEditingController.text = goal.goalName;
     savedDatabaseId.value = goal.id;
     isGoalSaved.value = true;
     savedInvestmentType.value = goal.txnType;
+
+    final double tenureYears =
+        (goal.goalTenure > 30 ||
+            (goal.goalTenure >= 12 && goal.goalTenure % 12 == 0))
+        ? (goal.goalTenure / 12).toDouble()
+        : goal.goalTenure.toDouble();
+    final double safeYears = tenureYears.clamp(1.0, 30.0);
+
     if (goal.txnType.toLowerCase() == "lumpsum") {
       investmentMode.value = "lumpsum";
       lumpsumAmount.value = goal.lumpsumAmount.toDouble();
       lumpsumReturnPercent.value = goal.expectedReturnRate;
       lumpsumFutureValue.value = goal.goalType?.targetAmount.toDouble() ?? 0.0;
-      years.value = goal.goalTenure.toDouble();
+      years.value = safeYears;
     } else {
       investmentMode.value = "sip";
       existingSipAmount.value = goal.monthlyInvestment.toDouble();
       monthlySip.value = goal.monthlyInvestment.toInt();
       targetAmount.value = goal.goalType?.targetAmount.toDouble() ?? 0.0;
-      years.value = goal.goalTenure.toDouble();
+      years.value = safeYears;
       annualRate.value = goal.expectedReturnRate.toDouble();
     }
     initialTargetAmount = (goal.investedAmount).toDouble();
-    initialYears = (goal.goalTenure).toDouble();
+    initialYears = safeYears;
     initialRate = (goal.expectedReturnRate).toDouble();
     existingSipAmount.value = (goal.monthlyInvestment).toDouble();
     initFromGoal(
@@ -300,7 +309,14 @@ class GoalSipController extends GetxController {
 
     initialTargetAmount = (goal.investedAmount).toDouble();
 
-    initialYears = (goal.goalTenure).toDouble();
+    final double tenureYears =
+        (goal.goalTenure > 30 ||
+            (goal.goalTenure >= 12 && goal.goalTenure % 12 == 0))
+        ? (goal.goalTenure / 12).toDouble()
+        : goal.goalTenure.toDouble();
+    final double safeYears = tenureYears.clamp(1.0, 30.0);
+
+    initialYears = safeYears;
 
     initialRate = (goal.expectedReturnRate).toDouble();
 
