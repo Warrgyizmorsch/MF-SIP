@@ -328,8 +328,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                     }
 
                     final mutualController = Get.find<MutualFundController>();
-                    final mfuController =
-                        Get.find<MfuController>();
+                    final mfuController = Get.find<MfuController>();
 
                     final selectedFunds = mutualController.searchFund
                         .where(
@@ -347,8 +346,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         ? parsedGoalId
                         : null;
 
-
-
                     controller.isLoading.value = true;
 
                     try {
@@ -365,10 +362,8 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                             goalId: finalGoalId,
                             schemeCode: schemeCode,
                             schemeName: fund.baseSchemeName ?? '',
-                            sipAmount:
-                                amount,
-                            sipDay:
-                           controller.selectedSipDay.value,
+                            sipAmount: amount,
+                            sipDay: controller.selectedSipDay.value,
                           );
                         }
                       }
@@ -391,8 +386,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                 schemeCode: "012", // static
                                 // schemeCode: schemeCode,
                                 amount: amount,
-                                folio:
-                                    "NEW",
+                                folio: "NEW",
                                 divOpt: "N",
                               ),
                             );
@@ -1392,7 +1386,6 @@ class PopularAndSelectedFund extends StatelessWidget {
                           "sip") {
                         await goalSipController.distributeSipAmount();
                       }
-
                     } catch (e, stackTrace) {
                       debugPrint("Error: $e");
                       debugPrintStack(stackTrace: stackTrace);
@@ -2046,9 +2039,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
               max: controller.lumpsumFutureValue.value.toDouble(),
               suffix: '',
               onChanged: (value) {
-
                 controller.setLumpsumAmount(value);
-
               },
             ),
           );
@@ -2374,7 +2365,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
                           controller.lumpsumAmount.value = controller
                               .smartRoundOff(pv);
-                           // invest amount
+                          // invest amount
                           controller.lumpsumFutureValue.value =
                               goal.targetAmount; // fixed FV
                           controller.lumpsumTotalReturn.value =

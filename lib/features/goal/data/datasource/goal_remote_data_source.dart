@@ -18,39 +18,31 @@ class GoalRemoteDataSource {
   GoalRemoteDataSource({required this.apiService});
 
   Future<Either<Result<SaveGoalResponseModel>, ApiError>> saveGoal(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await apiService.postApi(
         "${Appurl.baseUrl}/api/v1/goals",
         data: data,
         headers: {
-          "Authorization":
-          "Bearer ${SessionManager.instance.jwtAccessToken}",
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },
       );
 
-      createLog(
-        "[Goal Remote Data Source] Goal Response: $result",
-      );
+      createLog("[Goal Remote Data Source] Goal Response: $result");
 
-      if (result['success'] == true) {
+      if (result['success'] == true || result['status'] == true) {
         final response = SaveGoalResponseModel.fromJson(result);
         return Left(Result.success(response));
       }
 
       return Right(
         ApiError(
-          message: result['message']?.toString() ??
-              'Failed to save goal',
+          message: result['message']?.toString() ?? 'Failed to save goal',
         ),
       );
     } catch (e) {
-      return Right(
-        ApiError(
-          message: 'Goal Save Failed with Exception $e',
-        ),
-      );
+      return Right(ApiError(message: 'Goal Save Failed with Exception $e'));
     }
   }
 
@@ -102,6 +94,7 @@ class GoalRemoteDataSource {
       );
     }
   }
+
   Future<Either<Result<DeleteGoalFundModel>, ApiError>> deleteGoalFund({
     required int id,
   }) async {
@@ -134,6 +127,7 @@ class GoalRemoteDataSource {
       return Right(ApiError(message: 'deleteGoalFund Exception: $e'));
     }
   }
+
   Future<Either<Result<DeleteGoalFundModel>, ApiError>> deleteGoal({
     required int id,
   }) async {
@@ -167,111 +161,80 @@ class GoalRemoteDataSource {
     }
   }
 
-  Future<Either<Result<MasterGoalsResponse>, ApiError>>
-  getGoalsMaster() async {
+  Future<Either<Result<MasterGoalsResponse>, ApiError>> getGoalsMaster() async {
     try {
       final result = await apiService.getApi(
         "${Appurl.baseUrl}/api/v1/goal/master",
         headers: {
-          "Authorization":
-          "Bearer ${SessionManager.instance.jwtAccessToken}",
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },
       );
 
-      createLog(
-        "[Goal Remote Data Source] Goal Master Response: $result",
-      );
+      createLog("[Goal Remote Data Source] Goal Master Response: $result");
 
       /// API RESPONSE CHECK
       if (result['status'] == true) {
-
         final data = MasterGoalsResponse.fromJson(result);
         createLog("[Goal Remote Data Source] Goal Master Parsed Data: $data");
         return Left(Result.success(data));
-
       } else {
-
         return Right(
-          ApiError(
-            message: result['message'] ?? 'Goal Master Failed',
-          ),
+          ApiError(message: result['message'] ?? 'Goal Master Failed'),
         );
       }
-
     } catch (e) {
+      createLog("[Goal Remote Data Source] Exception: $e");
 
-      createLog(
-        "[Goal Remote Data Source] Exception: $e",
-      );
-
-      return Right(
-        ApiError(
-          message: 'Goal Master Failed with Exception: $e',
-        ),
-      );
+      return Right(ApiError(message: 'Goal Master Failed with Exception: $e'));
     }
   }
+
   Future<Either<Result<GoalFundOrderModel>, ApiError>> saveGoalFund(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await apiService.postApi(
         "${Appurl.baseUrl}/api/v1/goal-orders",
         data: data,
         headers: {
-          "Authorization":
-          "Bearer ${SessionManager.instance.jwtAccessToken}",
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },
       );
 
-      createLog(
-        "[Goal Remote Data Source] Goal Fund Save Response: $result",
-      );
+      createLog("[Goal Remote Data Source] Goal Fund Save Response: $result");
 
       if (result['success'] == true) {
-        final response =
-        GoalFundOrderModel.fromJson(result['data']);
+        final response = GoalFundOrderModel.fromJson(result['data']);
 
-        return Left(
-          Result.success(response),
-        );
+        return Left(Result.success(response));
       }
 
       return Right(
         ApiError(
-          message: result['message']?.toString() ??
-              'Goal Fund Save Failed',
+          message: result['message']?.toString() ?? 'Goal Fund Save Failed',
         ),
       );
     } catch (e) {
       return Right(
-        ApiError(
-          message:
-          'Goal Fund Save Failed with Exception $e',
-        ),
+        ApiError(message: 'Goal Fund Save Failed with Exception $e'),
       );
     }
   }
 
-
   Future<Either<Result<UpdateGoalFundModel>, ApiError>> updateGoalFund(
-      List<Map<String, dynamic>> data, int fundId
-      ) async {
+    List<Map<String, dynamic>> data,
+    int fundId,
+  ) async {
     try {
       final res = await apiService.patchApi(
         "${Appurl.baseUrl}/api/v1/goal-fund",
-        {
-          "funds": data,
-        },
+        {"funds": data},
         headers: {
-          "Authorization":
-          "Bearer ${SessionManager.instance.jwtAccessToken}",
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },
       );
 
-      createLog(
-        "[Update Goal Fund Remote Data Source] Response: $res",
-      );
+      createLog("[Update Goal Fund Remote Data Source] Response: $res");
 
       if (res['status'] == true) {
         final result = UpdateGoalFundModel.fromJson(res['data']);
@@ -279,16 +242,12 @@ class GoalRemoteDataSource {
         return Left(Result.success(result));
       } else {
         return Right(
-          ApiError(
-            message: res['message'] ?? 'Update Goal Fund Failed',
-          ),
+          ApiError(message: res['message'] ?? 'Update Goal Fund Failed'),
         );
       }
     } catch (e) {
       return Right(
-        ApiError(
-          message: 'Update Goal Fund Failed with Exception: $e',
-        ),
+        ApiError(message: 'Update Goal Fund Failed with Exception: $e'),
       );
     }
   }

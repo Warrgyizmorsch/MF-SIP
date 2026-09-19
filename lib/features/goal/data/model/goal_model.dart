@@ -1,4 +1,3 @@
-
 import '../../../../core/utils/helper/custom_json_parser.dart';
 
 class GoalResponseModel {
@@ -14,27 +13,38 @@ class GoalResponseModel {
       message: json.parse<String>('message'),
       data: json.parseListOf<UserGoalModel>(
         'goal',
-            (item) => UserGoalModel.fromJson(item as Map<String, dynamic>),
+        (item) => UserGoalModel.fromJson(item as Map<String, dynamic>),
       ),
     );
   }
 }
 
 class SaveGoalResponseModel {
+  final bool? status;
   final bool? success;
   final String? message;
   final GoalDetailModel? data;
 
-  SaveGoalResponseModel({this.success, this.message, this.data});
+  SaveGoalResponseModel({this.status, this.success, this.message, this.data});
 
   factory SaveGoalResponseModel.fromJson(Map<String, dynamic> json) {
     return SaveGoalResponseModel(
+      status: json.parse<bool>('status'),
       success: json.parse<bool>('success'),
       message: json.parse<String>('message'),
-      data: json['data'] != null
+      data: json['data'] != null && json['data'] is Map<String, dynamic>
           ? GoalDetailModel.fromJson(json['data'] as Map<String, dynamic>)
           : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (status != null) 'status': status,
+      if (success != null) 'success': success,
+      'message': message,
+      if (data != null) 'data': data!.toJson(),
+    };
   }
 }
 
@@ -54,6 +64,9 @@ class GoalDetailModel {
   final int? goalTenure;
   final double? investedAmount;
   final String? status;
+  final String? createdAt;
+  final String? updatedAt;
+  final GoalTypeModel? goal;
 
   GoalDetailModel({
     this.id,
@@ -71,6 +84,9 @@ class GoalDetailModel {
     this.goalTenure,
     this.investedAmount,
     this.status,
+    this.createdAt,
+    this.updatedAt,
+    this.goal,
   });
 
   factory GoalDetailModel.fromJson(Map<String, dynamic> json) {
@@ -83,14 +99,47 @@ class GoalDetailModel {
       txnType: json.parse<String>('txn_type'),
       lumpsumAmount: json.parse<double>('lumpsum_amount'),
       createdDate: json.parse<String>('created_date'),
-      targetAmount: json.parse<double>('target_amount'), // String to double conversion via parse<double>
+      targetAmount: json.parse<double>(
+        'target_amount',
+      ), // String to double conversion via parse<double>
       frequency: json.parse<String>('frequency'),
       monthlyInvestment: json.parse<double>('monthly_investment'),
       expectedReturnRate: json.parse<double>('expected_return_rate'),
       goalTenure: json.parse<int>('goal_tenure'),
-      investedAmount: json.parse<double>('Invested_amount') ?? json.parse<double>('invested_amount'),
+      investedAmount:
+          json.parse<double>('Invested_amount') ??
+          json.parse<double>('invested_amount'),
       status: json.parse<String>('status'),
+      createdAt: json.parse<String>('created_at'),
+      updatedAt: json.parse<String>('updated_at'),
+      goal: json.parseNested<GoalTypeModel>(
+        'goal',
+        (data) => GoalTypeModel.fromJson(data),
+      ),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'goal_id': goalId,
+      'goal_name': goalName,
+      'goal_cover': goalCover,
+      'txn_type': txnType,
+      'lumpsum_amount': lumpsumAmount,
+      'created_date': createdDate,
+      'target_amount': targetAmount,
+      'frequency': frequency,
+      'monthly_investment': monthlyInvestment,
+      'expected_return_rate': expectedReturnRate,
+      'goal_tenure': goalTenure,
+      'Invested_amount': investedAmount,
+      'status': status,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+      if (goal != null) 'goal': goal!.toJson(),
+    };
   }
 }
 
@@ -142,7 +191,9 @@ class UserGoalModel {
       goalCover: json.parse<String>('goal_cover'),
       txnType: json.parse<String>('txn_type'),
       lumpsumAmount: json.parse<double>('lumpsum_amount'),
-      targetAmount: json.parse<double>('target_amount'), // Handles String "1000000.00" safely
+      targetAmount: json.parse<double>(
+        'target_amount',
+      ), // Handles String "1000000.00" safely
       frequency: json.parse<String>('frequency'),
       monthlyInvestment: json.parse<double>('monthly_investment'),
       expectedReturnRate: json.parse<double>('expected_return_rate'),
@@ -152,11 +203,11 @@ class UserGoalModel {
       mfuOrderStatus: json.parse<String>('mfu_order_status'),
       goalType: json.parseNested<GoalTypeModel>(
         'goal',
-            (data) => GoalTypeModel.fromJson(data),
+        (data) => GoalTypeModel.fromJson(data),
       ),
       goalFunds: json.parseListOf<GoalFundModel>(
         'goal_funds',
-            (item) => GoalFundModel.fromJson(item as Map<String, dynamic>),
+        (item) => GoalFundModel.fromJson(item as Map<String, dynamic>),
       ),
     );
   }
@@ -203,6 +254,22 @@ class GoalTypeModel {
       investedAmount: json.parse<double>('Invested_amount'),
       status: json.parse<String>('status'),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'goal_type': goalType,
+      'logo': logo,
+      'goal_icon': goalIcon,
+      'goal_description': goalDescription,
+      'target_amount': targetAmount,
+      'monthly_investment': monthlyInvestment,
+      'expected_return_rate': expectedReturnRate,
+      'goal_tenure': goalTenure,
+      'Invested_amount': investedAmount,
+      'status': status,
+    };
   }
 }
 
@@ -262,7 +329,7 @@ class GoalFundModel {
       mfuOrderStatus: json.parse<String>('mfu_order_status'),
       mutualFund: json.parseNested<MutualFundModel>(
         'mutual_fund',
-            (data) => MutualFundModel.fromJson(data),
+        (data) => MutualFundModel.fromJson(data),
       ),
     );
   }
@@ -323,13 +390,10 @@ class MutualFundModel {
       minimumTopup: json.parse<double>('minimum_topup'),
       nav: json.parse<double>('nav'),
       navDate: json.parse<String>('nav_date'),
-      amc: json.parseNested<AmcModel>(
-        'amc',
-            (data) => AmcModel.fromJson(data),
-      ),
+      amc: json.parseNested<AmcModel>('amc', (data) => AmcModel.fromJson(data)),
       mfPerformanceScheme: json.parseNested<MfPerformanceSchemeModel>(
         'mfperformancescheme',
-            (data) => MfPerformanceSchemeModel.fromJson(data),
+        (data) => MfPerformanceSchemeModel.fromJson(data),
       ),
     );
   }
@@ -360,6 +424,7 @@ class AmcModel {
     );
   }
 }
+
 class MfPerformanceSchemeModel {
   final int? id;
   final int? schemeCode;

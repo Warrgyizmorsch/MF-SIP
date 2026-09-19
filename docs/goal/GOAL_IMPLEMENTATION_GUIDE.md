@@ -367,7 +367,7 @@ Documented success response:
 
 Current implementation notes:
 
-- `GoalSipController.saveGoalToDb()` sends `years.value` as `goal_tenure`, while the PDF defines months. Convert only after confirming the UI's unit and backend contract.
+- `GoalSipController.saveGoalToDb()` sends `(years.value * 12).toInt()` as `goal_tenure`, aligned with the PDF contract defining tenure in months.
 - The controller sends `invested_amount`, `lumpsum_amount`, `status`, and `created_date`, which are not listed as create parameters in the PDF. Do not remove or retain them by assumption; confirm the deployed contract.
 - `goal_cover` requires multipart handling when provided. Do not place an `XFile` object in a normal JSON map unless `NetworkServicesApi` explicitly converts it to multipart data.
 - Do not let the client initialize actual investment from a projection. The authoritative value should start from executed transactions.

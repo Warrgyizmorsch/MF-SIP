@@ -517,7 +517,7 @@ class GoalSipController extends GetxController {
 
         "expected_return_rate": annualRate.value.toDouble(),
 
-        "goal_tenure": years.value.toInt(),
+        "goal_tenure": (years.value * 12).toInt(),
 
         "invested_amount": investmentMode.value == 'sip'
             ? invested.value.toDouble()

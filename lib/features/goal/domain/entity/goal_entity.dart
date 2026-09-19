@@ -18,18 +18,20 @@ class GoalResponseEntity extends Equatable {
 }
 
 class SaveGoalResponseEntity extends Equatable {
+  final bool? status;
   final bool success;
   final String message;
   final GoalDetailEntity data;
 
   const SaveGoalResponseEntity({
+    this.status,
     required this.success,
     required this.message,
     required this.data,
   });
 
   @override
-  List<Object?> get props => [success, message, data];
+  List<Object?> get props => [status, success, message, data];
 }
 
 class GoalDetailEntity extends Equatable {
@@ -48,6 +50,8 @@ class GoalDetailEntity extends Equatable {
   final int goalTenure;
   final double investedAmount;
   final String status;
+  final String? createdAt;
+  final String? updatedAt;
   final GoalTypeEntity? goalType;
   final List<GoalFundEntity> goalFunds;
 
@@ -67,15 +71,33 @@ class GoalDetailEntity extends Equatable {
     required this.goalTenure,
     required this.investedAmount,
     required this.status,
+    this.createdAt,
+    this.updatedAt,
     this.goalType,
     required this.goalFunds,
   });
 
   @override
   List<Object?> get props => [
-    id, userId, goalId, goalName, goalCover, txnType, lumpsumAmount,
-    createdDate, targetAmount, frequency, monthlyInvestment,
-    expectedReturnRate, goalTenure, investedAmount, status, goalType, goalFunds,
+    id,
+    userId,
+    goalId,
+    goalName,
+    goalCover,
+    txnType,
+    lumpsumAmount,
+    createdDate,
+    targetAmount,
+    frequency,
+    monthlyInvestment,
+    expectedReturnRate,
+    goalTenure,
+    investedAmount,
+    status,
+    createdAt,
+    updatedAt,
+    goalType,
+    goalFunds,
   ];
 }
 
@@ -120,9 +142,23 @@ class UserGoalEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id, userId, goalId, goalName, goalCover, txnType, lumpsumAmount, targetAmount,
-    frequency, monthlyInvestment, expectedReturnRate, goalTenure, investedAmount,
-    status, mfuOrderStatus, goalType, goalFunds,
+    id,
+    userId,
+    goalId,
+    goalName,
+    goalCover,
+    txnType,
+    lumpsumAmount,
+    targetAmount,
+    frequency,
+    monthlyInvestment,
+    expectedReturnRate,
+    goalTenure,
+    investedAmount,
+    status,
+    mfuOrderStatus,
+    goalType,
+    goalFunds,
   ];
 }
 
@@ -155,8 +191,17 @@ class GoalTypeEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id, typeName, goalIcon, goalDescription, targetAmount, monthlyInvestment,
-    expectedReturnRate, goalTenure, investedAmount, status, logo,
+    id,
+    typeName,
+    goalIcon,
+    goalDescription,
+    targetAmount,
+    monthlyInvestment,
+    expectedReturnRate,
+    goalTenure,
+    investedAmount,
+    status,
+    logo,
   ];
 }
 
@@ -199,8 +244,22 @@ class GoalFundEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id, goalId, userId, schemeCode, orderDate, orderType, sipAmount, sipDay,
-    sipStartDate, sipEndDate, lumpsumAmount, status, createdAt, updatedAt, mfuOrderStatus, mutualFund,
+    id,
+    goalId,
+    userId,
+    schemeCode,
+    orderDate,
+    orderType,
+    sipAmount,
+    sipDay,
+    sipStartDate,
+    sipEndDate,
+    lumpsumAmount,
+    status,
+    createdAt,
+    updatedAt,
+    mfuOrderStatus,
+    mutualFund,
   ];
 }
 
@@ -244,8 +303,23 @@ class MutualFundEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id, schemeCode, schemeName, baseSchemeName, schemeType, schemeCategory,
-    assetClass, riskLevel, isin, amcId, minSipAmount, minLumpsum, minimumTopup, nav, navDate, amc,mfPerformanceScheme,
+    id,
+    schemeCode,
+    schemeName,
+    baseSchemeName,
+    schemeType,
+    schemeCategory,
+    assetClass,
+    riskLevel,
+    isin,
+    amcId,
+    minSipAmount,
+    minLumpsum,
+    minimumTopup,
+    nav,
+    navDate,
+    amc,
+    mfPerformanceScheme,
   ];
 }
 
@@ -267,6 +341,7 @@ class AmcEntity extends Equatable {
   @override
   List<Object?> get props => [id, amcName, amcCode, amcLogo, amcLogoUrl];
 }
+
 class MfPerformanceSchemeEntity extends Equatable {
   final int id;
   final int schemeCode;
@@ -306,9 +381,22 @@ class MfPerformanceSchemeEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id, schemeCode, performanceType, label, oneWeek, oneMonth,
-    threeMonth, sixMonth, oneYear, twoYear, threeYear, fiveYear,
-    tenYear, inceptionReturn, ytdReturn, aum,
+    id,
+    schemeCode,
+    performanceType,
+    label,
+    oneWeek,
+    oneMonth,
+    threeMonth,
+    sixMonth,
+    oneYear,
+    twoYear,
+    threeYear,
+    fiveYear,
+    tenYear,
+    inceptionReturn,
+    ytdReturn,
+    aum,
   ];
 }
 // --- Mappers ---
@@ -341,6 +429,9 @@ extension GoalDetailMapper on GoalDetailModel {
       goalTenure: goalTenure ?? 0,
       investedAmount: investedAmount ?? 0.0,
       status: status ?? '',
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      goalType: goal?.toEntity(),
       goalFunds: const [],
     );
   }
@@ -473,16 +564,29 @@ extension MfPerformanceSchemeMapper on MfPerformanceSchemeModel {
 extension SaveGoalResponseMapper on SaveGoalResponseModel {
   SaveGoalResponseEntity toEntity() {
     return SaveGoalResponseEntity(
+      status: status,
       success: success ?? false,
       message: message ?? '',
       data: data != null
           ? data!.toEntity()
           : const GoalDetailEntity(
-        id: 0, userId: 0, goalId: 0, goalName: '', goalCover: '',
-        txnType: '', lumpsumAmount: 0.0, createdDate: '', targetAmount: 0.0,
-        frequency: '', monthlyInvestment: 0.0, expectedReturnRate: 0.0,
-        goalTenure: 0, investedAmount: 0.0, status: '', goalFunds: [],
-      ),
+              id: 0,
+              userId: 0,
+              goalId: 0,
+              goalName: '',
+              goalCover: '',
+              txnType: '',
+              lumpsumAmount: 0.0,
+              createdDate: '',
+              targetAmount: 0.0,
+              frequency: '',
+              monthlyInvestment: 0.0,
+              expectedReturnRate: 0.0,
+              goalTenure: 0,
+              investedAmount: 0.0,
+              status: '',
+              goalFunds: [],
+            ),
     );
   }
 }
