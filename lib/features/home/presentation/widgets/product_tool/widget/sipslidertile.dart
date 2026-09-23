@@ -40,7 +40,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
   @override
   void initState() {
     super.initState();
-    _currentValue = widget.value;
+    _currentValue = widget.value.clamp(widget.min, widget.max);
     _controller = TextEditingController(text: _currentValue.toInt().toString());
   }
 
@@ -48,8 +48,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
   void didUpdateWidget(covariant SipSliderTile2 oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value != widget.value) {
-
-      _currentValue = widget.value;
+      _currentValue = widget.value.clamp(widget.min, widget.max);
       _controller.text = _currentValue.toInt().toString();
     }
   }
@@ -86,7 +85,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 // Use effectiveColor for background tint
-                color: effectiveColor.withValues(alpha:0.1),
+                color: effectiveColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -149,7 +148,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
                 ),
           ),
           child: Slider(
-            value: _currentValue,
+            value: _currentValue.clamp(widget.min, widget.max),
             min: widget.min,
             max: widget.max,
 
@@ -218,9 +217,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
 
     _currentValue = widget.value.clamp(widget.rMin, widget.rMax);
 
-    _controller = TextEditingController(
-      text: _currentValue.toInt().toString(),
-    );
+    _controller = TextEditingController(text: _currentValue.toInt().toString());
   }
 
   // 🔹 CRITICAL: This updates the internal UI when parent data is cleared/changed
@@ -258,14 +255,17 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
     final effectiveColor = widget.activeColor ?? Colors.blue;
 
     // Thumb icon logic
-    final WidgetStateProperty<Icon?> thumbIcon = WidgetStateProperty.resolveWith<Icon?>(
-          (Set<WidgetState> states) {
-        if (isRupeeActive) {
-          return const Icon(Icons.currency_rupee, size: 16, color: Colors.white);
-        }
-        return const Icon(Icons.percent, size: 16, color: Colors.grey);
-      },
-    );
+    final WidgetStateProperty<Icon?> thumbIcon =
+        WidgetStateProperty.resolveWith<Icon?>((Set<WidgetState> states) {
+          if (isRupeeActive) {
+            return const Icon(
+              Icons.currency_rupee,
+              size: 16,
+              color: Colors.white,
+            );
+          }
+          return const Icon(Icons.percent, size: 16, color: Colors.grey);
+        });
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +300,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
               width: 115,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: effectiveColor.withValues(alpha:0.1),
+                color: effectiveColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -361,7 +361,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
 
             // Use customThumb if provided, otherwise default to ImageSliderThumb
             thumbShape:
-            widget.customThumb ??
+                widget.customThumb ??
                 ImageSliderThumb(
                   thumbRadius: 15,
                   image: AssetImage(UImages.imp),
@@ -371,7 +371,9 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
             value: _currentValue.clamp(currentMin, currentMax),
             min: currentMin,
             max: currentMax,
-            divisions: isRupeeActive ? null : (widget.pMax - widget.pMin).toInt(),
+            divisions: isRupeeActive
+                ? null
+                : (widget.pMax - widget.pMin).toInt(),
             onChanged: (val) => _updateValue(val),
           ),
         ),

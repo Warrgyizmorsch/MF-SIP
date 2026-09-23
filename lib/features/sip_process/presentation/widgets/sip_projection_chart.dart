@@ -30,7 +30,8 @@ class SipProjectionChart extends StatelessWidget {
     final double maxProjected = projectedSpots.map((e) => e.y).reduce(math.max);
     final double maxY = math.max(maxInvested, maxProjected);
 
-    final double maxYBuffer = maxY * 1.2;
+    final double maxYBuffer = maxY > 0 ? (maxY * 1.2) : 100.0;
+    final double interval = (maxYBuffer / 4) > 0 ? (maxYBuffer / 4) : 25.0;
 
     return AspectRatio(
       aspectRatio: 1.70,
@@ -68,7 +69,7 @@ class SipProjectionChart extends StatelessWidget {
           // backgroundColor: Colors.blueGrey.shade50,
           gridData: FlGridData(
             show: true,
-            horizontalInterval: maxYBuffer / 4,
+            horizontalInterval: interval,
             getDrawingHorizontalLine: (value) =>
                 const FlLine(color: Color(0xffe7e8ec), strokeWidth: 1),
           ),
@@ -112,7 +113,7 @@ class SipProjectionChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: showLeftNumbers ? true : false,
-                interval: maxYBuffer / 4,
+                interval: interval,
                 reservedSize: 48,
                 // inside getTitlesWidget for leftTitles
                 getTitlesWidget: (value, meta) {

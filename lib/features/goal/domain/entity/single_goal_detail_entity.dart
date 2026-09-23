@@ -48,6 +48,46 @@ class SingleGoalDetailEntity {
     this.deadline,
     required this.linkedFunds,
   });
+
+  SingleGoalDetailEntity copyWith({
+    int? id,
+    String? goalName,
+    String? goalCover,
+    String? status,
+    double? progressPercent,
+    double? savedAmount,
+    double? remainingAmount,
+    double? targetAmount,
+    int? estYear,
+    String? deadlineLabel,
+    double? dailySavings,
+    double? weeklySavings,
+    double? monthlySavings,
+    int? goalTenure,
+    GoalSavingEntity? saving,
+    GoalDeadlineEntity? deadline,
+    List<GoalLinkedFundEntity>? linkedFunds,
+  }) {
+    return SingleGoalDetailEntity(
+      id: id ?? this.id,
+      goalName: goalName ?? this.goalName,
+      goalCover: goalCover ?? this.goalCover,
+      status: status ?? this.status,
+      progressPercent: progressPercent ?? this.progressPercent,
+      savedAmount: savedAmount ?? this.savedAmount,
+      remainingAmount: remainingAmount ?? this.remainingAmount,
+      targetAmount: targetAmount ?? this.targetAmount,
+      estYear: estYear ?? this.estYear,
+      deadlineLabel: deadlineLabel ?? this.deadlineLabel,
+      dailySavings: dailySavings ?? this.dailySavings,
+      weeklySavings: weeklySavings ?? this.weeklySavings,
+      monthlySavings: monthlySavings ?? this.monthlySavings,
+      goalTenure: goalTenure ?? this.goalTenure,
+      saving: saving ?? this.saving,
+      deadline: deadline ?? this.deadline,
+      linkedFunds: linkedFunds ?? this.linkedFunds,
+    );
+  }
 }
 
 class GoalSavingEntity {
@@ -79,6 +119,7 @@ class GoalDeadlineEntity {
 }
 
 class GoalLinkedFundEntity {
+  final int id;
   final String amcImageUrl;
   final String amcLogo;
   final String fundName;
@@ -121,6 +162,7 @@ class GoalLinkedFundEntity {
   final String type;
 
   GoalLinkedFundEntity({
+    this.id = 0,
     required this.amcImageUrl,
     required this.amcLogo,
     required this.fundName,

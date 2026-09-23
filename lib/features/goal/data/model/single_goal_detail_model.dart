@@ -185,6 +185,7 @@ class GoalDeadlineModel {
 }
 
 class GoalLinkedFundModel {
+  final int? id;
   final String? amcImageUrl;
   final String? amcLogo;
   final String? fundName;
@@ -227,6 +228,7 @@ class GoalLinkedFundModel {
   final String? type;
 
   GoalLinkedFundModel({
+    this.id,
     this.amcImageUrl,
     this.amcLogo,
     this.fundName,
@@ -271,6 +273,10 @@ class GoalLinkedFundModel {
 
   factory GoalLinkedFundModel.fromJson(Map<String, dynamic> json) {
     return GoalLinkedFundModel(
+      id:
+          json.parse<int>('id') ??
+          json.parse<int>('mfu_order_fund_id') ??
+          json.parse<int>('goal_fund_id'),
       amcImageUrl:
           json.parse<String>('amc_image_url') ?? json.parse<String>('amc_logo'),
       amcLogo:
@@ -341,6 +347,7 @@ class GoalLinkedFundModel {
 
   GoalLinkedFundEntity toEntity() {
     return GoalLinkedFundEntity(
+      id: id ?? mfuOrderFundId ?? 0,
       amcImageUrl: amcImageUrl ?? '',
       amcLogo: amcLogo ?? '',
       fundName: fundName ?? '',

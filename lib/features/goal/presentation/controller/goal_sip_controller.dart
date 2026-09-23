@@ -257,11 +257,14 @@ class GoalSipController extends GetxController {
         ? (goal.goalTenure / 12).toDouble()
         : goal.goalTenure.toDouble();
     final double safeYears = tenureYears.clamp(1.0, 30.0);
+    final double safeRate = (goal.expectedReturnRate > 0)
+        ? goal.expectedReturnRate.clamp(1.0, 30.0)
+        : 12.0;
 
     if (goal.txnType.toLowerCase() == "lumpsum") {
       investmentMode.value = "lumpsum";
       lumpsumAmount.value = goal.lumpsumAmount.toDouble();
-      lumpsumReturnPercent.value = goal.expectedReturnRate;
+      lumpsumReturnPercent.value = safeRate;
       lumpsumFutureValue.value = goal.goalType?.targetAmount.toDouble() ?? 0.0;
       years.value = safeYears;
     } else {
@@ -270,11 +273,11 @@ class GoalSipController extends GetxController {
       monthlySip.value = goal.monthlyInvestment.toInt();
       targetAmount.value = goal.goalType?.targetAmount.toDouble() ?? 0.0;
       years.value = safeYears;
-      annualRate.value = goal.expectedReturnRate.toDouble();
+      annualRate.value = safeRate;
     }
     initialTargetAmount = (goal.investedAmount).toDouble();
     initialYears = safeYears;
-    initialRate = (goal.expectedReturnRate).toDouble();
+    initialRate = safeRate;
     existingSipAmount.value = (goal.monthlyInvestment).toDouble();
     initFromGoal(
       amount: initialTargetAmount,
@@ -319,10 +322,12 @@ class GoalSipController extends GetxController {
         ? (goal.goalTenure / 12).toDouble()
         : goal.goalTenure.toDouble();
     final double safeYears = tenureYears.clamp(1.0, 30.0);
+    final double safeRate = (goal.expectedReturnRate > 0)
+        ? goal.expectedReturnRate.clamp(1.0, 30.0)
+        : 12.0;
 
     initialYears = safeYears;
-
-    initialRate = (goal.expectedReturnRate).toDouble();
+    initialRate = safeRate;
 
     /// =========================
     /// EXISTING SIP
@@ -1128,6 +1133,9 @@ class GoalSipController extends GetxController {
             icon: Icons.check_circle,
           );
           await getAllGoals();
+          if (goalId > 0) {
+            await fetchSingleGoal(goalId);
+          }
         },
         (failure) {
           showCustomToast(
@@ -1209,13 +1217,15 @@ class GoalSipController extends GetxController {
     required int id,
     required bool isEdit,
     String? schemeName,
+    int? goalId,
   }) async {
     isDeleting[id] = true;
 
     final result = await goalUseCases.deleteGoalFundUseCase(id: id);
 
     result.fold(
-      (success) {
+      (success) async {
+        // 1. Update overall goal list
         final goals = goalResponse.value?.data;
 
         if (goals != null) {
@@ -1225,6 +1235,26 @@ class GoalSipController extends GetxController {
 
           goalResponse.refresh();
         }
+
+        // 2. Update current single goal details reactively
+        final currentDetail = currentGoalDetail.value;
+        if (currentDetail != null) {
+          final updatedFunds = List<GoalLinkedFundEntity>.from(
+            currentDetail.linkedFunds,
+          )..removeWhere((fund) => fund.id == id || fund.mfuOrderFundId == id);
+          currentGoalDetail.value = currentDetail.copyWith(
+            linkedFunds: updatedFunds,
+          );
+        }
+
+        // 3. Re-fetch single goal details to get updated calculations (saved, remaining, deadline, etc.)
+        final targetGoalId = goalId ?? currentGoalDetail.value?.id;
+        if (targetGoalId != null && targetGoalId > 0) {
+          await fetchSingleGoal(targetGoalId);
+        }
+
+        // 4. Also refresh all goals
+        await getAllGoals();
 
         if (isEdit) {
           Get.back();
@@ -1332,14 +1362,17 @@ class GoalSipController extends GetxController {
   }
 
   void setYears(double value) {
-    years.value = value;
+    final double safeYears = (value > 30 || (value >= 12 && value % 12 == 0))
+        ? (value / 12).clamp(1.0, 30.0)
+        : (value > 0 ? value.clamp(1.0, 30.0) : 1.0);
+    years.value = safeYears;
     _recalculate();
     recalculateLumpsum();
     checkForChanges();
   }
 
   void setRate(double value) {
-    annualRate.value = value;
+    annualRate.value = (value > 0) ? value.clamp(1.0, 30.0) : 12.0;
     _recalculate();
     recalculateLumpsum();
 

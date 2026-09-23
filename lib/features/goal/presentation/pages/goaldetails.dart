@@ -132,11 +132,19 @@ class GoalDetailsPage extends GetView<GoalSipController> {
               AppRoutes.webMasterGoalsPage,
               id: 1,
               arguments: payload,
-            );
+            )?.then((_) {
+              controller.fetchSingleGoal(currentGoalId);
+              controller.getAllGoals();
+            });
           } else {
             controller.isAddFund.value = true;
             controller.loadGoalForAddFund(goal);
-            Get.toNamed(AppRoutes.masterGoalsPage, arguments: payload);
+            Get.toNamed(AppRoutes.masterGoalsPage, arguments: payload)?.then((
+              _,
+            ) {
+              controller.fetchSingleGoal(currentGoalId);
+              controller.getAllGoals();
+            });
           }
         } else {
           Get.snackbar("Error", "Goal ID is missing.");
@@ -1235,6 +1243,52 @@ class LinkedFundsCard extends StatelessWidget {
                                   ],
                                 ),
                               ),
+                              Obx(() {
+                                final int fundId = fund.id != 0
+                                    ? fund.id
+                                    : fund.mfuOrderFundId;
+                                final bool isDel =
+                                    goalSipController.isDeleting[fundId] ??
+                                    false;
+                                return isDel
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : IconButton(
+                                        icon: const Icon(
+                                          Iconsax.trash,
+                                          size: 18,
+                                          color: Color(0xFFEF4444),
+                                        ),
+                                        tooltip: 'Remove Fund',
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () {
+                                          Get.defaultDialog(
+                                            title: "Remove Fund",
+                                            middleText:
+                                                "Are you sure you want to remove this fund from your goal?",
+                                            textConfirm: "Remove",
+                                            textCancel: "Cancel",
+                                            confirmTextColor: Colors.white,
+                                            buttonColor: Colors.red,
+                                            onConfirm: () {
+                                              Get.back();
+                                              goalSipController.deleteGoalFund(
+                                                id: fundId,
+                                                isEdit: false,
+                                                schemeName: fund.fundName,
+                                                goalId: goal?.id,
+                                              );
+                                            },
+                                          );
+                                        },
+                                      );
+                              }),
                             ],
                           ),
                         ),
@@ -1420,6 +1474,52 @@ class LinkedFundsCard extends StatelessWidget {
                                 ],
                               ),
                             ),
+                            Obx(() {
+                              final bool isDel =
+                                  goalSipController.isDeleting[fund.id] ??
+                                  false;
+                              return isDel
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : IconButton(
+                                      icon: const Icon(
+                                        Iconsax.trash,
+                                        size: 18,
+                                        color: Color(0xFFEF4444),
+                                      ),
+                                      tooltip: 'Remove Fund',
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () {
+                                        Get.defaultDialog(
+                                          title: "Remove Fund",
+                                          middleText:
+                                              "Are you sure you want to remove this fund from your goal?",
+                                          textConfirm: "Remove",
+                                          textCancel: "Cancel",
+                                          confirmTextColor: Colors.white,
+                                          buttonColor: Colors.red,
+                                          onConfirm: () {
+                                            Get.back();
+                                            goalSipController.deleteGoalFund(
+                                              id: fund.id,
+                                              isEdit: false,
+                                              schemeName:
+                                                  fund.mutualFund?.schemeCode
+                                                      .toString() ??
+                                                  '',
+                                              goalId: goal?.id,
+                                            );
+                                          },
+                                        );
+                                      },
+                                    );
+                            }),
                           ],
                         ),
                       ),
@@ -1442,7 +1542,7 @@ class LinkedFundsCard extends StatelessWidget {
                             Text(
                               goal?.txnType.toLowerCase() == 'sip'
                                   ? '₹${fund.sipAmount} / month'
-                                  : '₹${fund.lumpsumAmount ?? 0.0}',
+                                  : '₹${fund.lumpsumAmount}',
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -2282,6 +2382,54 @@ class GoalDetailSection extends StatelessWidget {
                                   ],
                                 ),
                               ),
+                              Obx(() {
+                                final int fundId = fund.id != 0
+                                    ? fund.id
+                                    : fund.mfuOrderFundId;
+                                final bool deleting =
+                                    goalSipController.isDeleting[fundId] ??
+                                    false;
+                                return deleting
+                                    ? const Padding(
+                                        padding: EdgeInsets.only(left: 6),
+                                        child: SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      )
+                                    : IconButton(
+                                        icon: const Icon(
+                                          Iconsax.trash,
+                                          color: Colors.red,
+                                          size: 18,
+                                        ),
+                                        padding: const EdgeInsets.only(left: 6),
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () {
+                                          Get.defaultDialog(
+                                            title: "Remove Fund",
+                                            middleText:
+                                                "Are you sure you want to remove this fund from your goal?",
+                                            textConfirm: "Remove",
+                                            textCancel: "Cancel",
+                                            confirmTextColor: Colors.white,
+                                            buttonColor: Colors.red,
+                                            onConfirm: () {
+                                              Get.back();
+                                              goalSipController.deleteGoalFund(
+                                                id: fundId,
+                                                isEdit: false,
+                                                schemeName: fund.fundName,
+                                                goalId: freshGoal?.id,
+                                              );
+                                            },
+                                          );
+                                        },
+                                      );
+                              }),
                             ],
                           ),
                           const Divider(
@@ -2416,6 +2564,7 @@ class GoalDetailSection extends StatelessWidget {
                                                 fund.mutualFund?.schemeCode
                                                     .toString() ??
                                                 '',
+                                            goalId: freshGoal?.id,
                                           );
                                         },
                                       );
