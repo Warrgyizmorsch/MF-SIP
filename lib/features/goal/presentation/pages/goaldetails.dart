@@ -36,87 +36,143 @@ class GoalDetailsPage extends GetView<GoalSipController> {
     final args = (Get.arguments as Map<String, dynamic>?) ?? tempData;
     tempData = null;
 
-    if (args == null) {
+    final UserGoalEntity? initialGoal = args?['goal'] as UserGoalEntity?;
+    final int currentGoalId =
+        initialGoal?.id ??
+        (args?['goalId'] as int?) ??
+        int.tryParse(Get.parameters['id'] ?? '') ??
+        0;
+
+    if (args == null && currentGoalId == 0) {
       return const Scaffold(body: Center(child: Text("Error: No data found")));
     }
 
-    final UserGoalEntity? goal = args['goal'];
-    final String emoji = args['emoji'] ?? '🎯';
-    final double target = args['target'] ?? (goal?.targetAmount ?? 0.0);
-    final double invested =
-        args['invested'] ??
-        (goal != null && goal.investedAmount > 0
-            ? goal.investedAmount
-            : (target * ((goal?.progressPercent ?? 0) / 100)));
-    final String logo = (goal != null && goal.goalCover.isNotEmpty)
-        ? goal.goalCover
-        : (goal?.goalType?.logo ?? "");
-    debugPrint("logo$logo");
-
-    final String title = goal?.goalName ?? 'Goal Details';
-    final int currentGoalId = goal?.id ?? 0;
+    if (currentGoalId != 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (controller.currentGoalDetail.value?.id != currentGoalId) {
+          controller.fetchSingleGoal(currentGoalId);
+        }
+      });
+    }
 
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
-    void onEdit() =>
-        _showEditGoalDialog(context, currentGoalId, goal, isDesktop);
-    void onDelete() => _showDeleteGoalDialog(context, currentGoalId);
+    return Obx(() {
+      final liveDetail = controller.currentGoalDetail.value;
+      final bool isCurrentGoalMatch =
+          liveDetail != null && liveDetail.id == currentGoalId;
 
-    void onAddFunds() {
-      if (currentGoalId != 0) {
-        final payload = {
-          'isAddFund': true,
-          'goalId': currentGoalId,
-          'goal': goal,
-          'goalType': goal?.goalType ?? 'custom',
-        };
+      final UserGoalEntity? goal =
+          initialGoal ??
+          (isCurrentGoalMatch
+              ? UserGoalEntity(
+                  id: liveDetail.id,
+                  userId: 0,
+                  goalId: liveDetail.id,
+                  goalName: liveDetail.goalName,
+                  goalCover: liveDetail.goalCover,
+                  txnType: 'lumpsum',
+                  lumpsumAmount: 0.0,
+                  targetAmount: liveDetail.targetAmount,
+                  frequency: 'monthly',
+                  monthlyInvestment: liveDetail.monthlySavings,
+                  expectedReturnRate: 12.0,
+                  goalTenure: liveDetail.goalTenure,
+                  investedAmount: liveDetail.savedAmount,
+                  status: liveDetail.status,
+                  mfuOrderStatus: '',
+                  progressPercent: liveDetail.progressPercent,
+                  goalFunds: [],
+                )
+              : null);
 
-        MasterGoalsPage.tempArgs = payload;
+      final String emoji = args?['emoji'] ?? '🎯';
+      final double target = isCurrentGoalMatch && liveDetail.targetAmount > 0
+          ? liveDetail.targetAmount
+          : (args?['target'] ?? (goal?.targetAmount ?? 0.0));
 
-        if (isDesktop) {
-          WebMasterGoalsPage.tempArgs = payload;
-          controller.isAddFund.value = true;
-          controller.loadGoalForAddFund(goal);
-          Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1, arguments: payload);
+      final double invested = isCurrentGoalMatch
+          ? liveDetail.savedAmount
+          : (args?['invested'] ??
+                (goal != null && goal.investedAmount > 0
+                    ? goal.investedAmount
+                    : (target * ((goal?.progressPercent ?? 0) / 100))));
+
+      final String logo =
+          (isCurrentGoalMatch && liveDetail.goalCover.isNotEmpty)
+          ? liveDetail.goalCover
+          : ((goal != null && goal.goalCover.isNotEmpty)
+                ? goal.goalCover
+                : (goal?.goalType?.logo ?? ""));
+
+      final String title = isCurrentGoalMatch && liveDetail.goalName.isNotEmpty
+          ? liveDetail.goalName
+          : (goal?.goalName ?? 'Goal Details');
+
+      void onEdit() =>
+          _showEditGoalDialog(context, currentGoalId, goal, isDesktop);
+      void onDelete() => _showDeleteGoalDialog(context, currentGoalId);
+
+      void onAddFunds() {
+        if (currentGoalId != 0) {
+          final payload = {
+            'isAddFund': true,
+            'goalId': currentGoalId,
+            'goal': goal,
+            'goalType': goal?.goalType ?? 'custom',
+          };
+
+          MasterGoalsPage.tempArgs = payload;
+
+          if (isDesktop) {
+            WebMasterGoalsPage.tempArgs = payload;
+            controller.isAddFund.value = true;
+            controller.loadGoalForAddFund(goal);
+            Get.toNamed(
+              AppRoutes.webMasterGoalsPage,
+              id: 1,
+              arguments: payload,
+            );
+          } else {
+            controller.isAddFund.value = true;
+            controller.loadGoalForAddFund(goal);
+            Get.toNamed(AppRoutes.masterGoalsPage, arguments: payload);
+          }
         } else {
-          controller.isAddFund.value = true;
-          controller.loadGoalForAddFund(goal);
-          Get.toNamed(AppRoutes.masterGoalsPage, arguments: payload);
+          Get.snackbar("Error", "Goal ID is missing.");
         }
-      } else {
-        Get.snackbar("Error", "Goal ID is missing.");
       }
-    }
 
-    if (isDesktop) {
-      return Scaffold(
-        backgroundColor: Ucolors.white,
-        body: GoalDetailsWebView(
-          title: title,
-          goal: goal,
-          emoji: logo,
-          target: target,
-          invested: invested,
-          logo: logo,
-          onEdit: onEdit,
-          onDelete: onDelete,
-          onAddFunds: onAddFunds,
-          controller: controller,
-        ),
+      if (isDesktop) {
+        return Scaffold(
+          backgroundColor: Ucolors.white,
+          body: GoalDetailsWebView(
+            title: title,
+            goal: goal,
+            emoji: logo.isNotEmpty ? logo : emoji,
+            target: target,
+            invested: invested,
+            logo: logo,
+            onEdit: onEdit,
+            onDelete: onDelete,
+            onAddFunds: onAddFunds,
+            controller: controller,
+          ),
+        );
+      }
+
+      return GoalDetailsMobileView(
+        title: title,
+        goal: goal,
+        emoji: emoji,
+        target: target,
+        invested: invested,
+        logo: logo,
+        onEdit: onEdit,
+        onDelete: onDelete,
+        onAddFunds: onAddFunds,
       );
-    }
-
-    return GoalDetailsMobileView(
-      title: title,
-      goal: goal,
-      emoji: emoji,
-      target: target,
-      invested: invested,
-      logo: logo,
-      onEdit: onEdit,
-      onDelete: onDelete,
-      onAddFunds: onAddFunds,
-    );
+    });
   }
 
   void _showDeleteGoalDialog(BuildContext context, int currentGoalId) {
@@ -537,326 +593,362 @@ class GoalOverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double remaining = (target - invested).clamp(0.0, double.infinity);
-    final double monthly = goal?.monthlyInvestment ?? 0.0;
-    final double weekly = (monthly * 12) / 52;
-    final double daily = (monthly * 12) / 365;
+    return Obx(() {
+      final liveDetail = controller.currentGoalDetail.value;
+      final int currentGoalId = goal?.id ?? 0;
+      final bool isMatch = liveDetail != null && liveDetail.id == currentGoalId;
 
-    final currentYear = DateTime.now().year;
-    final deadlineYear = currentYear + (goal?.goalTenure ?? 0) / 12;
+      final double liveSaved = isMatch ? liveDetail.savedAmount : invested;
+      final double liveTarget = isMatch && liveDetail.targetAmount > 0
+          ? liveDetail.targetAmount
+          : target;
+      final double liveRemaining = isMatch
+          ? liveDetail.remainingAmount
+          : (liveTarget - liveSaved).clamp(0.0, double.infinity);
 
-    final double safeTarget = target > 0 ? target : 1;
-    final double percentage = (invested / safeTarget).clamp(0.0, 1.0);
-    final String percentStr = "${(percentage * 100).toStringAsFixed(0)}%";
-    final Color progressColor = controller.getGoalColor(
-      goal?.goalType?.typeName ?? '',
-    );
+      final double monthly = goal?.monthlyInvestment ?? 0.0;
+      final double liveMonthly = isMatch ? liveDetail.monthlySavings : monthly;
+      final double liveWeekly = isMatch
+          ? liveDetail.weeklySavings
+          : ((liveMonthly * 12) / 52);
+      final double liveDaily = isMatch
+          ? liveDetail.dailySavings
+          : ((liveMonthly * 12) / 365);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Header Title
-          const Text(
-            "Goal Overview",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
-              fontFamily: FontFamily.regular,
+      final currentYear = DateTime.now().year;
+      final dynamic rawDeadlineYear = isMatch && liveDetail.estYear > 0
+          ? liveDetail.estYear
+          : (currentYear + (goal?.goalTenure ?? 0) / 12);
+      final int deadlineYearInt = rawDeadlineYear is int
+          ? rawDeadlineYear
+          : (rawDeadlineYear as num).floor();
+
+      final String deadlineText = isMatch && liveDetail.deadlineLabel.isNotEmpty
+          ? liveDetail.deadlineLabel
+                .replaceAll("Deadline ", "")
+                .replaceAll("(", "")
+                .replaceAll(")", "")
+          : "Est. Year $deadlineYearInt";
+
+      final double safeTarget = liveTarget > 0 ? liveTarget : 1;
+      final double percentage = isMatch && liveDetail.progressPercent > 0
+          ? (liveDetail.progressPercent / 100).clamp(0.0, 1.0)
+          : (liveSaved / safeTarget).clamp(0.0, 1.0);
+      final String percentStr = "${(percentage * 100).toStringAsFixed(0)}%";
+      final Color progressColor = controller.getGoalColor(
+        goal?.goalType?.typeName ?? '',
+      );
+
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Header Title
+            const Text(
+              "Goal Overview",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
+                fontFamily: FontFamily.regular,
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // 2. Main Dashboard Panel Split
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.center,
-                      children: [
-                        TweenAnimationBuilder<double>(
-                          tween: Tween<double>(begin: 0.0, end: percentage),
-                          duration: const Duration(milliseconds: 1200),
-                          curve: Curves.fastOutSlowIn,
-                          builder: (context, animatedPercentage, child) {
-                            return Transform.rotate(
-                              angle: -math.pi * 0.75,
-                              child: SizedBox(
-                                width: 120,
-                                height: 120,
-                                child: CircularProgressIndicator(
-                                  value: animatedPercentage,
-                                  strokeWidth: 8,
-                                  backgroundColor: const Color(0xFFEAEAEA),
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    progressColor,
+            // 2. Main Dashboard Panel Split
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.center,
+                        children: [
+                          TweenAnimationBuilder<double>(
+                            tween: Tween<double>(begin: 0.0, end: percentage),
+                            duration: const Duration(milliseconds: 1200),
+                            curve: Curves.fastOutSlowIn,
+                            builder: (context, animatedPercentage, child) {
+                              return Transform.rotate(
+                                angle: -math.pi * 0.75,
+                                child: SizedBox(
+                                  width: 120,
+                                  height: 120,
+                                  child: CircularProgressIndicator(
+                                    value: animatedPercentage,
+                                    strokeWidth: 8,
+                                    backgroundColor: const Color(0xFFEAEAEA),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      progressColor,
+                                    ),
+                                    strokeCap: StrokeCap.round,
                                   ),
-                                  strokeCap: StrokeCap.round,
                                 ),
-                              ),
-                            );
-                          },
-                        ),
+                              );
+                            },
+                          ),
 
-                        Positioned(
-                          top: 35,
-                          child: Container(
-                            width: 55,
-                            height: 55,
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(blurRadius: 8, color: Colors.black12),
-                              ],
-                            ),
-                            child: logo.isNotEmpty
-                                ? Image.network(
-                                    logo.startsWith('http')
-                                        ? logo
-                                        : '${Appurl.baseUrl}/$logo',
-                                    width: 40,
-                                    height: 40,
-                                    color: progressColor,
-                                    colorBlendMode: BlendMode.srcIn,
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (_, __, ___) => Icon(
+                          Positioned(
+                            top: 35,
+                            child: Container(
+                              width: 55,
+                              height: 55,
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 8,
+                                    color: Colors.black12,
+                                  ),
+                                ],
+                              ),
+                              child: logo.isNotEmpty
+                                  ? Image.network(
+                                      logo.startsWith('http')
+                                          ? logo
+                                          : '${Appurl.baseUrl}/$logo',
+                                      width: 40,
+                                      height: 40,
+                                      color: progressColor,
+                                      colorBlendMode: BlendMode.srcIn,
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (_, __, ___) => Icon(
+                                        Icons.flag,
+                                        color: progressColor,
+                                        size: 26,
+                                      ),
+                                    )
+                                  : Icon(
                                       Icons.flag,
                                       color: progressColor,
                                       size: 26,
                                     ),
-                                  )
-                                : Icon(
-                                    Icons.flag,
-                                    color: progressColor,
-                                    size: 26,
-                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // 3. Bottom Label Text System
+                      Transform.translate(
+                        offset: const Offset(0, -18),
+                        child: Container(
+                          color: Ucolors.white,
+                          padding: const EdgeInsets.all(4),
+                          child: Column(
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '${(percentage * 100).round()}',
+                                      style: TextStyle(
+                                        color: progressColor,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: FontFamily.regular,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '%',
+                                      style: TextStyle(
+                                        color: progressColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: FontFamily.regular,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'of goal achieved',
+                                style: TextStyle(
+                                  color: Color(0xFF666666),
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: FontFamily.regular,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 24),
+
+                // --- RIGHT: Grid Layout Box Panel (Zero Overflow Matrix) ---
+                Expanded(
+                  flex: 7,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFF1F5F9)),
+                    ),
+                    child: GridView.count(
+                      crossAxisCount: 3,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: 1.6,
+                      children: [
+                        _buildGridTile(
+                          Iconsax.empty_wallet,
+                          "Saved",
+                          _fmt(liveSaved),
+                          hasRightBorder: true,
+                          hasBottomBorder: true,
+                        ),
+                        _buildGridTile(
+                          Iconsax.refresh_2,
+                          "Remaining",
+                          _fmt(liveRemaining),
+                          hasRightBorder: true,
+                          hasBottomBorder: true,
+                        ),
+                        _buildGridTile(
+                          Iconsax.radar,
+                          "Target",
+                          _fmt(liveTarget),
+                          hasBottomBorder: true,
+                        ),
+                        _buildGridTile(
+                          Iconsax.calendar_1,
+                          "Deadline",
+                          deadlineText,
+                          hasRightBorder: true,
+                          hasBottomBorder: true,
+                        ),
+                        _buildGridTile(
+                          Iconsax.coin,
+                          "Daily Savings",
+                          _fmt(liveDaily),
+                          hasRightBorder: true,
+                          hasBottomBorder: true,
+                        ),
+                        _buildGridTile(
+                          Iconsax.wallet_3,
+                          "Weekly Savings",
+                          _fmt(liveWeekly),
+                          hasBottomBorder: true,
+                        ),
+                        const SizedBox.shrink(),
+                        _buildGridTile(
+                          Iconsax.card_send,
+                          "Monthly Savings",
+                          _fmt(liveMonthly),
+                          hasLeftBorder: true,
+                          hasRightBorder: true,
+                        ),
+                        const SizedBox.shrink(),
                       ],
                     ),
-
-                    // 3. Bottom Label Text System
-                    Transform.translate(
-                      offset: const Offset(0, -18),
-                      child: Container(
-                        color: Ucolors.white,
-                        padding: const EdgeInsets.all(4),
-                        child: Column(
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '${(percentage * 100).round()}',
-                                    style: TextStyle(
-                                      color: progressColor,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: FontFamily.regular,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: '%',
-                                    style: TextStyle(
-                                      color: progressColor,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: FontFamily.regular,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'of goal achieved',
-                              style: TextStyle(
-                                color: Color(0xFF666666),
-                                fontSize: 8,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: FontFamily.regular,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 24),
-
-              // --- RIGHT: Grid Layout Box Panel (Zero Overflow Matrix) ---
-              Expanded(
-                flex: 7,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFF1F5F9)),
-                  ),
-                  child: GridView.count(
-                    crossAxisCount: 3,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: 1.6,
-                    children: [
-                      _buildGridTile(
-                        Iconsax.empty_wallet,
-                        "Saved",
-                        _fmt(invested),
-                        hasRightBorder: true,
-                        hasBottomBorder: true,
-                      ),
-                      _buildGridTile(
-                        Iconsax.refresh_2,
-                        "Remaining",
-                        _fmt(remaining),
-                        hasRightBorder: true,
-                        hasBottomBorder: true,
-                      ),
-                      _buildGridTile(
-                        Iconsax.radar,
-                        "Target",
-                        _fmt(target),
-                        hasBottomBorder: true,
-                      ),
-                      _buildGridTile(
-                        Iconsax.calendar_1,
-                        "Deadline",
-                        "Est. Year ${deadlineYear.floor()}",
-                        hasRightBorder: true,
-                        hasBottomBorder: true,
-                      ),
-                      _buildGridTile(
-                        Iconsax.coin,
-                        "Daily Savings",
-                        _fmt(daily),
-                        hasRightBorder: true,
-                        hasBottomBorder: true,
-                      ),
-                      _buildGridTile(
-                        Iconsax.wallet_3,
-                        "Weekly Savings",
-                        _fmt(weekly),
-                        hasBottomBorder: true,
-                      ),
-                      const SizedBox.shrink(),
-                      _buildGridTile(
-                        Iconsax.card_send,
-                        "Monthly Savings",
-                        _fmt(monthly),
-                        hasLeftBorder: true,
-                        hasRightBorder: true,
-                      ),
-                      const SizedBox.shrink(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // 3. Bottom Status Analytics Banner Track
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF4F7FC),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Iconsax.trend_up,
-                    color: Color(0xFF0066FF),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF1E293B),
-                            fontFamily: FontFamily.regular,
-                          ),
-                          children: [
-                            const TextSpan(
-                              text: "You are ",
-                              style: TextStyle(fontFamily: FontFamily.regular),
-                            ),
-                            const TextSpan(
-                              text: "on track ",
-                              style: TextStyle(
-                                color: Color(0xFF0066FF),
-                                fontWeight: FontWeight.w600,
-                                fontFamily: FontFamily.regular,
-                              ),
-                            ),
-                            TextSpan(
-                              text:
-                                  "to reach your goal by ${deadlineYear.floor()}",
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: percentage,
-                          minHeight: 8,
-                          backgroundColor: Ucolors.white,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            progressColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  percentStr,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontFamily: FontFamily.regular,
-                    color: progressColor,
-                    fontSize: 16,
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+            const SizedBox(height: 24),
+
+            // 3. Bottom Status Analytics Banner Track
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF4F7FC),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Iconsax.trend_up,
+                      color: Color(0xFF0066FF),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF1E293B),
+                              fontFamily: FontFamily.regular,
+                            ),
+                            children: [
+                              const TextSpan(
+                                text: "You are ",
+                                style: TextStyle(
+                                  fontFamily: FontFamily.regular,
+                                ),
+                              ),
+                              const TextSpan(
+                                text: "on track ",
+                                style: TextStyle(
+                                  color: Color(0xFF0066FF),
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: FontFamily.regular,
+                                ),
+                              ),
+                              TextSpan(
+                                text: "to reach your goal by $deadlineYearInt",
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: percentage,
+                            minHeight: 8,
+                            backgroundColor: Ucolors.white,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              progressColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    percentStr,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
+                      color: progressColor,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildGridTile(
@@ -975,6 +1067,12 @@ class LinkedFundsCard extends StatelessWidget {
 
           // Grid View Block
           Obx(() {
+            final liveDetail = goalSipController.currentGoalDetail.value;
+            final bool hasLiveFunds =
+                liveDetail != null &&
+                liveDetail.id == currentGoalId &&
+                liveDetail.linkedFunds.isNotEmpty;
+
             final freshGoal =
                 goalSipController.goalResponse.value?.data?.firstWhereOrNull(
                   (g) => g.id == currentGoalId,
@@ -983,7 +1081,15 @@ class LinkedFundsCard extends StatelessWidget {
 
             final linkedFunds = freshGoal?.goalFunds ?? [];
 
-            if (linkedFunds.isEmpty) {
+            if (!hasLiveFunds && linkedFunds.isEmpty) {
+              if (goalSipController.isLoadingSingleGoal.value) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 32.0),
@@ -999,6 +1105,217 @@ class LinkedFundsCard extends StatelessWidget {
               );
             }
 
+            if (hasLiveFunds) {
+              final liveFunds = liveDetail.linkedFunds;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: liveFunds.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.60,
+                ),
+                itemBuilder: (context, index) {
+                  final fund = liveFunds[index];
+                  final String imgUrl = fund.amcLogo.isNotEmpty
+                      ? (fund.amcLogo.startsWith('http')
+                            ? fund.amcLogo
+                            : "${Appurl.baseUrl}/${fund.amcLogo}")
+                      : (fund.amcImageUrl.isNotEmpty
+                            ? (fund.amcImageUrl.startsWith('http')
+                                  ? fund.amcImageUrl
+                                  : "${Appurl.baseUrl}/${fund.amcImageUrl}")
+                            : '');
+
+                  final String displayAmount = fund.type.toLowerCase() == 'sip'
+                      ? '₹${fund.fundInvested.toStringAsFixed(0)} / mo'
+                      : '₹${fund.fundInvested.toStringAsFixed(0)}';
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFF1F5F9)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFFF1F5F9),
+                                  ),
+                                  color: Colors.white,
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: imgUrl.isNotEmpty
+                                    ? Image.network(
+                                        imgUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            const Icon(
+                                              Icons.account_balance,
+                                              size: 18,
+                                              color: Colors.grey,
+                                            ),
+                                      )
+                                    : const Icon(
+                                        Icons.account_balance,
+                                        size: 18,
+                                        color: Colors.grey,
+                                      ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      fund.fundName.isNotEmpty
+                                          ? fund.fundName
+                                          : 'Unknown Fund',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: FontFamily.regular,
+                                        fontSize: 14,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    if (fund.folioNo.isNotEmpty)
+                                      Text(
+                                        "Folio: ${fund.folioNo}",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF64748B),
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: FontFamily.regular,
+                                        ),
+                                      ),
+                                    const SizedBox(height: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: fund.isUnitAllotted
+                                            ? const Color(0xFFDCFCE7)
+                                            : const Color(0xFFFEF3C7),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        fund.allotmentStatusLabel.isNotEmpty
+                                            ? fund.allotmentStatusLabel
+                                            : (fund.isUnitAllotted
+                                                  ? "Unit Allotted"
+                                                  : "Pending"),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: fund.isUnitAllotted
+                                              ? const Color(0xFF15803D)
+                                              : const Color(0xFFB45309),
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: FontFamily.regular,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(16),
+                              bottomRight: Radius.circular(16),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    displayAmount,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF334155),
+                                      fontFamily: FontFamily.regular,
+                                    ),
+                                  ),
+                                  if (fund.units > 0)
+                                    Text(
+                                      "${fund.units.toStringAsFixed(3)} units",
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF64748B),
+                                        fontFamily: FontFamily.regular,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    fund.currentValue > 0
+                                        ? "Val: ₹${fund.currentValue.toStringAsFixed(2)}"
+                                        : "NAV: ₹${fund.currentNav.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: FontFamily.regular,
+                                      color: Color(0xFF1E293B),
+                                    ),
+                                  ),
+                                  if (fund.gainLoss != 0 ||
+                                      fund.gainLossPercent != 0)
+                                    Text(
+                                      "${fund.gainLoss >= 0 ? '+' : ''}₹${fund.gainLoss.toStringAsFixed(2)} (${fund.gainLossPercent.toStringAsFixed(2)}%)",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: fund.gainLoss >= 0
+                                            ? const Color(0xFF16A34A)
+                                            : const Color(0xFFDC2626),
+                                        fontFamily: FontFamily.regular,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }
+
             return GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -1007,8 +1324,7 @@ class LinkedFundsCard extends StatelessWidget {
                 crossAxisCount: 3,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio:
-                    1.60, // Adjusted to match vertical spacing distribution safely
+                childAspectRatio: 1.60,
               ),
               itemBuilder: (context, index) {
                 final fund = linkedFunds[index];
@@ -1019,12 +1335,6 @@ class LinkedFundsCard extends StatelessWidget {
                     ? '₹ ${fund.sipAmount.toStringAsFixed(0)} / month'
                     : '₹ ${fund.lumpsumAmount.toStringAsFixed(0)}';
 
-                // Percentage dummy mock distribution matching image specs (40%, 33%, 27%)
-                final mockPercentages = ["40%", "33%", "27%"];
-                final String currentWeight = index < mockPercentages.length
-                    ? mockPercentages[index]
-                    : "0%";
-
                 return Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -1034,7 +1344,6 @@ class LinkedFundsCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Top Half Content Area
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
@@ -1081,7 +1390,7 @@ class LinkedFundsCard extends StatelessWidget {
                                   const SizedBox(height: 2),
                                   Text(
                                     fund.mutualFund?.schemeCategory ?? "",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       color: Color(0xFF64748B),
                                       fontWeight: FontWeight.w500,
@@ -1089,7 +1398,6 @@ class LinkedFundsCard extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  // Soft blue background badge capsule
                                   Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
@@ -1101,7 +1409,7 @@ class LinkedFundsCard extends StatelessWidget {
                                     ),
                                     child: Text(
                                       goal?.txnType ?? "",
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 11,
                                         color: Color(0xFF1A73E8),
                                         fontWeight: FontWeight.w600,
@@ -1116,8 +1424,6 @@ class LinkedFundsCard extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-
-                      // Bottom Split Strip Area (Matches image_8a4862.png design structure)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -1652,13 +1958,24 @@ class GoalDetailsMobileView extends StatelessWidget {
               Expanded(
                 child: TabBarView(
                   children: [
-                    SingleChildScrollView(
-                      child: GoalDetailSection(
-                        goal: goal,
-                        target: target,
-                        invested: invested,
-                        emoji: emoji,
-                        logo: logo,
+                    RefreshIndicator(
+                      onRefresh: () async {
+                        final int currentGoalId = goal?.id ?? 0;
+                        if (currentGoalId != 0) {
+                          await Get.find<GoalSipController>().fetchSingleGoal(
+                            currentGoalId,
+                          );
+                        }
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: GoalDetailSection(
+                          goal: goal,
+                          target: target,
+                          invested: invested,
+                          emoji: emoji,
+                          logo: logo,
+                        ),
                       ),
                     ),
                     SingleChildScrollView(
@@ -1717,84 +2034,125 @@ class GoalDetailSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double remaining = (target - invested).clamp(0.0, double.infinity);
-    final double monthly = goal?.monthlyInvestment ?? 0.0;
-    final double weekly = (monthly * 12) / 52;
-    final double daily = (monthly * 12) / 365;
+    final goalSipController = Get.find<GoalSipController>();
+    final int currentGoalId = goal?.id ?? 0;
 
-    final currentYear = DateTime.now().year;
-    final deadlineYear = currentYear + (goal?.goalTenure ?? 0) / 12;
+    return Obx(() {
+      final liveDetail = goalSipController.currentGoalDetail.value;
+      final bool isMatch = liveDetail != null && liveDetail.id == currentGoalId;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Gap(8),
-        Center(
-          child: CircularGoalIndicatorDetails(
-            percentage: true,
-            goalName: goal?.goalName ?? '',
-            goalType: goal?.goalType?.typeName ?? '',
-            targetAmount: target,
-            investedAmount: invested,
-            emoji: emoji,
-            imageUrl: logo != null && logo.isNotEmpty
-                ? (logo.startsWith('http') ? logo : "${Appurl.baseUrl}/$logo")
-                : "",
+      final double liveSaved = isMatch ? liveDetail.savedAmount : invested;
+      final double liveTarget = isMatch && liveDetail.targetAmount > 0
+          ? liveDetail.targetAmount
+          : target;
+      final double liveRemaining = isMatch
+          ? liveDetail.remainingAmount
+          : (liveTarget - liveSaved).clamp(0.0, double.infinity);
+
+      final double monthly = goal?.monthlyInvestment ?? 0.0;
+      final double liveMonthly = isMatch ? liveDetail.monthlySavings : monthly;
+      final double liveWeekly = isMatch
+          ? liveDetail.weeklySavings
+          : ((liveMonthly * 12) / 52);
+      final double liveDaily = isMatch
+          ? liveDetail.dailySavings
+          : ((liveMonthly * 12) / 365);
+
+      final currentYear = DateTime.now().year;
+      final dynamic rawDeadlineYear = isMatch && liveDetail.estYear > 0
+          ? liveDetail.estYear
+          : (currentYear + (goal?.goalTenure ?? 0) / 12);
+      final int deadlineYearInt = rawDeadlineYear is int
+          ? rawDeadlineYear
+          : (rawDeadlineYear as num).floor();
+
+      final String deadlineTitle =
+          isMatch && liveDetail.deadlineLabel.isNotEmpty
+          ? liveDetail.deadlineLabel
+          : 'Deadline (Est. Year $deadlineYearInt)';
+
+      final String effectiveLogo = isMatch && liveDetail.goalCover.isNotEmpty
+          ? liveDetail.goalCover
+          : logo;
+
+      final bool hasLiveFunds = isMatch && liveDetail.linkedFunds.isNotEmpty;
+      final freshGoal =
+          goalSipController.goalResponse.value?.data?.firstWhereOrNull(
+            (g) => g.id == currentGoalId,
+          ) ??
+          goal;
+      final linkedFunds = freshGoal?.goalFunds ?? [];
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Gap(8),
+          Center(
+            child: CircularGoalIndicatorDetails(
+              percentage: true,
+              goalName: (isMatch && liveDetail.goalName.isNotEmpty)
+                  ? liveDetail.goalName
+                  : (goal?.goalName ?? ''),
+              goalType: goal?.goalType?.typeName ?? '',
+              targetAmount: liveTarget,
+              investedAmount: liveSaved,
+              emoji: emoji,
+              imageUrl: effectiveLogo.isNotEmpty
+                  ? (effectiveLogo.startsWith('http')
+                        ? effectiveLogo
+                        : "${Appurl.baseUrl}/$effectiveLogo")
+                  : "",
+            ),
           ),
-        ),
-        const Gap(8),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.black12),
+          const Gap(8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.black12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SmallHeading(smallheading: 'Saving'),
+                const Gap(10),
+                Row(
+                  children: [
+                    ValueTitleGoal(value: _fmt(liveSaved), title: 'Saved'),
+                    ValueTitleGoal(
+                      value: _fmt(liveRemaining),
+                      title: 'Remaining',
+                    ),
+                    ValueTitleGoal(value: _fmt(liveTarget), title: 'Goal'),
+                  ],
+                ),
+                const Gap(20),
+                SmallHeading(smallheading: deadlineTitle),
+                const Gap(12),
+                Row(
+                  children: [
+                    ValueTitleGoal(
+                      value: _fmt(liveDaily),
+                      title: 'Daily Savings',
+                    ),
+                    ValueTitleGoal(
+                      value: _fmt(liveWeekly),
+                      title: 'Weekly Savings',
+                    ),
+                    ValueTitleGoal(
+                      value: _fmt(liveMonthly),
+                      title: 'Monthly Savings',
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SmallHeading(smallheading: 'Saving'),
-              const Gap(10),
-              Row(
-                children: [
-                  ValueTitleGoal(value: _fmt(invested), title: 'Saved'),
-                  ValueTitleGoal(value: _fmt(remaining), title: 'Remaining'),
-                  ValueTitleGoal(value: _fmt(target), title: 'Goal'),
-                ],
-              ),
-              const Gap(20),
-              SmallHeading(
-                smallheading: 'Deadline (Est. Year ${deadlineYear.floor()})',
-              ),
-              const Gap(12),
-              Row(
-                children: [
-                  ValueTitleGoal(value: _fmt(daily), title: 'Daily Savings'),
-                  ValueTitleGoal(value: _fmt(weekly), title: 'Weekly Savings'),
-                  ValueTitleGoal(
-                    value: _fmt(monthly),
-                    title: 'Monthly Savings',
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const Gap(20),
-        const SmallHeading(smallheading: 'Linked Mutual Funds'),
-        const Gap(10),
-        Obx(() {
-          final goalSipController = Get.find<GoalSipController>();
-          final currentGoalId = goal?.id ?? 0;
-          final freshGoal =
-              goalSipController.goalResponse.value?.data?.firstWhereOrNull(
-                (g) => g.id == currentGoalId,
-              ) ??
-              goal;
-
-          final linkedFunds = freshGoal?.goalFunds ?? [];
-
-          return Container(
+          const Gap(20),
+          const SmallHeading(smallheading: 'Linked Mutual Funds'),
+          const Gap(10),
+          Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -1803,101 +2161,278 @@ class GoalDetailSection extends StatelessWidget {
             ),
             child: Column(
               children: [
-                if (linkedFunds.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      'No mutual funds linked yet.',
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-                ...linkedFunds.map((fund) {
-                  return Obx(() {
-                    final bool deleting =
-                        goalSipController.isDeleting[fund.id] ?? false;
-                    final String imgUrl =
-                        "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
-
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 5),
-                      dense: true,
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        backgroundImage: NetworkImage(imgUrl),
-                        onBackgroundImageError: (_, __) =>
-                            const Icon(Icons.broken_image),
-                      ),
-                      title: Text(
-                        fund.mutualFund?.schemeName ?? 'Unknown Fund',
-                        style: UTextStyles.medium.copyWith(
-                          color: Ucolors.dark,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            freshGoal?.txnType.toLowerCase() == 'sip'
-                                ? _fmt(fund.sipAmount)
-                                : _fmt(fund.lumpsumAmount),
-                            style: UTextStyles.medium.copyWith(
-                              color: Ucolors.dark,
-                              fontWeight: FontWeight.w500,
+                if (!hasLiveFunds && linkedFunds.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: goalSipController.isLoadingSingleGoal.value
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            'No mutual funds linked yet.',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.grey,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          deleting
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : IconButton(
-                                  icon: const Icon(
-                                    Iconsax.trash,
-                                    color: Colors.red,
-                                    size: 20,
-                                  ),
-                                  onPressed: () {
-                                    Get.defaultDialog(
-                                      title: "Remove Fund",
-                                      middleText:
-                                          "Are you sure you want to remove this fund from your goal?",
-                                      textConfirm: "Remove",
-                                      textCancel: "Cancel",
-                                      confirmTextColor: Colors.white,
-                                      onConfirm: () {
-                                        Get.back();
-                                        goalSipController.deleteGoalFund(
-                                          id: fund.id,
-                                          isEdit: true,
-                                          schemeName:
-                                              fund.mutualFund?.schemeCode
-                                                  .toString() ??
-                                              '',
-                                        );
-                                      },
-                                    );
-                                  },
+                  ),
+                if (hasLiveFunds)
+                  ...liveDetail.linkedFunds.map((fund) {
+                    final String imgUrl = fund.amcLogo.isNotEmpty
+                        ? (fund.amcLogo.startsWith('http')
+                              ? fund.amcLogo
+                              : "${Appurl.baseUrl}/${fund.amcLogo}")
+                        : (fund.amcImageUrl.isNotEmpty
+                              ? (fund.amcImageUrl.startsWith('http')
+                                    ? fund.amcImageUrl
+                                    : "${Appurl.baseUrl}/${fund.amcImageUrl}")
+                              : '');
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 18,
+                                backgroundColor: Colors.white,
+                                backgroundImage: imgUrl.isNotEmpty
+                                    ? NetworkImage(imgUrl)
+                                    : null,
+                                onBackgroundImageError: (_, __) {},
+                                child: imgUrl.isEmpty
+                                    ? const Icon(
+                                        Icons.account_balance,
+                                        size: 18,
+                                        color: Colors.grey,
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      fund.fundName.isNotEmpty
+                                          ? fund.fundName
+                                          : 'Unknown Fund',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: UTextStyles.medium.copyWith(
+                                        color: Ucolors.dark,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Row(
+                                      children: [
+                                        if (fund.folioNo.isNotEmpty)
+                                          Text(
+                                            "Folio: ${fund.folioNo}",
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Color(0xFF64748B),
+                                              fontFamily: FontFamily.regular,
+                                            ),
+                                          ),
+                                        const Spacer(),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: fund.isUnitAllotted
+                                                ? const Color(0xFFDCFCE7)
+                                                : const Color(0xFFFEF3C7),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            fund.allotmentStatusLabel.isNotEmpty
+                                                ? fund.allotmentStatusLabel
+                                                : (fund.isUnitAllotted
+                                                      ? "Allotted"
+                                                      : "Pending"),
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: fund.isUnitAllotted
+                                                  ? const Color(0xFF15803D)
+                                                  : const Color(0xFFB45309),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
+                              ),
+                            ],
+                          ),
+                          const Divider(
+                            height: 16,
+                            thickness: 0.5,
+                            color: Color(0xFFE2E8F0),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Invested: ₹${(fund.fundInvested > 0 ? fund.fundInvested : fund.investedAmount).toStringAsFixed(0)}",
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF475569),
+                                      fontFamily: FontFamily.regular,
+                                    ),
+                                  ),
+                                  if (fund.units > 0)
+                                    Text(
+                                      "Units: ${fund.units.toStringAsFixed(3)}",
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Color(0xFF64748B),
+                                        fontFamily: FontFamily.regular,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "Current: ₹${fund.currentValue.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1E293B),
+                                      fontFamily: FontFamily.regular,
+                                    ),
+                                  ),
+                                  if (fund.gainLoss != 0 ||
+                                      fund.gainLossPercent != 0)
+                                    Text(
+                                      "${fund.gainLoss >= 0 ? '+' : ''}₹${fund.gainLoss.toStringAsFixed(2)} (${fund.gainLossPercent.toStringAsFixed(2)}%)",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: fund.gainLoss >= 0
+                                            ? const Color(0xFF16A34A)
+                                            : const Color(0xFFDC2626),
+                                        fontFamily: FontFamily.regular,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     );
-                  });
-                }).toList(),
+                  })
+                else
+                  ...linkedFunds.map((fund) {
+                    return Obx(() {
+                      final bool deleting =
+                          goalSipController.isDeleting[fund.id] ?? false;
+                      final String imgUrl =
+                          "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                        dense: true,
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: NetworkImage(imgUrl),
+                          onBackgroundImageError: (_, __) =>
+                              const Icon(Icons.broken_image),
+                        ),
+                        title: Text(
+                          fund.mutualFund?.schemeName ?? 'Unknown Fund',
+                          style: UTextStyles.medium.copyWith(
+                            color: Ucolors.dark,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              freshGoal?.txnType.toLowerCase() == 'sip'
+                                  ? _fmt(fund.sipAmount)
+                                  : _fmt(fund.lumpsumAmount),
+                              style: UTextStyles.medium.copyWith(
+                                color: Ucolors.dark,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            deleting
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : IconButton(
+                                    icon: const Icon(
+                                      Iconsax.trash,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                    onPressed: () {
+                                      Get.defaultDialog(
+                                        title: "Remove Fund",
+                                        middleText:
+                                            "Are you sure you want to remove this fund from your goal?",
+                                        textConfirm: "Remove",
+                                        textCancel: "Cancel",
+                                        confirmTextColor: Colors.white,
+                                        onConfirm: () {
+                                          Get.back();
+                                          goalSipController.deleteGoalFund(
+                                            id: fund.id,
+                                            isEdit: true,
+                                            schemeName:
+                                                fund.mutualFund?.schemeCode
+                                                    .toString() ??
+                                                '',
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                          ],
+                        ),
+                      );
+                    });
+                  }).toList(),
               ],
             ),
-          );
-        }),
-        const Gap(22),
-      ],
-    );
+          ),
+          const Gap(22),
+        ],
+      );
+    });
   }
 }
 

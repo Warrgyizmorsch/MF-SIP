@@ -10,6 +10,7 @@ import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../model/get_goal_master_model.dart';
 import '../model/goal_fund_order_model.dart';
+import '../model/single_goal_detail_model.dart';
 import '../model/update_goal_fund_order_model.dart';
 
 class GoalRemoteDataSource {
@@ -255,6 +256,37 @@ class GoalRemoteDataSource {
     } catch (e) {
       return Right(
         ApiError(message: 'Update Goal Fund Failed with Exception: $e'),
+      );
+    }
+  }
+
+  Future<Either<Result<SingleGoalDetailResponseModel>, ApiError>> getSingleGoal(
+    int id,
+  ) async {
+    try {
+      final result = await apiService.getApi(
+        "${Appurl.baseUrl}/api/v1/goal/$id",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+      createLog(
+        "[Goal Remote Data Source] Single Goal Detail Response: $result",
+      );
+      if (result['success'] == true || result['status'] == true) {
+        final data = SingleGoalDetailResponseModel.fromJson(result);
+        return Left(Result.success(data));
+      }
+
+      return Right(
+        ApiError(
+          message:
+              result['message']?.toString() ?? 'Failed to fetch goal details',
+        ),
+      );
+    } catch (e) {
+      return Right(
+        ApiError(message: 'Fetch Single Goal Failed with Exception: $e'),
       );
     }
   }

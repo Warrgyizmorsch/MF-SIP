@@ -284,6 +284,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.goaldetails,
       page: () => GoalDetailsPage(),
+      binding: GoalBinding(),
       transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
       transitionDuration: const Duration(milliseconds: 300),
     ),

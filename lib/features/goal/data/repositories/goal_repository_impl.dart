@@ -9,6 +9,7 @@ import '../../../../core/utils/api/api_error.dart';
 import '../../../../core/utils/api/api_result.dart';
 import '../../domain/entity/goal_fund_order_entity.dart';
 import '../../domain/entity/goal_master_entity.dart';
+import '../../domain/entity/single_goal_detail_entity.dart';
 import '../../domain/entity/update_goal_fund_order_entity.dart';
 
 class GoalRepositoryImpl extends GoalRepository {
@@ -87,6 +88,7 @@ class GoalRepositoryImpl extends GoalRepository {
       return Right(ApiError(message: e.toString()));
     }
   }
+
   @override
   Future<Either<Result<DeleteGoalFundEntity>, ApiError>> deleteGoal({
     required int id,
@@ -101,15 +103,17 @@ class GoalRepositoryImpl extends GoalRepository {
       return Right(ApiError(message: e.toString()));
     }
   }
+
   @override
-  Future<Either<Result<MasterGoalsResponseEntity>, ApiError>> getGoalsMaster() async {
+  Future<Either<Result<MasterGoalsResponseEntity>, ApiError>>
+  getGoalsMaster() async {
     try {
       final result = await goalRemoteDataSource.getGoalsMaster();
       return result.fold(
-            (success) {
+        (success) {
           return Left(Result.success(success.data?.toEntity()));
         },
-            (error) {
+        (error) {
           return Right(ApiError(message: error.message));
         },
       );
@@ -117,60 +121,63 @@ class GoalRepositoryImpl extends GoalRepository {
       return Right(ApiError(message: e.toString()));
     }
   }
+
   @override
   Future<Either<Result<GoalFundOrderEntity>, ApiError>> saveGoalFundOrder(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final result =
-      await goalRemoteDataSource.saveGoalFund(data);
+      final result = await goalRemoteDataSource.saveGoalFund(data);
 
       return result.fold(
-            (success) {
-          return Left(
-            Result.success(
-              success.data?.toEntity(),
-            ),
-          );
+        (success) {
+          return Left(Result.success(success.data?.toEntity()));
         },
-            (error) {
-          return Right(
-            ApiError(message: error.message),
-          );
+        (error) {
+          return Right(ApiError(message: error.message));
         },
       );
     } catch (e) {
-      return Right(
-        ApiError(message: e.toString()),
-      );
+      return Right(ApiError(message: e.toString()));
     }
-  }@override
+  }
+
+  @override
   Future<Either<Result<UpdateGoalFundEntity>, ApiError>> updateGoalFund(
-      List<Map<String, dynamic>> data,
-      int fundId
-      ) async {
+    List<Map<String, dynamic>> data,
+    int fundId,
+  ) async {
     try {
-      final result =
-      await goalRemoteDataSource.updateGoalFund(data, fundId);
+      final result = await goalRemoteDataSource.updateGoalFund(data, fundId);
 
       return result.fold(
-            (success) {
-          return Left(
-            Result.success(
-              success.data?.toEntity(),
-            ),
-          );
+        (success) {
+          return Left(Result.success(success.data?.toEntity()));
         },
-            (error) {
-          return Right(
-            ApiError(message: error.message),
-          );
+        (error) {
+          return Right(ApiError(message: error.message));
         },
       );
     } catch (e) {
-      return Right(
-        ApiError(message: e.toString()),
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<SingleGoalDetailResponseEntity>, ApiError>>
+  getSingleGoal(int id) async {
+    try {
+      final result = await goalRemoteDataSource.getSingleGoal(id);
+      return result.fold(
+        (success) {
+          return Left(Result.success(success.data?.toEntity()));
+        },
+        (error) {
+          return Right(ApiError(message: error.message));
+        },
       );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
     }
   }
 }

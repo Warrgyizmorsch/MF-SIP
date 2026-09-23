@@ -19,9 +19,13 @@ import '../../../explore/domain/entities/mutual_fund_list_entity.dart';
 import '../../../explore/presentation/controller/mutual_fund_controller.dart';
 import '../../domain/entity/goal_fund_order_entity.dart';
 import '../../domain/entity/goal_master_entity.dart';
+import '../../domain/entity/single_goal_detail_entity.dart';
 
 class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
+  final Rxn<SingleGoalDetailEntity> currentGoalDetail =
+      Rxn<SingleGoalDetailEntity>();
+  final RxBool isLoadingSingleGoal = false.obs;
   // ── Investment Mode ───────────────────────────────────────────────────────────
   final RxString investmentMode = 'sip'.obs; // 'sip' | 'lumpsum'
   final RxInt selectedSipDay = 1.obs;
@@ -488,6 +492,31 @@ class GoalSipController extends GetxController {
       return false;
     } finally {
       isLoadingGoals.value = false;
+    }
+  }
+
+  Future<SingleGoalDetailEntity?> fetchSingleGoal(int id) async {
+    if (id <= 0) return null;
+    isLoadingSingleGoal.value = true;
+    try {
+      final result = await goalUseCases.getSingleGoalUseCase.call(id);
+      return result.fold(
+        (success) {
+          currentGoalDetail.value = success.data?.data;
+          return currentGoalDetail.value;
+        },
+        (error) {
+          debugPrint(
+            "[GoalSipController] fetchSingleGoal error: ${error.message}",
+          );
+          return null;
+        },
+      );
+    } catch (e) {
+      debugPrint("[GoalSipController] fetchSingleGoal exception: $e");
+      return null;
+    } finally {
+      isLoadingSingleGoal.value = false;
     }
   }
 
