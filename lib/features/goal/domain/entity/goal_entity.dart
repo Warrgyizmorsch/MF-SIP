@@ -117,6 +117,7 @@ class UserGoalEntity extends Equatable {
   final double investedAmount;
   final String status;
   final String mfuOrderStatus;
+  final double progressPercent;
   final GoalTypeEntity? goalType;
   final List<GoalFundEntity> goalFunds;
 
@@ -136,6 +137,7 @@ class UserGoalEntity extends Equatable {
     required this.investedAmount,
     required this.status,
     required this.mfuOrderStatus,
+    this.progressPercent = 0.0,
     this.goalType,
     required this.goalFunds,
   });
@@ -157,6 +159,7 @@ class UserGoalEntity extends Equatable {
     investedAmount,
     status,
     mfuOrderStatus,
+    progressPercent,
     goalType,
     goalFunds,
   ];
@@ -455,6 +458,7 @@ extension UserGoalMapper on UserGoalModel {
       investedAmount: investedAmount ?? 0.0,
       status: status ?? '',
       mfuOrderStatus: mfuOrderStatus ?? 'not_ordered',
+      progressPercent: progressPercent ?? 0.0,
       goalType: goalType?.toEntity(),
       goalFunds: goalFunds?.map((e) => e.toEntity()).toList() ?? [],
     );

@@ -54,15 +54,22 @@ class GoalRemoteDataSource {
           "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },
       );
-      createLog("[Goal Remote Data Source] Login Response: ${result}");
-      if (result['success'] == true) {
+      createLog("[Goal Remote Data Source] User Goals Response: $result");
+      if (result['success'] == true || result['status'] == true) {
         final data = GoalResponseModel.fromJson(result);
         return Left(Result.success(data));
       } else {
-        return Right(ApiError(message: 'Login Failed'));
+        return Right(
+          ApiError(
+            message:
+                result['message']?.toString() ?? 'Failed to fetch user goals',
+          ),
+        );
       }
     } catch (e) {
-      return Right(ApiError(message: 'Login Failed with Exception $e'));
+      return Right(
+        ApiError(message: 'Failed to fetch user goals with Exception $e'),
+      );
     }
   }
 

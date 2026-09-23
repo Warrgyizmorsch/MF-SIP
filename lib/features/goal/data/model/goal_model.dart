@@ -1,14 +1,16 @@
 import '../../../../core/utils/helper/custom_json_parser.dart';
 
 class GoalResponseModel {
+  final bool? status;
   final bool? success;
   final String? message;
   final List<UserGoalModel>? data;
 
-  GoalResponseModel({this.success, this.message, this.data});
+  GoalResponseModel({this.status, this.success, this.message, this.data});
 
   factory GoalResponseModel.fromJson(Map<String, dynamic> json) {
     return GoalResponseModel(
+      status: json.parse<bool>('status'),
       success: json.parse<bool>('success'),
       message: json.parse<String>('message'),
       data: json.parseListOf<UserGoalModel>(
@@ -159,6 +161,7 @@ class UserGoalModel {
   final double? investedAmount;
   final String? status;
   final String? mfuOrderStatus;
+  final double? progressPercent;
   final GoalTypeModel? goalType;
   final List<GoalFundModel>? goalFunds;
 
@@ -178,6 +181,7 @@ class UserGoalModel {
     this.investedAmount,
     this.status,
     this.mfuOrderStatus,
+    this.progressPercent,
     this.goalType,
     this.goalFunds,
   });
@@ -198,9 +202,12 @@ class UserGoalModel {
       monthlyInvestment: json.parse<double>('monthly_investment'),
       expectedReturnRate: json.parse<double>('expected_return_rate'),
       goalTenure: json.parse<int>('goal_tenure'),
-      investedAmount: json.parse<double>('Invested_amount'),
+      investedAmount:
+          json.parse<double>('Invested_amount') ??
+          json.parse<double>('invested_amount'),
       status: json.parse<String>('status'),
       mfuOrderStatus: json.parse<String>('mfu_order_status'),
+      progressPercent: json.parse<double>('progress_percent'),
       goalType: json.parseNested<GoalTypeModel>(
         'goal',
         (data) => GoalTypeModel.fromJson(data),
@@ -210,6 +217,30 @@ class UserGoalModel {
         (item) => GoalFundModel.fromJson(item as Map<String, dynamic>),
       ),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'goal_id': goalId,
+      'goal_name': goalName,
+      'goal_cover': goalCover,
+      'txn_type': txnType,
+      'lumpsum_amount': lumpsumAmount,
+      'target_amount': targetAmount,
+      'frequency': frequency,
+      'monthly_investment': monthlyInvestment,
+      'expected_return_rate': expectedReturnRate,
+      'goal_tenure': goalTenure,
+      'invested_amount': investedAmount,
+      'status': status,
+      'mfu_order_status': mfuOrderStatus,
+      'progress_percent': progressPercent,
+      if (goalType != null) 'goal': goalType!.toJson(),
+      if (goalFunds != null)
+        'goal_funds': goalFunds!.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
@@ -332,6 +363,26 @@ class GoalFundModel {
         (data) => MutualFundModel.fromJson(data),
       ),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'goal_id': goalId,
+      'user_id': userId,
+      'scheme_code': schemeCode,
+      'order_date': orderDate,
+      'order_type': orderType,
+      'sip_amount': sipAmount,
+      'sip_day': sipDay,
+      'sip_start_date': sipStartDate,
+      'sip_end_date': sipEndDate,
+      'lumpsum_amount': lumpsumAmount,
+      'status': status,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+      'mfu_order_status': mfuOrderStatus,
+    };
   }
 }
 

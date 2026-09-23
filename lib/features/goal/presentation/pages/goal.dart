@@ -37,10 +37,6 @@ class GoalScreen extends GetView<GoalSipController> {
   }
 }
 
-
-
-
-
 class GoalScreenMobile extends GetView<GoalSipController> {
   const GoalScreenMobile({super.key});
 
@@ -53,13 +49,13 @@ class GoalScreenMobile extends GetView<GoalSipController> {
         title: 'Goals',
         backIcon: false,
         actionsPadding: 10,
-        action: [
-          CompactIcon(icon: Iconsax.info_circle, onPressed: () {}),
-        ],
+        action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final double availableWidth = constraints.maxWidth > 0 ? constraints.maxWidth : 400;
+          final double availableWidth = constraints.maxWidth > 0
+              ? constraints.maxWidth
+              : 400;
 
           int crossAxisCount;
           double aspectRatio;
@@ -93,7 +89,10 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ),
                       child: Text(
                         '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
                         style: UTextStyles.bodySmall.copyWith(fontSize: 14),
@@ -101,14 +100,29 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
                     sliver: SliverGrid(
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final goal = goals[index];
-                        final double target = double.tryParse(goal.goalType?.targetAmount.toString() ?? '0') ?? 0.0;
-                        final double invested = double.tryParse(goal.goalType?.investedAmount.toString() ?? '0') ?? 0.0;
-                        final String name = goal.goalName ?? 'Goal ${index + 1}';
-                        final String logo = goal.goalType?.logo ?? '';
+                        final double target = goal.targetAmount > 0
+                            ? goal.targetAmount
+                            : (double.tryParse(
+                                    goal.goalType?.targetAmount.toString() ??
+                                        '0',
+                                  ) ??
+                                  0.0);
+                        final double invested = goal.investedAmount > 0
+                            ? goal.investedAmount
+                            : (target * (goal.progressPercent / 100));
+                        final String name = goal.goalName.isNotEmpty
+                            ? goal.goalName
+                            : 'Goal ${index + 1}';
+                        final String logo = goal.goalCover.isNotEmpty
+                            ? goal.goalCover
+                            : (goal.goalType?.logo ?? '');
 
                         return MobileGoalCard(
                           goalEntity: goal,
@@ -172,19 +186,38 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                       const CircleAvatar(
                         radius: 50,
                         backgroundColor: Ucolors.skyblue1,
-                        child: Icon(Iconsax.note_remove5, color: Ucolors.blue, size: 45),
+                        child: Icon(
+                          Iconsax.note_remove5,
+                          color: Ucolors.blue,
+                          size: 45,
+                        ),
                       ),
                       const Gap(24),
-                      Text('Ready to start saving?', style: UTextStyles.large.copyWith(fontSize: 22), textAlign: TextAlign.center),
+                      Text(
+                        'Ready to start saving?',
+                        style: UTextStyles.large.copyWith(fontSize: 22),
+                        textAlign: TextAlign.center,
+                      ),
                       const Gap(8),
-                      Text('You haven\'t set any savings goals yet. Start small and watch your wealth grow.', style: UTextStyles.bodySmall.copyWith(fontSize: 14), textAlign: TextAlign.center),
+                      Text(
+                        'You haven\'t set any savings goals yet. Start small and watch your wealth grow.',
+                        style: UTextStyles.bodySmall.copyWith(fontSize: 14),
+                        textAlign: TextAlign.center,
+                      ),
                       const Gap(32),
                       UElevatedBUtton(
                         color: Ucolors.primary,
                         onPressed: () => Get.toNamed(AppRoutes.masterGoalsPage),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Text('Create Your First Goal', style: UTextStyles.buttonText), const Gap(10), const Icon(Icons.add, color: Ucolors.light)],
+                          children: [
+                            Text(
+                              'Create Your First Goal',
+                              style: UTextStyles.buttonText,
+                            ),
+                            const Gap(10),
+                            const Icon(Icons.add, color: Ucolors.light),
+                          ],
                         ),
                       ),
                     ],
@@ -192,7 +225,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -222,10 +255,18 @@ class MobileGoalCard extends StatelessWidget {
     final GoalSipController controller = Get.find<GoalSipController>();
 
     final double safeTarget = targetAmount > 0 ? targetAmount : 1;
-    final double percentage = (investedAmount / safeTarget).clamp(0.0, 1.0);
-    final String percentString = "${(percentage * 100).toStringAsFixed(0)}%";
+    final double percentage =
+        (goalEntity != null && goalEntity!.progressPercent > 0)
+        ? (goalEntity!.progressPercent / 100).clamp(0.0, 1.0)
+        : (investedAmount / safeTarget).clamp(0.0, 1.0);
+    final String percentString =
+        (goalEntity != null && goalEntity!.progressPercent > 0)
+        ? "${goalEntity!.progressPercent.toStringAsFixed(1)}%"
+        : "${(percentage * 100).toStringAsFixed(0)}%";
 
-    final Color goalColor = controller.getGoalColor(goalEntity?.goalType?.typeName ?? '');
+    final Color goalColor = controller.getGoalColor(
+      goalEntity?.goalType?.typeName ?? '',
+    );
 
     return GestureDetector(
       onTap: () {
@@ -257,12 +298,18 @@ class MobileGoalCard extends StatelessWidget {
 
             final imageWidget = (iconUrl != null && iconUrl!.isNotEmpty)
                 ? Image.network(
-              iconUrl!.startsWith('http') ? iconUrl! : '${Appurl.baseUrl}/$iconUrl',
-              width: circleSize * 0.55,
-              height: circleSize * 0.55,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Icon(Icons.flag, size: circleSize * 0.25, color: Colors.grey),
-            )
+                    iconUrl!.startsWith('http')
+                        ? iconUrl!
+                        : '${Appurl.baseUrl}/$iconUrl',
+                    width: circleSize * 0.55,
+                    height: circleSize * 0.55,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Icon(
+                      Icons.flag,
+                      size: circleSize * 0.25,
+                      color: Colors.grey,
+                    ),
+                  )
                 : Icon(Icons.flag, size: circleSize * 0.25, color: Colors.grey);
 
             return Column(
@@ -289,7 +336,10 @@ class MobileGoalCard extends StatelessWidget {
                       center: Container(
                         width: circleSize * 0.9,
                         height: circleSize * 0.9,
-                        decoration: BoxDecoration(color: Colors.grey.shade50, shape: BoxShape.circle),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          shape: BoxShape.circle,
+                        ),
                         alignment: Alignment.center,
                         child: Stack(
                           alignment: Alignment.center,
@@ -297,7 +347,10 @@ class MobileGoalCard extends StatelessWidget {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100),
                               child: ColorFiltered(
-                                colorFilter: ColorFilter.mode(Colors.grey.shade300, BlendMode.modulate),
+                                colorFilter: ColorFilter.mode(
+                                  Colors.grey.shade300,
+                                  BlendMode.modulate,
+                                ),
                                 child: imageWidget,
                               ),
                             ),
@@ -309,7 +362,12 @@ class MobileGoalCard extends StatelessWidget {
                                   begin: Alignment.bottomCenter,
                                   end: Alignment.topCenter,
                                   stops: [0.0, percentage, percentage, 1.0],
-                                  colors: [goalColor, goalColor, Colors.transparent, Colors.transparent],
+                                  colors: [
+                                    goalColor,
+                                    goalColor,
+                                    Colors.transparent,
+                                    Colors.transparent,
+                                  ],
                                 ).createShader(bounds),
                                 child: imageWidget,
                               ),
@@ -322,15 +380,24 @@ class MobileGoalCard extends StatelessWidget {
                       right: 0,
                       bottom: 0,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
-                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black12, blurRadius: 4),
+                          ],
                         ),
                         child: Text(
                           percentString,
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: FontFamily.medium,
+                          ),
                         ),
                       ),
                     ),
@@ -348,7 +415,10 @@ class MobileGoalCard extends StatelessWidget {
                 FittedBox(
                   child: Text(
                     '₹ ${targetAmount.toStringAsFixed(0)}',
-                    style: UTextStyles.medium.copyWith(color: Colors.grey.shade600, fontSize: titleFontSize - 2),
+                    style: UTextStyles.medium.copyWith(
+                      color: Colors.grey.shade600,
+                      fontSize: titleFontSize - 2,
+                    ),
                   ),
                 ),
               ],
@@ -359,9 +429,6 @@ class MobileGoalCard extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class GoalScreenWeb extends GetView<GoalSipController> {
   const GoalScreenWeb({super.key});
@@ -394,13 +461,17 @@ class GoalScreenWeb extends GetView<GoalSipController> {
                             fontSize: 28,
                             fontWeight: FontWeight.w600,
                             color: Color(0xff111827),
-                            fontFamily:FontFamily.regular,
+                            fontFamily: FontFamily.regular,
                           ),
                         ),
                         const Gap(6),
                         Text(
                           "Track and manage your financial milestones",
-                          style: TextStyle(fontSize: 14, color: Colors.grey.shade500, fontFamily:FontFamily.regular,),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                            fontFamily: FontFamily.regular,
+                          ),
                         ),
                       ],
                     ),
@@ -414,8 +485,11 @@ class GoalScreenWeb extends GetView<GoalSipController> {
                         controller.update();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:Ucolors.primary,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                        backgroundColor: Ucolors.primary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 18,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -427,16 +501,14 @@ class GoalScreenWeb extends GetView<GoalSipController> {
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
-                          fontFamily:FontFamily.regular,
+                          fontFamily: FontFamily.regular,
                         ),
                       ),
                     ),
                   ],
                 ),
                 const Gap(32),
-                const Expanded(
-                  child: WebGoalGridContent(),
-                ),
+                const Expanded(child: WebGoalGridContent()),
               ],
             ),
           ),
@@ -453,7 +525,9 @@ class WebGoalGridContent extends GetView<GoalSipController> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double availableWidth = constraints.maxWidth > 0 ? constraints.maxWidth : 400;
+        final double availableWidth = constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : 400;
 
         int crossAxisCount;
         double aspectRatio;
@@ -464,7 +538,7 @@ class WebGoalGridContent extends GetView<GoalSipController> {
         } else if (availableWidth > 1100) {
           crossAxisCount = 4;
           aspectRatio = 1.18;
-        }else if (availableWidth > 1000) {
+        } else if (availableWidth > 1000) {
           crossAxisCount = 3;
           aspectRatio = 1.38;
         } else if (availableWidth > 900) {
@@ -473,8 +547,7 @@ class WebGoalGridContent extends GetView<GoalSipController> {
         } else if (availableWidth > 850) {
           crossAxisCount = 3;
           aspectRatio = 1.20;
-        }
-        else {
+        } else {
           crossAxisCount = 2;
           aspectRatio = 1.25;
         }
@@ -487,7 +560,15 @@ class WebGoalGridContent extends GetView<GoalSipController> {
           final goals = controller.goalResponse.value?.data ?? [];
 
           if (goals.isEmpty) {
-            return const Center(child: Text("No dynamic milestones saved yet.", style: TextStyle(color: Colors.grey, fontFamily:FontFamily.regular,)));
+            return const Center(
+              child: Text(
+                "No dynamic milestones saved yet.",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: FontFamily.regular,
+                ),
+              ),
+            );
           }
 
           return GridView.builder(
@@ -500,10 +581,21 @@ class WebGoalGridContent extends GetView<GoalSipController> {
             ),
             itemBuilder: (context, index) {
               final goal = goals[index];
-              final double target = double.tryParse(goal.goalType?.targetAmount.toString() ?? '0') ?? 0.0;
-              final double invested = double.tryParse(goal.goalType?.investedAmount.toString() ?? '0') ?? 0.0;
-              final String name = goal.goalName ?? 'Goal ${index + 1}';
-              final String logo = goal.goalType?.logo ?? '';
+              final double target = goal.targetAmount > 0
+                  ? goal.targetAmount
+                  : (double.tryParse(
+                          goal.goalType?.targetAmount.toString() ?? '0',
+                        ) ??
+                        0.0);
+              final double invested = goal.investedAmount > 0
+                  ? goal.investedAmount
+                  : (target * (goal.progressPercent / 100));
+              final String name = goal.goalName.isNotEmpty
+                  ? goal.goalName
+                  : 'Goal ${index + 1}';
+              final String logo = goal.goalCover.isNotEmpty
+                  ? goal.goalCover
+                  : (goal.goalType?.logo ?? '');
 
               return WebGoalCard(
                 goalEntity: goal,
@@ -552,7 +644,10 @@ class _WebGoalCardState extends State<WebGoalCard> {
     String lastThree = str.substring(str.length - 3);
     String otherNumbers = str.substring(0, str.length - 3);
     final regExp = RegExp(r'\d{1,2}(?=(\d{2})+(?!\d))');
-    otherNumbers = otherNumbers.replaceAllMapped(regExp, (Match m) => '${m[0]},');
+    otherNumbers = otherNumbers.replaceAllMapped(
+      regExp,
+      (Match m) => '${m[0]},',
+    );
     return '$otherNumbers,$lastThree';
   }
 
@@ -561,15 +656,29 @@ class _WebGoalCardState extends State<WebGoalCard> {
     final GoalSipController controller = Get.find<GoalSipController>();
 
     final double safeTarget = widget.targetAmount > 0 ? widget.targetAmount : 1;
-    final double percentage = (widget.investedAmount / safeTarget).clamp(0.0, 1.0);
-    final String percentString = "${(percentage * 100).toStringAsFixed(0)}%";
+    final double percentage =
+        (widget.goalEntity != null && widget.goalEntity!.progressPercent > 0)
+        ? (widget.goalEntity!.progressPercent / 100).clamp(0.0, 1.0)
+        : (widget.investedAmount / safeTarget).clamp(0.0, 1.0);
+    final String percentString =
+        (widget.goalEntity != null && widget.goalEntity!.progressPercent > 0)
+        ? "${widget.goalEntity!.progressPercent.toStringAsFixed(1)}%"
+        : "${(percentage * 100).toStringAsFixed(0)}%";
 
-    final Color goalColor = controller.getGoalColor(widget.goalEntity?.goalType?.typeName ?? '');
+    final Color goalColor = controller.getGoalColor(
+      widget.goalEntity?.goalType?.typeName ?? '',
+    );
 
-    final bool isNeedsAttention = widget.goalName.toLowerCase().contains("marriage");
+    final bool isNeedsAttention = widget.goalName.toLowerCase().contains(
+      "marriage",
+    );
     final String statusText = isNeedsAttention ? "Needs Attention" : "On Track";
-    final Color statusTextColor = isNeedsAttention ? const Color(0xFFEF4444) : goalColor;
-    final Color statusBgColor = isNeedsAttention ? const Color(0xFFFEE2E2) : goalColor.withOpacity(0.1);
+    final Color statusTextColor = isNeedsAttention
+        ? const Color(0xFFEF4444)
+        : goalColor;
+    final Color statusBgColor = isNeedsAttention
+        ? const Color(0xFFFEE2E2)
+        : goalColor.withOpacity(0.1);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -617,14 +726,19 @@ class _WebGoalCardState extends State<WebGoalCard> {
                           center: CircleAvatar(
                             radius: 26,
                             backgroundColor: const Color(0xFFF8FAFC),
-                            child: widget.iconUrl != null && widget.iconUrl!.isNotEmpty
+                            child:
+                                widget.iconUrl != null &&
+                                    widget.iconUrl!.isNotEmpty
                                 ? Image.network(
-                              widget.iconUrl!.startsWith('http') ? widget.iconUrl! : '${Appurl.baseUrl}/${widget.iconUrl}',
-                              width: 30,
-                              height: 30,
-                              color: goalColor,
-                              errorBuilder: (_, __, ___) => Icon(Icons.flag, color: goalColor),
-                            )
+                                    widget.iconUrl!.startsWith('http')
+                                        ? widget.iconUrl!
+                                        : '${Appurl.baseUrl}/${widget.iconUrl}',
+                                    width: 30,
+                                    height: 30,
+                                    color: goalColor,
+                                    errorBuilder: (_, __, ___) =>
+                                        Icon(Icons.flag, color: goalColor),
+                                  )
                                 : Icon(Icons.flag, color: goalColor),
                           ),
                           progressColor: goalColor,
@@ -641,14 +755,17 @@ class _WebGoalCardState extends State<WebGoalCard> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: Color(0xFF1E293B),
-                                  fontFamily:FontFamily.regular,
+                                  fontFamily: FontFamily.regular,
                                 ),
                               ),
                               const Gap(4),
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: statusBgColor,
                                       borderRadius: BorderRadius.circular(12),
@@ -659,7 +776,7 @@ class _WebGoalCardState extends State<WebGoalCard> {
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
                                         color: statusTextColor,
-                                        fontFamily:FontFamily.regular,
+                                        fontFamily: FontFamily.regular,
                                       ),
                                     ),
                                   ),
@@ -672,18 +789,26 @@ class _WebGoalCardState extends State<WebGoalCard> {
                                   fontSize: 12,
                                   color: Colors.grey.shade600,
                                   fontWeight: FontWeight.w500,
-                                  fontFamily:FontFamily.regular,
+                                  fontFamily: FontFamily.regular,
                                 ),
                               ),
                             ],
                           ),
-                        )
+                        ),
                       ],
                     ),
                     const Gap(14),
-                    _buildDataRow(Iconsax.radar, "Target:", "₹ ${_formatIndianCurrency(widget.targetAmount)}"),
+                    _buildDataRow(
+                      Iconsax.radar,
+                      "Target:",
+                      "₹ ${_formatIndianCurrency(widget.targetAmount)}",
+                    ),
                     const Gap(8),
-                    _buildDataRow(Iconsax.wallet_3, "Saved:", "₹ ${_formatIndianCurrency(widget.investedAmount)}"),
+                    _buildDataRow(
+                      Iconsax.wallet_3,
+                      "Saved:",
+                      "₹ ${_formatIndianCurrency(widget.investedAmount)}",
+                    ),
                     const Gap(12),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
@@ -715,7 +840,7 @@ class _WebGoalCardState extends State<WebGoalCard> {
                               color: Color(0xFF2563EB),
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
-                              fontFamily:FontFamily.regular,
+                              fontFamily: FontFamily.regular,
                             ),
                           ),
                         ),
@@ -727,13 +852,21 @@ class _WebGoalCardState extends State<WebGoalCard> {
                               'invested': widget.investedAmount,
                               'logo': widget.iconUrl,
                             };
-                            controller.isAddFund.value= false;
+                            controller.isAddFund.value = false;
                             Get.toNamed(AppRoutes.goaldetails, id: 1);
                           },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Ucolors.primary, width: 1),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            side: const BorderSide(
+                              color: Ucolors.primary,
+                              width: 1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                           ),
                           child: const Text(
                             "Add Fund",
@@ -741,12 +874,12 @@ class _WebGoalCardState extends State<WebGoalCard> {
                               color: Ucolors.primary,
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
-                              fontFamily:FontFamily.regular,
+                              fontFamily: FontFamily.regular,
                             ),
                           ),
-                        )
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -760,7 +893,11 @@ class _WebGoalCardState extends State<WebGoalCard> {
                       shape: BoxShape.circle,
                     ),
                     padding: const EdgeInsets.all(4),
-                    child: const Icon(Icons.check, color: Colors.white, size: 12),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 12,
+                    ),
                   ),
                 ),
             ],
@@ -780,14 +917,24 @@ class _WebGoalCardState extends State<WebGoalCard> {
             const Gap(8),
             Text(
               label,
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500,fontFamily:FontFamily.regular,),
+              style: const TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                fontFamily: FontFamily.regular,
+              ),
             ),
           ],
         ),
         Text(
           value,
-          style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13, fontWeight: FontWeight.w600,fontFamily:FontFamily.regular,),
-        )
+          style: const TextStyle(
+            color: Color(0xFF1E293B),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            fontFamily: FontFamily.regular,
+          ),
+        ),
       ],
     );
   }

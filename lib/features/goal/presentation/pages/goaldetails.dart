@@ -42,9 +42,15 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
     final UserGoalEntity? goal = args['goal'];
     final String emoji = args['emoji'] ?? '🎯';
-    final double target = args['target'] ?? 0.0;
-    final double invested = args['invested'] ?? 0.0;
-    final String logo = goal?.goalType?.logo ?? "";
+    final double target = args['target'] ?? (goal?.targetAmount ?? 0.0);
+    final double invested =
+        args['invested'] ??
+        (goal != null && goal.investedAmount > 0
+            ? goal.investedAmount
+            : (target * ((goal?.progressPercent ?? 0) / 100)));
+    final String logo = (goal != null && goal.goalCover.isNotEmpty)
+        ? goal.goalCover
+        : (goal?.goalType?.logo ?? "");
     debugPrint("logo$logo");
 
     final String title = goal?.goalName ?? 'Goal Details';
@@ -1139,10 +1145,7 @@ class LinkedFundsCard extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "${
-                                fund.mutualFund?.mfPerformanceScheme
-                                    ?.oneMonth ?? ""
-                              }%",
+                              "${fund.mutualFund?.mfPerformanceScheme?.oneMonth ?? ""}%",
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
