@@ -7,6 +7,7 @@ import 'package:my_sip/features/goal/domain/usecases/update_goal_fund_order_use_
 import 'get_goal_master_use_case.dart';
 import 'get_single_goal_use_case.dart';
 import 'goal_fund_order_use_case.dart';
+import 'link_fund_to_goal_use_case.dart';
 
 class GoalUseCases {
   final SaveGoalUseCase saveGoalUseCase;
@@ -18,6 +19,7 @@ class GoalUseCases {
   final GoalFundOrderUseCase goalFundOrderUseCase;
   final UpdateGoalFundOrderUseCase updateGoalFundOrderUseCase;
   final GetSingleGoalUseCase getSingleGoalUseCase;
+  final LinkFundToGoalUseCase linkFundToGoalUseCase;
 
   GoalUseCases({
     required this.saveGoalUseCase,
@@ -29,5 +31,6 @@ class GoalUseCases {
     required this.goalFundOrderUseCase,
     required this.updateGoalFundOrderUseCase,
     required this.getSingleGoalUseCase,
+    required this.linkFundToGoalUseCase,
   });
 }

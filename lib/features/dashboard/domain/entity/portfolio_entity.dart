@@ -255,6 +255,9 @@ class MfuPortfolioItemEntity extends Equatable {
   final String allotmentMessage;
   final bool isUnitAllotted;
   final dynamic mfuOrderFundId;
+  final int? mfuOrderId;
+  final int? goalId;
+  final String? goalName;
   final bool hasPendingRedemption;
   final String redemptionStatus;
   final String redemptionMessage;
@@ -295,6 +298,9 @@ class MfuPortfolioItemEntity extends Equatable {
     this.allotmentMessage = '',
     this.isUnitAllotted = true,
     this.mfuOrderFundId,
+    this.mfuOrderId,
+    this.goalId,
+    this.goalName,
     this.hasPendingRedemption = false,
     this.redemptionStatus = '',
     this.redemptionMessage = '',
@@ -496,6 +502,9 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
           ((allotmentStatus ?? '').toLowerCase() != 'allotment_in_progress' &&
               (allotmentStatus ?? '').toLowerCase() != 'pending'),
       mfuOrderFundId: mfuOrderFundId,
+      mfuOrderId: mfuOrderId,
+      goalId: goalId,
+      goalName: goalName,
       hasPendingRedemption: hasPendingRedemption ?? false,
       redemptionStatus: redemptionStatus ?? '',
       redemptionMessage: redemptionMessage ?? '',

@@ -6,6 +6,7 @@ import '../../../../core/utils/api/api_error.dart';
 import '../../../../core/utils/api/api_result.dart';
 import '../entity/goal_fund_order_entity.dart';
 import '../entity/goal_master_entity.dart';
+import '../entity/link_fund_goal_response_entity.dart';
 import '../entity/single_goal_detail_entity.dart';
 import '../entity/update_goal_fund_order_entity.dart';
 
@@ -33,4 +34,8 @@ abstract class GoalRepository {
   );
   Future<Either<Result<SingleGoalDetailResponseEntity>, ApiError>>
   getSingleGoal(int id);
+  Future<Either<Result<LinkFundGoalResponseEntity>, ApiError>> linkFundToGoal({
+    required int goalId,
+    required int mfuOrderId,
+  });
 }

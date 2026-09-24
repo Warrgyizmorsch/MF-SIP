@@ -268,6 +268,9 @@ class MfuPortfolioItemModel {
   final String? allotmentMessage;
   final bool? isUnitAllotted;
   final int? mfuOrderFundId;
+  final int? mfuOrderId;
+  final int? goalId;
+  final String? goalName;
   final bool? hasPendingRedemption;
   final String? redemptionStatus;
   final String? redemptionMessage;
@@ -311,6 +314,9 @@ class MfuPortfolioItemModel {
     this.allotmentMessage,
     this.isUnitAllotted,
     this.mfuOrderFundId,
+    this.mfuOrderId,
+    this.goalId,
+    this.goalName,
     this.hasPendingRedemption,
     this.redemptionStatus,
     this.redemptionMessage,
@@ -425,6 +431,9 @@ class MfuPortfolioItemModel {
       allotmentMessage: json.parse<String>('allotment_message'),
       isUnitAllotted: json.parse<bool>('is_unit_allotted'),
       mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
+      mfuOrderId: json.parse<int>('mfu_order_id'),
+      goalId: json.parse<int>('goal_id'),
+      goalName: json.parse<String>('goal_name'),
       hasPendingRedemption:
           json.parse<bool>('has_pending_redemption') ??
           (json.parse<String>('redemption_status')?.toLowerCase() ==

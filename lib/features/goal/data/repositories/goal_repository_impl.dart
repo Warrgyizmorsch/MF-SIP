@@ -9,6 +9,7 @@ import '../../../../core/utils/api/api_error.dart';
 import '../../../../core/utils/api/api_result.dart';
 import '../../domain/entity/goal_fund_order_entity.dart';
 import '../../domain/entity/goal_master_entity.dart';
+import '../../domain/entity/link_fund_goal_response_entity.dart';
 import '../../domain/entity/single_goal_detail_entity.dart';
 import '../../domain/entity/update_goal_fund_order_entity.dart';
 
@@ -171,6 +172,33 @@ class GoalRepositoryImpl extends GoalRepository {
       return result.fold(
         (success) {
           return Left(Result.success(success.data?.toEntity()));
+        },
+        (error) {
+          return Right(ApiError(message: error.message));
+        },
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<LinkFundGoalResponseEntity>, ApiError>> linkFundToGoal({
+    required int goalId,
+    required int mfuOrderId,
+  }) async {
+    try {
+      final result = await goalRemoteDataSource.linkFundToGoal(
+        goalId: goalId,
+        mfuOrderId: mfuOrderId,
+      );
+      return result.fold(
+        (success) {
+          final entity = success.data?.toEntity();
+          if (entity != null) {
+            return Left(Result.success(entity));
+          }
+          return Right(ApiError(message: 'Invalid link fund response'));
         },
         (error) {
           return Right(ApiError(message: error.message));

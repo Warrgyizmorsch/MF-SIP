@@ -1079,7 +1079,7 @@ class _PortfolioTableRow extends StatelessWidget {
                         break;
 
                       case PortfolioMenuAction.switchgoal:
-                        log('switch goal');
+                        PortfolioCard.showLinkGoalBottomSheet(context, fund);
                         break;
                     }
                   },
@@ -1091,6 +1091,14 @@ class _PortfolioTableRow extends StatelessWidget {
                         icon: Iconsax.eye,
                         text: 'View Details',
                         value: PortfolioMenuAction.viewDetails,
+                      ),
+                    );
+
+                    items.add(
+                      buildMenuItem(
+                        icon: Iconsax.direct_send,
+                        text: 'Link to Goal',
+                        value: PortfolioMenuAction.switchgoal,
                       ),
                     );
 

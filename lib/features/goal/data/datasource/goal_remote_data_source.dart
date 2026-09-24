@@ -10,6 +10,7 @@ import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../model/get_goal_master_model.dart';
 import '../model/goal_fund_order_model.dart';
+import '../model/link_fund_goal_response_model.dart';
 import '../model/single_goal_detail_model.dart';
 import '../model/update_goal_fund_order_model.dart';
 
@@ -288,6 +289,35 @@ class GoalRemoteDataSource {
       return Right(
         ApiError(message: 'Fetch Single Goal Failed with Exception: $e'),
       );
+    }
+  }
+
+  Future<Either<Result<LinkFundGoalResponseModel>, ApiError>> linkFundToGoal({
+    required int goalId,
+    required int mfuOrderId,
+  }) async {
+    try {
+      final result = await apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/goal/$goalId/link-fund",
+        data: {"mfu_order_id": mfuOrderId},
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+      createLog("[Goal Remote Data Source] Link Fund Response: $result");
+      if (result['success'] == true || result['status'] == true) {
+        final data = LinkFundGoalResponseModel.fromJson(result);
+        return Left(Result.success(data));
+      }
+
+      return Right(
+        ApiError(
+          message:
+              result['message']?.toString() ?? 'Failed to link fund to goal',
+        ),
+      );
+    } catch (e) {
+      return Right(ApiError(message: 'Link Fund Failed with Exception: $e'));
     }
   }
 }

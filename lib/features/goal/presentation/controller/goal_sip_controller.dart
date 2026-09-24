@@ -1311,6 +1311,60 @@ class GoalSipController extends GetxController {
     isDeleting[id] = false;
   }
 
+  final RxMap<int, bool> linkingFundMap = <int, bool>{}.obs;
+
+  Future<bool> linkFundToGoal({
+    required int goalId,
+    required int mfuOrderId,
+    String? goalName,
+  }) async {
+    linkingFundMap[mfuOrderId] = true;
+    try {
+      final result = await goalUseCases.linkFundToGoalUseCase(
+        goalId: goalId,
+        mfuOrderId: mfuOrderId,
+      );
+
+      return await result.fold(
+        (success) async {
+          final msg = success.data?.message;
+          showCustomToast(
+            title: "Fund Linked",
+            message: (msg != null && msg.isNotEmpty)
+                ? msg
+                : "Linked to ${goalName ?? 'goal'} successfully",
+            backgroundColor: Colors.green,
+            icon: Icons.check_circle_outline,
+          );
+          await getAllGoals();
+          if (currentGoalDetail.value?.id == goalId) {
+            await fetchSingleGoal(goalId);
+          }
+          return true;
+        },
+        (error) {
+          showCustomToast(
+            title: "Failed to Link",
+            message: error.message,
+            backgroundColor: Colors.red,
+            icon: Icons.error_outline,
+          );
+          return false;
+        },
+      );
+    } catch (e) {
+      showCustomToast(
+        title: "Error",
+        message: e.toString(),
+        backgroundColor: Colors.red,
+        icon: Icons.error_outline,
+      );
+      return false;
+    } finally {
+      linkingFundMap[mfuOrderId] = false;
+    }
+  }
+
   Future<void> pickCoverImage(ImageSource source) async {
     try {
       final ImagePicker picker = ImagePicker();

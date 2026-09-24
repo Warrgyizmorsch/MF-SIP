@@ -11,7 +11,8 @@ import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
+    hide showCustomToast;
 import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/dashboard/domain/entity/transactionlist_entity.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
@@ -20,6 +21,9 @@ import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shimmer/shimmer.dart';
+
+import 'package:collection/collection.dart';
+import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 
 import '../controllers/dashboard_controller.dart';
 import '../widgets/comparison_chart.dart';
@@ -4711,6 +4715,7 @@ class PortfolioCard extends StatelessWidget {
 
                             case PortfolioMenuAction.switchgoal:
                               createLog('Tap for move to goal');
+                              showLinkGoalBottomSheet(context, fund);
                               break;
                           }
                         },
@@ -4723,6 +4728,14 @@ class PortfolioCard extends StatelessWidget {
                               icon: Iconsax.eye,
                               text: 'View Details',
                               value: PortfolioMenuAction.viewDetails,
+                            ),
+                          );
+
+                          items.add(
+                            buildMenuItem(
+                              icon: Iconsax.direct_send,
+                              text: 'Link to Goal',
+                              value: PortfolioMenuAction.switchgoal,
                             ),
                           );
 
@@ -4822,6 +4835,222 @@ class PortfolioCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  static int _resolveOrderId(MfuPortfolioItemEntity fund) {
+    if (fund.mfuOrderFundId is int && (fund.mfuOrderFundId as int) > 0) {
+      return fund.mfuOrderFundId as int;
+    }
+    final parsed = int.tryParse(fund.mfuOrderFundId?.toString() ?? '');
+    if (parsed != null && parsed > 0) return parsed;
+    if (fund.mfuOrderId != null && fund.mfuOrderId! > 0) {
+      return fund.mfuOrderId!;
+    }
+    return 0;
+  }
+
+  static void showLinkGoalBottomSheet(
+    BuildContext context,
+    MfuPortfolioItemEntity fund,
+  ) {
+    if (!Get.isRegistered<GoalSipController>()) {
+      showCustomToast(
+        title: "Error",
+        message: "Goal service is not available",
+        backgroundColor: Colors.red,
+        icon: Icons.error_outline,
+      );
+      return;
+    }
+    final goalSipController = Get.find<GoalSipController>();
+    final int orderId = _resolveOrderId(fund);
+
+    if (orderId == 0) {
+      showCustomToast(
+        title: "Error",
+        message: "Order ID not found for this fund",
+        backgroundColor: Colors.orange.shade700,
+        icon: Icons.info_outline,
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Obx(() {
+          final goals = goalSipController.goalResponse.value?.data ?? [];
+          final isLinking = goalSipController.linkingFundMap[orderId] ?? false;
+
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "Link Fund to Goal",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  fund.fundName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 16),
+                if (isLinking) ...[
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ] else if (goals.isEmpty) ...[
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Iconsax.info_circle,
+                            size: 36,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "No active goals found",
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              Get.toNamed(AppRoutes.goalScreen);
+                            },
+                            child: const Text("Create a Goal"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: goals.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final goal = goals[index];
+                        final bool isLinked =
+                            (fund.goalId != null &&
+                                fund.goalId != 0 &&
+                                goal.id == fund.goalId) ||
+                            (fund.goalName != null &&
+                                fund.goalName!.isNotEmpty &&
+                                goal.goalName.toLowerCase() ==
+                                    fund.goalName!.toLowerCase()) ||
+                            goal.goalFunds.any(
+                              (gf) => gf.schemeCode == fund.schemeCode,
+                            );
+
+                        return ListTile(
+                          leading: const CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Color(0xFFEFF6FF),
+                            child: Text("🎯", style: TextStyle(fontSize: 16)),
+                          ),
+                          title: Text(
+                            goal.goalName,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Target: ₹${goal.targetAmount.toStringAsFixed(0)}",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          trailing: isLinked
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFDCFCE7),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Text(
+                                    "Linked",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF15803D),
+                                    ),
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF007AFF),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 6,
+                                    ),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  onPressed: () async {
+                                    Navigator.pop(ctx);
+                                    await goalSipController.linkFundToGoal(
+                                      goalId: goal.id,
+                                      mfuOrderId: orderId,
+                                      goalName: goal.goalName,
+                                    );
+                                  },
+                                  child: const Text(
+                                    "Link",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        });
+      },
     );
   }
 }

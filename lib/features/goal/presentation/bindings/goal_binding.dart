@@ -12,6 +12,7 @@ import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller
 import '../../domain/usecases/get_goal_master_use_case.dart';
 import '../../domain/usecases/get_single_goal_use_case.dart';
 import '../../domain/usecases/goal_fund_order_use_case.dart';
+import '../../domain/usecases/link_fund_to_goal_use_case.dart';
 import '../../domain/usecases/update_goal_fund_order_use_case.dart';
 
 class GoalBinding extends Bindings {
@@ -78,6 +79,12 @@ class GoalBinding extends Bindings {
       fenix: true,
     );
 
+    Get.lazyPut(
+      () =>
+          LinkFundToGoalUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
+      fenix: true,
+    );
+
     // FIRST REGISTER GoalUseCases
     Get.lazyPut<GoalUseCases>(
       () => GoalUseCases(
@@ -90,6 +97,7 @@ class GoalBinding extends Bindings {
         goalFundOrderUseCase: Get.find<GoalFundOrderUseCase>(),
         updateGoalFundOrderUseCase: Get.find<UpdateGoalFundOrderUseCase>(),
         getSingleGoalUseCase: Get.find<GetSingleGoalUseCase>(),
+        linkFundToGoalUseCase: Get.find<LinkFundToGoalUseCase>(),
       ),
       fenix: true,
     );
