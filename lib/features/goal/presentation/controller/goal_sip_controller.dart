@@ -256,26 +256,34 @@ class GoalSipController extends GetxController {
             (goal.goalTenure >= 12 && goal.goalTenure % 12 == 0))
         ? (goal.goalTenure / 12).toDouble()
         : goal.goalTenure.toDouble();
-    final double safeYears = tenureYears.clamp(1.0, 30.0);
+    final double safeYears = tenureYears.clamp(1.0, 30.0);    
     final double safeRate = (goal.expectedReturnRate > 0)
         ? goal.expectedReturnRate.clamp(1.0, 30.0)
         : 12.0;
 
+    final double target = (goal.targetAmount > 0)
+        ? goal.targetAmount
+        : ((goal.goalType?.targetAmount.toDouble() ?? 0) > 0
+              ? goal.goalType!.targetAmount.toDouble()
+              : goal.investedAmount.toDouble());
+
     if (goal.txnType.toLowerCase() == "lumpsum") {
       investmentMode.value = "lumpsum";
-      lumpsumAmount.value = goal.lumpsumAmount.toDouble();
+      lumpsumAmount.value = goal.lumpsumAmount > 0
+          ? goal.lumpsumAmount.toDouble()
+          : goal.investedAmount.toDouble();
       lumpsumReturnPercent.value = safeRate;
-      lumpsumFutureValue.value = goal.goalType?.targetAmount.toDouble() ?? 0.0;
+      lumpsumFutureValue.value = target;
       years.value = safeYears;
     } else {
       investmentMode.value = "sip";
       existingSipAmount.value = goal.monthlyInvestment.toDouble();
       monthlySip.value = goal.monthlyInvestment.toInt();
-      targetAmount.value = goal.goalType?.targetAmount.toDouble() ?? 0.0;
+      targetAmount.value = target;
       years.value = safeYears;
       annualRate.value = safeRate;
     }
-    initialTargetAmount = (goal.investedAmount).toDouble();
+    initialTargetAmount = target;
     initialYears = safeYears;
     initialRate = safeRate;
     existingSipAmount.value = (goal.monthlyInvestment).toDouble();
@@ -285,12 +293,16 @@ class GoalSipController extends GetxController {
       rate: initialRate,
     );
     hasChanges.value = false;
-    // additionalSipAmount.value = 0;
-    // weeklySipAmount.value = 0;
-    // dailySipAmount.value = 0;
     isGoalSaved.value = true;
     _recalculate();
     recalculateLumpsum();
+
+    if (goal.monthlyInvestment > 0) {
+      monthlySip.value = goal.monthlyInvestment.toInt();
+    }
+    if (goal.lumpsumAmount > 0) {
+      lumpsumAmount.value = goal.lumpsumAmount.toDouble();
+    }
 
     update();
   }
@@ -314,7 +326,13 @@ class GoalSipController extends GetxController {
     /// OLD VALUES
     /// =========================
 
-    initialTargetAmount = (goal.investedAmount).toDouble();
+    final double target = (goal.targetAmount > 0)
+        ? goal.targetAmount
+        : ((goal.goalType?.targetAmount.toDouble() ?? 0) > 0
+              ? goal.goalType!.targetAmount.toDouble()
+              : goal.investedAmount.toDouble());
+
+    initialTargetAmount = target;
 
     final double tenureYears =
         (goal.goalTenure > 30 ||
@@ -1640,13 +1658,32 @@ class GoalSipController extends GetxController {
   }
 
   void resetStateForNewGoal() {
+    isEdit.value = false;
+    isHome.value = false;
+    isAddFund.value = false;
     isGoalSaved.value = false;
     savedDatabaseId.value = null;
+    savedInvestmentType.value = null;
+    goalId.value = 0;
+    selectedGoalIndex.value = -1;
+    selectedGoalType.value = 'custom';
     investmentMode.value = "sip";
     goalNameTextEditingController.clear();
-    targetAmount.value = 0;
-    years.value = 0;
-    savedDatabaseId.value = null;
+    targetAmount.value = 0.0;
+    years.value = 1.0;
+    annualRate.value = 12.0;
+    monthlySip.value = 0;
+    invested.value = 0;
+    futureValue.value = 0;
+    targetLumpsumValue.value = 0;
+    totalReturn.value = 0;
+    lumpsumAmount.value = 0.0;
+    lumpsumFutureValue.value = 0;
+    lumpsumTotalReturn.value = 0;
+    goalError.value = '';
     selectedPopularFund.clear();
+    savedGoalFunds.clear();
+    amountControllers.clear();
+    coverImage.value = null;
   }
 }

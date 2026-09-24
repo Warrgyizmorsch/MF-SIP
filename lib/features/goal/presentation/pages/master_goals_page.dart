@@ -54,34 +54,33 @@ class MasterGoalsPage extends GetView<GoalSipController> {
         final args = (Get.arguments as Map<String, dynamic>?) ?? tempArgs;
         tempArgs = null; // Clear bridge immediately
 
-        if (args == null) return;
+        final bool isEdit = args?['isEdit'] ?? false;
+        final bool isHome = args?['isHome'] ?? false;
+        final bool isAddFund = args?['isAddFund'] ?? false;
+        final String initialType = args?['goalType'] ?? 'custom';
+        final UserGoalEntity? goal = args?['goal'];
 
-        final String initialType = args['goalType'] ?? 'custom';
-
-        controller.isEdit.value = args['isEdit'] ?? false;
-
-        controller.isHome.value = args['isHome'] ?? false;
-        controller.isAddFund.value = args['isAddFund'] ?? false;
-
-        final UserGoalEntity? goal = args['goal'];
+        controller.isEdit.value = isEdit;
+        controller.isHome.value = isHome;
+        controller.isAddFund.value = isAddFund;
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!controller.isEdit.value) {
+          if (!isEdit && !isAddFund) {
             controller.resetStateForNewGoal();
           }
 
           controller.updateGoalType(initialType);
 
           // EDIT GOAL
-          if (controller.isEdit.value && goal != null) {
+          if (isEdit && goal != null) {
             controller.loadGoalForEdit(goal);
           }
-          if (controller.isAddFund.value && goal != null) {
+          if (isAddFund && goal != null) {
             controller.loadGoalForAddFund(goal);
             // controller.update();
           }
           // HOME GOAL
-          if (controller.isHome.value) {
+          if (isHome) {
             final masterGoal = controller.masterGoals.firstWhereOrNull(
               (e) => e.goalType == initialType,
             );
@@ -172,6 +171,10 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
           );
 
           if (shouldLeave == true) {
+            controller.isEdit.value = false;
+            controller.isAddFund.value = false;
+            controller.isHome.value = false;
+            controller.selectedGoalIndex.value = -1;
             Get.back();
             Get.back();
           }
@@ -179,6 +182,10 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
           return;
         }
 
+        controller.isEdit.value = false;
+        controller.isAddFund.value = false;
+        controller.isHome.value = false;
+        controller.selectedGoalIndex.value = -1;
         Get.back();
       },
       child: Scaffold(
@@ -193,6 +200,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
               if (!controller.isGoalSaved.value) return const SizedBox.shrink();
               return TextButton(
                 onPressed: () {
+                  controller.resetStateForNewGoal();
                   Get.offAllNamed(AppRoutes.navMenuBar);
                   Future.delayed(const Duration(milliseconds: 100), () {
                     if (Get.isRegistered<NavigationBarController>()) {
@@ -2339,6 +2347,10 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                         borderRadius: BorderRadius.circular(18),
                         onTap: () async {
                           controller.selectedGoalIndex.value = index;
+                          controller.isGoalSaved.value = false;
+                          controller.savedDatabaseId.value = null;
+                          controller.isEdit.value = false;
+                          controller.isAddFund.value = false;
                           controller.update();
 
                           await Future.delayed(

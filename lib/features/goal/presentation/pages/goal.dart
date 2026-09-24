@@ -155,9 +155,8 @@ class GoalScreenMobile extends GetView<GoalSipController> {
         }
         return FloatingActionButton(
           onPressed: () async {
+            controller.resetStateForNewGoal();
             await controller.getMasterGoals();
-            controller.selectedGoalIndex.value = -1;
-            controller.isGoalSaved.value = false;
             Get.toNamed(AppRoutes.masterGoalsPage);
           },
           backgroundColor: Ucolors.primary,
@@ -207,7 +206,10 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                       const Gap(32),
                       UElevatedBUtton(
                         color: Ucolors.primary,
-                        onPressed: () => Get.toNamed(AppRoutes.masterGoalsPage),
+                        onPressed: () {
+                          controller.resetStateForNewGoal();
+                          Get.toNamed(AppRoutes.masterGoalsPage);
+                        },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -477,12 +479,9 @@ class GoalScreenWeb extends GetView<GoalSipController> {
                     ),
                     ElevatedButton(
                       onPressed: () async {
-                        await controller.getMasterGoals();
-                        controller.selectedGoalIndex.value = -1;
-                        controller.isGoalSaved.value = false;
-                        Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1);
                         controller.resetStateForNewGoal();
-                        controller.update();
+                        await controller.getMasterGoals();
+                        Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Ucolors.primary,
