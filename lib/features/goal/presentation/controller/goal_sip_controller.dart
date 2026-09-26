@@ -371,13 +371,15 @@ class GoalSipController extends GetxController {
 
     additionalSipAmount.value = 0;
 
-    weeklySipAmount.value = 0;
-
-    dailySipAmount.value = 0;
-
     isGoalSaved.value = true;
 
     _recalculate();
+
+    final double sip = (goal.monthlyInvestment > 0)
+        ? goal.monthlyInvestment.toDouble()
+        : monthlySip.value.toDouble();
+    weeklySipAmount.value = sip / 4;
+    dailySipAmount.value = sip / 30;
 
     update();
   }
@@ -446,9 +448,9 @@ class GoalSipController extends GetxController {
 
     additionalSipAmount.value = 0;
 
-    weeklySipAmount.value = 0;
-
-    dailySipAmount.value = 0;
+    final double sip = monthlySip.value.toDouble();
+    weeklySipAmount.value = sip / 4;
+    dailySipAmount.value = sip / 30;
 
     hasChanges.value = false;
 
