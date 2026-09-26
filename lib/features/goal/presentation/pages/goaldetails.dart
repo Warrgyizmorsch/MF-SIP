@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
@@ -546,7 +545,7 @@ class GoalDetailsWebView extends StatelessWidget {
                             controller: controller,
                           ),
                           const Gap(24),
-                          LinkedFundsCard(goal: goal),
+                          LinkedFundsCard(goal: goal, onAddFunds: onAddFunds),
                         ],
                       ),
                     ),
@@ -1026,623 +1025,601 @@ class GoalOverviewCard extends StatelessWidget {
 /// ----------------------------------------------------------------------
 class LinkedFundsCard extends StatelessWidget {
   final UserGoalEntity? goal;
-  const LinkedFundsCard({super.key, this.goal});
+  final VoidCallback? onAddFunds;
+  const LinkedFundsCard({super.key, this.goal, this.onAddFunds});
 
   @override
   Widget build(BuildContext context) {
     final goalSipController = Get.find<GoalSipController>();
     final currentGoalId = goal?.id ?? 0;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header Row
+        Obx(() {
+          final liveDetail = goalSipController.currentGoalDetail.value;
+          final bool hasLiveFunds =
+              liveDetail != null &&
+              liveDetail.id == currentGoalId &&
+              liveDetail.linkedFunds.isNotEmpty;
+
+          final freshGoal =
+              goalSipController.goalResponse.value?.data?.firstWhereOrNull(
+                (g) => g.id == currentGoalId,
+              ) ??
+              goal;
+
+          final int count = hasLiveFunds
+              ? liveDetail.linkedFunds.length
+              : (freshGoal?.goalFunds.length ?? 0);
+
+          return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Linked Mutual Funds",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: FontFamily.regular,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                child: const Text(
-                  "View All",
-                  style: TextStyle(
-                    color: Color(0xFF0066FF),
-                    fontWeight: FontWeight.w600,
-                    fontFamily: FontFamily.regular,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Grid View Block
-          Obx(() {
-            final liveDetail = goalSipController.currentGoalDetail.value;
-            final bool hasLiveFunds =
-                liveDetail != null &&
-                liveDetail.id == currentGoalId &&
-                liveDetail.linkedFunds.isNotEmpty;
-
-            final freshGoal =
-                goalSipController.goalResponse.value?.data?.firstWhereOrNull(
-                  (g) => g.id == currentGoalId,
-                ) ??
-                goal;
-
-            final linkedFunds = freshGoal?.goalFunds ?? [];
-
-            if (!hasLiveFunds && linkedFunds.isEmpty) {
-              if (goalSipController.isLoadingSingleGoal.value) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 32.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32.0),
-                  child: Text(
-                    'No mutual funds linked yet.',
+              Row(
+                children: [
+                  const Text(
+                    "Linked Mutual Funds",
                     style: TextStyle(
-                      color: Color(0xFF94A3B8),
-                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
                       fontFamily: FontFamily.regular,
+                      color: Color(0xFF0F172A),
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                    ),
+                    child: Text(
+                      "$count",
+                      style: const TextStyle(
+                        color: Color(0xFF2563EB),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        fontFamily: FontFamily.regular,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (onAddFunds != null)
+                ElevatedButton.icon(
+                  onPressed: onAddFunds,
+                  icon: const Icon(Icons.add_rounded, size: 16),
+                  label: const Text(
+                    "Add Fund",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
+                      fontSize: 13,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Ucolors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        }),
+        const SizedBox(height: 20),
+
+        // Funds Grid View Block
+        Obx(() {
+          final liveDetail = goalSipController.currentGoalDetail.value;
+          final bool hasLiveFunds =
+              liveDetail != null &&
+              liveDetail.id == currentGoalId &&
+              liveDetail.linkedFunds.isNotEmpty;
+
+          final freshGoal =
+              goalSipController.goalResponse.value?.data?.firstWhereOrNull(
+                (g) => g.id == currentGoalId,
+              ) ??
+              goal;
+
+          final linkedFunds = freshGoal?.goalFunds ?? [];
+
+          if (!hasLiveFunds && linkedFunds.isEmpty) {
+            if (goalSipController.isLoadingSingleGoal.value) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40.0),
+                  child: CircularProgressIndicator(),
                 ),
               );
             }
-
-            if (hasLiveFunds) {
-              final liveFunds = liveDetail.linkedFunds;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: liveFunds.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.60,
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: const Color(0xFFE2E8F0),
+                  style: BorderStyle.solid,
                 ),
-                itemBuilder: (context, index) {
-                  final fund = liveFunds[index];
-                  final String imgUrl = fund.amcLogo.isNotEmpty
-                      ? (fund.amcLogo.startsWith('http')
-                            ? fund.amcLogo
-                            : "${Appurl.baseUrl}/${fund.amcLogo}")
-                      : (fund.amcImageUrl.isNotEmpty
-                            ? (fund.amcImageUrl.startsWith('http')
-                                  ? fund.amcImageUrl
-                                  : "${Appurl.baseUrl}/${fund.amcImageUrl}")
-                            : '');
-
-                  final String displayAmount = fund.type.toLowerCase() == 'sip'
-                      ? '₹${fund.fundInvested.toStringAsFixed(0)} / mo'
-                      : '₹${fund.fundInvested.toStringAsFixed(0)}';
-
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFF1F5F9)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEFF6FF),
+                      shape: BoxShape.circle,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: const Color(0xFFF1F5F9),
-                                  ),
-                                  color: Colors.white,
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                child: imgUrl.isNotEmpty
-                                    ? Image.network(
-                                        imgUrl,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
-                                            const Icon(
-                                              Icons.account_balance,
-                                              size: 18,
-                                              color: Colors.grey,
-                                            ),
-                                      )
-                                    : const Icon(
-                                        Icons.account_balance,
-                                        size: 18,
-                                        color: Colors.grey,
-                                      ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      fund.fundName.isNotEmpty
-                                          ? fund.fundName
-                                          : 'Unknown Fund',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: FontFamily.regular,
-                                        fontSize: 14,
-                                        color: Color(0xFF1E293B),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    if (fund.folioNo.isNotEmpty)
-                                      Text(
-                                        "Folio: ${fund.folioNo}",
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFF64748B),
-                                          fontWeight: FontWeight.w500,
-                                          fontFamily: FontFamily.regular,
-                                        ),
-                                      ),
-                                    const SizedBox(height: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 3,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: fund.isUnitAllotted
-                                            ? const Color(0xFFDCFCE7)
-                                            : const Color(0xFFFEF3C7),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        fund.allotmentStatusLabel.isNotEmpty
-                                            ? fund.allotmentStatusLabel
-                                            : (fund.isUnitAllotted
-                                                  ? "Unit Allotted"
-                                                  : "Pending"),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: fund.isUnitAllotted
-                                              ? const Color(0xFF15803D)
-                                              : const Color(0xFFB45309),
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: FontFamily.regular,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Obx(() {
-                                final int fundId = fund.id != 0
-                                    ? fund.id
-                                    : fund.mfuOrderFundId;
-                                final bool isDel =
-                                    goalSipController.isDeleting[fundId] ??
-                                    false;
-                                return isDel
-                                    ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : IconButton(
-                                        icon: const Icon(
-                                          Iconsax.trash,
-                                          size: 18,
-                                          color: Color(0xFFEF4444),
-                                        ),
-                                        tooltip: 'Remove Fund',
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () {
-                                          Get.defaultDialog(
-                                            title: "Remove Fund",
-                                            middleText:
-                                                "Are you sure you want to remove this fund from your goal?",
-                                            textConfirm: "Remove",
-                                            textCancel: "Cancel",
-                                            confirmTextColor: Colors.white,
-                                            buttonColor: Colors.red,
-                                            onConfirm: () {
-                                              Get.back();
-                                              goalSipController.deleteGoalFund(
-                                                id: fundId,
-                                                isEdit: false,
-                                                schemeName: fund.fundName,
-                                                goalId: goal?.id,
-                                              );
-                                            },
-                                          );
-                                        },
-                                      );
-                              }),
-                            ],
-                          ),
+                    child: const Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 32,
+                      color: Color(0xFF2563EB),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    "No mutual funds linked yet",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1E293B),
+                      fontFamily: FontFamily.regular,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    "Link funds to start tracking your progress towards this goal.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF64748B),
+                      fontFamily: FontFamily.regular,
+                    ),
+                  ),
+                  if (onAddFunds != null) ...[
+                    const SizedBox(height: 18),
+                    OutlinedButton.icon(
+                      onPressed: onAddFunds,
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text("Link Your First Fund"),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF2563EB),
+                        side: const BorderSide(color: Color(0xFF2563EB)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }
+
+          if (hasLiveFunds) {
+            final liveFunds = liveDetail.linkedFunds;
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final int crossAxisCount = constraints.maxWidth > 900 ? 3 : 2;
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: liveFunds.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: constraints.maxWidth > 900 ? 3.6 : 3.0,
+                  ),
+                  itemBuilder: (context, index) {
+                    final fund = liveFunds[index];
+                    final String imgUrl = fund.amcLogo.isNotEmpty
+                        ? (fund.amcLogo.startsWith('http')
+                              ? fund.amcLogo
+                              : "${Appurl.baseUrl}/${fund.amcLogo}")
+                        : (fund.amcImageUrl.isNotEmpty
+                              ? (fund.amcImageUrl.startsWith('http')
+                                    ? fund.amcImageUrl
+                                    : "${Appurl.baseUrl}/${fund.amcImageUrl}")
+                              : '');
+
+                    final int fundId = fund.id != 0
+                        ? fund.id
+                        : fund.mfuOrderFundId;
+                    final double gain = fund.gainLoss;
+                    final double gainPercent = fund.gainLossPercent;
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
+                        ],
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                              ),
+                              color: Colors.white,
                             ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    displayAmount,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF334155),
-                                      fontFamily: FontFamily.regular,
+                            clipBehavior: Clip.antiAlias,
+                            child: imgUrl.isNotEmpty
+                                ? Image.network(
+                                    imgUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => const Icon(
+                                      Icons.account_balance,
+                                      size: 20,
+                                      color: Colors.grey,
                                     ),
+                                  )
+                                : const Icon(
+                                    Icons.account_balance,
+                                    size: 20,
+                                    color: Colors.grey,
                                   ),
-                                  if (fund.units > 0)
-                                    Text(
-                                      "${fund.units.toStringAsFixed(3)} units",
-                                      style: const TextStyle(
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  fund.fundName.isNotEmpty
+                                      ? fund.fundName
+                                      : 'Unknown Fund',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: FontFamily.regular,
+                                    fontSize: 13,
+                                    color: Color(0xFF0F172A),
+                                    height: 1.25,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Invested: ",
+                                      style: TextStyle(
                                         fontSize: 11,
                                         color: Color(0xFF64748B),
                                         fontFamily: FontFamily.regular,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    fund.currentValue > 0
-                                        ? "Val: ₹${fund.currentValue.toStringAsFixed(2)}"
-                                        : "NAV: ₹${fund.currentNav.toStringAsFixed(2)}",
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: FontFamily.regular,
-                                      color: Color(0xFF1E293B),
-                                    ),
-                                  ),
-                                  if (fund.gainLoss != 0 ||
-                                      fund.gainLossPercent != 0)
                                     Text(
-                                      "${fund.gainLoss >= 0 ? '+' : ''}₹${fund.gainLoss.toStringAsFixed(2)} (${fund.gainLossPercent.toStringAsFixed(2)}%)",
-                                      style: TextStyle(
+                                      '₹${(fund.fundInvested > 0 ? fund.fundInvested : fund.investedAmount).toStringAsFixed(0)}',
+                                      style: const TextStyle(
                                         fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: fund.gainLoss >= 0
-                                            ? const Color(0xFF16A34A)
-                                            : const Color(0xFFDC2626),
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF1E293B),
                                         fontFamily: FontFamily.regular,
                                       ),
                                     ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      child: Text(
+                                        "•",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Color(0xFFCBD5E1),
+                                        ),
+                                      ),
+                                    ),
+                                    const Text(
+                                      "Current: ",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF64748B),
+                                        fontFamily: FontFamily.regular,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      fund.currentValue > 0
+                                          ? '₹${fund.currentValue.toStringAsFixed(0)}'
+                                          : (fund.currentNav > 0
+                                                ? 'NAV ₹${fund.currentNav.toStringAsFixed(2)}'
+                                                : '—'),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF0F172A),
+                                        fontFamily: FontFamily.regular,
+                                      ),
+                                    ),
+                                    if (gain != 0 || gainPercent != 0) ...[
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        "(${gain >= 0 ? '+' : ''}${gainPercent.toStringAsFixed(1)}%)",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: gain >= 0
+                                              ? const Color(0xFF16A34A)
+                                              : const Color(0xFFDC2626),
+                                          fontFamily: FontFamily.regular,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Obx(() {
+                            final bool isDel =
+                                goalSipController.isDeleting[fundId] ?? false;
+                            return isDel
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : IconButton(
+                                    icon: const Icon(
+                                      Iconsax.trash,
+                                      size: 17,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                    hoverColor: const Color(0xFFFEE2E2),
+                                    color: const Color(0xFFEF4444),
+                                    tooltip: 'Remove Fund',
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () {
+                                      Get.defaultDialog(
+                                        title: "Remove Fund",
+                                        middleText:
+                                            "Are you sure you want to remove this fund from your goal?",
+                                        textConfirm: "Remove",
+                                        textCancel: "Cancel",
+                                        confirmTextColor: Colors.white,
+                                        buttonColor: Colors.red,
+                                        onConfirm: () {
+                                          Get.back();
+                                          goalSipController.deleteGoalFund(
+                                            id: fundId,
+                                            isEdit: false,
+                                            schemeName: fund.fundName,
+                                            goalId: goal?.id,
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                          }),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          }
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final int crossAxisCount = constraints.maxWidth > 900 ? 3 : 2;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: linkedFunds.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: constraints.maxWidth > 900 ? 3.6 : 3.0,
+                ),
+                itemBuilder: (context, index) {
+                  final fund = linkedFunds[index];
+                  final String imgUrl =
+                      "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+                  final String displayAmount =
+                      freshGoal?.txnType.toLowerCase() == 'sip'
+                      ? '₹${fund.sipAmount.toStringAsFixed(0)} / mo'
+                      : '₹${fund.lumpsumAmount.toStringAsFixed(0)}';
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                            color: Colors.white,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Image.network(
+                            imgUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.account_balance,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                fund.mutualFund?.schemeName ?? 'Unknown Fund',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: FontFamily.regular,
+                                  fontSize: 13,
+                                  color: Color(0xFF0F172A),
+                                  height: 1.25,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Text(
+                                    "Amount: ",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Color(0xFF64748B),
+                                      fontFamily: FontFamily.regular,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    displayAmount,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF0F172A),
+                                      fontFamily: FontFamily.regular,
+                                    ),
+                                  ),
+                                  if (fund
+                                          .mutualFund
+                                          ?.mfPerformanceScheme
+                                          ?.oneMonth !=
+                                      null) ...[
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      "${fund.mutualFund!.mfPerformanceScheme!.oneMonth}% (1M)",
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF16A34A),
+                                        fontFamily: FontFamily.regular,
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ],
                           ),
                         ),
+                        Obx(() {
+                          final bool isDel =
+                              goalSipController.isDeleting[fund.id] ?? false;
+                          return isDel
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : IconButton(
+                                  icon: const Icon(
+                                    Iconsax.trash,
+                                    size: 17,
+                                    color: Color(0xFF94A3B8),
+                                  ),
+                                  hoverColor: const Color(0xFFFEE2E2),
+                                  color: const Color(0xFFEF4444),
+                                  tooltip: 'Remove Fund',
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onPressed: () {
+                                    Get.defaultDialog(
+                                      title: "Remove Fund",
+                                      middleText:
+                                          "Are you sure you want to remove this fund from your goal?",
+                                      textConfirm: "Remove",
+                                      textCancel: "Cancel",
+                                      confirmTextColor: Colors.white,
+                                      buttonColor: Colors.red,
+                                      onConfirm: () {
+                                        Get.back();
+                                        goalSipController.deleteGoalFund(
+                                          id: fund.id,
+                                          isEdit: false,
+                                          schemeName:
+                                              fund.mutualFund?.schemeCode
+                                                  ?.toString() ??
+                                              '',
+                                          goalId: goal?.id,
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                        }),
                       ],
                     ),
                   );
                 },
               );
-            }
-
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: linkedFunds.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.60,
-              ),
-              itemBuilder: (context, index) {
-                final fund = linkedFunds[index];
-                final String imgUrl =
-                    "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
-                final String displayAmount =
-                    freshGoal?.txnType.toLowerCase() == 'sip'
-                    ? '₹ ${fund.sipAmount.toStringAsFixed(0)} / month'
-                    : '₹ ${fund.lumpsumAmount.toStringAsFixed(0)}';
-
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFF1F5F9)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: const Color(0xFFF1F5F9),
-                                ),
-                                color: Colors.white,
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: Image.network(
-                                imgUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.broken_image,
-                                  size: 16,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    fund.mutualFund?.schemeName ??
-                                        'Unknown Fund',
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: FontFamily.regular,
-                                      fontSize: 14,
-                                      color: Color(0xFF1E293B),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    fund.mutualFund?.schemeCategory ?? "",
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF64748B),
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: FontFamily.regular,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFE8F0FE),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      goal?.txnType ?? "",
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Color(0xFF1A73E8),
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Obx(() {
-                              final bool isDel =
-                                  goalSipController.isDeleting[fund.id] ??
-                                  false;
-                              return isDel
-                                  ? const SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : IconButton(
-                                      icon: const Icon(
-                                        Iconsax.trash,
-                                        size: 18,
-                                        color: Color(0xFFEF4444),
-                                      ),
-                                      tooltip: 'Remove Fund',
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () {
-                                        Get.defaultDialog(
-                                          title: "Remove Fund",
-                                          middleText:
-                                              "Are you sure you want to remove this fund from your goal?",
-                                          textConfirm: "Remove",
-                                          textCancel: "Cancel",
-                                          confirmTextColor: Colors.white,
-                                          buttonColor: Colors.red,
-                                          onConfirm: () {
-                                            Get.back();
-                                            goalSipController.deleteGoalFund(
-                                              id: fund.id,
-                                              isEdit: false,
-                                              schemeName:
-                                                  fund.mutualFund?.schemeCode
-                                                      .toString() ??
-                                                  '',
-                                              goalId: goal?.id,
-                                            );
-                                          },
-                                        );
-                                      },
-                                    );
-                            }),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              goal?.txnType.toLowerCase() == 'sip'
-                                  ? '₹${fund.sipAmount} / month'
-                                  : '₹${fund.lumpsumAmount}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF334155),
-                                fontFamily: FontFamily.regular,
-                              ),
-                            ),
-                            Text(
-                              "${fund.mutualFund?.mfPerformanceScheme?.oneMonth ?? ""}%",
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: FontFamily.regular,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          }),
-          const SizedBox(height: 24),
-
-          // Bottom Dotted/Dashed Link Fund Panel Container Block
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              // Simulating realistic smooth dashed tracking footprint
-              border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    // Plus Circle Icon Setup matches reference blueprint
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: const Color(0xFF0066FF),
-                          style: BorderStyle.solid,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Color(0xFF0066FF),
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    const Text(
-                      "Add more mutual funds to diversify your goal",
-                      style: TextStyle(
-                        color: Color(0xFF475569),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: FontFamily.regular,
-                      ),
-                    ),
-                  ],
-                ),
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
-                      color: Color(0xFF0066FF),
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
-                    ),
-                  ),
-                  child: const Text(
-                    "Link Fund",
-                    style: TextStyle(
-                      color: Color(0xFF0066FF),
-                      fontWeight: FontWeight.w600,
-                      fontFamily: FontFamily.regular,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+            },
+          );
+        }),
+      ],
     );
   }
 }
@@ -2075,6 +2052,7 @@ class GoalDetailsMobileView extends StatelessWidget {
                           invested: invested,
                           emoji: emoji,
                           logo: logo,
+                          onAddFunds: onAddFunds,
                         ),
                       ),
                     ),
@@ -2093,18 +2071,18 @@ class GoalDetailsMobileView extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: UElevatedBUtton(
-        onPressed: onAddFunds,
-        child: Center(
-          child: Text(
-            'Add Funds',
-            style: UTextStyles.buttonText.copyWith(
-              color: Colors.white,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
+      // bottomNavigationBar: UElevatedBUtton(
+      //   onPressed: onAddFunds,
+      //   child: Center(
+      //     child: Text(
+      //       'Add Funds',
+      //       style: UTextStyles.buttonText.copyWith(
+      //         color: Colors.white,
+      //         fontSize: 14,
+      //       ),
+      //     ),
+      //   ),
+      // ),
     );
   }
 }
@@ -2118,6 +2096,7 @@ class GoalDetailSection extends StatelessWidget {
   final double invested;
   final String emoji;
   final String logo;
+  final VoidCallback? onAddFunds;
 
   const GoalDetailSection({
     super.key,
@@ -2126,6 +2105,7 @@ class GoalDetailSection extends StatelessWidget {
     required this.invested,
     required this.emoji,
     required this.logo,
+    this.onAddFunds,
   });
 
   String _fmt(double amount) {
@@ -2250,293 +2230,402 @@ class GoalDetailSection extends StatelessWidget {
             ),
           ),
           const Gap(20),
-          const SmallHeading(smallheading: 'Linked Mutual Funds'),
-          const Gap(10),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black12),
-            ),
-            child: Column(
-              children: [
-                if (!hasLiveFunds && linkedFunds.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: goalSipController.isLoadingSingleGoal.value
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text(
-                            'No mutual funds linked yet.',
-                            style: TextStyle(
-                              fontFamily: FontFamily.medium,
-                              color: Colors.grey,
-                            ),
-                          ),
-                  ),
-                if (hasLiveFunds)
-                  ...liveDetail.linkedFunds.map((fund) {
-                    final String imgUrl = fund.amcLogo.isNotEmpty
-                        ? (fund.amcLogo.startsWith('http')
-                              ? fund.amcLogo
-                              : "${Appurl.baseUrl}/${fund.amcLogo}")
-                        : (fund.amcImageUrl.isNotEmpty
-                              ? (fund.amcImageUrl.startsWith('http')
-                                    ? fund.amcImageUrl
-                                    : "${Appurl.baseUrl}/${fund.amcImageUrl}")
-                              : '');
-
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 6),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const SmallHeading(smallheading: 'Linked Mutual Funds'),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "${hasLiveFunds ? liveDetail.linkedFunds.length : linkedFunds.length}",
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF2563EB),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                radius: 18,
-                                backgroundColor: Colors.white,
-                                backgroundImage: imgUrl.isNotEmpty
-                                    ? NetworkImage(imgUrl)
-                                    : null,
-                                onBackgroundImageError: (_, __) {},
-                                child: imgUrl.isEmpty
-                                    ? const Icon(
-                                        Icons.account_balance,
-                                        size: 18,
-                                        color: Colors.grey,
-                                      )
-                                    : null,
+                    ),
+                  ),
+                ],
+              ),
+              if (onAddFunds != null)
+                TextButton.icon(
+                  onPressed: onAddFunds,
+                  icon: const Icon(
+                    Icons.add_circle_outline,
+                    size: 16,
+                    color: Color(0xFF0066FF),
+                  ),
+                  label: const Text(
+                    "Add",
+                    style: TextStyle(
+                      color: Color(0xFF0066FF),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(50, 30),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+            ],
+          ),
+          const Gap(10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!hasLiveFunds && linkedFunds.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 24.0,
+                    horizontal: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: goalSipController.isLoadingSingleGoal.value
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEFF6FF),
+                                shape: BoxShape.circle,
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      fund.fundName.isNotEmpty
-                                          ? fund.fundName
-                                          : 'Unknown Fund',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: UTextStyles.medium.copyWith(
-                                        color: Ucolors.dark,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Row(
-                                      children: [
-                                        if (fund.folioNo.isNotEmpty)
-                                          Text(
-                                            "Folio: ${fund.folioNo}",
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Color(0xFF64748B),
-                                              fontFamily: FontFamily.regular,
-                                            ),
-                                          ),
-                                        const Spacer(),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: fund.isUnitAllotted
-                                                ? const Color(0xFFDCFCE7)
-                                                : const Color(0xFFFEF3C7),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            fund.allotmentStatusLabel.isNotEmpty
-                                                ? fund.allotmentStatusLabel
-                                                : (fund.isUnitAllotted
-                                                      ? "Allotted"
-                                                      : "Pending"),
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w600,
-                                              color: fund.isUnitAllotted
-                                                  ? const Color(0xFF15803D)
-                                                  : const Color(0xFFB45309),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                              child: const Icon(
+                                Icons.account_balance_wallet_outlined,
+                                size: 26,
+                                color: Color(0xFF2563EB),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                              'No mutual funds linked yet',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Link a fund to start building towards this goal.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                            if (onAddFunds != null) ...[
+                              const SizedBox(height: 14),
+                              ElevatedButton.icon(
+                                onPressed: onAddFunds,
+                                icon: const Icon(Icons.add, size: 16),
+                                label: const Text("Link Fund"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Ucolors.primary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
                                 ),
                               ),
-                              Obx(() {
-                                final int fundId = fund.id != 0
-                                    ? fund.id
-                                    : fund.mfuOrderFundId;
-                                final bool deleting =
-                                    goalSipController.isDeleting[fundId] ??
-                                    false;
-                                return deleting
-                                    ? const Padding(
-                                        padding: EdgeInsets.only(left: 6),
-                                        child: SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
+                            ],
+                          ],
+                        ),
+                ),
+              if (hasLiveFunds)
+                ...liveDetail.linkedFunds.map((fund) {
+                  final String imgUrl = fund.amcLogo.isNotEmpty
+                      ? (fund.amcLogo.startsWith('http')
+                            ? fund.amcLogo
+                            : "${Appurl.baseUrl}/${fund.amcLogo}")
+                      : (fund.amcImageUrl.isNotEmpty
+                            ? (fund.amcImageUrl.startsWith('http')
+                                  ? fund.amcImageUrl
+                                  : "${Appurl.baseUrl}/${fund.amcImageUrl}")
+                            : '');
+
+                  final int fundId = fund.id != 0
+                      ? fund.id
+                      : fund.mfuOrderFundId;
+                  final bool isAllotted = fund.isUnitAllotted;
+                  final double gain = fund.gainLoss;
+                  final double gainPercent = fund.gainLossPercent;
+
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Colors.white,
+                            backgroundImage: imgUrl.isNotEmpty
+                                ? NetworkImage(imgUrl)
+                                : null,
+                            onBackgroundImageError: (_, __) {},
+                            child: imgUrl.isEmpty
+                                ? const Icon(
+                                    Icons.account_balance,
+                                    size: 18,
+                                    color: Colors.grey,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  fund.fundName.isNotEmpty
+                                      ? fund.fundName
+                                      : 'Unknown Fund',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: UTextStyles.medium.copyWith(
+                                    color: const Color(0xFF0F172A),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                    height: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Inv: ",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Color(0xFF64748B),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      "₹${(fund.fundInvested > 0 ? fund.fundInvested : fund.investedAmount).toStringAsFixed(0)}",
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                      ),
+                                      child: Text(
+                                        "•",
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Color(0xFFCBD5E1),
                                         ),
-                                      )
-                                    : IconButton(
-                                        icon: const Icon(
-                                          Iconsax.trash,
-                                          color: Colors.red,
-                                          size: 18,
+                                      ),
+                                    ),
+                                    const Text(
+                                      "Cur: ",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Color(0xFF64748B),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      fund.currentValue > 0
+                                          ? "₹${fund.currentValue.toStringAsFixed(0)}"
+                                          : (fund.currentNav > 0
+                                                ? "NAV ₹${fund.currentNav.toStringAsFixed(2)}"
+                                                : "—"),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF0F172A),
+                                      ),
+                                    ),
+                                    if (gain != 0 || gainPercent != 0) ...[
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        "(${gain >= 0 ? '+' : ''}${gainPercent.toStringAsFixed(1)}%)",
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: gain >= 0
+                                              ? const Color(0xFF16A34A)
+                                              : const Color(0xFFDC2626),
                                         ),
-                                        padding: const EdgeInsets.only(left: 6),
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () {
-                                          Get.defaultDialog(
-                                            title: "Remove Fund",
-                                            middleText:
-                                                "Are you sure you want to remove this fund from your goal?",
-                                            textConfirm: "Remove",
-                                            textCancel: "Cancel",
-                                            confirmTextColor: Colors.white,
-                                            buttonColor: Colors.red,
-                                            onConfirm: () {
-                                              Get.back();
-                                              goalSipController.deleteGoalFund(
-                                                id: fundId,
-                                                isEdit: false,
-                                                schemeName: fund.fundName,
-                                                goalId: freshGoal?.id,
-                                              );
-                                            },
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Obx(() {
+                            final bool deleting =
+                                goalSipController.isDeleting[fundId] ?? false;
+                            return deleting
+                                ? const Padding(
+                                    padding: EdgeInsets.only(left: 6),
+                                    child: SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  )
+                                : IconButton(
+                                    icon: const Icon(
+                                      Iconsax.trash,
+                                      color: Color(0xFF94A3B8),
+                                      size: 17,
+                                    ),
+                                    padding: const EdgeInsets.only(left: 6),
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () {
+                                      Get.defaultDialog(
+                                        title: "Remove Fund",
+                                        middleText:
+                                            "Are you sure you want to remove this fund from your goal?",
+                                        textConfirm: "Remove",
+                                        textCancel: "Cancel",
+                                        confirmTextColor: Colors.white,
+                                        buttonColor: Colors.red,
+                                        onConfirm: () {
+                                          Get.back();
+                                          goalSipController.deleteGoalFund(
+                                            id: fundId,
+                                            isEdit: false,
+                                            schemeName: fund.fundName,
+                                            goalId: freshGoal?.id,
                                           );
                                         },
                                       );
-                              }),
-                            ],
-                          ),
-                          const Divider(
-                            height: 16,
-                            thickness: 0.5,
-                            color: Color(0xFFE2E8F0),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Invested: ₹${(fund.fundInvested > 0 ? fund.fundInvested : fund.investedAmount).toStringAsFixed(0)}",
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF475569),
-                                      fontFamily: FontFamily.regular,
-                                    ),
-                                  ),
-                                  if (fund.units > 0)
-                                    Text(
-                                      "Units: ${fund.units.toStringAsFixed(3)}",
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Color(0xFF64748B),
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    "Current: ₹${fund.currentValue.toStringAsFixed(2)}",
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1E293B),
-                                      fontFamily: FontFamily.regular,
-                                    ),
-                                  ),
-                                  if (fund.gainLoss != 0 ||
-                                      fund.gainLossPercent != 0)
-                                    Text(
-                                      "${fund.gainLoss >= 0 ? '+' : ''}₹${fund.gainLoss.toStringAsFixed(2)} (${fund.gainLossPercent.toStringAsFixed(2)}%)",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: fund.gainLoss >= 0
-                                            ? const Color(0xFF16A34A)
-                                            : const Color(0xFFDC2626),
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ],
+                                    },
+                                  );
+                          }),
+                        ],
+                      ),
+                    ),
+                  );
+                })
+              else
+                ...linkedFunds.map((fund) {
+                  return Obx(() {
+                    final bool deleting =
+                        goalSipController.isDeleting[fund.id] ?? false;
+                    final String imgUrl =
+                        "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+                    final String displayAmount =
+                        freshGoal?.txnType.toLowerCase() == 'sip'
+                        ? _fmt(fund.sipAmount)
+                        : _fmt(fund.lumpsumAmount);
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                    );
-                  })
-                else
-                  ...linkedFunds.map((fund) {
-                    return Obx(() {
-                      final bool deleting =
-                          goalSipController.isDeleting[fund.id] ?? false;
-                      final String imgUrl =
-                          "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
-
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                         dense: true,
                         leading: CircleAvatar(
-                          backgroundColor: Colors.transparent,
+                          radius: 18,
+                          backgroundColor: Colors.white,
                           backgroundImage: NetworkImage(imgUrl),
                           onBackgroundImageError: (_, __) =>
-                              const Icon(Icons.broken_image),
+                              const Icon(Icons.broken_image, size: 18),
                         ),
                         title: Text(
                           fund.mutualFund?.schemeName ?? 'Unknown Fund',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: UTextStyles.medium.copyWith(
-                            color: Ucolors.dark,
-                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF0F172A),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
                           ),
                         ),
+                        subtitle:
+                            fund.mutualFund?.schemeCategory?.isNotEmpty == true
+                            ? Text(
+                                fund.mutualFund!.schemeCategory,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Color(0xFF64748B),
+                                ),
+                              )
+                            : null,
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              freshGoal?.txnType.toLowerCase() == 'sip'
-                                  ? _fmt(fund.sipAmount)
-                                  : _fmt(fund.lumpsumAmount),
-                              style: UTextStyles.medium.copyWith(
-                                color: Ucolors.dark,
-                                fontWeight: FontWeight.w500,
+                              displayAmount,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1E293B),
                               ),
                             ),
                             const SizedBox(width: 8),
                             deleting
                                 ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
+                                    width: 18,
+                                    height: 18,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                     ),
@@ -2544,8 +2633,8 @@ class GoalDetailSection extends StatelessWidget {
                                 : IconButton(
                                     icon: const Icon(
                                       Iconsax.trash,
-                                      color: Colors.red,
-                                      size: 20,
+                                      color: Color(0xFF94A3B8),
+                                      size: 18,
                                     ),
                                     onPressed: () {
                                       Get.defaultDialog(
@@ -2555,6 +2644,7 @@ class GoalDetailSection extends StatelessWidget {
                                         textConfirm: "Remove",
                                         textCancel: "Cancel",
                                         confirmTextColor: Colors.white,
+                                        buttonColor: Colors.red,
                                         onConfirm: () {
                                           Get.back();
                                           goalSipController.deleteGoalFund(
@@ -2562,7 +2652,7 @@ class GoalDetailSection extends StatelessWidget {
                                             isEdit: true,
                                             schemeName:
                                                 fund.mutualFund?.schemeCode
-                                                    .toString() ??
+                                                    ?.toString() ??
                                                 '',
                                             goalId: freshGoal?.id,
                                           );
@@ -2572,11 +2662,11 @@ class GoalDetailSection extends StatelessWidget {
                                   ),
                           ],
                         ),
-                      );
-                    });
-                  }).toList(),
-              ],
-            ),
+                      ),
+                    );
+                  });
+                }).toList(),
+            ],
           ),
           const Gap(22),
         ],
