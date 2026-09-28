@@ -61,29 +61,53 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       final bool isCurrentGoalMatch =
           liveDetail != null && liveDetail.id == currentGoalId;
 
-      final UserGoalEntity? goal =
-          initialGoal ??
-          (isCurrentGoalMatch
-              ? UserGoalEntity(
-                  id: liveDetail.id,
-                  userId: 0,
-                  goalId: liveDetail.id,
-                  goalName: liveDetail.goalName,
-                  goalCover: liveDetail.goalCover,
-                  txnType: 'lumpsum',
-                  lumpsumAmount: 0.0,
-                  targetAmount: liveDetail.targetAmount,
-                  frequency: 'monthly',
-                  monthlyInvestment: liveDetail.monthlySavings,
-                  expectedReturnRate: 12.0,
-                  goalTenure: liveDetail.goalTenure,
-                  investedAmount: liveDetail.savedAmount,
-                  status: liveDetail.status,
-                  mfuOrderStatus: '',
-                  progressPercent: liveDetail.progressPercent,
-                  goalFunds: [],
-                )
-              : null);
+      final UserGoalEntity? goal = (isCurrentGoalMatch && liveDetail != null)
+          ? UserGoalEntity(
+              id: liveDetail.id,
+              userId: initialGoal?.userId ?? 0,
+              goalId: (initialGoal != null && initialGoal.goalId > 0)
+                  ? initialGoal.goalId
+                  : liveDetail.id,
+              goalName: liveDetail.goalName.isNotEmpty
+                  ? liveDetail.goalName
+                  : (initialGoal?.goalName ?? ''),
+              goalCover: liveDetail.goalCover.isNotEmpty
+                  ? liveDetail.goalCover
+                  : (initialGoal?.goalCover ?? ''),
+              txnType: (initialGoal?.txnType.isNotEmpty ?? false)
+                  ? initialGoal!.txnType
+                  : 'sip',
+              lumpsumAmount: (initialGoal?.lumpsumAmount ?? 0.0) > 0
+                  ? initialGoal!.lumpsumAmount
+                  : 0.0,
+              targetAmount: liveDetail.targetAmount > 0
+                  ? liveDetail.targetAmount
+                  : (initialGoal?.targetAmount ?? 0.0),
+              frequency: (initialGoal?.frequency.isNotEmpty ?? false)
+                  ? initialGoal!.frequency
+                  : 'Monthly',
+              monthlyInvestment: liveDetail.monthlySavings > 0
+                  ? liveDetail.monthlySavings
+                  : (initialGoal?.monthlyInvestment ?? 0.0),
+              expectedReturnRate:
+                  (initialGoal != null && initialGoal.expectedReturnRate > 0)
+                  ? initialGoal.expectedReturnRate
+                  : 12.0,
+              goalTenure: liveDetail.goalTenure > 0
+                  ? liveDetail.goalTenure
+                  : (initialGoal?.goalTenure ?? 0),
+              investedAmount: liveDetail.savedAmount > 0
+                  ? liveDetail.savedAmount
+                  : (initialGoal?.investedAmount ?? 0.0),
+              status: liveDetail.status.isNotEmpty
+                  ? liveDetail.status
+                  : (initialGoal?.status ?? 'pending'),
+              mfuOrderStatus: initialGoal?.mfuOrderStatus ?? '',
+              progressPercent: liveDetail.progressPercent,
+              goalType: initialGoal?.goalType,
+              goalFunds: initialGoal?.goalFunds ?? [],
+            )
+          : initialGoal;
 
       final String emoji = args?['emoji'] ?? '🎯';
       final double target = isCurrentGoalMatch && liveDetail.targetAmount > 0
@@ -290,19 +314,38 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                MasterGoalsPage.tempArgs = {
+                final editPayload = {
                   "goalId": currentGoalId,
                   "goal": goal,
                   "isEdit": true,
+                  "goalType": (goal?.goalName.isNotEmpty ?? false)
+                      ? goal!.goalName
+                      : (goal?.goalType ?? 'custom'),
                 };
+                MasterGoalsPage.tempArgs = editPayload;
+                WebMasterGoalsPage.tempArgs = editPayload;
+                controller.isEdit.value = true;
+                if (goal != null) {
+                  controller.loadGoalForEdit(goal);
+                }
 
                 if (isDesktop) {
-                  Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1);
+                  Get.toNamed(
+                    AppRoutes.webMasterGoalsPage,
+                    id: 1,
+                    arguments: editPayload,
+                  )?.then((_) {
+                    controller.fetchSingleGoal(currentGoalId);
+                    controller.getAllGoals();
+                  });
                 } else {
                   Get.toNamed(
                     AppRoutes.masterGoalsPage,
-                    arguments: MasterGoalsPage.tempArgs,
-                  );
+                    arguments: editPayload,
+                  )?.then((_) {
+                    controller.fetchSingleGoal(currentGoalId);
+                    controller.getAllGoals();
+                  });
                 }
               },
               style: ElevatedButton.styleFrom(

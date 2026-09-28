@@ -20,6 +20,9 @@ class SingleGoalDetailEntity {
   final double remainingAmount;
   final double targetAmount;
   final int estYear;
+  final String? startDate;
+  final String? endDate;
+  final String? duration;
   final String deadlineLabel;
   final double dailySavings;
   final double weeklySavings;
@@ -39,6 +42,9 @@ class SingleGoalDetailEntity {
     required this.remainingAmount,
     required this.targetAmount,
     required this.estYear,
+    this.startDate,
+    this.endDate,
+    this.duration,
     required this.deadlineLabel,
     required this.dailySavings,
     required this.weeklySavings,
@@ -59,6 +65,9 @@ class SingleGoalDetailEntity {
     double? remainingAmount,
     double? targetAmount,
     int? estYear,
+    String? startDate,
+    String? endDate,
+    String? duration,
     String? deadlineLabel,
     double? dailySavings,
     double? weeklySavings,
@@ -78,6 +87,9 @@ class SingleGoalDetailEntity {
       remainingAmount: remainingAmount ?? this.remainingAmount,
       targetAmount: targetAmount ?? this.targetAmount,
       estYear: estYear ?? this.estYear,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      duration: duration ?? this.duration,
       deadlineLabel: deadlineLabel ?? this.deadlineLabel,
       dailySavings: dailySavings ?? this.dailySavings,
       weeklySavings: weeklySavings ?? this.weeklySavings,
@@ -118,6 +130,36 @@ class GoalDeadlineEntity {
   });
 }
 
+class GoalRedemptionDetailEntity {
+  final String orderRefNo;
+  final String gorn;
+  final double amount;
+  final double units;
+  final String transactionVolumeType;
+  final String requestedDate;
+  final String status;
+  final String statusLabel;
+  final String orderStatusLabel;
+  final String statusCode;
+  final String estimatedPayoutDays;
+  final String message;
+
+  GoalRedemptionDetailEntity({
+    required this.orderRefNo,
+    required this.gorn,
+    required this.amount,
+    required this.units,
+    required this.transactionVolumeType,
+    required this.requestedDate,
+    required this.status,
+    required this.statusLabel,
+    required this.orderStatusLabel,
+    required this.statusCode,
+    required this.estimatedPayoutDays,
+    required this.message,
+  });
+}
+
 class GoalLinkedFundEntity {
   final int id;
   final String amcImageUrl;
@@ -128,8 +170,11 @@ class GoalLinkedFundEntity {
   final double totalUnits;
   final double units;
   final double purchaseNav;
+  final double? latestPurchaseNav;
   final double currentNav;
   final String investedDate;
+  final String? firstInvestedDate;
+  final String? latestInvestedDate;
   final String navDate;
   final double navChange;
   final double dayChange;
@@ -148,12 +193,15 @@ class GoalLinkedFundEntity {
   final bool isUnitAllotted;
   final bool hasPendingRedemption;
   final String? redemptionStatus;
+  final String? redemptionMessage;
+  final List<GoalRedemptionDetailEntity> redemptionDetails;
   final double redeemedAmount;
   final double redeemedUnits;
   final bool isSip;
   final String? sipStatus;
   final bool isSipCancelled;
   final bool hasPendingSipCancellation;
+  final dynamic sipCancellationDetails;
   final String latestOrderStatus;
   final String latestOrderStatusLabel;
   final int mfuOrderId;
@@ -171,8 +219,11 @@ class GoalLinkedFundEntity {
     required this.totalUnits,
     required this.units,
     required this.purchaseNav,
+    this.latestPurchaseNav,
     required this.currentNav,
     required this.investedDate,
+    this.firstInvestedDate,
+    this.latestInvestedDate,
     required this.navDate,
     required this.navChange,
     required this.dayChange,
@@ -191,12 +242,15 @@ class GoalLinkedFundEntity {
     required this.isUnitAllotted,
     required this.hasPendingRedemption,
     this.redemptionStatus,
+    this.redemptionMessage,
+    this.redemptionDetails = const [],
     required this.redeemedAmount,
     required this.redeemedUnits,
     required this.isSip,
     this.sipStatus,
     required this.isSipCancelled,
     required this.hasPendingSipCancellation,
+    this.sipCancellationDetails,
     required this.latestOrderStatus,
     required this.latestOrderStatusLabel,
     required this.mfuOrderId,

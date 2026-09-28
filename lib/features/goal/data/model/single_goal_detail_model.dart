@@ -37,6 +37,9 @@ class SingleGoalDetailModel {
   final double? remainingAmount;
   final double? targetAmount;
   final int? estYear;
+  final String? startDate;
+  final String? endDate;
+  final String? duration;
   final String? deadlineLabel;
   final double? dailySavings;
   final double? weeklySavings;
@@ -56,6 +59,9 @@ class SingleGoalDetailModel {
     this.remainingAmount,
     this.targetAmount,
     this.estYear,
+    this.startDate,
+    this.endDate,
+    this.duration,
     this.deadlineLabel,
     this.dailySavings,
     this.weeklySavings,
@@ -81,6 +87,9 @@ class SingleGoalDetailModel {
       targetAmount:
           json.parse<double>('target_amount') ?? json.parse<double>('goal'),
       estYear: json.parse<int>('est_year') ?? json.parse<int>('deadline_year'),
+      startDate: json.parse<String>('start_date'),
+      endDate: json.parse<String>('end_date'),
+      duration: json.parse<String>('duration'),
       deadlineLabel: json.parse<String>('deadline_label'),
       dailySavings: json.parse<double>('daily_savings'),
       weeklySavings: json.parse<double>('weekly_savings'),
@@ -112,6 +121,9 @@ class SingleGoalDetailModel {
       remainingAmount: remainingAmount ?? saving?.remaining ?? 0.0,
       targetAmount: targetAmount ?? saving?.goal ?? 0.0,
       estYear: estYear ?? deadline?.estYear ?? 0,
+      startDate: startDate,
+      endDate: endDate,
+      duration: duration,
       deadlineLabel: deadlineLabel ?? deadline?.label ?? '',
       dailySavings: dailySavings ?? deadline?.dailySavings ?? 0.0,
       weeklySavings: weeklySavings ?? deadline?.weeklySavings ?? 0.0,
@@ -184,6 +196,70 @@ class GoalDeadlineModel {
   }
 }
 
+class GoalRedemptionDetailModel {
+  final String? orderRefNo;
+  final String? gorn;
+  final double? amount;
+  final double? units;
+  final String? transactionVolumeType;
+  final String? requestedDate;
+  final String? status;
+  final String? statusLabel;
+  final String? orderStatusLabel;
+  final String? statusCode;
+  final String? estimatedPayoutDays;
+  final String? message;
+
+  GoalRedemptionDetailModel({
+    this.orderRefNo,
+    this.gorn,
+    this.amount,
+    this.units,
+    this.transactionVolumeType,
+    this.requestedDate,
+    this.status,
+    this.statusLabel,
+    this.orderStatusLabel,
+    this.statusCode,
+    this.estimatedPayoutDays,
+    this.message,
+  });
+
+  factory GoalRedemptionDetailModel.fromJson(Map<String, dynamic> json) {
+    return GoalRedemptionDetailModel(
+      orderRefNo: json.parse<String>('order_ref_no'),
+      gorn: json.parse<String>('gorn'),
+      amount: json.parse<double>('amount'),
+      units: json.parse<double>('units'),
+      transactionVolumeType: json.parse<String>('transaction_volume_type'),
+      requestedDate: json.parse<String>('requested_date'),
+      status: json.parse<String>('status'),
+      statusLabel: json.parse<String>('status_label'),
+      orderStatusLabel: json.parse<String>('order_status_label'),
+      statusCode: json.parse<String>('status_code'),
+      estimatedPayoutDays: json.parse<String>('estimated_payout_days'),
+      message: json.parse<String>('message'),
+    );
+  }
+
+  GoalRedemptionDetailEntity toEntity() {
+    return GoalRedemptionDetailEntity(
+      orderRefNo: orderRefNo ?? '',
+      gorn: gorn ?? '',
+      amount: amount ?? 0.0,
+      units: units ?? 0.0,
+      transactionVolumeType: transactionVolumeType ?? '',
+      requestedDate: requestedDate ?? '',
+      status: status ?? '',
+      statusLabel: statusLabel ?? '',
+      orderStatusLabel: orderStatusLabel ?? '',
+      statusCode: statusCode ?? '',
+      estimatedPayoutDays: estimatedPayoutDays ?? '',
+      message: message ?? '',
+    );
+  }
+}
+
 class GoalLinkedFundModel {
   final int? id;
   final String? amcImageUrl;
@@ -194,8 +270,11 @@ class GoalLinkedFundModel {
   final double? totalUnits;
   final double? units;
   final double? purchaseNav;
-  final double? currentNav;
+  final double? latestPurchaseNav;
+  final double currentNav;
   final String? investedDate;
+  final String? firstInvestedDate;
+  final String? latestInvestedDate;
   final String? navDate;
   final double? navChange;
   final double? dayChange;
@@ -214,12 +293,15 @@ class GoalLinkedFundModel {
   final bool? isUnitAllotted;
   final bool? hasPendingRedemption;
   final String? redemptionStatus;
+  final String? redemptionMessage;
+  final List<GoalRedemptionDetailModel>? redemptionDetails;
   final double? redeemedAmount;
   final double? redeemedUnits;
   final bool? isSip;
   final String? sipStatus;
   final bool? isSipCancelled;
   final bool? hasPendingSipCancellation;
+  final dynamic sipCancellationDetails;
   final String? latestOrderStatus;
   final String? latestOrderStatusLabel;
   final int? mfuOrderId;
@@ -237,8 +319,11 @@ class GoalLinkedFundModel {
     this.totalUnits,
     this.units,
     this.purchaseNav,
-    this.currentNav,
+    this.latestPurchaseNav,
+    required this.currentNav,
     this.investedDate,
+    this.firstInvestedDate,
+    this.latestInvestedDate,
     this.navDate,
     this.navChange,
     this.dayChange,
@@ -257,12 +342,15 @@ class GoalLinkedFundModel {
     this.isUnitAllotted,
     this.hasPendingRedemption,
     this.redemptionStatus,
+    this.redemptionMessage,
+    this.redemptionDetails,
     this.redeemedAmount,
     this.redeemedUnits,
     this.isSip,
     this.sipStatus,
     this.isSipCancelled,
     this.hasPendingSipCancellation,
+    this.sipCancellationDetails,
     this.latestOrderStatus,
     this.latestOrderStatusLabel,
     this.mfuOrderId,
@@ -291,11 +379,14 @@ class GoalLinkedFundModel {
           json.parse<double>('purchase_nav') ??
           json.parse<double>('invested_nav') ??
           json.parse<double>('average_nav'),
+      latestPurchaseNav: json.parse<double>('latest_purchase_nav'),
       currentNav:
-          json.parse<double>('current_nav') ?? json.parse<double>('nav'),
+          json.parse<double>('current_nav') ?? json.parse<double>('nav') ?? 0.0,
       investedDate:
           json.parse<String>('invested_date') ??
           json.parse<String>('investment_date'),
+      firstInvestedDate: json.parse<String>('first_invested_date'),
+      latestInvestedDate: json.parse<String>('latest_invested_date'),
       navDate: json.parse<String>('nav_date'),
       navChange: json.parse<double>('nav_change'),
       dayChange:
@@ -328,6 +419,12 @@ class GoalLinkedFundModel {
       isUnitAllotted: json.parse<bool>('is_unit_allotted'),
       hasPendingRedemption: json.parse<bool>('has_pending_redemption'),
       redemptionStatus: json.parse<String>('redemption_status'),
+      redemptionMessage: json.parse<String>('redemption_message'),
+      redemptionDetails: json.parseListOf<GoalRedemptionDetailModel>(
+        'redemption_details',
+        (item) =>
+            GoalRedemptionDetailModel.fromJson(item as Map<String, dynamic>),
+      ),
       redeemedAmount: json.parse<double>('redeemed_amount'),
       redeemedUnits: json.parse<double>('redeemed_units'),
       isSip: json.parse<bool>('is_sip'),
@@ -336,6 +433,7 @@ class GoalLinkedFundModel {
       hasPendingSipCancellation: json.parse<bool>(
         'has_pending_sip_cancellation',
       ),
+      sipCancellationDetails: json['sip_cancellation_details'],
       latestOrderStatus: json.parse<String>('latest_order_status'),
       latestOrderStatusLabel: json.parse<String>('latest_order_status_label'),
       mfuOrderId: json.parse<int>('mfu_order_id'),
@@ -356,8 +454,11 @@ class GoalLinkedFundModel {
       totalUnits: totalUnits ?? 0.0,
       units: units ?? 0.0,
       purchaseNav: purchaseNav ?? 0.0,
-      currentNav: currentNav ?? 0.0,
+      latestPurchaseNav: latestPurchaseNav,
+      currentNav: currentNav,
       investedDate: investedDate ?? '',
+      firstInvestedDate: firstInvestedDate,
+      latestInvestedDate: latestInvestedDate,
       navDate: navDate ?? '',
       navChange: navChange ?? 0.0,
       dayChange: dayChange ?? 0.0,
@@ -376,12 +477,16 @@ class GoalLinkedFundModel {
       isUnitAllotted: isUnitAllotted ?? false,
       hasPendingRedemption: hasPendingRedemption ?? false,
       redemptionStatus: redemptionStatus,
+      redemptionMessage: redemptionMessage,
+      redemptionDetails:
+          redemptionDetails?.map((d) => d.toEntity()).toList() ?? const [],
       redeemedAmount: redeemedAmount ?? 0.0,
       redeemedUnits: redeemedUnits ?? 0.0,
       isSip: isSip ?? false,
       sipStatus: sipStatus,
       isSipCancelled: isSipCancelled ?? false,
       hasPendingSipCancellation: hasPendingSipCancellation ?? false,
+      sipCancellationDetails: sipCancellationDetails,
       latestOrderStatus: latestOrderStatus ?? '',
       latestOrderStatusLabel: latestOrderStatusLabel ?? '',
       mfuOrderId: mfuOrderId ?? 0,

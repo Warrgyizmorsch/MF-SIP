@@ -67,17 +67,79 @@ class MasterGoalsPage extends GetView<GoalSipController> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!isEdit && !isAddFund) {
             controller.resetStateForNewGoal();
+            controller.updateGoalType(initialType);
+          } else {
+            controller.selectedGoalType.value = initialType;
           }
-
-          controller.updateGoalType(initialType);
 
           // EDIT GOAL
-          if (isEdit && goal != null) {
-            controller.loadGoalForEdit(goal);
+          if (isEdit) {
+            final effectiveGoal =
+                goal ??
+                (controller.currentGoalDetail.value != null
+                    ? UserGoalEntity(
+                        id: controller.currentGoalDetail.value!.id,
+                        userId: 0,
+                        goalId: controller.currentGoalDetail.value!.id,
+                        goalName: controller.currentGoalDetail.value!.goalName,
+                        goalCover:
+                            controller.currentGoalDetail.value!.goalCover,
+                        txnType: 'sip',
+                        lumpsumAmount: 0.0,
+                        targetAmount:
+                            controller.currentGoalDetail.value!.targetAmount,
+                        frequency: 'Monthly',
+                        monthlyInvestment:
+                            controller.currentGoalDetail.value!.monthlySavings,
+                        expectedReturnRate: 12.0,
+                        goalTenure:
+                            controller.currentGoalDetail.value!.goalTenure,
+                        investedAmount:
+                            controller.currentGoalDetail.value!.savedAmount,
+                        status: controller.currentGoalDetail.value!.status.isNotEmpty
+                            ? controller.currentGoalDetail.value!.status
+                            : 'pending',
+                        mfuOrderStatus: '',
+                        goalFunds: const [],
+                      )
+                    : null);
+            if (effectiveGoal != null) {
+              controller.loadGoalForEdit(effectiveGoal);
+            }
           }
-          if (isAddFund && goal != null) {
-            controller.loadGoalForAddFund(goal);
-            // controller.update();
+          if (isAddFund) {
+            final effectiveGoal =
+                goal ??
+                (controller.currentGoalDetail.value != null
+                    ? UserGoalEntity(
+                        id: controller.currentGoalDetail.value!.id,
+                        userId: 0,
+                        goalId: controller.currentGoalDetail.value!.id,
+                        goalName: controller.currentGoalDetail.value!.goalName,
+                        goalCover:
+                            controller.currentGoalDetail.value!.goalCover,
+                        txnType: 'sip',
+                        lumpsumAmount: 0.0,
+                        targetAmount:
+                            controller.currentGoalDetail.value!.targetAmount,
+                        frequency: 'Monthly',
+                        monthlyInvestment:
+                            controller.currentGoalDetail.value!.monthlySavings,
+                        expectedReturnRate: 12.0,
+                        goalTenure:
+                            controller.currentGoalDetail.value!.goalTenure,
+                        investedAmount:
+                            controller.currentGoalDetail.value!.savedAmount,
+                        status: controller.currentGoalDetail.value!.status.isNotEmpty
+                            ? controller.currentGoalDetail.value!.status
+                            : 'pending',
+                        mfuOrderStatus: '',
+                        goalFunds: const [],
+                      )
+                    : null);
+            if (effectiveGoal != null) {
+              controller.loadGoalForAddFund(effectiveGoal);
+            }
           }
           // HOME GOAL
           if (isHome) {

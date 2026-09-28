@@ -115,21 +115,85 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
           final String initialType = args['goalType'] ?? 'custom';
           controller.isEdit.value = args['isEdit'] ?? false;
           controller.isHome.value = args['isHome'] ?? false;
+          controller.isAddFund.value = args['isAddFund'] ?? false;
 
           final UserGoalEntity? goal = args['goal'];
 
-          if (!controller.isEdit.value) {
+          if (!controller.isEdit.value && !controller.isAddFund.value) {
             controller.resetStateForNewGoal();
+            controller.updateGoalType(initialType);
+          } else {
+            controller.selectedGoalType.value = initialType;
           }
-
-          controller.updateGoalType(initialType);
 
           // EDIT GOAL
-          if (controller.isEdit.value && goal != null) {
-            controller.loadGoalForEdit(goal);
+          if (controller.isEdit.value) {
+            final effectiveGoal =
+                goal ??
+                (controller.currentGoalDetail.value != null
+                    ? UserGoalEntity(
+                        id: controller.currentGoalDetail.value!.id,
+                        userId: 0,
+                        goalId: controller.currentGoalDetail.value!.id,
+                        goalName: controller.currentGoalDetail.value!.goalName,
+                        goalCover:
+                            controller.currentGoalDetail.value!.goalCover,
+                        txnType: 'sip',
+                        lumpsumAmount: 0.0,
+                        targetAmount:
+                            controller.currentGoalDetail.value!.targetAmount,
+                        frequency: 'Monthly',
+                        monthlyInvestment:
+                            controller.currentGoalDetail.value!.monthlySavings,
+                        expectedReturnRate: 12.0,
+                        goalTenure:
+                            controller.currentGoalDetail.value!.goalTenure,
+                        investedAmount:
+                            controller.currentGoalDetail.value!.savedAmount,
+                        status: controller.currentGoalDetail.value!.status.isNotEmpty
+                            ? controller.currentGoalDetail.value!.status
+                            : 'pending',
+                        mfuOrderStatus: '',
+                        goalFunds: const [],
+                      )
+                    : null);
+            if (effectiveGoal != null) {
+              controller.loadGoalForEdit(effectiveGoal);
+            }
           }
-          if (controller.isAddFund.value && goal != null) {
-            controller.loadGoalForAddFund(goal);
+          if (controller.isAddFund.value) {
+            final effectiveGoal =
+                goal ??
+                (controller.currentGoalDetail.value != null
+                    ? UserGoalEntity(
+                        id: controller.currentGoalDetail.value!.id,
+                        userId: 0,
+                        goalId: controller.currentGoalDetail.value!.id,
+                        goalName: controller.currentGoalDetail.value!.goalName,
+                        goalCover:
+                            controller.currentGoalDetail.value!.goalCover,
+                        txnType: 'sip',
+                        lumpsumAmount: 0.0,
+                        targetAmount:
+                            controller.currentGoalDetail.value!.targetAmount,
+                        frequency: 'Monthly',
+                        monthlyInvestment:
+                            controller.currentGoalDetail.value!.monthlySavings,
+                        expectedReturnRate: 12.0,
+                        goalTenure:
+                            controller.currentGoalDetail.value!.goalTenure,
+                        investedAmount:
+                            controller.currentGoalDetail.value!.savedAmount,
+                        status: controller.currentGoalDetail.value!.status.isNotEmpty
+                            ? controller.currentGoalDetail.value!.status
+                            : 'pending',
+                        mfuOrderStatus: '',
+                        goalFunds: const [],
+                      )
+                    : null);
+            if (effectiveGoal != null) {
+              controller.loadGoalForAddFund(effectiveGoal);
+            }
           }
 
           // HOME GOAL

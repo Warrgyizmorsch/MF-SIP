@@ -251,12 +251,26 @@ class GoalSipController extends GetxController {
     isGoalSaved.value = true;
     savedInvestmentType.value = goal.txnType;
 
-    final double tenureYears =
-        (goal.goalTenure > 30 ||
-            (goal.goalTenure >= 12 && goal.goalTenure % 12 == 0))
-        ? (goal.goalTenure / 12).toDouble()
-        : goal.goalTenure.toDouble();
-    final double safeYears = tenureYears.clamp(1.0, 30.0);    
+    int rawTenure = goal.goalTenure;
+    if (rawTenure <= 0 && currentGoalDetail.value != null) {
+      rawTenure = currentGoalDetail.value!.goalTenure;
+    }
+    double resolvedTenureYears = 0.0;
+    if (rawTenure > 0) {
+      resolvedTenureYears = (rawTenure > 30)
+          ? (rawTenure / 12).toDouble()
+          : rawTenure.toDouble();
+    } else {
+      final String? liveDuration = currentGoalDetail.value?.duration;
+      if (liveDuration != null && liveDuration.isNotEmpty) {
+        final match = RegExp(r'(\d+)').firstMatch(liveDuration);
+        if (match != null) {
+          resolvedTenureYears = double.tryParse(match.group(1)!) ?? 0.0;
+        }
+      }
+    }
+    final double safeYears =
+        (resolvedTenureYears > 0 ? resolvedTenureYears : 5.0).clamp(1.0, 30.0);
     final double safeRate = (goal.expectedReturnRate > 0)
         ? goal.expectedReturnRate.clamp(1.0, 30.0)
         : 12.0;
@@ -265,7 +279,9 @@ class GoalSipController extends GetxController {
         ? goal.targetAmount
         : ((goal.goalType?.targetAmount.toDouble() ?? 0) > 0
               ? goal.goalType!.targetAmount.toDouble()
-              : goal.investedAmount.toDouble());
+              : ((currentGoalDetail.value?.targetAmount ?? 0.0) > 0
+                    ? currentGoalDetail.value!.targetAmount
+                    : goal.investedAmount.toDouble()));
 
     if (goal.txnType.toLowerCase() == "lumpsum") {
       investmentMode.value = "lumpsum";
@@ -277,8 +293,10 @@ class GoalSipController extends GetxController {
       years.value = safeYears;
     } else {
       investmentMode.value = "sip";
-      existingSipAmount.value = goal.monthlyInvestment.toDouble();
-      monthlySip.value = goal.monthlyInvestment.toInt();
+      existingSipAmount.value = (goal.monthlyInvestment > 0)
+          ? goal.monthlyInvestment.toDouble()
+          : (currentGoalDetail.value?.monthlySavings ?? 0.0);
+      monthlySip.value = existingSipAmount.value.toInt();
       targetAmount.value = target;
       years.value = safeYears;
       annualRate.value = safeRate;
@@ -286,7 +304,9 @@ class GoalSipController extends GetxController {
     initialTargetAmount = target;
     initialYears = safeYears;
     initialRate = safeRate;
-    existingSipAmount.value = (goal.monthlyInvestment).toDouble();
+    existingSipAmount.value = (goal.monthlyInvestment > 0)
+        ? goal.monthlyInvestment.toDouble()
+        : (currentGoalDetail.value?.monthlySavings ?? 0.0);
     initFromGoal(
       amount: initialTargetAmount,
       years: initialYears,
@@ -315,7 +335,11 @@ class GoalSipController extends GetxController {
 
     final selectedType = goalConfig.entries
         .firstWhere(
-          (entry) => entry.value['db_id'] == goal.goalId.toString(),
+          (entry) =>
+              entry.value['db_id'] == goal.goalId.toString() ||
+              entry.key.toLowerCase() == goal.goalName.trim().toLowerCase() ||
+              (entry.value['name'] as String).toLowerCase() ==
+                  goal.goalName.trim().toLowerCase(),
           orElse: () => MapEntry('custom', goalConfig['custom']!),
         )
         .key;
@@ -330,16 +354,32 @@ class GoalSipController extends GetxController {
         ? goal.targetAmount
         : ((goal.goalType?.targetAmount.toDouble() ?? 0) > 0
               ? goal.goalType!.targetAmount.toDouble()
-              : goal.investedAmount.toDouble());
+              : ((currentGoalDetail.value?.targetAmount ?? 0.0) > 0
+                    ? currentGoalDetail.value!.targetAmount
+                    : goal.investedAmount.toDouble()));
 
     initialTargetAmount = target;
 
-    final double tenureYears =
-        (goal.goalTenure > 30 ||
-            (goal.goalTenure >= 12 && goal.goalTenure % 12 == 0))
-        ? (goal.goalTenure / 12).toDouble()
-        : goal.goalTenure.toDouble();
-    final double safeYears = tenureYears.clamp(1.0, 30.0);
+    int rawTenure = goal.goalTenure;
+    if (rawTenure <= 0 && currentGoalDetail.value != null) {
+      rawTenure = currentGoalDetail.value!.goalTenure;
+    }
+    double resolvedTenureYears = 0.0;
+    if (rawTenure > 0) {
+      resolvedTenureYears = (rawTenure > 30)
+          ? (rawTenure / 12).toDouble()
+          : rawTenure.toDouble();
+    } else {
+      final String? liveDuration = currentGoalDetail.value?.duration;
+      if (liveDuration != null && liveDuration.isNotEmpty) {
+        final match = RegExp(r'(\d+)').firstMatch(liveDuration);
+        if (match != null) {
+          resolvedTenureYears = double.tryParse(match.group(1)!) ?? 0.0;
+        }
+      }
+    }
+    final double safeYears =
+        (resolvedTenureYears > 0 ? resolvedTenureYears : 5.0).clamp(1.0, 30.0);
     final double safeRate = (goal.expectedReturnRate > 0)
         ? goal.expectedReturnRate.clamp(1.0, 30.0)
         : 12.0;
@@ -351,7 +391,10 @@ class GoalSipController extends GetxController {
     /// EXISTING SIP
     /// =========================
 
-    existingSipAmount.value = (goal.monthlyInvestment).toDouble();
+    final double existingSip = (goal.monthlyInvestment > 0)
+        ? goal.monthlyInvestment.toDouble()
+        : (currentGoalDetail.value?.monthlySavings ?? 0.0);
+    existingSipAmount.value = existingSip;
 
     /// =========================
     /// INIT
@@ -1436,7 +1479,7 @@ class GoalSipController extends GetxController {
   }
 
   void setYears(double value) {
-    final double safeYears = (value > 30 || (value >= 12 && value % 12 == 0))
+    final double safeYears = (value > 30)
         ? (value / 12).clamp(1.0, 30.0)
         : (value > 0 ? value.clamp(1.0, 30.0) : 1.0);
     years.value = safeYears;
