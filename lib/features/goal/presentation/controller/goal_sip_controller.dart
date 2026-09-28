@@ -1374,6 +1374,62 @@ class GoalSipController extends GetxController {
     isDeleting[id] = false;
   }
 
+  final isUpdatingGoal = false.obs;
+
+  Future<bool> updateGoalDetails({
+    required int goalId,
+    required String goalName,
+    required double targetAmount,
+    required double expectedReturnRate,
+    double? monthlyInvestment,
+    int? goalTenure,
+  }) async {
+    try {
+      isUpdatingGoal.value = true;
+      update();
+
+      final Map<String, dynamic> payload = {
+        'goal_name': goalName,
+        'target_amount': targetAmount,
+        'expected_return_rate': expectedReturnRate,
+      };
+
+      if (monthlyInvestment != null && monthlyInvestment > 0) {
+        payload['monthly_investment'] = monthlyInvestment;
+      }
+      if (goalTenure != null && goalTenure > 0) {
+        payload['goal_tenure'] = goalTenure;
+      }
+
+      final result = await goalUseCases.updateGoalUseCase(
+        goalId: goalId,
+        data: payload,
+      );
+
+      return await result.fold(
+        (success) async {
+          ULoaders.success(
+            title: 'Goal Updated',
+            message: success.data ?? 'Goal updated successfully.',
+          );
+          await fetchSingleGoal(goalId);
+          await getAllGoals();
+          return true;
+        },
+        (error) {
+          ULoaders.error(title: 'Update Failed', message: error.message);
+          return false;
+        },
+      );
+    } catch (e) {
+      ULoaders.error(title: 'Error', message: e.toString());
+      return false;
+    } finally {
+      isUpdatingGoal.value = false;
+      update();
+    }
+  }
+
   final RxMap<int, bool> linkingFundMap = <int, bool>{}.obs;
 
   Future<bool> linkFundToGoal({

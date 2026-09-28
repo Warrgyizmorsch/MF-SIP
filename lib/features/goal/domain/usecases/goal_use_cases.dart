@@ -8,6 +8,7 @@ import 'get_goal_master_use_case.dart';
 import 'get_single_goal_use_case.dart';
 import 'goal_fund_order_use_case.dart';
 import 'link_fund_to_goal_use_case.dart';
+import 'update_goal_use_case.dart';
 
 class GoalUseCases {
   final SaveGoalUseCase saveGoalUseCase;
@@ -20,6 +21,7 @@ class GoalUseCases {
   final UpdateGoalFundOrderUseCase updateGoalFundOrderUseCase;
   final GetSingleGoalUseCase getSingleGoalUseCase;
   final LinkFundToGoalUseCase linkFundToGoalUseCase;
+  final UpdateGoalUseCase updateGoalUseCase;
 
   GoalUseCases({
     required this.saveGoalUseCase,
@@ -32,5 +34,6 @@ class GoalUseCases {
     required this.updateGoalFundOrderUseCase,
     required this.getSingleGoalUseCase,
     required this.linkFundToGoalUseCase,
+    required this.updateGoalUseCase,
   });
 }

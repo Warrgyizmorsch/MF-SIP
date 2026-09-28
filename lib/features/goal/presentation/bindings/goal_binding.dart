@@ -14,6 +14,7 @@ import '../../domain/usecases/get_single_goal_use_case.dart';
 import '../../domain/usecases/goal_fund_order_use_case.dart';
 import '../../domain/usecases/link_fund_to_goal_use_case.dart';
 import '../../domain/usecases/update_goal_fund_order_use_case.dart';
+import '../../domain/usecases/update_goal_use_case.dart';
 
 class GoalBinding extends Bindings {
   @override
@@ -85,6 +86,11 @@ class GoalBinding extends Bindings {
       fenix: true,
     );
 
+    Get.lazyPut(
+      () => UpdateGoalUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
+      fenix: true,
+    );
+
     // FIRST REGISTER GoalUseCases
     Get.lazyPut<GoalUseCases>(
       () => GoalUseCases(
@@ -98,6 +104,7 @@ class GoalBinding extends Bindings {
         updateGoalFundOrderUseCase: Get.find<UpdateGoalFundOrderUseCase>(),
         getSingleGoalUseCase: Get.find<GetSingleGoalUseCase>(),
         linkFundToGoalUseCase: Get.find<LinkFundToGoalUseCase>(),
+        updateGoalUseCase: Get.find<UpdateGoalUseCase>(),
       ),
       fenix: true,
     );

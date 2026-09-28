@@ -106,6 +106,25 @@ class GoalRepositoryImpl extends GoalRepository {
   }
 
   @override
+  Future<Either<Result<String>, ApiError>> updateGoal({
+    required int goalId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      final response = await goalRemoteDataSource.updateGoal(
+        goalId: goalId,
+        data: data,
+      );
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!)),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Result<MasterGoalsResponseEntity>, ApiError>>
   getGoalsMaster() async {
     try {

@@ -21,6 +21,7 @@ import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.da
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../domain/entity/goal_entity.dart';
+import '../../domain/entity/single_goal_detail_entity.dart';
 
 /// ----------------------------------------------------------------------
 /// Main Entry Page Router
@@ -274,96 +275,546 @@ class GoalDetailsPage extends GetView<GoalSipController> {
     UserGoalEntity? goal,
     bool isDesktop,
   ) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: const Row(
+    final liveDetail = controller.currentGoalDetail.value;
+    final int resolvedId = currentGoalId != 0
+        ? currentGoalId
+        : (liveDetail?.id ?? (goal?.id ?? 0));
+
+    if (resolvedId == 0) {
+      Get.snackbar("Error", "Goal ID is missing.");
+      return;
+    }
+
+    if (isDesktop) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 32,
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 24,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: _EditGoalSheetContent(
+                  goalId: resolvedId,
+                  goal: goal,
+                  liveDetail: liveDetail,
+                  controller: controller,
+                  isDesktop: true,
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+              child: _EditGoalSheetContent(
+                goalId: resolvedId,
+                goal: goal,
+                liveDetail: liveDetail,
+                controller: controller,
+                isDesktop: false,
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+}
+
+/// ----------------------------------------------------------------------
+/// In-Context Edit Goal Modal Content (Approach 1)
+/// ----------------------------------------------------------------------
+class _EditGoalSheetContent extends StatefulWidget {
+  final int goalId;
+  final UserGoalEntity? goal;
+  final SingleGoalDetailEntity? liveDetail;
+  final GoalSipController controller;
+  final bool isDesktop;
+
+  const _EditGoalSheetContent({
+    required this.goalId,
+    required this.goal,
+    required this.liveDetail,
+    required this.controller,
+    required this.isDesktop,
+  });
+
+  @override
+  State<_EditGoalSheetContent> createState() => _EditGoalSheetContentState();
+}
+
+class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
+  late final TextEditingController _nameController;
+  late double _targetAmount;
+  late double _years;
+  late double _rate;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final live = widget.liveDetail;
+    final initialName = (live?.goalName.isNotEmpty ?? false)
+        ? live!.goalName
+        : (widget.goal?.goalName ?? '');
+    _nameController = TextEditingController(text: initialName);
+
+    _targetAmount = (live != null && live.targetAmount > 0)
+        ? live.targetAmount
+        : (widget.goal?.targetAmount ?? 1000000.0);
+
+    int rawTenure = (live != null && live.goalTenure > 0)
+        ? live.goalTenure
+        : (widget.goal?.goalTenure ?? 0);
+    if (rawTenure > 30) {
+      _years = (rawTenure / 12).clamp(1.0, 30.0);
+    } else if (rawTenure > 0) {
+      _years = rawTenure.toDouble().clamp(1.0, 30.0);
+    } else {
+      _years = 5.0;
+    }
+
+    _rate = (widget.goal != null && widget.goal!.expectedReturnRate > 0)
+        ? widget.goal!.expectedReturnRate.clamp(1.0, 30.0)
+        : 12.0;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  double _calcMonthlySip() {
+    final int totalMonths = (_years * 12).round();
+    if (totalMonths <= 0 || _targetAmount <= 0) return 0.0;
+    final annual = _rate / 100;
+    final r = math.pow(1 + annual, 1 / 12) - 1;
+    if (r == 0) return (_targetAmount / totalMonths);
+    final factor = ((math.pow(1 + r, totalMonths) - 1) / r) * (1 + r);
+    final exact = _targetAmount / factor;
+    return ((exact / 10).round() * 10).toDouble();
+  }
+
+  String _fmt(double amount) {
+    return '₹ ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
+  }
+
+  Future<void> _handleSave() async {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      Get.snackbar(
+        "Required",
+        "Please enter a goal name",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade600,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    final monthly = _calcMonthlySip();
+    final success = await widget.controller.updateGoalDetails(
+      goalId: widget.goalId,
+      goalName: name,
+      targetAmount: _targetAmount,
+      expectedReturnRate: _rate,
+      monthlyInvestment: monthly,
+      goalTenure: (_years * 12).round(),
+    );
+    if (mounted) {
+      setState(() => _isSaving = false);
+      if (success) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final monthlySip = _calcMonthlySip();
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!widget.isDesktop)
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.edit_outlined, color: Colors.blue),
-              SizedBox(width: 10),
-              Text("Edit Goal"),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.edit_note_rounded,
+                      color: Color(0xFF2563EB),
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Edit Goal",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: FontFamily.medium,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      Text(
+                        "Adjust targets and investment duration",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF64748B),
+                          fontFamily: FontFamily.regular,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(
+                  Icons.close,
+                  size: 20,
+                  color: Color(0xFF64748B),
+                ),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFFF1F5F9),
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
             ],
           ),
-          content: const Text(
-            "Are you sure you want to edit this goal?",
-            style: TextStyle(fontFamily: FontFamily.medium, fontSize: 15),
+          const SizedBox(height: 20),
+          const Text(
+            "Goal Name",
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF334155),
+            ),
           ),
-          actionsPadding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: 16,
-          ),
-          actions: [
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
+          const SizedBox(height: 6),
+          TextFormField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              hintText: "e.g. Dream Car, Marriage",
+              prefixIcon: const Icon(
+                Iconsax.flag,
+                size: 18,
+                color: Color(0xFF64748B),
+              ),
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Color(0xFF2563EB),
+                  width: 1.5,
                 ),
               ),
-              child: const Text("Cancel"),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                final editPayload = {
-                  "goalId": currentGoalId,
-                  "goal": goal,
-                  "isEdit": true,
-                  "goalType": (goal?.goalName.isNotEmpty ?? false)
-                      ? goal!.goalName
-                      : (goal?.goalType ?? 'custom'),
-                };
-                MasterGoalsPage.tempArgs = editPayload;
-                WebMasterGoalsPage.tempArgs = editPayload;
-                controller.isEdit.value = true;
-                if (goal != null) {
-                  controller.loadGoalForEdit(goal);
-                }
-
-                if (isDesktop) {
-                  Get.toNamed(
-                    AppRoutes.webMasterGoalsPage,
-                    id: 1,
-                    arguments: editPayload,
-                  )?.then((_) {
-                    controller.fetchSingleGoal(currentGoalId);
-                    controller.getAllGoals();
-                  });
-                } else {
-                  Get.toNamed(
-                    AppRoutes.masterGoalsPage,
-                    arguments: editPayload,
-                  )?.then((_) {
-                    controller.fetchSingleGoal(currentGoalId);
-                    controller.getAllGoals();
-                  });
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
+          ),
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Target Amount",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF334155),
                 ),
               ),
-              child: const Text("Edit"),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _fmt(_targetAmount),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF2563EB),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _targetAmount.clamp(10000.0, 10000000.0),
+            min: 10000.0,
+            max: 10000000.0,
+            divisions: 200,
+            activeColor: const Color(0xFF2563EB),
+            inactiveColor: const Color(0xFFE2E8F0),
+            onChanged: (val) {
+              setState(() {
+                _targetAmount = (val / 10000).round() * 10000.0;
+              });
+            },
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Duration",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF334155),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "${_years.toInt()} Years (${(_years * 12).toInt()} Mos)",
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _years.clamp(1.0, 30.0),
+            min: 1.0,
+            max: 30.0,
+            divisions: 29,
+            activeColor: const Color(0xFF2563EB),
+            inactiveColor: const Color(0xFFE2E8F0),
+            onChanged: (val) {
+              setState(() {
+                _years = val;
+              });
+            },
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Expected Return Rate",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF334155),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "${_rate.toStringAsFixed(1)}% p.a.",
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _rate.clamp(5.0, 25.0),
+            min: 5.0,
+            max: 25.0,
+            divisions: 40,
+            activeColor: const Color(0xFF2563EB),
+            inactiveColor: const Color(0xFFE2E8F0),
+            onChanged: (val) {
+              setState(() {
+                _rate = val;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFDCFCE7)),
             ),
-          ],
-        );
-      },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_month_outlined,
+                      color: Color(0xFF16A34A),
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      "Estimated Monthly SIP",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF166534),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  _fmt(monthlySip),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF16A34A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _isSaving
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Color(0xFF475569),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : _handleSave,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : const Text(
+                          "Update Goal",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

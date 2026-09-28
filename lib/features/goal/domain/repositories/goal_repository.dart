@@ -24,6 +24,10 @@ abstract class GoalRepository {
   Future<Either<Result<DeleteGoalFundEntity>, ApiError>> deleteGoal({
     required int id,
   });
+  Future<Either<Result<String>, ApiError>> updateGoal({
+    required int goalId,
+    required Map<String, dynamic> data,
+  });
   Future<Either<Result<MasterGoalsResponseEntity>, ApiError>> getGoalsMaster();
   Future<Either<Result<GoalFundOrderEntity>, ApiError>> saveGoalFundOrder(
     Map<String, dynamic> data,

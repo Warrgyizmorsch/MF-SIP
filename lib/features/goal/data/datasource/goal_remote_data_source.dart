@@ -170,6 +170,45 @@ class GoalRemoteDataSource {
     }
   }
 
+  Future<Either<Result<String>, ApiError>> updateGoal({
+    required int goalId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      createLog(
+        "[GoalRemoteDataSource] updateGoal id: $goalId, payload: $data",
+      );
+
+      final resp = await apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/goals/$goalId",
+        data: data,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      );
+
+      createLog("[GoalRemoteDataSource] updateGoal Response: $resp");
+
+      if (resp != null && (resp['success'] == true || resp['status'] == true)) {
+        return Left(
+          Result.success(
+            resp['message']?.toString() ?? 'Goal updated successfully.',
+          ),
+        );
+      } else {
+        return Right(
+          ApiError(
+            message: resp?['message']?.toString() ?? 'Goal update failed',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'updateGoal Exception: $e'));
+    }
+  }
+
   Future<Either<Result<MasterGoalsResponse>, ApiError>> getGoalsMaster() async {
     try {
       final result = await apiService.getApi(
