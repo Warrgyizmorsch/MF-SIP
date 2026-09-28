@@ -645,8 +645,12 @@ class GoalOverviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final liveDetail = controller.currentGoalDetail.value;
-      final int currentGoalId = goal?.id ?? 0;
-      final bool isMatch = liveDetail != null && liveDetail.id == currentGoalId;
+      final int resolvedGoalId = (goal != null && goal!.id > 0)
+          ? goal!.id
+          : (liveDetail?.id ?? 0);
+      final bool isMatch =
+          liveDetail != null &&
+          (resolvedGoalId == 0 || liveDetail.id == resolvedGoalId);
 
       final double liveSaved = isMatch ? liveDetail.savedAmount : invested;
       final double liveTarget = isMatch && liveDetail.targetAmount > 0
@@ -681,10 +685,17 @@ class GoalOverviewCard extends StatelessWidget {
           : "Est. Year $deadlineYearInt";
 
       final double safeTarget = liveTarget > 0 ? liveTarget : 1;
-      final double percentage = isMatch && liveDetail.progressPercent > 0
-          ? (liveDetail.progressPercent / 100).clamp(0.0, 1.0)
-          : (liveSaved / safeTarget).clamp(0.0, 1.0);
-      final String percentStr = "${(percentage * 100).toStringAsFixed(0)}%";
+      final double rawPercent = isMatch && liveDetail.progressPercent > 0
+          ? liveDetail.progressPercent
+          : (liveTarget > 0 ? (liveSaved / safeTarget * 100) : 0.0);
+      final double percentage = (rawPercent / 100).clamp(0.0, 1.0);
+      final String percentStr = rawPercent <= 0
+          ? "0%"
+          : (rawPercent < 1
+                ? "${rawPercent.toStringAsFixed(2)}%"
+                : (rawPercent < 10
+                      ? "${rawPercent.toStringAsFixed(1)}%"
+                      : "${rawPercent.toStringAsFixed(0)}%"));
       final Color progressColor = controller.getGoalColor(
         goal?.goalType?.typeName ?? '',
       );
@@ -802,7 +813,16 @@ class GoalOverviewCard extends StatelessWidget {
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: '${(percentage * 100).round()}',
+                                      text: rawPercent <= 0
+                                          ? '0'
+                                          : (rawPercent < 1
+                                                ? rawPercent.toStringAsFixed(2)
+                                                : (rawPercent < 10
+                                                      ? rawPercent
+                                                            .toStringAsFixed(1)
+                                                      : rawPercent
+                                                            .round()
+                                                            .toString())),
                                       style: TextStyle(
                                         color: progressColor,
                                         fontSize: 20,
@@ -2158,11 +2178,15 @@ class GoalDetailSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final goalSipController = Get.find<GoalSipController>();
-    final int currentGoalId = goal?.id ?? 0;
 
     return Obx(() {
       final liveDetail = goalSipController.currentGoalDetail.value;
-      final bool isMatch = liveDetail != null && liveDetail.id == currentGoalId;
+      final int resolvedGoalId = (goal != null && goal!.id > 0)
+          ? goal!.id
+          : (liveDetail?.id ?? 0);
+      final bool isMatch =
+          liveDetail != null &&
+          (resolvedGoalId == 0 || liveDetail.id == resolvedGoalId);
 
       final double liveSaved = isMatch ? liveDetail.savedAmount : invested;
       final double liveTarget = isMatch && liveDetail.targetAmount > 0
@@ -2201,7 +2225,7 @@ class GoalDetailSection extends StatelessWidget {
       final bool hasLiveFunds = isMatch && liveDetail.linkedFunds.isNotEmpty;
       final freshGoal =
           goalSipController.goalResponse.value?.data?.firstWhereOrNull(
-            (g) => g.id == currentGoalId,
+            (g) => g.id == resolvedGoalId,
           ) ??
           goal;
       final linkedFunds = freshGoal?.goalFunds ?? [];
@@ -2219,6 +2243,9 @@ class GoalDetailSection extends StatelessWidget {
               goalType: goal?.goalType?.typeName ?? '',
               targetAmount: liveTarget,
               investedAmount: liveSaved,
+              progressPercent: isMatch && liveDetail.progressPercent > 0
+                  ? liveDetail.progressPercent
+                  : (goal?.progressPercent ?? 0.0),
               emoji: emoji,
               imageUrl: effectiveLogo.isNotEmpty
                   ? (effectiveLogo.startsWith('http')

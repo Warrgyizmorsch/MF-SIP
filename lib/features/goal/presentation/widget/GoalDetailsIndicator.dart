@@ -12,6 +12,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
   final String goalType;
   final double targetAmount;
   final double investedAmount;
+  final double? progressPercent;
   final String emoji;
   final String imageUrl;
 
@@ -22,29 +23,35 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
     required this.goalType,
     required this.targetAmount,
     required this.investedAmount,
+    this.progressPercent,
     this.emoji = '🎯',
     required this.imageUrl,
   });
 
   String _fmt(double amount) {
-    return '₹ ${amount.toStringAsFixed(0).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-    )}';
+    return '₹ ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final GoalSipController controller = Get.find<GoalSipController>();
-    final Color goalColor =controller. getGoalColor(goalType);
+    final Color goalColor = controller.getGoalColor(goalType);
 
-    final double actualProgress =
-    targetAmount > 0 ? (investedAmount / targetAmount).clamp(0.0, 1.0) : 0.0;
+    final double computedPercent =
+        (progressPercent != null && progressPercent! > 0)
+        ? progressPercent!
+        : (targetAmount > 0 ? (investedAmount / targetAmount * 100) : 0.0);
 
-    final String percentStr = "${(actualProgress * 100).toStringAsFixed(0)}%";
+    final double actualProgress = (computedPercent / 100).clamp(0.0, 1.0);
+
+    final String percentStr = computedPercent <= 0
+        ? "0%"
+        : (computedPercent < 1
+              ? "${computedPercent.toStringAsFixed(2)}%"
+              : (computedPercent < 10
+                    ? "${computedPercent.toStringAsFixed(1)}%"
+                    : "${computedPercent.toStringAsFixed(0)}%"));
 
     final double radius = size.width <= 320 ? 60 : 80;
     final double lineWidth = 15;
@@ -134,8 +141,18 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                               shaderCallback: (Rect bounds) => LinearGradient(
                                 begin: Alignment.bottomCenter,
                                 end: Alignment.topCenter,
-                                stops: [0.0, actualProgress, actualProgress, 1.0],
-                                colors: [goalColor, goalColor, Colors.transparent, Colors.transparent],
+                                stops: [
+                                  0.0,
+                                  actualProgress,
+                                  actualProgress,
+                                  1.0,
+                                ],
+                                colors: [
+                                  goalColor,
+                                  goalColor,
+                                  Colors.transparent,
+                                  Colors.transparent,
+                                ],
                               ).createShader(bounds),
                               child: Padding(
                                 padding: const EdgeInsets.all(10),
@@ -153,7 +170,10 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                           if (imageUrl.isEmpty)
                             Text(
                               emoji,
-                              style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 34),
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 34,
+                              ),
                             ),
                         ],
                       ),
@@ -171,14 +191,17 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 4,
                         ),
                       ],
                     ),
                     child: Text(
                       emoji,
-                      style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 22),
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 22,
+                      ),
                     ),
                   ),
                 ),
@@ -188,7 +211,8 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                     bottom: 0,
                     child: Text(
                       percentStr,
-                      style: TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: goalColor,
@@ -202,11 +226,19 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               goalName,
-              style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             Text(
               _fmt(targetAmount),
-              style: const TextStyle(fontFamily: FontFamily.medium,color: Colors.black, fontSize: 14),
+              style: const TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.black,
+                fontSize: 14,
+              ),
             ),
           ],
         ],
