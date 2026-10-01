@@ -9,16 +9,14 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
-import 'package:my_sip/features/goal/presentation/pages/master_goals_page.dart';
-import 'package:my_sip/features/goal/presentation/pages/web_master_goals_pages.dart';
 import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import '../widget/add_fund_bottom_sheet.dart';
 
 import '../../domain/entity/goal_entity.dart';
 import '../../domain/entity/single_goal_detail_entity.dart';
@@ -139,37 +137,16 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
       void onAddFunds() {
         if (currentGoalId != 0) {
-          final payload = {
-            'isAddFund': true,
-            'goalId': currentGoalId,
-            'goal': goal,
-            'goalType': goal?.goalType ?? 'custom',
-          };
-
-          MasterGoalsPage.tempArgs = payload;
-
-          if (isDesktop) {
-            WebMasterGoalsPage.tempArgs = payload;
-            controller.isAddFund.value = true;
-            controller.loadGoalForAddFund(goal);
-            Get.toNamed(
-              AppRoutes.webMasterGoalsPage,
-              id: 1,
-              arguments: payload,
-            )?.then((_) {
-              controller.fetchSingleGoal(currentGoalId);
-              controller.getAllGoals();
-            });
-          } else {
-            controller.isAddFund.value = true;
-            controller.loadGoalForAddFund(goal);
-            Get.toNamed(AppRoutes.masterGoalsPage, arguments: payload)?.then((
-              _,
-            ) {
-              controller.fetchSingleGoal(currentGoalId);
-              controller.getAllGoals();
-            });
-          }
+          AddFundBottomSheet.show(
+            context,
+            goalId: currentGoalId,
+            goal: goal,
+            liveDetail: isCurrentGoalMatch ? liveDetail : null,
+            isDesktop: isDesktop,
+          ).then((_) {
+            controller.fetchSingleGoal(currentGoalId);
+            controller.getAllGoals();
+          });
         } else {
           Get.snackbar("Error", "Goal ID is missing.");
         }
