@@ -9,10 +9,9 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:my_sip/features/goal/domain/entity/single_goal_detail_entity.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
-import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
-import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
-import 'package:my_sip/services/session_manager.dart';
 
 class AddFundBottomSheet extends StatefulWidget {
   final int goalId;
@@ -178,88 +177,53 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
         }
       }
 
-      final uid = SessionManager.instance.getUserData?.id ?? 0;
-
-      // 2. Fire MFU Transaction
+      // 2. Fire MFU Transaction (Latest postLumpsum and postSip APIs)
       if (isLumpsum) {
-        final List<MfuTxnScheme> lumpsumSchemes = [];
+        final List<LumpsumFundItemModel> lumpsumFunds = [];
         for (final fund in selectedFunds) {
           final schemeCode = fund.schemeCode?.toString() ?? '';
           final amount =
               double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
               0.0;
           if (schemeCode.isNotEmpty && amount > 0) {
-            lumpsumSchemes.add(
-              MfuTxnScheme(
+            lumpsumFunds.add(
+              LumpsumFundItemModel(
                 schemeCode: schemeCode,
                 amount: amount,
                 folio: "NEW",
-                divOpt: "N",
               ),
             );
           }
         }
 
-        if (lumpsumSchemes.isNotEmpty) {
-          await _mfuController.normalTransaction(
-            MfuNormalTxnRequest.lumpsumMultiple(
-              uid: uid,
-              goalId: widget.goalId,
-              schemes: lumpsumSchemes,
-            ),
+        if (lumpsumFunds.isNotEmpty) {
+          await _mfuController.postLumpsum(
+            funds: lumpsumFunds,
           );
         }
       } else {
-        final List<MfuSysTxnScheme> sipSchemes = [];
+        final List<SipFundItemModel> sipFunds = [];
         for (final fund in selectedFunds) {
           final schemeCode = fund.schemeCode?.toString() ?? '';
           final amount =
-              int.tryParse(_amountControllers[schemeCode]?.text ?? '0') ?? 0;
+              double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
+              0.0;
           if (schemeCode.isNotEmpty && amount > 0) {
-            sipSchemes.add(
-              MfuSysTxnScheme(
+            sipFunds.add(
+              SipFundItemModel(
                 schemeCode: schemeCode,
                 amount: amount,
                 folio: "NEW",
-                divOpt: "R",
+                frequency: "M",
+                day: "10",
               ),
             );
           }
         }
 
-        if (sipSchemes.isNotEmpty) {
-          final mandateRefNo =
-              _mfuController.mandateStatusResponse.value?.mumrn ??
-              _mfuController.mandateStatusResponse.value?.mmrn ??
-              '';
-
-          final now = DateTime.now();
-          DateTime startDate = DateTime(now.year, now.month + 1, 10);
-          if (startDate.difference(now).inDays < 30) {
-            startDate = DateTime(now.year, now.month + 2, 10);
-          }
-
-          await _mfuController.systematicTransaction(
-            MfuSystematicTxnRequest.sipMultiple(
-              uid: uid,
-              goalId: widget.goalId,
-              can: "14167AZA01",
-              frequency: "M",
-              day: "10",
-              startMonth: startDate.month.toString().padLeft(2, '0'),
-              startYear: startDate.year.toString(),
-              endMonth: "08",
-              endYear: "2027",
-              paymentMode: "DM",
-              accType: "SB",
-              accNo: "654321",
-              ifsc: "ABHY0065002",
-              micr: "400065002",
-              mandateRefNo: mandateRefNo.isNotEmpty
-                  ? mandateRefNo
-                  : "PRNUAT001",
-              schemes: sipSchemes,
-            ),
+        if (sipFunds.isNotEmpty) {
+          await _mfuController.postSip(
+            funds: sipFunds,
           );
         }
       }

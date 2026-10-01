@@ -1328,6 +1328,40 @@ class MfuController extends GetxController {
     }
   }
 
+  /// Latest API Alias: postLumpsum (`POST /api/v1/invest/lumpsum`)
+  Future<void> postLumpsum({
+    String? schemeCode,
+    double? amount,
+    String folio = 'NEW',
+    List<LumpsumFundItemModel>? funds,
+    Function(LumpsumResModel)? onSuccess,
+  }) => executeLumpsum(
+    schemeCode: schemeCode,
+    amount: amount,
+    folio: folio,
+    funds: funds,
+    onSuccess: onSuccess,
+  );
+
+  /// Latest API Alias: postSip (`POST /api/v1/invest/sip`)
+  Future<void> postSip({
+    String? schemeCode,
+    double? amount,
+    String folio = 'NEW',
+    String? day,
+    String frequency = 'M',
+    List<SipFundItemModel>? funds,
+    Function(SipResModel)? onSuccess,
+  }) => executeSip(
+    schemeCode: schemeCode,
+    amount: amount,
+    folio: folio,
+    day: day,
+    frequency: frequency,
+    funds: funds,
+    onSuccess: onSuccess,
+  );
+
   /// Flow 1: Lumpsum Purchase (`POST /api/v1/invest/lumpsum`)
   Future<void> executeLumpsum({
     String? schemeCode,
