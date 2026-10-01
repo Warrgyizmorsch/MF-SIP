@@ -28,6 +28,7 @@ Future<void> main() async {
       ]);
     }
     await Get.putAsync<SessionManager>(() async {
+      
       final session = SessionManager.instance;
       await session.initialize();
       return session;

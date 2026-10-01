@@ -1150,7 +1150,7 @@ class GoalSipController extends GetxController {
     required double sipAmount,
     required int sipDay,
   }) async {
-    HapticFeedback.successNotification();
+//    HapticFeedback.successNotification();
     try {
       final totalSip = (sipAmount).toDouble();
       final selectedFundCount = selectedPopularFund.length;

@@ -481,7 +481,7 @@ class CartController extends GetxController {
     String transType = 'sip',
     String title = 'Cart',
   }) async {
-    HapticFeedback.successNotification();
+//HapticFeedback.successNotification();
     bool alreadyInCart =
         cartResponseEntity.value?.items.any(
           (item) =>

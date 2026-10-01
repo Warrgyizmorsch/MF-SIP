@@ -1139,7 +1139,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                   borderRadius: BorderRadius.circular(8),
                   child: item.amcLogo.isNotEmpty
                       ? CustomCachedImage(
-                          imageUrl: "${Appurl.baseUrl}${item.amcLogo}",
+                          imageUrl: item.amcLogo,
                           size: 36,
                         )
                       : Container(

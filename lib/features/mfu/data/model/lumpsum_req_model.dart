@@ -38,6 +38,8 @@ class LumpsumReqModel {
 
   Map<String, dynamic> toJson() => {
     'funds': funds.map((e) => e.toJson()).toList(),
+        
+
   };
 
   factory LumpsumReqModel.fromJson(Map<String, dynamic> json) {
