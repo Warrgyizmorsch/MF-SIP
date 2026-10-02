@@ -9,6 +9,9 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:my_sip/features/goal/domain/entity/single_goal_detail_entity.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
+import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
@@ -69,11 +72,12 @@ class AddFundBottomSheet extends StatefulWidget {
 
 class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
   int _activeTabIndex = 0; // 0 = Invest New Funds, 1 = Link from Portfolio
-  String _searchQuery = '';
   String _selectedCategory = 'All';
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _fundsScrollController = ScrollController();
   final Map<String, TextEditingController> _amountControllers = {};
   final Set<String> _selectedSchemeCodes = {};
+  final Map<String, MutualFundListEntity> _selectedFundsMap = {};
   bool _isSubmitting = false;
 
   final GoalSipController _goalController = Get.find<GoalSipController>();
@@ -89,6 +93,14 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
   @override
   void initState() {
     super.initState();
+    // Setup pagination listener
+    _fundsScrollController.addListener(() {
+      if (_fundsScrollController.position.pixels >=
+          _fundsScrollController.position.maxScrollExtent - 200) {
+        _mutualController.loadNextPage();
+      }
+    });
+
     if (_mutualController.searchFund.isEmpty) {
       _mutualController.fetchData();
     }
@@ -101,9 +113,12 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
   @override
   void dispose() {
     _searchController.dispose();
+    _fundsScrollController.dispose();
     for (final c in _amountControllers.values) {
       c.dispose();
     }
+    // Clean up filters when sheet is closed so Explore page remains unaffected
+    _mutualController.resetToDefault();
     super.dispose();
   }
 
@@ -142,9 +157,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
       return;
     }
 
-    final selectedFunds = _mutualController.searchFund
-        .where((f) => _selectedSchemeCodes.contains(f.schemeCode?.toString()))
-        .toList();
+    final selectedFunds = _selectedFundsMap.values.toList();
 
     if (selectedFunds.isEmpty) {
       Get.snackbar("Error", "Selected funds not found.");
@@ -600,53 +613,161 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
   Widget _buildInvestNewFundsTab() {
     return Column(
       children: [
-        // In-line Search Bar
+        // Search & Filter Row
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Container(
-            height: 42,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (val) {
-                setState(() {
-                  _searchQuery = val.trim();
-                });
-              },
-              style: const TextStyle(fontSize: 13),
-              decoration: InputDecoration(
-                hintText: "Search mutual funds...",
-                hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-                prefixIcon: const Icon(
-                  Iconsax.search_normal,
-                  size: 16,
-                  color: Color(0xFF64748B),
+          child: Row(
+            children: [
+              // Filter Button (opens Filterpage like Explore)
+              Obx(() {
+                final fundController = Get.isRegistered<FundhouseController>()
+                    ? Get.find<FundhouseController>()
+                    : null;
+                final int filterCount = fundController?.activeFilterCount ?? 0;
+
+                return Badge(
+                  isLabelVisible: filterCount > 0,
+                  backgroundColor: Ucolors.primary,
+                  label: Text(
+                    '$filterCount',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  alignment: const Alignment(0.7, -0.7),
+                  child: Container(
+                    height: 42,
+                    width: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.tune_rounded,
+                        size: 20,
+                        color: Color(0xFF475569),
+                      ),
+                      padding: EdgeInsets.zero,
+                      onPressed: () async {
+                        final result = await Get.toNamed(AppRoutes.filterpage);
+                        if (result != null && result is Map<String, dynamic>) {
+                          _mutualController.applyFilters(result);
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }),
+
+              const SizedBox(width: 8),
+
+              // Search Bar (calls backend search API)
+              Expanded(
+                child: Container(
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (val) {
+                      _mutualController.onSearchQueryChanged(val);
+                      setState(() {});
+                    },
+                    style: const TextStyle(fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: "Search mutual funds...",
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade400,
+                      ),
+                      prefixIcon: const Icon(
+                        Iconsax.search_normal,
+                        size: 16,
+                        color: Color(0xFF64748B),
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.close, size: 16),
+                              onPressed: () {
+                                _searchController.clear();
+                                _mutualController.onSearchQueryChanged('');
+                                setState(() {});
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
                 ),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.close, size: 16),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
-                        },
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
               ),
-            ),
+
+              const SizedBox(width: 8),
+
+              // Sort Toggle Chip (1Y, 3Y, 5Y cycle like Explore page)
+              Obx(
+                () => InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => _mutualController.cycleGlobalSort(),
+                  child: Container(
+                    height: 42,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: _mutualController.currentSortLabel.value !=
+                              "1Y,3Y,5Y"
+                          ? Ucolors.primary.withValues(alpha: 0.1)
+                          : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: _mutualController.currentSortLabel.value !=
+                                "1Y,3Y,5Y"
+                            ? Ucolors.primary
+                            : const Color(0xFFE2E8F0),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.sort_rounded,
+                          size: 16,
+                          color: _mutualController.currentSortLabel.value !=
+                                  "1Y,3Y,5Y"
+                              ? Ucolors.primary
+                              : const Color(0xFF64748B),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _mutualController.currentSortLabel.value,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: _mutualController.currentSortLabel.value !=
+                                    "1Y,3Y,5Y"
+                                ? Ucolors.primary
+                                : const Color(0xFF475569),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
 
         const SizedBox(height: 8),
 
-        // Category Filter Chips
+        // Quick Category Filter Chips (syncs with API via applyFilters)
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -661,6 +782,11 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                     setState(() {
                       _selectedCategory = cat;
                     });
+                    if (cat == 'All') {
+                      _mutualController.applyFilters({'scheme_category': null});
+                    } else {
+                      _mutualController.applyFilters({'scheme_category': cat});
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -701,32 +827,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
               );
             }
 
-            final allFunds = _mutualController.searchFund;
-            final query = _searchQuery.toLowerCase();
-            final category = _selectedCategory.toLowerCase();
+            final fundsList = _mutualController.searchFund;
 
-            final filtered = allFunds.where((f) {
-              if (query.isNotEmpty) {
-                final name = (f.baseSchemeName ?? '').toLowerCase();
-                final amc = (f.amc?.amcName ?? '').toLowerCase();
-                if (!name.contains(query) && !amc.contains(query)) {
-                  return false;
-                }
-              }
-              if (category != 'all') {
-                final cat = (f.schemecategory ?? '').toLowerCase();
-                final type = (f.schemeType ?? '').toLowerCase();
-                final name = (f.baseSchemeName ?? '').toLowerCase();
-                if (!cat.contains(category) &&
-                    !type.contains(category) &&
-                    !name.contains(category)) {
-                  return false;
-                }
-              }
-              return true;
-            }).toList();
-
-            if (filtered.isEmpty) {
+            if (fundsList.isEmpty) {
               return Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -747,7 +850,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Try changing your search or category filter",
+                      "Try changing your search or filter options",
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.grey.shade500,
@@ -758,12 +861,32 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
               );
             }
 
+            final int itemCount = fundsList.length +
+                (_mutualController.isMoreLoading.value ? 1 : 0);
+
             return ListView.separated(
+              controller: _fundsScrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              itemCount: filtered.length,
+              itemCount: itemCount,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                final fund = filtered[index];
+                if (index == fundsList.length) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Ucolors.primary,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                final fund = fundsList[index];
                 final schemeCode = fund.schemeCode?.toString() ?? '';
                 final isSelected = _selectedSchemeCodes.contains(schemeCode);
                 final name = fund.baseSchemeName ?? 'Unknown Fund';
@@ -808,8 +931,10 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                               setState(() {
                                 if (isSelected) {
                                   _selectedSchemeCodes.remove(schemeCode);
+                                  _selectedFundsMap.remove(schemeCode);
                                 } else {
                                   _selectedSchemeCodes.add(schemeCode);
+                                  _selectedFundsMap[schemeCode] = fund;
                                 }
                               });
                             },
