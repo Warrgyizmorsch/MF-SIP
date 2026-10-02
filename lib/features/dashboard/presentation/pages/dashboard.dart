@@ -3968,11 +3968,12 @@ class _MobileDashboardLayout extends StatelessWidget {
     int totalFundsCount,
   ) {
     final filters = [
-      'All Funds',
+      'Active Funds',
       'Active SIP',
       'Lump Sum',
       'Redeem',
       'Cancelled SIP',
+      'All Funds',
     ];
 
     return Column(
@@ -4044,7 +4045,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                   controller.selectedPortfolioFilter.value == filter;
 
               Widget? leadingIcon;
-              if (filter == 'Active SIP') {
+              if (filter == 'Active Funds' || filter == 'Active SIP') {
                 leadingIcon = Container(
                   width: 7,
                   height: 7,

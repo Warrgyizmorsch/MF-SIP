@@ -43,7 +43,7 @@ class DashboardController extends GetxController {
   final transactionList = Rxn<MfuTransactionListEntity>();
   final portfolioData = Rxn<MfuPortfolioEntity>();
 
-  final selectedPortfolioFilter = 'All Funds'.obs;
+  final selectedPortfolioFilter = 'Active Funds'.obs;
   final isSortByGain = false.obs;
 
   void setPortfolioFilter(String filter) {
@@ -59,6 +59,13 @@ class DashboardController extends GetxController {
     List<MfuPortfolioItemEntity> result;
 
     switch (selectedPortfolioFilter.value) {
+      case 'Active Funds':
+        result = allFunds.where((f) {
+          final bool isActiveSip = f.isSipActive;
+          final bool isActiveLumpsum = f.isLumpsum && !f.isFullyRedeemed;
+          return isActiveSip || isActiveLumpsum;
+        }).toList();
+        break;
       case 'Active SIP':
         result = allFunds.where((f) => f.isSipActive).toList();
         break;
