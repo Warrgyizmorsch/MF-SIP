@@ -33,17 +33,26 @@ class LumpsumFundItemModel {
 
 class LumpsumReqModel {
   final List<LumpsumFundItemModel> funds;
+  final dynamic goalId;
 
-  LumpsumReqModel({required this.funds});
+  LumpsumReqModel({
+    required this.funds,
+    this.goalId,
+  });
 
-  Map<String, dynamic> toJson() => {
-    'funds': funds.map((e) => e.toJson()).toList(),
-        
-
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      'funds': funds.map((e) => e.toJson()).toList(),
+    };
+    if (goalId != null) {
+      data['goal_id'] = goalId;
+    }
+    return data;
+  }
 
   factory LumpsumReqModel.fromJson(Map<String, dynamic> json) {
     return LumpsumReqModel(
+      goalId: json['goal_id'],
       funds:
           (json['funds'] as List<dynamic>?)
               ?.map(

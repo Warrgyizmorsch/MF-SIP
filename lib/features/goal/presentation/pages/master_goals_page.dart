@@ -419,24 +419,8 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                     controller.isLoading.value = true;
 
                     try {
-                      for (final fund in selectedFunds) {
-                        final schemeCode = fund.schemeCode?.toString() ?? '';
-                        final amountText = controller
-                            .getAmountController(schemeCode)
-                            .text;
-                        final amount = double.tryParse(amountText) ?? 0.0;
-                        if (schemeCode.isNotEmpty &&
-                            amount > 0 &&
-                            finalGoalId != null) {
-                          await controller.saveGoalFund(
-                            goalId: finalGoalId,
-                            schemeCode: schemeCode,
-                            schemeName: fund.baseSchemeName ?? '',
-                            sipAmount: amount,
-                            sipDay: controller.selectedSipDay.value,
-                          );
-                        }
-                      }
+                      // Note: Funds are now directly associated with the goal via the goal_id parameter in postLumpsum/postSip.
+                      // controller.saveGoalFund(...) is kept in the codebase for reference/backward compatibility.
 
                       /// Lumpsum Transaction (Latest postLumpsum API)
                       if (controller.savedInvestmentType.value == 'lumpsum') {
@@ -469,8 +453,9 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                           return;
                         }
 
-                        // 🚀 Fire the Multi-Lumpsum API (Latest postLumpsum API)!
+                        // 🚀 Fire the Multi-Lumpsum API (Latest postLumpsum API with goal_id)!
                         await mfuController.postLumpsum(
+                          goalId: finalGoalId,
                           funds: lumpsumFunds,
                           onSuccess: (res) {
                             Get.snackbar(
@@ -514,8 +499,9 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                           return;
                         }
 
-                        // 🚀 Fire the Multi-SIP API (Latest postSip API)!
+                        // 🚀 Fire the Multi-SIP API (Latest postSip API with goal_id)!
                         await mfuController.postSip(
+                          goalId: finalGoalId,
                           funds: sipFunds,
                           onSuccess: (res) {
                             Get.snackbar(

@@ -41,15 +41,26 @@ class SipFundItemModel {
 
 class SipReqModel {
   final List<SipFundItemModel> funds;
+  final dynamic goalId;
 
-  SipReqModel({required this.funds});
+  SipReqModel({
+    required this.funds,
+    this.goalId,
+  });
 
-  Map<String, dynamic> toJson() => {
-    'funds': funds.map((e) => e.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      'funds': funds.map((e) => e.toJson()).toList(),
+    };
+    if (goalId != null) {
+      data['goal_id'] = goalId;
+    }
+    return data;
+  }
 
   factory SipReqModel.fromJson(Map<String, dynamic> json) {
     return SipReqModel(
+      goalId: json['goal_id'],
       funds:
           (json['funds'] as List<dynamic>?)
               ?.map((e) => SipFundItemModel.fromJson(e as Map<String, dynamic>))

@@ -160,24 +160,10 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
           (widget.goal?.txnType.toLowerCase() == 'lumpsum') ||
           (_goalController.savedInvestmentType.value == 'lumpsum');
 
-      // 1. Save funds to goal
-      for (final fund in selectedFunds) {
-        final schemeCode = fund.schemeCode?.toString() ?? '';
-        final amountText = _amountControllers[schemeCode]?.text ?? '0';
-        final amount = double.tryParse(amountText) ?? 0.0;
+      // Note: Funds are now directly associated with the goal via the goal_id parameter in postLumpsum/postSip.
+      // _goalController.saveGoalFund(...) is kept in the codebase for reference/backward compatibility.
 
-        if (schemeCode.isNotEmpty && amount > 0) {
-          await _goalController.saveGoalFund(
-            goalId: widget.goalId,
-            schemeCode: schemeCode,
-            schemeName: fund.baseSchemeName ?? '',
-            sipAmount: amount,
-            sipDay: _goalController.selectedSipDay.value,
-          );
-        }
-      }
-
-      // 2. Fire MFU Transaction (Latest postLumpsum and postSip APIs)
+      // 2. Fire MFU Transaction (Latest postLumpsum and postSip APIs with goal_id)
       if (isLumpsum) {
         final List<LumpsumFundItemModel> lumpsumFunds = [];
         for (final fund in selectedFunds) {
@@ -198,6 +184,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
 
         if (lumpsumFunds.isNotEmpty) {
           await _mfuController.postLumpsum(
+            goalId: widget.goalId,
             funds: lumpsumFunds,
           );
         }
@@ -223,6 +210,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
 
         if (sipFunds.isNotEmpty) {
           await _mfuController.postSip(
+            goalId: widget.goalId,
             funds: sipFunds,
           );
         }

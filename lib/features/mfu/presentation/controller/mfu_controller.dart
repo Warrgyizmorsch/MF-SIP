@@ -1333,12 +1333,14 @@ class MfuController extends GetxController {
     String? schemeCode,
     double? amount,
     String folio = 'NEW',
+    dynamic goalId,
     List<LumpsumFundItemModel>? funds,
     Function(LumpsumResModel)? onSuccess,
   }) => executeLumpsum(
     schemeCode: schemeCode,
     amount: amount,
     folio: folio,
+    goalId: goalId,
     funds: funds,
     onSuccess: onSuccess,
   );
@@ -1350,6 +1352,7 @@ class MfuController extends GetxController {
     String folio = 'NEW',
     String? day,
     String frequency = 'M',
+    dynamic goalId,
     List<SipFundItemModel>? funds,
     Function(SipResModel)? onSuccess,
   }) => executeSip(
@@ -1358,6 +1361,7 @@ class MfuController extends GetxController {
     folio: folio,
     day: day,
     frequency: frequency,
+    goalId: goalId,
     funds: funds,
     onSuccess: onSuccess,
   );
@@ -1367,6 +1371,7 @@ class MfuController extends GetxController {
     String? schemeCode,
     double? amount,
     String folio = 'NEW',
+    dynamic goalId,
     List<LumpsumFundItemModel>? funds,
     Function(LumpsumResModel)? onSuccess,
   }) async {
@@ -1385,7 +1390,10 @@ class MfuController extends GetxController {
             ),
         ];
 
-    final req = LumpsumReqModel(funds: lumpsumFunds);
+    final req = LumpsumReqModel(
+      funds: lumpsumFunds,
+      goalId: goalId,
+    );
 
     final res = await mfuUseCases.postLumpsumUseCase(req);
 
@@ -1461,6 +1469,7 @@ class MfuController extends GetxController {
     String folio = 'NEW',
     String? day,
     String frequency = 'M',
+    dynamic goalId,
     List<SipFundItemModel>? funds,
     Function(SipResModel)? onSuccess,
   }) async {
@@ -1481,7 +1490,10 @@ class MfuController extends GetxController {
             ),
         ];
 
-    final req = SipReqModel(funds: sipFunds);
+    final req = SipReqModel(
+      funds: sipFunds,
+      goalId: goalId,
+    );
 
     final res = await mfuUseCases.postSipUseCase(req);
 
