@@ -24,6 +24,8 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:collection/collection.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/download_statement.dart';
 
 import '../controllers/dashboard_controller.dart';
 import '../widgets/comparison_chart.dart';
@@ -3979,21 +3981,13 @@ class _MobileDashboardLayout extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header Row: "My Portfolio" & "Sort by Gain"
+        // Header Row: Left = Sort by Gain, Right = Reports Dropdown
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'My Portfolio',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                  letterSpacing: -0.2,
-                ),
-              ),
+              // Left: Sort by Gain
               InkWell(
                 onTap: () => controller.toggleSortByGain(),
                 borderRadius: BorderRadius.circular(8),
@@ -4007,7 +4001,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.sort_rounded,
-                        size: 15,
+                        size: 16,
                         color: controller.isSortByGain.value
                             ? const Color(0xFF2563EB)
                             : const Color(0xFF64748B),
@@ -4018,16 +4012,160 @@ class _MobileDashboardLayout extends StatelessWidget {
                             ? 'Sorted by Gain'
                             : 'Sort by Gain',
                         style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
                           color: controller.isSortByGain.value
                               ? const Color(0xFF2563EB)
-                              : const Color(0xFF64748B),
+                              : const Color(0xFF1E293B),
                         ),
                       ),
                     ],
                   ),
                 ),
+              ),
+
+              // Right: Reports Dropdown Menu
+              PopupMenuButton<String>(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+                onSelected: (value) {
+                  if (value == 'statement') {
+                    if (Get.isRegistered<PersonalisationController>()) {
+                      Get.find<PersonalisationController>()
+                          .setStatementMode(isCapital: false);
+                    }
+                    DownloadStatementsScreen.forcedIsCapitalMode = false;
+                    Get.to(() => DownloadStatementsScreen());
+                  } else if (value == 'elss') {
+                    if (Get.isRegistered<PersonalisationController>()) {
+                      Get.find<PersonalisationController>()
+                          .setStatementMode(isCapital: true);
+                    }
+                    DownloadStatementsScreen.forcedIsCapitalMode = true;
+                    Get.to(() => DownloadStatementsScreen());
+                  }
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.receipt_long_outlined,
+                        size: 14,
+                        color: Color(0xFF475569),
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'Reports',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF334155),
+                        ),
+                      ),
+                      SizedBox(width: 2),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 16,
+                        color: Color(0xFF64748B),
+                      ),
+                    ],
+                  ),
+                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'statement',
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEFF6FF),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.description_outlined,
+                            size: 16,
+                            color: Color(0xFF2563EB),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Account Statement',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            Text(
+                              'Download CAS report',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(height: 1),
+                  PopupMenuItem(
+                    value: 'elss',
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFECFDF5),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.receipt_long_outlined,
+                            size: 16,
+                            color: Color(0xFF059669),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'ELSS Report',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            Text(
+                              'Capital gain & tax report',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
