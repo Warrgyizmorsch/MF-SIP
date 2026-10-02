@@ -185,8 +185,14 @@ class MutualFundController extends GetxController {
   // }
 
   void applyFilters(Map<String, dynamic> newFilters) {
-    // Update internal memory with cumulative filters
-    _currentFilters.addAll(newFilters);
+    // Update internal memory with cumulative filters (remove keys when value is null or empty)
+    newFilters.forEach((key, value) {
+      if (value == null || (value is String && value.isEmpty)) {
+        _currentFilters.remove(key);
+      } else {
+        _currentFilters[key] = value;
+      }
+    });
 
     // ONLY update labels if return_year is explicitly passed in the newFilters map
     if (newFilters.containsKey('return_year')) {
@@ -337,20 +343,23 @@ class MutualFundController extends GetxController {
 
       apiParams['sort_order'] ??= 'desc';
 
-      bool hasActiveFilters =
-          _currentSearchQuery.isNotEmpty || _currentFilters.isNotEmpty;
-
-      // final riskType = dynamicRiskType;
-      // if (riskType != null) {
-      //   apiParams['risk_type'] = riskType;
-      // }
-      final riskType = dynamicRiskType;
-      if (riskType != null && !hasActiveFilters) {
-        apiParams['risk_type'] = riskType;
+      // 4. Default Category & Search Logic:
+      // - If user is searching by text (_currentSearchQuery is not empty), search across ALL categories (do NOT force Equity).
+      // - If user selected 'All', remove scheme_category from parameters so all categories are fetched.
+      // - Otherwise, default to 'Equity' if no specific category/filter has been selected.
+      if (_currentSearchQuery.isNotEmpty) {
+        // Search across all categories
+        apiParams.remove('scheme_category');
+      } else {
+        if (!apiParams.containsKey('scheme_category')) {
+          apiParams['scheme_category'] = 'Equity';
+        } else if (apiParams['scheme_category'].toString().toLowerCase() == 'all') {
+          apiParams.remove('scheme_category');
+        }
       }
 
-      // 4. Call API
-      log("FETCH CTRL HASH: ${identityHashCode(this)}");
+      // 5. Call API
+      log("FETCH CTRL HASH: ${identityHashCode(this)} | PARAMS: $apiParams");
       final result = await _getMutualFundListUsecases.call(apiParams);
       log("FETCH CTRL HASH: ${identityHashCode(this)}");
       if (!isLoadMore &&

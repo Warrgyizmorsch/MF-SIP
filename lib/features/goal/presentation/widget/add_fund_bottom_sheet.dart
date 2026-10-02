@@ -72,7 +72,7 @@ class AddFundBottomSheet extends StatefulWidget {
 
 class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
   int _activeTabIndex = 0; // 0 = Invest New Funds, 1 = Link from Portfolio
-  String _selectedCategory = 'All';
+  String _selectedCategory = 'Equity';
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _fundsScrollController = ScrollController();
   final Map<String, TextEditingController> _amountControllers = {};
@@ -783,7 +783,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                       _selectedCategory = cat;
                     });
                     if (cat == 'All') {
-                      _mutualController.applyFilters({'scheme_category': null});
+                      _mutualController.applyFilters({'scheme_category': 'All'});
                     } else {
                       _mutualController.applyFilters({'scheme_category': cat});
                     }
