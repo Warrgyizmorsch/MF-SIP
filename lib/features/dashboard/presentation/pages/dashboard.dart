@@ -4582,43 +4582,45 @@ class PortfolioCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                      ] else if (fund.isRedemptionSettled) ...[
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(6),
-                            // border: Border.all(color: Colors.green.shade200),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check_circle_outline_rounded,
-                                size: 12,
-                                color: Colors.green.shade800,
-                              ),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  'Redeemed (₹${fund.redeemedAmount > 0 ? fund.redeemedAmount : fund.redemptionDetails?.amount ?? 0})',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.green.shade800,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ] else if (fund.isRedemptionPending) ...[
+                      ] 
+                      // else if (fund.isRedemptionSettled) ...[
+                      //   const SizedBox(height: 4),
+                      //   Container(
+                      //     padding: const EdgeInsets.symmetric(
+                      //       horizontal: 8,
+                      //       vertical: 3,
+                      //     ),
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.green.shade50,
+                      //       borderRadius: BorderRadius.circular(6),
+                      //       // border: Border.all(color: Colors.green.shade200),
+                      //     ),
+                      //     child: Row(
+                      //       mainAxisSize: MainAxisSize.min,
+                      //       children: [
+                      //         Icon(
+                      //           Icons.check_circle_outline_rounded,
+                      //           size: 12,
+                      //           color: Colors.green.shade800,
+                      //         ),
+                      //         const SizedBox(width: 4),
+                      //         Flexible(
+                      //           child: Text(
+                      //             'Redeemed (₹${fund.redeemedAmount > 0 ? fund.redeemedAmount : fund.redemptionDetails?.amount ?? 0})',
+                      //             style: TextStyle(
+                      //               fontSize: 10,
+                      //               fontWeight: FontWeight.w600,
+                      //               color: Colors.green.shade800,
+                      //             ),
+                      //             maxLines: 1,
+                      //             overflow: TextOverflow.ellipsis,
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ] 
+                      else if (fund.isRedemptionPending) ...[
                         const SizedBox(height: 4),
                         GestureDetector(
                           onTap: () =>
