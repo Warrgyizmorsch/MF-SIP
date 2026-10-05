@@ -1146,9 +1146,35 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
       final portfolio =
           _dashboardController!.portfolioData.value?.portfolio ?? [];
       final currentGoalId = widget.goalId;
+      final allGoals = _goalController.goalResponse.value?.data ?? [];
 
       final unlinkedFunds = portfolio.where((item) {
-        return item.goalId != currentGoalId;
+        // 1 fund can only be linked to 1 goal.
+        // 1. If holding is already linked to any goal directly
+        if (item.goalId != null && item.goalId! > 0) return false;
+        if (item.goalName != null && item.goalName!.trim().isNotEmpty) {
+          return false;
+        }
+
+        // 2. Check if this scheme is already linked to any goal
+        final isLinkedToAnyGoal = allGoals.any(
+          (g) => g.goalFunds.any((gf) => gf.schemeCode == item.schemeCode),
+        );
+        if (isLinkedToAnyGoal) return false;
+
+        final isLinkedToLiveDetail = widget.liveDetail?.linkedFunds.any(
+              (lf) => lf.schemeCode == item.schemeCode,
+            ) ??
+            false;
+        if (isLinkedToLiveDetail) return false;
+
+        final isLinkedToGoal = widget.goal?.goalFunds.any(
+              (gf) => gf.schemeCode == item.schemeCode,
+            ) ??
+            false;
+        if (isLinkedToGoal) return false;
+
+        return true;
       }).toList();
 
       if (unlinkedFunds.isEmpty) {
@@ -1181,7 +1207,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "All your portfolio holdings are already linked to this goal or you have no active investments.",
+                  "All your portfolio holdings are already linked to goals or you have no active investments.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
@@ -1199,8 +1225,6 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
           final item = unlinkedFunds[index];
           final bool isLinking =
               _goalController.linkingFundMap[item.mfuOrderId] ?? false;
-          final bool isLinkedToOtherGoal =
-              item.goalId != null && item.goalId! > 0;
 
           return Container(
             padding: const EdgeInsets.all(12),
@@ -1275,18 +1299,6 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           ),
                         ],
                       ),
-                      if (isLinkedToOtherGoal &&
-                          (item.goalName?.isNotEmpty ?? false)) ...[
-                        const SizedBox(height: 3),
-                        Text(
-                          "Linked to: ${item.goalName}",
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontStyle: FontStyle.italic,
-                            color: Color(0xFFD97706),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),

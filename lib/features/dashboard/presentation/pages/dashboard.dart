@@ -22,7 +22,6 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'package:collection/collection.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/download_statement.dart';
@@ -5026,6 +5025,19 @@ class PortfolioCard extends StatelessWidget {
           final goals = goalSipController.goalResponse.value?.data ?? [];
           final isLinking = goalSipController.linkingFundMap[orderId] ?? false;
 
+          // Check if this fund is currently linked to any goal
+          final currentlyLinkedGoal = goals.firstWhereOrNull(
+            (g) =>
+                (fund.goalId != null &&
+                    fund.goalId != 0 &&
+                    g.id == fund.goalId) ||
+                (fund.goalName != null &&
+                    fund.goalName!.isNotEmpty &&
+                    g.goalName.toLowerCase() ==
+                        fund.goalName!.toLowerCase()) ||
+                g.goalFunds.any((gf) => gf.schemeCode == fund.schemeCode),
+          );
+
           return Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: Column(
@@ -5059,6 +5071,37 @@ class PortfolioCard extends StatelessWidget {
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 16),
+                if (currentlyLinkedGoal != null) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFFCD34D)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.info_outline,
+                          color: Color(0xFFD97706),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "This fund is already linked to '${currentlyLinkedGoal.goalName}'. A fund can only be linked to one goal.",
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF92400E),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 if (isLinking) ...[
                   const Center(
                     child: Padding(
@@ -5103,6 +5146,7 @@ class PortfolioCard extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final goal = goals[index];
                         final bool isLinked =
+                            (currentlyLinkedGoal?.id == goal.id) ||
                             (fund.goalId != null &&
                                 fund.goalId != 0 &&
                                 goal.id == fund.goalId) ||
@@ -5153,33 +5197,58 @@ class PortfolioCard extends StatelessWidget {
                                     ),
                                   ),
                                 )
-                              : ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF007AFF),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 6,
+                              : currentlyLinkedGoal != null
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF1F5F9),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: const Text(
+                                        "Unavailable",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF94A3B8),
+                                        ),
+                                      ),
+                                    )
+                                  : ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF007AFF),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 6,
+                                        ),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      onPressed: () async {
+                                        Navigator.pop(ctx);
+                                        final success =
+                                            await goalSipController.linkFundToGoal(
+                                          goalId: goal.id,
+                                          mfuOrderId: orderId,
+                                          goalName: goal.goalName,
+                                        );
+                                        if (success &&
+                                            Get.isRegistered<DashboardController>()) {
+                                          await Get.find<DashboardController>()
+                                              .getPortfolio();
+                                        }
+                                      },
+                                      child: const Text(
+                                        "Link",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  onPressed: () async {
-                                    Navigator.pop(ctx);
-                                    await goalSipController.linkFundToGoal(
-                                      goalId: goal.id,
-                                      mfuOrderId: orderId,
-                                      goalName: goal.goalName,
-                                    );
-                                  },
-                                  child: const Text(
-                                    "Link",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
                         );
                       },
                     ),
