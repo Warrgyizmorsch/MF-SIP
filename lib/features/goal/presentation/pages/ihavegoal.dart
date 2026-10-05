@@ -152,7 +152,8 @@ class IhavegoalPage extends GetView<GoalSipController> {
                             "Please select funds to start SIP",
                           );
                   },
-                  amount: controller.monthlySip.value.toStringAsFixed(0),
+                  amount: ((controller.monthlySip.value / 100).ceil() * 100)
+                      .toString(),
                   amountColor: Ucolors.blue,
                   title: 'Installment Amount',
                   buttonText: 'Start SIP',

@@ -613,6 +613,15 @@ class GoalSipController extends GetxController {
     }
     try {
       isSavingGoal.value = true;
+
+      // Ensure amount is ceiling to next multiple of 100
+      if (investmentMode.value == 'sip' && monthlySip.value > 0) {
+        monthlySip.value = ((monthlySip.value / 100).ceil() * 100);
+      } else if (investmentMode.value == 'lumpsum' && lumpsumAmount.value > 0) {
+        lumpsumAmount.value =
+            ((lumpsumAmount.value / 100).ceil() * 100).toDouble();
+      }
+
       final requestData = {
         "user_id": SessionManager.instance.getUserData?.id,
         "goal_name": goalNameTextEditingController.text.trim(),
@@ -721,8 +730,9 @@ class GoalSipController extends GetxController {
 
       if (count == 0) return;
 
-      final int roundedTotal = roundToNearest5(lumpsumAmount.value);
-      int baseAmount = roundToNearest5((roundedTotal / count).round());
+      final int roundedTotal = ((lumpsumAmount.value / 100).ceil() * 100);
+      int baseAmount = ((roundedTotal / count) / 100).floor() * 100;
+      if (baseAmount <= 0) baseAmount = 100;
 
       final List<int> assignedAmounts = List.generate(count, (_) => baseAmount);
 
@@ -905,7 +915,8 @@ class GoalSipController extends GetxController {
       final allFunds = mutualController.searchFund;
       final count = selectedFunds.length;
 
-      int perFund = roundToNearest5(totalSip / count);
+      int perFund = ((totalSip / count) / 100).floor() * 100;
+      if (perFund <= 0) perFund = 100;
       final amounts = List.generate(count, (_) => perFund);
 
       int assigned = amounts.fold(0, (a, b) => a + b);
@@ -913,7 +924,6 @@ class GoalSipController extends GetxController {
 
       if (diff != 0) {
         amounts[amounts.length - 1] += diff;
-        amounts[amounts.length - 1] = ((amounts.last / 5.0).ceil()) * 5;
       }
 
       final List<Map<String, dynamic>> funds = [];
@@ -1577,7 +1587,7 @@ class GoalSipController extends GetxController {
     // PV = FV / (1 + r)^n
     final double exactPv = fv / pow(1 + r, n);
 
-    final double roundedPv = (exactPv / 10).round() * 10.0;
+    final double roundedPv = ((exactPv / 100).ceil() * 100).toDouble();
     lumpsumAmount.value = roundedPv;
 
     final double exactReturn = fv - roundedPv;
@@ -1614,7 +1624,7 @@ class GoalSipController extends GetxController {
       exactSip = targetAmount.value / factor;
     }
 
-    final int roundedSip = (exactSip / 10).round() * 10;
+    final int roundedSip = (exactSip / 100).ceil() * 100;
     monthlySip.value = roundedSip;
 
     int investedTmp = 0;

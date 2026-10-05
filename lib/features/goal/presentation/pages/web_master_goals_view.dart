@@ -1009,10 +1009,12 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                           },
                           amount:
                               controller.savedInvestmentType.value == 'lumpsum'
-                              ? controller.lumpsumAmount.value.toStringAsFixed(
-                                  0,
-                                )
-                              : controller.monthlySip.value.toStringAsFixed(0),
+                              ? ((controller.lumpsumAmount.value / 100).ceil() *
+                                      100)
+                                  .toString()
+                              : ((controller.monthlySip.value / 100).ceil() *
+                                      100)
+                                  .toString(),
                           amountColor: Ucolors.blue,
                         ),
                       ),
