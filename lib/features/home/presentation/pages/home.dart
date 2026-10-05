@@ -2928,7 +2928,7 @@ class _MobileLayout extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Start your SIP with\njust 100rs',
+                                        'Start your Investment\nwith just ₹100.',
                                         style: UTextStyles.medium.copyWith(
                                           fontSize: 16,
                                           height: 1.2,
