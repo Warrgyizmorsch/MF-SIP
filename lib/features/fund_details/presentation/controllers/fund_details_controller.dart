@@ -406,6 +406,155 @@ class FundDetailsController extends GetxController
     }
   }
 
+  /// Returns the fund's return percentage for the selected period
+  double? getFundReturnForPeriod(String period) {
+    final fund = fundDetail.value;
+    if (fund == null) return null;
+
+    final performance = fund.schemePerformanceList.isNotEmpty
+        ? fund.schemePerformanceList[0]
+        : null;
+
+    switch (period.toUpperCase()) {
+      case '1W':
+        if (performance != null && performance.oneWeekReturn != 0) {
+          return performance.oneWeekReturn;
+        }
+        break;
+      case '1M':
+        if (performance != null && performance.oneMonthReturn != 0) {
+          return performance.oneMonthReturn;
+        }
+        break;
+      case '3M':
+        if (performance != null && performance.threeMonthReturn != 0) {
+          return performance.threeMonthReturn;
+        }
+        break;
+      case '6M':
+        if (performance != null && performance.sixMonthReturn != 0) {
+          return performance.sixMonthReturn;
+        }
+        break;
+      case '1Y':
+        if (performance != null && performance.oneYearReturn != 0) {
+          return performance.oneYearReturn;
+        }
+        break;
+      case '2Y':
+        if (performance != null && performance.twoYearReturn != 0) {
+          return performance.twoYearReturn;
+        }
+        break;
+      case '3Y':
+        if (performance != null && performance.threeYearReturn != 0) {
+          return performance.threeYearReturn;
+        }
+        break;
+      case '5Y':
+        if (performance != null && performance.fiveYearReturn != 0) {
+          return performance.fiveYearReturn;
+        }
+        break;
+      case 'ALL':
+        if (fund.schemeInceptionReturn != 0) {
+          return fund.schemeInceptionReturn;
+        }
+        break;
+    }
+
+    // Fallback: Calculate return from navHistorydata if available and not currently loading a new period
+    if (isNavHistoryLoading.value) {
+      return null;
+    }
+
+    final navList = navHistorydata.value?.data;
+    if (navList != null && navList.length >= 2) {
+      final sortedNavs = List<NavEntryEntity>.from(navList)
+        ..removeWhere((e) => (e.nav == null || e.nav! <= 0))
+        ..sort((a, b) {
+          final da = DateTime.tryParse(a.navDate ?? '') ?? DateTime(1970);
+          final db = DateTime.tryParse(b.navDate ?? '') ?? DateTime(1970);
+          return da.compareTo(db);
+        });
+      if (sortedNavs.length >= 2) {
+        final initialNav = sortedNavs.first.nav!;
+        final currentNav = sortedNavs.last.nav!;
+        if (initialNav > 0) {
+          return ((currentNav - initialNav) / initialNav) * 100;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /// Returns the benchmark's return percentage for the selected period
+  double? getBenchmarkReturnForPeriod(String period) {
+    final fund = fundDetail.value;
+    if (fund == null) return null;
+
+    final benchmarkPerf = (fund.schemePerformanceList.length > 1)
+        ? fund.schemePerformanceList[1]
+        : null;
+
+    if (benchmarkPerf != null) {
+      switch (period.toUpperCase()) {
+        case '1W':
+          if (benchmarkPerf.oneWeekReturn != 0) return benchmarkPerf.oneWeekReturn;
+          break;
+        case '1M':
+          if (benchmarkPerf.oneMonthReturn != 0) return benchmarkPerf.oneMonthReturn;
+          break;
+        case '3M':
+          if (benchmarkPerf.threeMonthReturn != 0) return benchmarkPerf.threeMonthReturn;
+          break;
+        case '6M':
+          if (benchmarkPerf.sixMonthReturn != 0) return benchmarkPerf.sixMonthReturn;
+          break;
+        case '1Y':
+          if (benchmarkPerf.oneYearReturn != 0) return benchmarkPerf.oneYearReturn;
+          break;
+        case '2Y':
+          if (benchmarkPerf.twoYearReturn != 0) return benchmarkPerf.twoYearReturn;
+          break;
+        case '3Y':
+          if (benchmarkPerf.threeYearReturn != 0) return benchmarkPerf.threeYearReturn;
+          break;
+        case '5Y':
+          if (benchmarkPerf.fiveYearReturn != 0) return benchmarkPerf.fiveYearReturn;
+          break;
+        case 'ALL':
+          if (fund.benchmarkInceptionReturn != 0) return fund.benchmarkInceptionReturn;
+          break;
+      }
+    }
+
+    if (period.toUpperCase() == 'ALL' && fund.benchmarkInceptionReturn != 0) {
+      return fund.benchmarkInceptionReturn;
+    }
+
+    if (period.toUpperCase() == '1Y') {
+      return fund.navChangePercentage;
+    }
+
+    return null;
+  }
+
+  /// Formats return value with + or - and 2 decimal places
+  String formatReturn(double? value) {
+    if (value == null) return '--';
+    final sign = value > 0 ? '+' : '';
+    return '$sign${value.toStringAsFixed(2)}';
+  }
+
+  /// Returns color based on profit / loss
+  Color getReturnColor(double? value, {Color defaultColor = Colors.green}) {
+    if (value == null) return Colors.grey;
+    if (value < 0) return Colors.red.shade700;
+    return defaultColor;
+  }
+
   //Loaded new data when click to new fund
   void loadNewFund(String newScheme, String schemeCode) {
     schemeName = newScheme;

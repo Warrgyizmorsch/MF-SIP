@@ -9,7 +9,6 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/custom_footer.dart';
-import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
@@ -780,6 +779,18 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
       final portfolioEntity = controller.portfolioAnalysis.value;
       final navEntity = controller.navHistorydata.value;
       final hasNavError = controller.navHistoryHasError.value;
+      final period = controller.selectedPeriod.value;
+      final isNavLoading = controller.isNavHistoryLoading.value;
+      final fundReturn = controller.getFundReturnForPeriod(period);
+      final benchmarkReturn = controller.getBenchmarkReturnForPeriod(period);
+      final fundReturnColor = controller.getReturnColor(
+        fundReturn,
+        defaultColor: Ucolors.success,
+      );
+      final benchmarkColor = controller.getReturnColor(
+        benchmarkReturn,
+        defaultColor: Ucolors.success,
+      );
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -799,24 +810,26 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                     children: [
                       StatItem1(
                         title: 'Nav',
-                        amount: '₹${fund?.nav.toStringAsFixed(2)}',
+                        amount: '₹${fund?.nav.toStringAsFixed(2) ?? '--'}',
                         percentage: '',
                       ),
                       StatItem1(
-                        title: 'Returns (1Y)',
-                        amount: fund?.schemePerformanceList.isNotEmpty == true
-                            ? fund!.schemePerformanceList[0].oneYearReturn
-                                  .toString()
-                            : '',
-                        amountColor: Ucolors.success,
-                        percentage: '%',
+                        title: 'Returns ($period)',
+                        amount: isNavLoading && fundReturn == null
+                            ? '...'
+                            : controller.formatReturn(fundReturn),
+                        amountColor: fundReturnColor,
+                        percentage: fundReturn != null ? '%' : '',
+                        percentageColor: fundReturnColor,
                       ),
                       StatItem1(
-                        title: 'BenchMark (1Y)',
-                        amount:
-                            fund?.navChangePercentage.toStringAsFixed(2) ?? '',
-                        percentage: '%',
-                        amountColor: Ucolors.success,
+                        title: 'Benchmark ($period)',
+                        amount: isNavLoading && benchmarkReturn == null
+                            ? '...'
+                            : controller.formatReturn(benchmarkReturn),
+                        percentage: benchmarkReturn != null ? '%' : '',
+                        amountColor: benchmarkColor,
+                        percentageColor: benchmarkColor,
                       ),
                     ],
                   ),
@@ -2583,48 +2596,63 @@ class _DesktopPerformanceSection extends StatelessWidget {
         child: Column(
           children: [
             // Stats Row
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue.shade50, Colors.white],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            Obx(() {
+              final period = controller.selectedPeriod.value;
+              final fundReturn = controller.getFundReturnForPeriod(period);
+              final benchmarkReturn =
+                  controller.getBenchmarkReturnForPeriod(period);
+              final fundReturnColor = controller.getReturnColor(
+                fundReturn,
+                defaultColor: Colors.green.shade700,
+              );
+              final benchmarkColor = controller.getReturnColor(
+                benchmarkReturn,
+                defaultColor: Colors.green.shade700,
+              );
+
+              return Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blue.shade50, Colors.white],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.blue.shade100),
                 ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.blue.shade100),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      'NAV',
-                      '₹${fund?.nav.toStringAsFixed(2)}',
-                      '',
-                      Colors.blue.shade700,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatCard(
+                        'NAV',
+                        '₹${fund?.nav.toStringAsFixed(2) ?? '--'}',
+                        '',
+                        Colors.blue.shade700,
+                      ),
                     ),
-                  ),
-                  Container(width: 1, height: 60, color: Colors.grey.shade200),
-                  Expanded(
-                    child: _buildStatCard(
-                      'Returns (1Y)',
-                      '${fund?.schemePerformanceList[0].oneYearReturn}',
-                      '%',
-                      Colors.green.shade700,
+                    Container(width: 1, height: 60, color: Colors.grey.shade200),
+                    Expanded(
+                      child: _buildStatCard(
+                        'Returns ($period)',
+                        controller.formatReturn(fundReturn),
+                        fundReturn != null ? '%' : '',
+                        fundReturnColor,
+                      ),
                     ),
-                  ),
-                  Container(width: 1, height: 60, color: Colors.grey.shade200),
-                  Expanded(
-                    child: _buildStatCard(
-                      'Benchmark (1Y)',
-                      '${fund?.navChangePercentage.toStringAsFixed(2)}',
-                      '%',
-                      Colors.green.shade700,
+                    Container(width: 1, height: 60, color: Colors.grey.shade200),
+                    Expanded(
+                      child: _buildStatCard(
+                        'Benchmark ($period)',
+                        controller.formatReturn(benchmarkReturn),
+                        benchmarkReturn != null ? '%' : '',
+                        benchmarkColor,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+            }),
             const Gap(24),
 
             // Chart
@@ -4418,6 +4446,19 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
     return Obx(() {
       final fund = controller.fundDetail.value;
+      final period = controller.selectedPeriod.value;
+      final navEntity = controller.navHistorydata.value;
+      final isNavLoading = controller.isNavHistoryLoading.value;
+      final fundReturn = controller.getFundReturnForPeriod(period);
+      final benchmarkReturn = controller.getBenchmarkReturnForPeriod(period);
+      final fundReturnColor = controller.getReturnColor(
+        fundReturn,
+        defaultColor: Ucolors.success,
+      );
+      final benchmarkColor = controller.getReturnColor(
+        benchmarkReturn,
+        defaultColor: Ucolors.success,
+      );
 
       final managers = parseFundManagers(fund?.schemeManager);
       final portfolio = controller.portfolioAnalysis.value;
@@ -4436,25 +4477,26 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   children: [
                     StatItem1(
                       title: 'Nav',
-                      amount: '₹${fund?.nav.toStringAsFixed(2)}',
+                      amount: '₹${fund?.nav.toStringAsFixed(2) ?? '--'}',
                       percentage: '',
                     ),
                     StatItem1(
-                      title: 'Returns (1Y)',
-                      amount:
-                          fund?.schemePerformanceList[0].oneYearReturn
-                              .toString() ??
-                          '',
-                      amountColor: Ucolors.success,
-
-                      percentage: '%',
+                      title: 'Returns ($period)',
+                      amount: isNavLoading && fundReturn == null
+                          ? '...'
+                          : controller.formatReturn(fundReturn),
+                      amountColor: fundReturnColor,
+                      percentage: fundReturn != null ? '%' : '',
+                      percentageColor: fundReturnColor,
                     ),
                     StatItem1(
-                      title: 'BenchMark (1Y)',
-                      amount:
-                          fund?.navChangePercentage.toStringAsFixed(2) ?? '',
-                      percentage: '%',
-                      amountColor: Ucolors.success,
+                      title: 'BenchMark ($period)',
+                      amount: isNavLoading && benchmarkReturn == null
+                          ? '...'
+                          : controller.formatReturn(benchmarkReturn),
+                      percentage: benchmarkReturn != null ? '%' : '',
+                      amountColor: benchmarkColor,
+                      percentageColor: benchmarkColor,
                     ),
                   ],
                 ),
