@@ -1248,25 +1248,35 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                                               ?.toString() ??
                                                           '',
                                                     );
-                                                goalSipController.toggleFund(
-                                                  name,
-                                                );
+                                              }
+                                              goalSipController.toggleFund(
+                                                name,
+                                              );
+                                              final schemeCode =
+                                                  fund.schemeCode?.toString() ??
+                                                  '';
+                                              goalSipController
+                                                  .amountControllers[schemeCode]
+                                                  ?.clear();
+                                              goalSipController
+                                                  .amountControllers
+                                                  .remove(schemeCode);
+
+                                              if (goalSipController
+                                                  .selectedPopularFund
+                                                  .isNotEmpty) {
                                                 if (goalSipController
-                                                    .selectedPopularFund
-                                                    .isNotEmpty) {
-                                                  if (goalSipController
-                                                          .savedInvestmentType
-                                                          .value ==
-                                                      "lumpsum")
-                                                    await goalSipController
-                                                        .distributeMonthlyAmount();
-                                                  else if (goalSipController
-                                                          .savedInvestmentType
-                                                          .value ==
-                                                      "sip")
-                                                    await goalSipController
-                                                        .distributeSipAmount();
-                                                }
+                                                        .savedInvestmentType
+                                                        .value ==
+                                                    "lumpsum")
+                                                  await goalSipController
+                                                      .distributeMonthlyAmount();
+                                                else if (goalSipController
+                                                        .savedInvestmentType
+                                                        .value ==
+                                                    "sip")
+                                                  await goalSipController
+                                                      .distributeSipAmount();
                                               }
                                               return;
                                             }
@@ -1901,7 +1911,15 @@ class PopularAndSelectedFund extends StatelessWidget {
                                 isEdit: false,
                                 schemeName: fund.schemeCode?.toString() ?? '',
                               );
+                            }
                               goalSipController.toggleFund(name);
+                              final schemeCode =
+                                  fund.schemeCode?.toString() ?? '';
+                              goalSipController.amountControllers[schemeCode]
+                                  ?.clear();
+                              goalSipController.amountControllers
+                                  .remove(schemeCode);
+
                               if (goalSipController
                                   .selectedPopularFund
                                   .isNotEmpty) {
@@ -1917,8 +1935,7 @@ class PopularAndSelectedFund extends StatelessWidget {
                                     "sip")
                                   await goalSipController.distributeSipAmount();
                               }
-                            }
-                            return;
+                              return;
                           }
 
                           goalSipController.toggleFund(name);

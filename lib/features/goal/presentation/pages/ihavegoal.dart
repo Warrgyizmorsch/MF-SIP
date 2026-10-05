@@ -897,8 +897,8 @@ class _MobileLayout extends StatelessWidget {
                                             cartItem.id!,
                                             name,
                                           );
-                                          goalSipController.toggleFund(name);
                                         }
+                                        goalSipController.toggleFund(name);
                                       }
                                     },
                                   ),
@@ -1254,8 +1254,8 @@ class PopularFund extends StatelessWidget {
 
                       if (cartItem != null && cartItem.id != null) {
                         cartController.deleteCartItem(cartItem.id!, name);
-                        goalSipController.toggleFund(name);
                       }
+                      goalSipController.toggleFund(name);
                     }
                   },
                 ),
