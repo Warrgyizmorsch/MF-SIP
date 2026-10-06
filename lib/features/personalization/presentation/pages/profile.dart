@@ -278,7 +278,7 @@ class _WebProfileDashboard extends StatelessWidget {
         ),
       ),
       _GridItem(
-        'AMCs',
+        'AMCs, SEBI & AMFI',
         null,
         () => Get.to(() => const AmcListScreen()),
         icon: Icons.account_balance_outlined,
@@ -538,7 +538,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             images: UImages.likedislike,
           ),
            Listtilecustom(
-            title: 'AMCs',
+            title: 'AMCs, SEBI & AMFI',
             icon: Icons.account_balance_outlined,
             onTap: () => Get.to(() => const AmcListScreen()),
           ),

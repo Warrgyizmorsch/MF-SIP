@@ -101,7 +101,7 @@ class _AmcListScreenState extends State<AmcListScreen> {
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
       appBar: CustomAppBarNormal(
-        title: ' Asset Management Company - AMC',
+        title: 'AMCs, SEBI & AMFI',
         backIcon: true,
       ),
       body: SafeArea(
@@ -170,6 +170,77 @@ class _AmcListScreenState extends State<AmcListScreen> {
                     ),
                   ),
                   const Gap(16),
+
+                  // Regulatory Authorities (SEBI & AMFI)
+                  Obx(() {
+                    // Only show regulatory quick links when not filtering by search query
+                    if (_searchQuery.value.isNotEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.verified_user_outlined,
+                              size: 16,
+                              color: Ucolors.primary,
+                            ),
+                            const Gap(6),
+                            Text(
+                              'Regulatory & Industry Bodies',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(10),
+                        Row(
+                          children: [
+                            // SEBI Card
+                            Expanded(
+                              child: _buildAuthorityCard(
+                                title: 'SEBI',
+                                subtitle: 'Regulator',
+                                url: 'https://www.sebi.gov.in/',
+                                icon: Icons.gavel_rounded,
+                              ),
+                            ),
+                            const Gap(12),
+                            // AMFI Card
+                            Expanded(
+                              child: _buildAuthorityCard(
+                                title: 'AMFI',
+                                subtitle: 'Industry Body',
+                                url: 'https://www.amfiindia.com/',
+                                icon: Icons.account_balance_rounded,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(16),
+                        Row(
+                          children: [
+                            Text(
+                              'Asset Management Companies',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(10),
+                      ],
+                    );
+                  }),
 
                   // AMC List
                   Expanded(
@@ -371,6 +442,86 @@ class _AmcListScreenState extends State<AmcListScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthorityCard({
+    required String title,
+    required String subtitle,
+    required String url,
+    required IconData icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => _launchAmcUrl(url),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 20,
+                    color: Ucolors.primary,
+                  ),
+                ),
+                const Gap(10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Ucolors.dark,
+                        ),
+                      ),
+                      const Gap(2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontFamily: FontFamily.regular,
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.open_in_new_rounded,
+                  size: 15,
+                  color: Ucolors.primary,
+                ),
+              ],
             ),
           ),
         ),
