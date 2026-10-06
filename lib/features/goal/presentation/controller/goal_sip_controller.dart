@@ -1516,15 +1516,21 @@ class GoalSipController extends GetxController {
   /// =======================================
 
   void setTarget(double value) {
-    targetAmount.value = smartRoundOff(value);
+    final rounded = smartRoundOff(value);
+    targetAmount.value = rounded;
+    lumpsumFutureValue.value = rounded;
     _recalculate();
+    recalculateLumpsum();
     checkForChanges();
+  }
+
+  void setLumpsumTarget(double value) {
+    setTarget(value);
   }
 
   // ── Lumpsum Setter ────────────────────────────────────────────────────────────
   void setLumpsumAmount(double value) {
     lumpsumAmount.value = value;
-
     recalculateLumpsum();
   }
 

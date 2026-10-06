@@ -2062,31 +2062,25 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
 
   @override
   Widget build(BuildContext context) {
-    final double lumpsumAmount = controller.smartRoundOff(
-      controller.lumpsumAmount.value,
-    );
     return Column(
       children: [
-        // Lumpsum Amount
-        Obx(() {
-          final double lumpsumAmount = controller.smartRoundOff(
-            controller.lumpsumAmount.value,
-          );
-          return IgnorePointer(
+        // Target Amount (I Need)
+        Obx(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               prefix: '₹',
-              title: 'Invest Amount',
-              value: lumpsumAmount < 500 ? 500 : lumpsumAmount,
-              min: 500,
-              max: controller.lumpsumFutureValue.value.toDouble(),
+              title: 'I Need',
+              value: controller.targetAmount.value < 1000
+                  ? 1000
+                  : controller.targetAmount.value,
+              min: 1000,
+              max: 10000000,
               suffix: '',
-              onChanged: (value) {
-                controller.setLumpsumAmount(value);
-              },
+              onChanged: controller.setTarget,
             ),
-          );
-        }),
+          ),
+        ),
         const Gap(16),
 
         // Duration

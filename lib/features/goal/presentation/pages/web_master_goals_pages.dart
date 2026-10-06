@@ -2298,27 +2298,25 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
         return Column(
           children: [
             Obx(() {
-              final double minLump = 500.0;
-              double maxLump = controller.lumpsumFutureValue.value.toDouble();
-
-              if (controller.lumpsumAmount.value > maxLump)
-                maxLump = controller.lumpsumAmount.value.toDouble();
-              if (maxLump <= minLump) maxLump = minLump + 1.0;
-
-              final double safeValue = controller
-                  .smartRoundOff(controller.lumpsumAmount.value)
-                  .clamp(minLump, maxLump);
-
+              final double minTarget = 1000.0;
+              double maxTarget = 10000000.0;
+              if (controller.targetAmount.value > maxTarget) {
+                maxTarget = controller.targetAmount.value.toDouble();
+              }
+              if (maxTarget <= minTarget) maxTarget = minTarget + 1.0;
+              final double safeTarget = controller.targetAmount.value
+                  .toDouble()
+                  .clamp(minTarget, maxTarget);
               return IgnorePointer(
                 ignoring: controller.isGoalSaved.value,
                 child: SipSliderTile2(
                   prefix: '₹',
-                  title: 'Invest Amount',
-                  value: safeValue,
-                  min: minLump,
-                  max: maxLump,
+                  title: 'I Need',
+                  value: safeTarget,
+                  min: minTarget,
+                  max: maxTarget,
                   suffix: '',
-                  onChanged: (value) => controller.setLumpsumAmount(value),
+                  onChanged: (value) => controller.setTarget(value),
                 ),
               );
             }),
