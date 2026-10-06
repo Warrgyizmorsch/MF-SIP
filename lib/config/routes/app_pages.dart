@@ -40,6 +40,7 @@ import 'package:my_sip/features/nfo/presentation/page/nfo_list_page.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/features/personalization/presentation/bindings/personalisation_binding.dart';
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
+import 'package:my_sip/features/personalization/presentation/pages/amc_list_screen.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/features/personalization/presentation/pages/risk_profile.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/additional_info.dart';
@@ -491,6 +492,13 @@ class AppPages {
             RedeemPage.navArgs ??
             (Get.arguments is RedeemArgs ? Get.arguments as RedeemArgs : null),
       ),
+      transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.amcList,
+      page: () => const AmcListScreen(),
+      binding: Fundhousebinding(),
       transition: kIsWeb ? Transition.fadeIn : Transition.rightToLeftWithFade,
       transitionDuration: const Duration(milliseconds: 300),
     ),

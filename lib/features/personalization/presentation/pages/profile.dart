@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -17,6 +16,7 @@ import 'package:my_sip/features/personalization/presentation/controllers/persona
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/download_statement.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/help_support.dart';
+import 'package:my_sip/features/personalization/presentation/pages/amc_list_screen.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -72,8 +72,6 @@ class _MobileProfileLayout extends StatelessWidget {
               //   icon: Icons.edit,
               // ),
               Obx(() {
-                final user1 = SessionManager.instance.userObs.value;
-
                 final reactiveUser = SessionManager.instance.userObs.value;
 
                 String displayImage = controller.imagePath.isNotEmpty
@@ -279,6 +277,12 @@ class _WebProfileDashboard extends StatelessWidget {
           ),
         ),
       ),
+      _GridItem(
+        'AMCs',
+        null,
+        () => Get.to(() => const AmcListScreen()),
+        icon: Icons.account_balance_outlined,
+      ),
     ];
 
     return LayoutBuilder(
@@ -313,7 +317,10 @@ class _WebProfileDashboard extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(item.image, height: 32, width: 32),
+                    if (item.image != null)
+                      Image.asset(item.image!, height: 32, width: 32)
+                    else if (item.icon != null)
+                      Icon(item.icon, size: 32, color: Ucolors.primary),
                     const Gap(12),
                     Text(
                       item.title,
@@ -337,9 +344,10 @@ class _WebProfileDashboard extends StatelessWidget {
 
 class _GridItem {
   final String title;
-  final String image;
+  final String? image;
+  final IconData? icon;
   final VoidCallback onTap;
-  _GridItem(this.title, this.image, this.onTap);
+  _GridItem(this.title, this.image, this.onTap, {this.icon});
 }
 
 class LogoutButton extends StatelessWidget {
@@ -456,46 +464,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
           //   title: 'Documents',
           //   images: UImages.cardtick,
           // ),
-          Divider(thickness: 5, color: Colors.grey.shade200),
-          const Row(
-            children: [
-              SizedBox(width: 16),
-              SectionHeading(
-                sectionTitle: 'General',
-                fontWeight: FontWeight.w700,
-              ),
-            ],
-          ),
-          Listtilecustom(
-            isLock: true,
-            title: 'Applock',
-            images: UImages.setting,
-            onTap: () {},
-          ),
-          Listtilecustom(
-            title: 'Help & Support',
-            images: UImages.eye,
-            onTap: () => Get.to(() => const HelpSupportScreen()),
-          ),
-          Listtilecustom(
-            title: 'About Us',
-            images: UImages.msgques,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HtmlWebViewPage(
-                  title: 'About us',
-                  url: 'https://sip.londonstreetstore.com/about-us?mobile=true',
-                ),
-              ),
-            ),
-          ),
-          Listtilecustom(
-            onTap: () {},
-            title: 'Rate Us',
-            images: UImages.likedislike,
-          ),
-          Divider(thickness: 5, color: Colors.grey.shade200),
+           Divider(thickness: 5, color: Colors.grey.shade200),
 
           const Row(
             children: [
@@ -528,6 +497,53 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             title: 'ElSS Report',
             // images: UImages.likedislike,
           ),
+          Divider(thickness: 5, color: Colors.grey.shade200),
+          const Row(
+            children: [
+              SizedBox(width: 16),
+              SectionHeading(
+                sectionTitle: 'General',
+                fontWeight: FontWeight.w700,
+              ),
+            ],
+          ),
+         
+          Listtilecustom(
+            isLock: true,
+            title: 'Applock',
+            images: UImages.setting,
+            onTap: () {},
+          ),
+          Listtilecustom(
+            title: 'Help & Support',
+            images: UImages.eye,
+            onTap: () => Get.to(() => const HelpSupportScreen()),
+          ),
+          Listtilecustom(
+            title: 'About Us',
+            images: UImages.msgques,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HtmlWebViewPage(
+                  title: 'About us',
+                  url: 'https://sip.londonstreetstore.com/about-us?mobile=true',
+                ),
+              ),
+            ),
+          ),
+          Listtilecustom(
+            onTap: () {},
+            title: 'Rate Us',
+            images: UImages.likedislike,
+          ),
+           Listtilecustom(
+            title: 'AMCs',
+            icon: Icons.account_balance_outlined,
+            onTap: () => Get.to(() => const AmcListScreen()),
+          ),
+          
+         
         ],
       ),
     );
@@ -576,7 +592,7 @@ class Listtilecustom extends StatelessWidget {
             )
           : Obx(
               () => Switch(
-                activeColor: Colors.blue,
+                activeThumbColor: Colors.blue,
                 // value: controller.applock.value,
                 value: SessionManager.instance.isAppLockEnabled.value,
                 onChanged: (bool value) async {
