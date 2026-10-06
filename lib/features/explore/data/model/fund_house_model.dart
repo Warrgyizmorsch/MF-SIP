@@ -21,18 +21,30 @@ class FundHouseItemModel {
   final String? amcCode;
   final String? amcName;
   final String? amcLogo;
-  final int? status;
+  final String? address;
+  final String? contactNo;
+  final String? email;
+  final String? websiteUrl;
+  final String? status;
   final String? createdAt;
-  final String? amcLogoURl;
+  final String? mfuAmcCode;
+  final String? amcLogoUrl;
+
+  String? get amcLogoURl => amcLogoUrl;
 
   FundHouseItemModel({
     required this.id,
     required this.amcCode,
     required this.amcName,
     required this.amcLogo,
+    this.address,
+    this.contactNo,
+    this.email,
+    this.websiteUrl,
     required this.status,
     required this.createdAt,
-    required this.amcLogoURl,
+    this.mfuAmcCode,
+    this.amcLogoUrl,
   });
 
   factory FundHouseItemModel.fromJson(Map<String, dynamic> json) {
@@ -41,10 +53,14 @@ class FundHouseItemModel {
       amcCode: json.parse<String>('amc_code'),
       amcName: json.parse<String>('amc_name'),
       amcLogo: json.parse<String>('amc_logo'),
-      status: json.parse<int>('status'),
-      // status: int.tryParse(json.parse<String>('status') ?? ''),
+      address: json.parse<String>('address'),
+      contactNo: json.parse<String>('contact_no'),
+      email: json.parse<String>('email'),
+      websiteUrl: json.parse<String>('website_url'),
+      status: json.parse<dynamic>('status')?.toString(),
       createdAt: json.parse<String>('created_at'),
-      amcLogoURl: json.parse<String>('amc_logo_url'),
+      mfuAmcCode: json.parse<String>('mfu_amc_code'),
+      amcLogoUrl: json.parse<String>('amc_logo_url'),
     );
   }
 }

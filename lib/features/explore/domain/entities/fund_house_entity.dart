@@ -27,18 +27,30 @@ class FundHouseItemEntity extends Equatable {
   final String? amcCode;
   final String? amcName;
   final String? amcLogo;
-  final int? status;
+  final String? address;
+  final String? contactNo;
+  final String? email;
+  final String? websiteUrl;
+  final String? status;
   final String? createdAt;
-  final String? amcLogoURl;
+  final String? mfuAmcCode;
+  final String? amcLogoUrl;
+
+  String? get amcLogoURl => amcLogoUrl;
 
   const FundHouseItemEntity({
     required this.id,
     required this.amcCode,
     required this.amcName,
     required this.amcLogo,
+    this.address,
+    this.contactNo,
+    this.email,
+    this.websiteUrl,
     required this.status,
     required this.createdAt,
-    required this.amcLogoURl,
+    this.mfuAmcCode,
+    this.amcLogoUrl,
   });
 
   @override
@@ -47,9 +59,14 @@ class FundHouseItemEntity extends Equatable {
     amcCode,
     amcName,
     amcLogo,
+    address,
+    contactNo,
+    email,
+    websiteUrl,
     status,
     createdAt,
-    amcLogoURl,
+    mfuAmcCode,
+    amcLogoUrl,
   ];
 }
 
@@ -60,9 +77,14 @@ extension FundHouseEntityx on FundHouseItemModel {
       amcCode: amcCode,
       amcName: amcName,
       amcLogo: amcLogo,
+      address: address,
+      contactNo: contactNo,
+      email: email,
+      websiteUrl: websiteUrl,
       status: status,
       createdAt: createdAt,
-      amcLogoURl: amcLogoURl,
+      mfuAmcCode: mfuAmcCode,
+      amcLogoUrl: amcLogoUrl,
     );
   }
 }
