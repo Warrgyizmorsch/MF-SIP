@@ -2662,7 +2662,7 @@ class _MobileLayout extends StatelessWidget {
                           .toLowerCase();
                   final canErrorMessage =
                       (controller.userData.value?.canErrorMessage ?? '').trim();
-                  final bool hasCanError = canErrorMessage.isNotEmpty;
+                  final bool hasCanError = canErrorMessage.isNotEmpty && userCanStatus != 'approved' ;
 
                   final noCan =
                       canNumber.isEmpty || userCanStatus != 'approved';
@@ -2805,14 +2805,14 @@ class _MobileLayout extends StatelessWidget {
                     leftIcon = Icons.error_outline_rounded;
                     customLeftIcon = null;
                     rightIcon = Icons.arrow_forward_ios;
-                    titleText = 'CAN Registration Issue';
+                    titleText = 'Registration Issue';
                     subText = canErrorMessage;
 
                     onTapAction = () {
                       DialogHelper.showPrerequisiteDialog(
-                        title: 'CAN Registration Issue',
+                        title: 'Registration Issue',
                         message:
-                            'We encountered an issue during CAN registration:\n\n$canErrorMessage\n\nPlease resolve this issue or retry.',
+                            '$canErrorMessage\n\nPlease resolve this issue or retry.',
                         buttonText: 'Update Details',
                         onTap: () {
                           Get.back();
