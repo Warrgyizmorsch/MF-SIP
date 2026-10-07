@@ -711,7 +711,7 @@ class PersonalisationController extends GetxController {
         );
       }
       final missing = [
-        if (!kycDone) 'KYC',
+        if (!kycDone) 'KYC', 
         if (!bankDone) 'Bank',
         if (!personalDetailsDone) 'Personal Details',
       ].join(', ');

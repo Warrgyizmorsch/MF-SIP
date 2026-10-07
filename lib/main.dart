@@ -31,7 +31,7 @@ Future<void> main() async {
       
       final session = SessionManager.instance;
       await session.initialize();
-      return session;
+      return session;   
     });
     runApp(const MyApp());
   } catch (e, stackTrace) {

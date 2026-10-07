@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
@@ -2659,6 +2660,9 @@ class _MobileLayout extends StatelessWidget {
                       (controller.userData.value?.canStatus ?? '')
                           .trim()
                           .toLowerCase();
+                  final canErrorMessage =
+                      (controller.userData.value?.canErrorMessage ?? '').trim();
+                  final bool hasCanError = canErrorMessage.isNotEmpty;
 
                   final noCan =
                       canNumber.isEmpty || userCanStatus != 'approved';
@@ -2791,6 +2795,35 @@ class _MobileLayout extends StatelessWidget {
                       message:
                           "Your KYC documents have been submitted to KRA/CAMS. Verification typically takes 2-3 business days. You can continue completing your bank details, nominee, and risk profile in the meantime.",
                     );
+                  }
+                  // 4b. If CAN registration failed with an error message from backend
+                  else if (hasCanError) {
+                    bgColor = Colors.red.shade50;
+                    iconColor = Colors.red.shade700;
+                    titleColor = Colors.red.shade900;
+                    subTextColor = Colors.red.shade800;
+                    leftIcon = Icons.error_outline_rounded;
+                    customLeftIcon = null;
+                    rightIcon = Icons.arrow_forward_ios;
+                    titleText = 'CAN Registration Issue';
+                    subText = canErrorMessage;
+
+                    onTapAction = () {
+                      DialogHelper.showPrerequisiteDialog(
+                        title: 'CAN Registration Issue',
+                        message:
+                            'We encountered an issue during CAN registration:\n\n$canErrorMessage\n\nPlease resolve this issue or retry.',
+                        buttonText: 'Update Details',
+                        onTap: () {
+                          Get.back();
+                          // Get.find<PersonalisationController>()
+                          //     .checkAndTriggerCanRegistration(
+                          //       isManualTrigger: true,
+                          //     );
+                          Get.toNamed(AppRoutes.personaldetails);
+                        },
+                      );
+                    };
                   }
                   // 5. If everything else is done, but KYC is STILL pending!
                   else if (noCan) {
@@ -2984,9 +3017,10 @@ class _MobileLayout extends StatelessWidget {
 
                   // --- PROGRESS CALCULATION ---
                   final isRejected =
-                      !isVerified &&
-                      !isPending &&
-                      controller.kycErrorMessage.isNotEmpty;
+                      (!isVerified &&
+                          !isPending &&
+                          controller.kycErrorMessage.isNotEmpty) ||
+                      hasCanError;
                   final showProgressCard = !isAllComplete && !isRejected;
 
                   const int totalSteps = 7;
