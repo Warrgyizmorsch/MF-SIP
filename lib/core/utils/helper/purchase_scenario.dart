@@ -58,7 +58,22 @@ class GatekeeperHelper {
       return;
     }
 
-    // 🛑 4. Check CAN (Common Account Number) Status & Approval
+    // 🛑 4. Check Nominee
+    if (!userCtrl.hasNominee.value) {
+      DialogHelper.showPrerequisiteDialog(
+        title: 'Nominee Details Required',
+        message:
+            'Please add a nominee to secure your investments and complete your account setup.',
+        buttonText: 'Add Nominee',
+        onTap: () {
+          Get.back();
+          Get.toNamed(AppRoutes.nomineeDetail, id: isDesktop ? 1 : null);
+        },
+      );
+      return;
+    }
+
+    // 🛑 5. Check CAN (Common Account Number) Status & Approval
     final userData = userCtrl.userData.value;
     final String canNumber = userData?.canNumber ?? '';
     final String canStatus = (userData?.canStatus ?? '').trim().toLowerCase();

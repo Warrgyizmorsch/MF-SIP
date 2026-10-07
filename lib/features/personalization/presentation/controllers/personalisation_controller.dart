@@ -695,25 +695,28 @@ class PersonalisationController extends GetxController {
     final kycDone = isKycVerified.value;
     final bankDone = hasBank.value;
     final personalDetailsDone = hasPersonalDetails.value;
+    final nomineeDone = hasNominee.value;
 
     log(
-      "[CAN] Check → KYC: $kycDone | Bank: $bankDone | PersonalDetails: $personalDetailsDone",
+      "[CAN] Check → KYC: $kycDone | Bank: $bankDone | PersonalDetails: $personalDetailsDone | Nominee: $nomineeDone",
     );
 
-    if (kycDone && bankDone && personalDetailsDone) {
+    if (kycDone && bankDone && personalDetailsDone && nomineeDone) {
       log("[CAN] ✅ All conditions met — triggering CAN registration");
       _triggerCanRegistration();
     } else {
       if (isManualTrigger) {
         CustomSnackbar.warning(
           title: 'Action Required',
-          message: 'Please complete KYC, Bank, and Personal Details first.',
+          message:
+              'Please complete KYC, Bank, Personal Details, and Nominee first.',
         );
       }
       final missing = [
-        if (!kycDone) 'KYC', 
+        if (!kycDone) 'KYC',
         if (!bankDone) 'Bank',
         if (!personalDetailsDone) 'Personal Details',
+        if (!nomineeDone) 'Nominee',
       ].join(', ');
       log("[CAN] ⏳ Skipped — missing: $missing");
     }
