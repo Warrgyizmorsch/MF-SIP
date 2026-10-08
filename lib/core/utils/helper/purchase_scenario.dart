@@ -128,13 +128,16 @@ class GatekeeperHelper {
         );
       } else {
         DialogHelper.showPrerequisiteDialog(
-          title: 'Investment Account Required',
+          title: 'Account Setup In Progress',
           message:
-              'Your Common Account Number (CAN) is required to process mutual fund orders.',
-          buttonText: 'Activate Account',
-          onTap: () {
+              'Your profile details are complete. We are setting up your Common Account Number (CAN) with MF Utility. If this takes longer than expected, please contact our support team at +91 78508 88522.',
+          buttonText: 'Call Support',
+          onTap: () async {
             Get.back();
-            userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
+            final Uri callUri = Uri(scheme: 'tel', path: '+917850888522');
+            if (await canLaunchUrl(callUri)) {
+              await launchUrl(callUri);
+            }
           },
         );
       }

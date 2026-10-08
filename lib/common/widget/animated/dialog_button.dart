@@ -179,6 +179,8 @@ class DialogHelper {
     required String message,
     required String buttonText,
     required VoidCallback onTap,
+    String? secondaryButtonText,
+    VoidCallback? onSecondaryTap,
   }) {
     Get.dialog(
       AlertDialog(
@@ -209,6 +211,18 @@ class DialogHelper {
               ),
             ),
           ),
+          if (secondaryButtonText != null && onSecondaryTap != null)
+            TextButton(
+              onPressed: onSecondaryTap,
+              child: Text(
+                secondaryButtonText,
+                style: const TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.green,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           TextButton(
             onPressed: onTap,
             child: Text(
