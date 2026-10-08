@@ -36,6 +36,8 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_ca
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
+import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/sip_process/presentation/controllers/sip_process_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
@@ -559,7 +561,7 @@ class _WebDashboardLayout extends StatelessWidget {
               navIndex: 3,
             );
           } else {
-            Get.toNamed(AppRoutes.webMasterGoalsPage);
+            navController.changePage(3, isDesktop: false);
           }
         },
       },
@@ -3352,133 +3354,330 @@ class _MobileLayout extends StatelessWidget {
             ),
           ),
 
-          // Create Goal Base SIP
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 5, 16, 12),
-              child: USectionHeading(
-                title: 'Create Goal',
-                showActionButton: false,
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 2.8,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-              ),
-              delegate: SliverChildListDelegate([
-                GoalBaseSIPCard(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.masterGoalsPage,
-                    arguments: {'goalType': 'car', 'isHome': true},
-                  ),
-                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
-                  title: 'Car Goal',
-                  iconData: Icons.directions_car_filled_rounded,
-                ),
-                GoalBaseSIPCard(
-                  title: 'Education Goal',
-                  iconData: Icons.menu_book,
-                  onTap: () => Get.toNamed(
-                    AppRoutes.masterGoalsPage,
-                    arguments: {'goalType': 'education', 'isHome': true},
-                  ),
-                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
-                ),
-                GoalBaseSIPCard(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.masterGoalsPage,
-                    arguments: {'goalType': 'marriage', 'isHome': true},
-                  ),
+          // Dynamic Goals Section on Home Page
+          SliverToBoxAdapter(
+            child: Obx(() {
+              if (!Get.isRegistered<GoalSipController>()) {
+                return const SizedBox.shrink();
+              }
 
-                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
-                  title: 'Marriage Goal',
-                  iconData: Icons.favorite_border_outlined,
-                ),
-                GoalBaseSIPCard(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.masterGoalsPage,
-                    arguments: {'goalType': 'vacation', 'isHome': true},
-                  ),
+              final goalCtrl = Get.find<GoalSipController>();
+              final activeGoals = goalCtrl.goalResponse.value?.data ?? [];
+              final masterGoals = goalCtrl.masterGoals;
 
-                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
-                  title: 'Vacation Goal',
-                  iconData: Icons.flight_takeoff_rounded,
-                ),
-                GoalBaseSIPCard(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.masterGoalsPage,
-                    arguments: {'goalType': 'home', 'isHome': true},
-                  ),
-
-                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
-                  title: 'Home Goal',
-                  iconData: Icons.home_rounded,
-                ),
-                GestureDetector(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.masterGoalsPage,
-                    arguments: {'goalType': 'other', 'isHome': true},
-                  ),
-
-                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. My Active Goals (shown if user has created goals)
+                  if (activeGoals.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                      child: USectionHeading(
+                        title: 'Your Active Goals',
+                        showActionButton: true,
+                        buttonTitle: 'View All',
+                        onPressed: () {
+                          if (Get.isRegistered<NavigationBarController>()) {
+                            Get.find<NavigationBarController>().changePage(3, isDesktop: false);
+                          } else {
+                            Get.toNamed(AppRoutes.goalScreen);
+                          }
+                        },
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Ucolors.borderColor, width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.add, size: 20, color: Ucolors.blue),
-                        // Container(
-                        //   padding: const EdgeInsets.all(8),
-                        //   decoration: BoxDecoration(
-                        //     color: const Color(0xFFEEF5FF),
-                        //     borderRadius: BorderRadius.circular(8),
-                        //   ),
-                        //   child: const Icon(
-                        //     Icons.add,
-                        //     size: 20,
-                        //     color: Ucolors.blue,
-                        //   ),
-                        // ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Custom Goal',
-                            style: UTextStyles.small.copyWith(
-                              color: Ucolors.dark,
-                              fontSize: 11,
-                              fontFamily: FontFamily.medium,
-                              fontWeight: FontWeight.w500,
+                    SizedBox(
+                      height: 125,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: activeGoals.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final goal = activeGoals[index];
+                          final double target = goal.targetAmount > 0
+                              ? goal.targetAmount
+                              : (double.tryParse(goal.goalType?.targetAmount.toString() ?? '0') ?? 0.0);
+                          final double invested = goal.investedAmount > 0
+                              ? goal.investedAmount
+                              : (target * (goal.progressPercent / 100));
+                          final double progress = (target > 0 ? (invested / target) : 0.0).clamp(0.0, 1.0);
+                          final String name = goal.goalName.isNotEmpty ? goal.goalName : 'Goal ${index + 1}';
+                          final Color color = goalCtrl.getGoalColor(goal.goalType?.typeName ?? '');
+
+                          return GestureDetector(
+                            onTap: () {
+                              GoalDetailsPage.tempData = {
+                                'goal': goal,
+                                'target': target,
+                                'invested': invested,
+                                'logo': goal.goalCover.isNotEmpty ? goal.goalCover : (goal.goalType?.logo ?? ''),
+                              };
+                              Get.toNamed(AppRoutes.goaldetails);
+                            },
+                            child: Container(
+                              width: 220,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: Ucolors.borderColor, width: 1),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: color.withValues(alpha: 0.12),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Icon(
+                                          goalCtrl.getGoalIcon(goal.goalType?.typeName ?? goal.goalName),
+                                          size: 18,
+                                          color: color,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          name,
+                                          style: AppTextStyles.bodyMedium(
+                                            color: const Color(0xFF262626),
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Target: ₹${target.toInt().toString()}',
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${(progress * 100).toStringAsFixed(0)}%',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: color,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: LinearProgressIndicator(
+                                          value: progress,
+                                          minHeight: 5,
+                                          backgroundColor: Colors.grey.shade200,
+                                          valueColor: AlwaysStoppedAnimation<Color>(color),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // 2. Create Goal Section (Dynamic from master goals API)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 5, 16, 0),
+                    child: USectionHeading(
+                      title: activeGoals.isNotEmpty ? 'Create Another Goal' : 'Create Goal',
+                      showActionButton: false,
                     ),
                   ),
-                ),
-              ]),
-            ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: LayoutBuilder(
+                      
+                      builder: (context, constraints) {
+
+                        if (masterGoals.isNotEmpty) {
+                          final itemCount = masterGoals.length + 1;
+                          return GridView.builder(
+                            padding: const EdgeInsets.only(top: 12, bottom: 0),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: itemCount,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 2.8,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                            ),
+                            itemBuilder: (context, index) {
+                              if (index < masterGoals.length) {
+                                final mg = masterGoals[index];
+                                final type = mg.goalType.toLowerCase();
+                                return GoalBaseSIPCard(
+                                  onTap: () => Get.toNamed(
+                                    AppRoutes.masterGoalsPage,
+                                    arguments: {'goalType': type, 'isHome': true},
+                                  ),
+                                  title: '${mg.goalType.capitalizeFirst} Goal',
+                                  iconData: goalCtrl.getGoalIcon(mg.goalType),
+                                );
+                              }
+                              // Custom Goal card at the end
+                              return GestureDetector(
+                                onTap: () => Get.toNamed(
+                                  AppRoutes.masterGoalsPage,
+                                  arguments: {'goalType': 'other', 'isHome': true},
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Ucolors.borderColor, width: 1),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.03),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.add, size: 20, color: Ucolors.blue),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Custom Goal',
+                                          style: UTextStyles.small.copyWith(
+                                            color: Ucolors.dark,
+                                            fontSize: 11,
+                                            fontFamily: FontFamily.medium,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }
+
+                        // Fallback static list while loading or offline
+                        final fallbackGoals = [
+                          {'type': 'car', 'title': 'Car Goal', 'icon': Icons.directions_car_filled_rounded},
+                          {'type': 'education', 'title': 'Education Goal', 'icon': Icons.menu_book},
+                          {'type': 'marriage', 'title': 'Marriage Goal', 'icon': Icons.favorite_border_outlined},
+                          {'type': 'vacation', 'title': 'Vacation Goal', 'icon': Icons.flight_takeoff_rounded},
+                          {'type': 'home', 'title': 'Home Goal', 'icon': Icons.home_rounded},
+                          {'type': 'other', 'title': 'Custom Goal', 'icon': Icons.add},
+                        ];
+
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: fallbackGoals.length,
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 2.8,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                          ),
+                          itemBuilder: (context, index) {
+                            final item = fallbackGoals[index];
+                            final type = item['type'] as String;
+                            if (type == 'other') {
+                              return GestureDetector(
+                                onTap: () => Get.toNamed(
+                                  AppRoutes.masterGoalsPage,
+                                  arguments: {'goalType': 'other', 'isHome': true},
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Ucolors.borderColor, width: 1),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.03),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.add, size: 20, color: Ucolors.blue),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Custom Goal',
+                                          style: UTextStyles.small.copyWith(
+                                            color: Ucolors.dark,
+                                            fontSize: 11,
+                                            fontFamily: FontFamily.medium,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                            return GoalBaseSIPCard(
+                              onTap: () => Get.toNamed(
+                                AppRoutes.masterGoalsPage,
+                                arguments: {'goalType': type, 'isHome': true},
+                              ),
+                              title: item['title'] as String,
+                              iconData: item['icon'] as IconData,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }),
           ),
 
           // Products & Tool

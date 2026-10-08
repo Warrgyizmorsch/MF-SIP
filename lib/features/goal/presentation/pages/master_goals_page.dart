@@ -68,6 +68,9 @@ class MasterGoalsPage extends GetView<GoalSipController> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!isEdit && !isAddFund) {
             controller.resetStateForNewGoal();
+            if (isHome) {
+              controller.isHome.value = true;
+            }
             controller.updateGoalType(initialType);
           } else {
             controller.selectedGoalType.value = initialType;
@@ -144,8 +147,9 @@ class MasterGoalsPage extends GetView<GoalSipController> {
           }
           // HOME GOAL
           if (isHome) {
+            controller.isHome.value = true;
             final masterGoal = controller.masterGoals.firstWhereOrNull(
-              (e) => e.goalType == initialType,
+              (e) => e.goalType.toLowerCase() == initialType.toLowerCase(),
             );
 
             if (masterGoal != null) {

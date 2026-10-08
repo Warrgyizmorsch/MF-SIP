@@ -67,11 +67,11 @@ class GoalSipController extends GetxController {
   final RxInt selectedGoalIndex = (-1).obs;
   final GlobalKey goalDetailsKey = GlobalKey();
   @override
-  @override
   void onInit() {
     super.onInit();
     investmentMode.value = 'sip';
     getAllGoals();
+    getMasterGoals();
     _recalculate();
     recalculateLumpsum();
   }
@@ -161,10 +161,36 @@ class GoalSipController extends GetxController {
     /// 4 - marriage
     /// 5 - retirement
   };
+  IconData getGoalIcon(String goalType) {
+    switch (goalType.toLowerCase()) {
+      case 'car':
+        return Icons.directions_car_rounded;
+      case 'house':
+      case 'home':
+        return Icons.home_rounded;
+      case 'education':
+        return Icons.school_rounded;
+      case 'marriage':
+        return Icons.favorite_rounded;
+      case 'retirement':
+        return Icons.elderly_rounded;
+      case 'vacation':
+        return Icons.flight_takeoff_rounded;
+      default:
+        return Icons.flag_rounded;
+    }
+  }
+
   void handleHomeGoal(MasterGoalEntity goal) {
     goalId.value = goal.id;
 
-    selectedGoalType.value = goal.goalType;
+    selectedGoalType.value = goal.goalType.toLowerCase();
+
+    final type = goal.goalType.toLowerCase();
+    if (!['custom', 'other'].contains(type)) {
+      goalNameTextEditingController.text =
+          goal.goalType.capitalizeFirst ?? goal.goalType;
+    }
 
     setTarget(goal.targetAmount);
 
@@ -185,6 +211,8 @@ class GoalSipController extends GetxController {
 
     lumpsumTotalReturn.value = goal.targetAmount - pv;
 
+    isHome.value = true;
+
     update();
   }
 
@@ -202,14 +230,21 @@ class GoalSipController extends GetxController {
   GoalSipController({required this.goalUseCases});
 
   void updateGoalType(String newType) {
-    if (!goalConfig.containsKey(newType)) return;
+    final lowerType = newType.toLowerCase();
+    if (!goalConfig.containsKey(lowerType)) return;
 
-    selectedGoalType.value = newType;
+    selectedGoalType.value = lowerType;
     isGoalSaved.value = false;
     selectedPopularFund.clear(); // Reset selections for the new goal setup
-    goalNameTextEditingController.clear();
 
-    final targetConfig = goalConfig[newType]!;
+    final targetConfig = goalConfig[lowerType]!;
+
+    if (!['custom', 'other'].contains(lowerType)) {
+      goalNameTextEditingController.text =
+          targetConfig['name'] ?? lowerType.capitalizeFirst ?? lowerType;
+    } else {
+      goalNameTextEditingController.clear();
+    }
 
     initFromGoal(
       amount: targetConfig['amount'],

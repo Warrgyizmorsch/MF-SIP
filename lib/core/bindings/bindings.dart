@@ -33,6 +33,7 @@ import '../../features/authentication/domain/usecases/login_use_case.dart';
 import '../../features/authentication/domain/usecases/register_use_case.dart';
 import '../../features/authentication/domain/usecases/send_otp_use_case.dart';
 import '../../features/authentication/domain/usecases/verify_otp_use_case.dart';
+import '../../features/goal/presentation/bindings/goal_binding.dart';
 import '../../features/home/presentation/controllers/home_controller.dart';
 import '../../features/personalization/presentation/controllers/personalisation_controller.dart';
 import '../../services/firebase_services.dart';
@@ -162,8 +163,8 @@ class UBinding extends Bindings {
       fenix: true, // This allows it to be recreated after being disposed
     );
 
-    // // Goal controller
-    // Get.lazyPut(() => GoalSipController(goalUseCases: Get.find<>()), fenix: true);
+    // Goal dependencies
+    GoalBinding().dependencies();
     Get.lazyPut<PersonalisationController>(
       () => PersonalisationController(Get.find()),
       fenix: true, // This allows it to be recreated after being disposed
