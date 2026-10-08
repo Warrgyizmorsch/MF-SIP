@@ -22,6 +22,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/cart/presentation/pages/cart_page.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
@@ -130,27 +131,38 @@ class IhavegoalPage extends GetView<GoalSipController> {
 
                   ontap: () {
                     log(controller.savedDatabaseId.value.toString());
-                    final cartCont = Get.find<CartController>();
-                    cartCont.filterGoalId.value =
-                        controller.savedDatabaseId.value;
-                    cartController.monthlyAmount.value = controller
-                        .monthlySip
-                        .value
-                        .toInt();
 
-                    controller.selectedPopularFund.isNotEmpty
-                        ? Get.toNamed(
-                            AppRoutes.cart,
-                            arguments: {
-                              'goal_id': controller
-                                  .savedDatabaseId
-                                  .value, // Pass the ID (e.g., 50)
-                            },
-                          )
-                        : Get.snackbar(
-                            "Error",
-                            "Please select funds to start SIP",
-                          );
+                    if (controller.selectedPopularFund.isEmpty) {
+                      Get.snackbar(
+                        "Error",
+                        "Please select funds to start SIP",
+                      );
+                      return;
+                    }
+
+                    final bool isLumpsum =
+                        controller.investmentMode.value.toLowerCase() ==
+                        'lumpsum';
+
+                    GatekeeperHelper.runWithPrerequisites(
+                      isLumpsum: isLumpsum,
+                      onSuccess: () {
+                        final cartCont = Get.find<CartController>();
+                        cartCont.filterGoalId.value =
+                            controller.savedDatabaseId.value;
+                        cartController.monthlyAmount.value = controller
+                            .monthlySip
+                            .value
+                            .toInt();
+
+                        Get.toNamed(
+                          AppRoutes.cart,
+                          arguments: {
+                            'goal_id': controller.savedDatabaseId.value,
+                          },
+                        );
+                      },
+                    );
                   },
                   amount: ((controller.monthlySip.value / 100).ceil() * 100)
                       .toString(),

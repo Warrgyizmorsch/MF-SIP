@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
@@ -2796,7 +2797,38 @@ class _MobileLayout extends StatelessWidget {
                           "Your KYC documents have been submitted to KRA/CAMS. Verification typically takes 2-3 business days. You can continue completing your bank details, nominee, and risk profile in the meantime.",
                     );
                   }
-                  // 4b. If CAN registration failed with an error message from backend
+                  final bool isCanCancelled = userCanStatus == 'cancelled';
+
+                  // 4b. If CAN status is CANCELLED by MFU/KRA
+                  if (isCanCancelled) {
+                    bgColor = Colors.red.shade50;
+                    iconColor = Colors.red.shade700;
+                    titleColor = Colors.red.shade900;
+                    subTextColor = Colors.red.shade800;
+                    leftIcon = Icons.cancel_outlined;
+                    customLeftIcon = null;
+                    rightIcon = Icons.call;
+                    titleText = 'CAN Account Cancelled';
+                    subText = 'Contact support at +91 78508 88522 to reactivate';
+
+                    onTapAction = () {
+                      DialogHelper.showPrerequisiteDialog(
+                        title: 'CAN Account Cancelled',
+                        message:
+                            'Your investment account (CAN) has been cancelled by MFU/KRA. Please contact our support team at +91 78508 88522 for assistance.',
+                        buttonText: 'Call Support',
+                        onTap: () async {
+                          Get.back();
+                          final Uri callUri =
+                              Uri(scheme: 'tel', path: '+917850888522');
+                          if (await canLaunchUrl(callUri)) {
+                            await launchUrl(callUri);
+                          }
+                        },
+                      );
+                    };
+                  }
+                  // 4c. If CAN registration failed with an error message from backend
                   else if (hasCanError) {
                     bgColor = Colors.red.shade50;
                     iconColor = Colors.red.shade700;
@@ -3020,7 +3052,8 @@ class _MobileLayout extends StatelessWidget {
                       (!isVerified &&
                           !isPending &&
                           controller.kycErrorMessage.isNotEmpty) ||
-                      hasCanError;
+                      hasCanError ||
+                      isCanCancelled;
                   final showProgressCard = !isAllComplete && !isRejected;
 
                   const int totalSteps = 7;

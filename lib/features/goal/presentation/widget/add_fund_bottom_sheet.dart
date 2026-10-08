@@ -12,6 +12,7 @@ import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
+import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
@@ -164,91 +165,96 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
       return;
     }
 
-    setState(() {
-      _isSubmitting = true;
-    });
+    final isLumpsum =
+        (widget.goal?.txnType.toLowerCase() == 'lumpsum') ||
+        (_goalController.savedInvestmentType.value == 'lumpsum');
 
-    try {
-      final isLumpsum =
-          (widget.goal?.txnType.toLowerCase() == 'lumpsum') ||
-          (_goalController.savedInvestmentType.value == 'lumpsum');
-
-      // Note: Funds are now directly associated with the goal via the goal_id parameter in postLumpsum/postSip.
-      // _goalController.saveGoalFund(...) is kept in the codebase for reference/backward compatibility.
-
-      // 2. Fire MFU Transaction (Latest postLumpsum and postSip APIs with goal_id)
-      if (isLumpsum) {
-        final List<LumpsumFundItemModel> lumpsumFunds = [];
-        for (final fund in selectedFunds) {
-          final schemeCode = fund.schemeCode?.toString() ?? '';
-          final amount =
-              double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
-              0.0;
-          if (schemeCode.isNotEmpty && amount > 0) {
-            lumpsumFunds.add(
-              LumpsumFundItemModel(
-                schemeCode: schemeCode,
-                amount: amount,
-                folio: "NEW",
-              ),
-            );
-          }
-        }
-
-        if (lumpsumFunds.isNotEmpty) {
-          await _mfuController.postLumpsum(
-            goalId: widget.goalId,
-            funds: lumpsumFunds,
-          );
-        }
-      } else {
-        final List<SipFundItemModel> sipFunds = [];
-        for (final fund in selectedFunds) {
-          final schemeCode = fund.schemeCode?.toString() ?? '';
-          final amount =
-              double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
-              0.0;
-          if (schemeCode.isNotEmpty && amount > 0) {
-            sipFunds.add(
-              SipFundItemModel(
-                schemeCode: schemeCode,
-                amount: amount,
-                folio: "NEW",
-                frequency: "M",
-                day: "10",
-              ),
-            );
-          }
-        }
-
-        if (sipFunds.isNotEmpty) {
-          await _mfuController.postSip(
-            goalId: widget.goalId,
-            funds: sipFunds,
-          );
-        }
-      }
-
-      // Close bottom sheet and refresh
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-
-      await _goalController.fetchSingleGoal(widget.goalId);
-      await _goalController.getAllGoals();
-    } catch (e) {
-      debugPrint("Error in AddFundBottomSheet: $e");
-      Get.snackbar(
-        "Error",
-        "Something went wrong while processing investment.",
-      );
-    } finally {
-      if (mounted) {
+    GatekeeperHelper.runWithPrerequisites(
+      isLumpsum: isLumpsum,
+      onSuccess: () async {
         setState(() {
-          _isSubmitting = false;
+          _isSubmitting = true;
         });
-      }
-    }
+
+        try {
+          // Note: Funds are now directly associated with the goal via the goal_id parameter in postLumpsum/postSip.
+          // _goalController.saveGoalFund(...) is kept in the codebase for reference/backward compatibility.
+
+          // 2. Fire MFU Transaction (Latest postLumpsum and postSip APIs with goal_id)
+          if (isLumpsum) {
+            final List<LumpsumFundItemModel> lumpsumFunds = [];
+            for (final fund in selectedFunds) {
+              final schemeCode = fund.schemeCode?.toString() ?? '';
+              final amount =
+                  double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
+                  0.0;
+              if (schemeCode.isNotEmpty && amount > 0) {
+                lumpsumFunds.add(
+                  LumpsumFundItemModel(
+                    schemeCode: schemeCode,
+                    amount: amount,
+                    folio: "NEW",
+                  ),
+                );
+              }
+            }
+
+            if (lumpsumFunds.isNotEmpty) {
+              await _mfuController.postLumpsum(
+                goalId: widget.goalId,
+                funds: lumpsumFunds,
+              );
+            }
+          } else {
+            final List<SipFundItemModel> sipFunds = [];
+            for (final fund in selectedFunds) {
+              final schemeCode = fund.schemeCode?.toString() ?? '';
+              final amount =
+                  double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
+                  0.0;
+              if (schemeCode.isNotEmpty && amount > 0) {
+                sipFunds.add(
+                  SipFundItemModel(
+                    schemeCode: schemeCode,
+                    amount: amount,
+                    folio: "NEW",
+                    frequency: "M",
+                    day: "10",
+                  ),
+                );
+              }
+            }
+
+            if (sipFunds.isNotEmpty) {
+              await _mfuController.postSip(
+                goalId: widget.goalId,
+                funds: sipFunds,
+              );
+            }
+          }
+
+          // Close bottom sheet and refresh
+          if (mounted) {
+            Navigator.of(context).pop();
+          }
+
+          await _goalController.fetchSingleGoal(widget.goalId);
+          await _goalController.getAllGoals();
+        } catch (e) {
+          debugPrint("Error in AddFundBottomSheet: $e");
+          Get.snackbar(
+            "Error",
+            "Something went wrong while processing investment.",
+          );
+        } finally {
+          if (mounted) {
+            setState(() {
+              _isSubmitting = false;
+            });
+          }
+        }
+      },
+    );
   }
 
   @override

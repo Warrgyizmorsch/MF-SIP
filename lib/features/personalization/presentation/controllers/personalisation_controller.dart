@@ -685,6 +685,21 @@ class PersonalisationController extends GetxController {
 
     final existingCan = session.getUserData?.canNumber ?? '';
     final exitstingCan1 = userData.value?.canNumber ?? '';
+    final userCanStatus =
+        (userData.value?.canStatus ?? '').trim().toLowerCase();
+
+    if (userCanStatus == 'cancelled') {
+      log("[CAN] Status is Cancelled - requires Support resolution");
+      if (isManualTrigger) {
+        CustomSnackbar.warning(
+          title: 'CAN Account Cancelled',
+          message:
+              'Your CAN account is cancelled. Please contact support at +91 78508 88522.',
+        );
+      }
+      return;
+    }
+
     if (existingCan.isNotEmpty || exitstingCan1.isNotEmpty) {
       log(
         "[CAN] Already exists ($existingCan --- $exitstingCan1) — skipping registration",

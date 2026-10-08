@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
@@ -58,22 +59,7 @@ class GatekeeperHelper {
       return;
     }
 
-    // 🛑 4. Check Nominee
-    if (!userCtrl.hasNominee.value) {
-      DialogHelper.showPrerequisiteDialog(
-        title: 'Nominee Details Required',
-        message:
-            'Please add a nominee to secure your investments and complete your account setup.',
-        buttonText: 'Add Nominee',
-        onTap: () {
-          Get.back();
-          Get.toNamed(AppRoutes.nomineeDetail, id: isDesktop ? 1 : null);
-        },
-      );
-      return;
-    }
-
-    // 🛑 5. Check CAN (Common Account Number) Status & Approval
+    // 🛑 4. Check CAN (Common Account Number) Status & Approval
     final userData = userCtrl.userData.value;
     final String canNumber = userData?.canNumber ?? '';
     final String canStatus = (userData?.canStatus ?? '').trim().toLowerCase();
@@ -84,7 +70,36 @@ class GatekeeperHelper {
         (canStatus == 'approved' || canStatus == 'active');
 
     if (!isCanApproved) {
-      if (canStatus.contains('pending') ||
+      // If CAN is not approved yet, ensure Nominee is added first before CAN can be created
+      if (!userCtrl.hasNominee.value) {
+        DialogHelper.showPrerequisiteDialog(
+          title: 'Nominee Details Required',
+          message:
+              'Please add a nominee to secure your investments and set up your investment account (CAN).',
+          buttonText: 'Add Nominee',
+          onTap: () {
+            Get.back();
+            Get.toNamed(AppRoutes.nomineeDetail, id: isDesktop ? 1 : null);
+          },
+        );
+        return;
+      }
+
+      if (canStatus == 'cancelled') {
+        DialogHelper.showPrerequisiteDialog(
+          title: 'CAN Account Cancelled',
+          message:
+              'Your investment account (CAN) has been cancelled by MFU/KRA. Please contact our support team at +91 78508 88522 for assistance.',
+          buttonText: 'Call Support',
+          onTap: () async {
+            Get.back();
+            final Uri callUri = Uri(scheme: 'tel', path: '+917850888522');
+            if (await canLaunchUrl(callUri)) {
+              await launchUrl(callUri);
+            }
+          },
+        );
+      } else if (canStatus.contains('pending') ||
           canStatus.contains('hold') ||
           canStatus.contains('process') ||
           canStatus == 'verified') {

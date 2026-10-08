@@ -24,6 +24,7 @@ import '../../../../core/utils/constant/appUrl.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/helper/helpers.dart';
+import '../../../../core/utils/helper/purchase_scenario.dart';
 import '../../../../navigation_menu_bar.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
@@ -416,114 +417,125 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         ? parsedGoalId
                         : null;
 
-                    controller.isLoading.value = true;
+                    final bool isLumpsum =
+                        controller.savedInvestmentType.value == 'lumpsum';
 
-                    try {
-                      // Note: Funds are now directly associated with the goal via the goal_id parameter in postLumpsum/postSip.
-                      // controller.saveGoalFund(...) is kept in the codebase for reference/backward compatibility.
+                    GatekeeperHelper.runWithPrerequisites(
+                      isLumpsum: isLumpsum,
+                      onSuccess: () async {
+                        controller.isLoading.value = true;
 
-                      /// Lumpsum Transaction (Latest postLumpsum API)
-                      if (controller.savedInvestmentType.value == 'lumpsum') {
-                        final List<LumpsumFundItemModel> lumpsumFunds = [];
+                        try {
+                          // Note: Funds are now directly associated with the goal via the goal_id parameter in postLumpsum/postSip.
+                          // controller.saveGoalFund(...) is kept in the codebase for reference/backward compatibility.
 
-                        for (final fund in selectedFunds) {
-                          final schemeCode = fund.schemeCode?.toString() ?? '';
-                          final amountText = controller
-                              .getAmountController(schemeCode)
-                              .text;
-                          final amount = double.tryParse(amountText) ?? 0.0;
+                          /// Lumpsum Transaction (Latest postLumpsum API)
+                          if (isLumpsum) {
+                            final List<LumpsumFundItemModel> lumpsumFunds = [];
 
-                          // Only add if scheme code exists and amount is valid
-                          if (schemeCode.isNotEmpty && amount > 0) {
-                            lumpsumFunds.add(
-                              LumpsumFundItemModel(
-                                schemeCode: schemeCode,
-                                amount: amount,
-                                folio: "NEW",
-                              ),
+                            for (final fund in selectedFunds) {
+                              final schemeCode =
+                                  fund.schemeCode?.toString() ?? '';
+                              final amountText = controller
+                                  .getAmountController(schemeCode)
+                                  .text;
+                              final amount = double.tryParse(amountText) ?? 0.0;
+
+                              // Only add if scheme code exists and amount is valid
+                              if (schemeCode.isNotEmpty && amount > 0) {
+                                lumpsumFunds.add(
+                                  LumpsumFundItemModel(
+                                    schemeCode: schemeCode,
+                                    amount: amount,
+                                    folio: "NEW",
+                                  ),
+                                );
+                              }
+                            }
+
+                            if (lumpsumFunds.isEmpty) {
+                              Get.snackbar(
+                                "Error",
+                                "Please enter valid amounts for selected funds.",
+                              );
+                              return;
+                            }
+
+                            // 🚀 Fire the Multi-Lumpsum API (Latest postLumpsum API with goal_id)!
+                            await mfuController.postLumpsum(
+                              goalId: finalGoalId,
+                              funds: lumpsumFunds,
+                              onSuccess: (res) {
+                                Get.snackbar(
+                                  "Success",
+                                  "Lumpsum investment initiated successfully!",
+                                );
+                              },
                             );
                           }
-                        }
+                          /// SIP Transaction (Latest postSip API)
+                          else if (controller.savedInvestmentType.value ==
+                              "sip") {
+                            final List<SipFundItemModel> sipFunds = [];
+                            final String selectedDay =
+                                controller.selectedSipDay.value.toString();
 
-                        if (lumpsumFunds.isEmpty) {
-                          Get.snackbar(
-                            "Error",
-                            "Please enter valid amounts for selected funds.",
-                          );
-                          return;
-                        }
+                            for (final fund in selectedFunds) {
+                              final schemeCode =
+                                  fund.schemeCode?.toString() ?? '';
+                              final amountText = controller
+                                  .getAmountController(schemeCode)
+                                  .text;
+                              final amount = double.tryParse(amountText) ?? 0.0;
 
-                        // 🚀 Fire the Multi-Lumpsum API (Latest postLumpsum API with goal_id)!
-                        await mfuController.postLumpsum(
-                          goalId: finalGoalId,
-                          funds: lumpsumFunds,
-                          onSuccess: (res) {
-                            Get.snackbar(
-                              "Success",
-                              "Lumpsum investment initiated successfully!",
+                              if (schemeCode.isNotEmpty && amount > 0) {
+                                sipFunds.add(
+                                  SipFundItemModel(
+                                    schemeCode: schemeCode,
+                                    amount: amount,
+                                    folio: "NEW",
+                                    frequency: "M",
+                                    day: selectedDay,
+                                  ),
+                                );
+                              }
+                            }
+
+                            if (sipFunds.isEmpty) {
+                              Get.snackbar(
+                                "Error",
+                                "Please enter valid amounts for selected funds.",
+                              );
+                              return;
+                            }
+
+                            // 🚀 Fire the Multi-SIP API (Latest postSip API with goal_id)!
+                            await mfuController.postSip(
+                              goalId: finalGoalId,
+                              funds: sipFunds,
+                              onSuccess: (res) {
+                                Get.snackbar(
+                                  "Success",
+                                  "SIP investment initiated successfully!",
+                                );
+                              },
                             );
-                          },
-                        );
-                      }
-                      /// SIP Transaction (Latest postSip API)
-                      else if (controller.savedInvestmentType.value == "sip") {
-                        final List<SipFundItemModel> sipFunds = [];
-                        final String selectedDay =
-                            controller.selectedSipDay.value.toString();
-
-                        for (final fund in selectedFunds) {
-                          final schemeCode = fund.schemeCode?.toString() ?? '';
-                          final amountText = controller
-                              .getAmountController(schemeCode)
-                              .text;
-                          final amount = double.tryParse(amountText) ?? 0.0;
-
-                          if (schemeCode.isNotEmpty && amount > 0) {
-                            sipFunds.add(
-                              SipFundItemModel(
-                                schemeCode: schemeCode,
-                                amount: amount,
-                                folio: "NEW",
-                                frequency: "M",
-                                day: selectedDay,
-                              ),
-                            );
+                          } else {
+                            // Your SIP cart logic goes here later
+                            Get.snackbar("Info", "Processing SIP Checkout...");
                           }
-                        }
-
-                        if (sipFunds.isEmpty) {
+                        } catch (e) {
+                          debugPrint("Transaction Error: $e");
                           Get.snackbar(
                             "Error",
-                            "Please enter valid amounts for selected funds.",
+                            "Something went wrong while processing.",
                           );
-                          return;
+                        } finally {
+                          // 🚀 End Loading State (runs whether it succeeds or fails)
+                          controller.isLoading.value = false;
                         }
-
-                        // 🚀 Fire the Multi-SIP API (Latest postSip API with goal_id)!
-                        await mfuController.postSip(
-                          goalId: finalGoalId,
-                          funds: sipFunds,
-                          onSuccess: (res) {
-                            Get.snackbar(
-                              "Success",
-                              "SIP investment initiated successfully!",
-                            );
-                          },
-                        );
-                      } else {
-                        // Your SIP cart logic goes here later
-                        Get.snackbar("Info", "Processing SIP Checkout...");
-                      }
-                    } catch (e) {
-                      debugPrint("Transaction Error: $e");
-                      Get.snackbar(
-                        "Error",
-                        "Something went wrong while processing.",
-                      );
-                    } finally {
-                      // 🚀 End Loading State (runs whether it succeeds or fails)
-                      controller.isLoading.value = false;
-                    }
+                      },
+                    );
                   },
                   amount: controller.savedInvestmentType.value == 'lumpsum'
                       ? ((controller.lumpsumAmount.value / 100).ceil() * 100)
