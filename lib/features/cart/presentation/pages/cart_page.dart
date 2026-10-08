@@ -132,6 +132,7 @@ class CartPage extends GetView<CartController> {
       builder: (controller) {
         return DefaultTabController(
           length: 2,
+          initialIndex: controller.activeTabIndex.value.clamp(0, 1),
           child: Scaffold(
             appBar: isDesktop
                 ? null

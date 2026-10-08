@@ -214,6 +214,15 @@ class CartController extends GetxController {
           double.tryParse(args['investNow'].toString()) ?? 0.0;
     }
 
+    // Tab Selection
+    if (args['tab'] != null) {
+      activeTabIndex.value = int.tryParse(args['tab'].toString()) ?? 0;
+    } else if (args['isLumpsum'] == true || args['type'] == 'lumpsum') {
+      activeTabIndex.value = 1;
+    } else if (args['isLumpsum'] == false || args['type'] == 'sip') {
+      activeTabIndex.value = 0;
+    }
+
     debugPrint(
       "Cart Page Arguments: $args\n"
       "Monthly Amount: ${monthlyAmount.value}\n"

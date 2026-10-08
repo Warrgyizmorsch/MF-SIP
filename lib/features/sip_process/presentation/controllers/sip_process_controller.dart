@@ -234,9 +234,12 @@ class SipProcessController extends GetxController
       selectedFunds.clear();
       fundAmounts.clear();
 
-      // 6. NAVIGATE
-      // Get.toNamed(AppRoutes.cart);
-      // Get.offNamed(AppRoutes.cart);
+      // 6. NAVIGATE & SET TARGET TAB IN CART
+      final targetTabIndex = isLumpsum.value ? 1 : 0;
+      if (Get.isRegistered<CartController>()) {
+        Get.find<CartController>().activeTabIndex.value = targetTabIndex;
+      }
+
       Get.offNamedUntil(
         AppRoutes.cart,
         id: isDesktop ? 1 : null,
@@ -244,6 +247,11 @@ class SipProcessController extends GetxController
             route.isFirst ||
             route.settings.name == AppRoutes.navMenuBar ||
             route.settings.name == AppRoutes.home,
+        arguments: {
+          'isLumpsum': isLumpsum.value,
+          'tab': targetTabIndex,
+          'type': isLumpsum.value ? 'lumpsum' : 'sip',
+        },
       );
     } catch (e) {
       if (Get.isDialogOpen == true) Get.back();
