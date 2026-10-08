@@ -52,8 +52,17 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                   Row(
                     children: [
                       OutlinedButton(
-                        onPressed: () =>
-                            Get.toNamed(AppRoutes.addanotherbank, id: 1),
+                        onPressed: () {
+                          if (controller.isCanPendingApproval) {
+                            ULoaders.warning(
+                              title: "Account Modification Locked",
+                              message:
+                                  "Your investment account (CAN) is currently under verification. Bank account changes cannot be made until CAN is approved.",
+                            );
+                            return;
+                          }
+                          Get.toNamed(AppRoutes.addanotherbank, id: 1);
+                        },
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -175,6 +184,14 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                     UElevatedBUtton(
                       color: Ucolors.primary,
                       onPressed: () {
+                        if (controller.isCanPendingApproval) {
+                          ULoaders.warning(
+                            title: "Account Modification Locked",
+                            message:
+                                "Your investment account (CAN) is currently under verification. Bank account changes cannot be made until CAN is approved.",
+                          );
+                          return;
+                        }
                         if (bankCount < 3) {
                           // Allow adding another
                           controller.clearBankFields();
@@ -336,6 +353,14 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 
           ElevatedButton(
             onPressed: () {
+              if (controller.isCanPendingApproval) {
+                ULoaders.warning(
+                  title: "Account Modification Locked",
+                  message:
+                      "Your investment account (CAN) is currently under verification. Bank account changes cannot be made until CAN is approved.",
+                );
+                return;
+              }
               controller.clearBankFields();
               Get.toNamed(AppRoutes.addanotherbank, id: isDesktop ? 1 : null);
             },
@@ -360,6 +385,15 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
   }
 
   void _confirmDelete(BuildContext context, int bankid, String bankName) {
+    if (controller.isCanPendingApproval) {
+      ULoaders.warning(
+        title: "Account Modification Locked",
+        message:
+            "Bank accounts cannot be deleted while your investment account (CAN) is under verification.",
+      );
+      return;
+    }
+
     if (controller.linkedBankAccounts.length <= 1) {
       DialogHelper.showPrerequisiteDialog(
         title: 'Bank Account Required',

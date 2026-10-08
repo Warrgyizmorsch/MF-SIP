@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -65,8 +66,17 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                       return const SizedBox.shrink();
                     }
                     return ElevatedButton.icon(
-                      onPressed: () =>
-                          Get.toNamed(AppRoutes.nomineeDetail, id: 1),
+                      onPressed: () {
+                        if (controller.isCanPendingApproval) {
+                          ULoaders.warning(
+                            title: "Account Modification Locked",
+                            message:
+                                "Your investment account (CAN) is currently under verification. Nominee details cannot be added until CAN is approved.",
+                          );
+                          return;
+                        }
+                        Get.toNamed(AppRoutes.nomineeDetail, id: 1);
+                      },
                       icon: const Icon(
                         Icons.add,
                         color: Colors.white,
@@ -249,7 +259,17 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                 }
                 return UElevatedBUtton(
                   outlined: true,
-                  onPressed: () => Get.toNamed(AppRoutes.nomineeDetail),
+                  onPressed: () {
+                    if (controller.isCanPendingApproval) {
+                      ULoaders.warning(
+                        title: "Account Modification Locked",
+                        message:
+                            "Your investment account (CAN) is currently under verification. Nominee details cannot be added until CAN is approved.",
+                      );
+                      return;
+                    }
+                    Get.toNamed(AppRoutes.nomineeDetail);
+                  },
                   child: const Center(
                     child: Text(
                       'Add Another Nominee',
@@ -330,8 +350,17 @@ class NomineeListScreen extends GetView<PersonalisationController> {
 
                     if (isDesktop)
                       ElevatedButton(
-                        onPressed: () =>
-                            Get.toNamed(AppRoutes.nomineeDetail, id: 1),
+                        onPressed: () {
+                          if (controller.isCanPendingApproval) {
+                            ULoaders.warning(
+                              title: "Account Modification Locked",
+                              message:
+                                  "Your investment account (CAN) is currently under verification. Nominee details cannot be added until CAN is approved.",
+                            );
+                            return;
+                          }
+                          Get.toNamed(AppRoutes.nomineeDetail, id: 1);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Ucolors.blue,
                           elevation: 0,
@@ -362,6 +391,15 @@ class NomineeListScreen extends GetView<PersonalisationController> {
   }
 
   void _showDeleteConfirmDialog(BuildContext context, dynamic nominee) {
+    if (controller.isCanPendingApproval) {
+      ULoaders.warning(
+        title: "Account Modification Locked",
+        message:
+            "Nominees cannot be removed while your investment account (CAN) is under verification.",
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
