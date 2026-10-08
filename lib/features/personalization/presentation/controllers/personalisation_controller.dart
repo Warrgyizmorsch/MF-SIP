@@ -156,6 +156,13 @@ class PersonalisationController extends GetxController {
     return false;
   }
 
+  // Check if CAN is available but not yet approved
+  bool get isCanPendingApproval {
+    final can = (userData.value?.canNumber ?? session.getUserData?.canNumber ?? '').trim();
+    final status = (userData.value?.canStatus ?? session.getUserData?.canStatus ?? '').trim().toLowerCase();
+    return can.isNotEmpty && status != 'approved' && status != 'active';
+  }
+
   // 3. Grab the MMRN or MUMRN to pass into the SIP API
   String? get activeMmrn {
     if (userData.value?.mfuMandate?.mmrn != null &&
@@ -860,6 +867,15 @@ class PersonalisationController extends GetxController {
 
   // ------------------------ Add Bank Account ----------------------------------///
   Future<void> addBankAccount() async {
+    if (isCanPendingApproval) {
+      ULoaders.warning(
+        title: "Account Modification Locked",
+        message:
+            "Your investment account (CAN) is currently under verification. Bank account changes cannot be made until CAN is approved.",
+      );
+      return;
+    }
+
     if (bankAccountNumberController.text.isEmpty ||
         bankIfscController.text.isEmpty ||
         bankAccHdNameController.text.isEmpty ||
@@ -965,6 +981,15 @@ class PersonalisationController extends GetxController {
   }
 
   Future<void> deleteBank(int bankId) async {
+    if (isCanPendingApproval) {
+      ULoaders.warning(
+        title: "Account Modification Locked",
+        message:
+            "Bank accounts cannot be deleted while your investment account (CAN) is under verification.",
+      );
+      return;
+    }
+
     if (linkedBankAccounts.length <= 1) {
       ULoaders.warning(
         title: "Bank Account Required",
@@ -1530,6 +1555,15 @@ class PersonalisationController extends GetxController {
   // Add Nominee
 
   Future<void> addNominee() async {
+    if (isCanPendingApproval) {
+      ULoaders.warning(
+        title: "Account Modification Locked",
+        message:
+            "Your investment account (CAN) is currently under verification. Nominee details cannot be added until CAN is approved.",
+      );
+      return;
+    }
+
     if (nomineeForms.isEmpty) {
       CustomSnackbar.warning(
         title: "Required",
@@ -1644,6 +1678,15 @@ class PersonalisationController extends GetxController {
   // Delete Nominee
 
   Future<void> deleteNominee(NomineeEntity nominee) async {
+    if (isCanPendingApproval) {
+      ULoaders.warning(
+        title: "Account Modification Locked",
+        message:
+            "Nominees cannot be removed while your investment account (CAN) is under verification.",
+      );
+      return;
+    }
+
     // 1. Set loading for this specific ID
     isDeleteLoading[nominee.id] = true;
 
