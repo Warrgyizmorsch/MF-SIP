@@ -3357,7 +3357,7 @@ class _MobileLayout extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 5, 16, 12),
               child: USectionHeading(
-                title: 'Create Goal Base SIP',
+                title: 'Create Goal',
                 showActionButton: false,
               ),
             ),

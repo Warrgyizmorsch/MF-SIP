@@ -64,7 +64,7 @@ class GoalBinding extends Bindings {
     );
     Get.lazyPut(
       () =>
-          GoalFundOrderUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
+          GoalFundOrderUseCase(goalRepository: Get.find<GoalRepositoryImpl>(),),fenix: true,
     );
 
     Get.lazyPut(
