@@ -91,6 +91,19 @@ class SipProcessController extends GetxController
   //     selectedFunds.add(fund);
   //   }
   // }
+  // Shortlisted base funds
+  final RxList<MutualFundListEntity> baseFunds = <MutualFundListEntity>[].obs;
+
+  List<MutualFundListEntity> get allDisplayedFunds {
+    final list = List<MutualFundListEntity>.from(baseFunds);
+    for (final selected in selectedFunds) {
+      if (!list.any((f) => f.schemeCode == selected.schemeCode)) {
+        list.add(selected);
+      }
+    }
+    return list;
+  }
+
   void toggleSelection(MutualFundListEntity fund) {
     final code = fund.schemeCode ?? "";
     int minSip = fund.minSipAmount ?? 500;
@@ -113,6 +126,8 @@ class SipProcessController extends GetxController
         textControllers[code]!.text = initialValue.toStringAsFixed(0);
       }
     }
+    // Synchronize current StateMixin state with all displayed funds
+    change(allDisplayedFunds, status: allDisplayedFunds.isEmpty ? RxStatus.empty() : RxStatus.success());
   }
 
   void updateFundAmount(String schemeCode, String val) {
@@ -341,11 +356,13 @@ class SipProcessController extends GetxController
 
     result.fold((success) {
       final List<MutualFundListEntity> funds = success.data?.data ?? [];
+      baseFunds.assignAll(funds);
 
-      if (funds.isEmpty) {
+      final displayed = allDisplayedFunds;
+      if (displayed.isEmpty) {
         change([], status: RxStatus.empty());
       } else {
-        change(funds, status: RxStatus.success());
+        change(displayed, status: RxStatus.success());
       }
     }, (error) => change(null, status: RxStatus.error(error.message)));
   }
@@ -359,12 +376,14 @@ class SipProcessController extends GetxController
 
     result.fold((success) {
       final List<MutualFundListEntity> funds = success.data?.data ?? [];
+      baseFunds.assignAll(funds);
 
-      if (funds.isEmpty) {
+      final displayed = allDisplayedFunds;
+      if (displayed.isEmpty) {
         change([], status: RxStatus.empty());
       } else {
         // Now types match: List<MutualFundListEntity> passed to StateMixin<List<MutualFundListEntity>>
-        change(funds, status: RxStatus.success());
+        change(displayed, status: RxStatus.success());
       }
     }, (error) => change(null, status: RxStatus.error(error.message)));
   }
