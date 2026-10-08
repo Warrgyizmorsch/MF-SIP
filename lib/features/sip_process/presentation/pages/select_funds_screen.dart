@@ -120,14 +120,18 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                "BUILD YOUR WEALTH WITH SIP",
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+              Obx(
+                () => Text(
+                  controller.isLumpsum.value
+                      ? "BUILD YOUR WEALTH WITH LUMPSUM"
+                      : "BUILD YOUR WEALTH WITH SIP",
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ],
@@ -163,7 +167,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           Obx(
             () => _buildProfileDetailCard(
               icon: Icons.money,
-              title: "Monthly SIP",
+              title: controller.isLumpsum.value ? "Lumpsum Amount" : "Monthly SIP",
               value: controller.formatCurrency(controller.amount.value),
             ),
           ),
@@ -517,9 +521,12 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       customValidator: (value) {
                         if (value == null || value.isEmpty) return "Required";
                         final enteredAmount = int.tryParse(value) ?? 0;
-                        final minAmount = fund.minSipAmount ?? 500;
-                        if (enteredAmount < minAmount)
+                        final minAmount = controller.isLumpsum.value
+                            ? (fund.minLumpsum ?? 1000)
+                            : (fund.minSipAmount ?? 500);
+                        if (enteredAmount < minAmount) {
                           return "Min. ₹$minAmount";
+                        }
                         if (enteredAmount % 100 != 0) return "Multiple of ₹100";
                         return null;
                       },
@@ -1081,7 +1088,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       child: Center(
                         child: Text(
                           selectedCount > 0
-                              ? 'Add $selectedCount Funds to SIP'
+                              ? 'Add $selectedCount Funds to ${controller.isLumpsum.value ? 'Lumpsum' : 'SIP'}'
                               : 'Done',
                           style: AppTextStyles.bodyMedium(color: Colors.white),
                         ),
@@ -1211,9 +1218,13 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
         children: [
           SvgPicture.asset(UImages.mfLogoLight, height: 20),
           const SizedBox(width: 10),
-          Text(
-            UText.freedomSipTitle,
-            style: AppTextStyles.bodyLarge(color: Colors.white),
+          Obx(
+            () => Text(
+              controller.isLumpsum.value
+                  ? 'Lumpsum Investment'
+                  : UText.freedomSipTitle,
+              style: AppTextStyles.bodyLarge(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -1271,9 +1282,11 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
             style: AppTextStyles.bodyMediumBold(),
           ),
           const SizedBox(height: 2),
-          Text(
-            "Tap any fund below to select and customize your SIP allocation",
-            style: AppTextStyles.bodySmall(color: Colors.grey.shade600),
+          Obx(
+            () => Text(
+              "Tap any fund below to select and customize your ${controller.isLumpsum.value ? 'lumpsum' : 'SIP'} allocation",
+              style: AppTextStyles.bodySmall(color: Colors.grey.shade600),
+            ),
           ),
         ],
       ),
@@ -1537,11 +1550,15 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                         customValidator: (value) {
                           if (value == null || value.isEmpty) return "Required";
                           final enteredAmount = int.tryParse(value) ?? 0;
-                          final minAmount = fund.minSipAmount ?? 500;
-                          if (enteredAmount < minAmount)
+                          final minAmount = controller.isLumpsum.value
+                              ? (fund.minLumpsum ?? 1000)
+                              : (fund.minSipAmount ?? 500);
+                          if (enteredAmount < minAmount) {
                             return "Min. ₹$minAmount required";
-                          if (enteredAmount % 100 != 0)
+                          }
+                          if (enteredAmount % 100 != 0) {
                             return "Must be multiple of ₹100";
+                          }
                           return null;
                         },
                       ),

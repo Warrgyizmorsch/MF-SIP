@@ -99,15 +99,19 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                "BUILD YOUR WEALTH WITH SIP",
-                style: TextStyle(
-                  fontFamily: FontFamily
-                      .medium, // Make sure your font family is imported
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+              Obx(
+                () => Text(
+                  controller.isLumpsum.value
+                      ? "BUILD YOUR WEALTH WITH LUMPSUM"
+                      : "BUILD YOUR WEALTH WITH SIP",
+                  style: const TextStyle(
+                    fontFamily: FontFamily
+                        .medium, // Make sure your font family is imported
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ],
@@ -146,8 +150,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
           Obx(
             () => _buildProfileDetailCard(
               icon: Icons.money,
-              title: "Monthly SIP",
-              // Assuming you have formatCurrency available in your controller
+              title: controller.isLumpsum.value ? "Lumpsum Amount" : "Monthly SIP",
               value: controller.formatCurrency(controller.amount.value),
             ),
           ),
@@ -474,9 +477,13 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
               children: [
                 SvgPicture.asset(UImages.mfLogoLight, height: 20),
                 const SizedBox(width: 10),
-                Text(
-                  UText.freedomSipTitle,
-                  style: AppTextStyles.bodyLarge(color: Colors.white),
+                Obx(
+                  () => Text(
+                    controller.isLumpsum.value
+                        ? 'Lumpsum Investment'
+                        : UText.freedomSipTitle,
+                    style: AppTextStyles.bodyLarge(color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -590,7 +597,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
           Obx(
             () => _buildProfileRow(
               UImages.logoCurrency,
-              "Monthly SIP",
+              controller.isLumpsum.value ? "Lumpsum Amount" : "Monthly SIP",
               controller.formatCurrency(controller.amount.value),
             ),
           ),
@@ -798,10 +805,15 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 onPressed: () {
                   Get.toNamed(AppRoutes.selectFundsScreen);
                 },
-                child: Center(
+                child: const Center(
                   child: Text(
-                    controller.isLumpsum.value ? 'Lumpsum' : 'Sip',
-                    style: AppTextStyles.bodyMedium(color: Colors.white),
+                    'Select Funds',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),

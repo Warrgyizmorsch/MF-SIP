@@ -106,18 +106,20 @@ class SipProcessController extends GetxController
 
   void toggleSelection(MutualFundListEntity fund) {
     final code = fund.schemeCode ?? "";
-    int minSip = fund.minSipAmount ?? 500;
+    int minAmount = isLumpsum.value
+        ? (fund.minLumpsum ?? 1000)
+        : (fund.minSipAmount ?? 500);
     if (selectedFunds.any((item) => item.schemeCode == code)) {
       selectedFunds.removeWhere((item) => item.schemeCode == code);
       fundAmounts.remove(code);
     } else {
       selectedFunds.add(fund);
 
-      double initialValue = amount.value < minSip
-          ? minSip.toDouble()
+      double initialValue = amount.value < minAmount
+          ? minAmount.toDouble()
           : amount.value;
-      if (initialValue % minSip != 0) {
-        initialValue = ((initialValue / minSip).ceil() * minSip).toDouble();
+      if (initialValue % minAmount != 0) {
+        initialValue = ((initialValue / minAmount).ceil() * minAmount).toDouble();
       }
       // Initialize with the global amount from the slider/input
       fundAmounts[code] = amount.value;
@@ -177,11 +179,13 @@ class SipProcessController extends GetxController
       for (var fund in selectedFunds) {
         final String code = fund.schemeCode ?? "";
         final double entered = fundAmounts[code] ?? 0.0;
-        final int min = fund.minSipAmount ?? 500;
+        final int min = isLumpsum.value
+            ? (fund.minLumpsum ?? 1000)
+            : (fund.minSipAmount ?? 500);
 
         if (entered < min || entered % 100 != 0) {
           showCustomToast1(
-            title: "Check amounts of",
+            title: "Check amount (Min. ₹$min)",
             backgroundColor: Colors.redAccent,
             icon: Icons.error_outline,
             message: "${fund.baseSchemeName}",

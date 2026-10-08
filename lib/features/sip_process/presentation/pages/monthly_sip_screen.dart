@@ -113,15 +113,18 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                "BUILD YOUR WEALTH WITH SIP",
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+              Obx(
+                () => Text(
+                  controller.isLumpsum.value
+                      ? "BUILD YOUR WEALTH WITH LUMPSUM"
+                      : "BUILD YOUR WEALTH WITH SIP",
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ],
@@ -324,9 +327,13 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               children: [
                 SvgPicture.asset(UImages.mfLogoLight, height: 20),
                 const SizedBox(width: 10),
-                Text(
-                  UText.freedomSipTitle,
-                  style: AppTextStyles.bodyLarge(color: Colors.white),
+                Obx(
+                  () => Text(
+                    controller.isLumpsum.value
+                        ? 'Lumpsum Investment'
+                        : UText.freedomSipTitle,
+                    style: AppTextStyles.bodyLarge(color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -711,10 +718,15 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                     color: Ucolors.primary,
                     onPressed: () =>
                         Get.toNamed(AppRoutes.investingApproachScreen),
-                    child: Center(
+                    child: const Center(
                       child: Text(
-                        controller.isLumpsum.value ? 'Lumpsum' : 'Sip',
-                        style: AppTextStyles.bodyMedium(color: Colors.white),
+                        'Continue',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
