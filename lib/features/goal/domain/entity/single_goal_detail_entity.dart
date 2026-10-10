@@ -15,6 +15,11 @@ class SingleGoalDetailEntity {
   final String goalName;
   final String goalCover;
   final String status;
+  final String investmentType;
+  final double investmentAmount;
+  final String frequency;
+  final double sipAmount;
+  final double lumpsumAmount;
   final double progressPercent;
   final double savedAmount;
   final double remainingAmount;
@@ -23,6 +28,7 @@ class SingleGoalDetailEntity {
   final String? startDate;
   final String? endDate;
   final String? duration;
+  final double expectedReturnRate;
   final String deadlineLabel;
   final double dailySavings;
   final double weeklySavings;
@@ -37,6 +43,11 @@ class SingleGoalDetailEntity {
     required this.goalName,
     required this.goalCover,
     required this.status,
+    this.investmentType = '',
+    this.investmentAmount = 0.0,
+    this.frequency = '',
+    this.sipAmount = 0.0,
+    this.lumpsumAmount = 0.0,
     required this.progressPercent,
     required this.savedAmount,
     required this.remainingAmount,
@@ -45,6 +56,7 @@ class SingleGoalDetailEntity {
     this.startDate,
     this.endDate,
     this.duration,
+    this.expectedReturnRate = 0.0,
     required this.deadlineLabel,
     required this.dailySavings,
     required this.weeklySavings,
@@ -60,6 +72,11 @@ class SingleGoalDetailEntity {
     String? goalName,
     String? goalCover,
     String? status,
+    String? investmentType,
+    double? investmentAmount,
+    String? frequency,
+    double? sipAmount,
+    double? lumpsumAmount,
     double? progressPercent,
     double? savedAmount,
     double? remainingAmount,
@@ -68,6 +85,7 @@ class SingleGoalDetailEntity {
     String? startDate,
     String? endDate,
     String? duration,
+    double? expectedReturnRate,
     String? deadlineLabel,
     double? dailySavings,
     double? weeklySavings,
@@ -82,6 +100,11 @@ class SingleGoalDetailEntity {
       goalName: goalName ?? this.goalName,
       goalCover: goalCover ?? this.goalCover,
       status: status ?? this.status,
+      investmentType: investmentType ?? this.investmentType,
+      investmentAmount: investmentAmount ?? this.investmentAmount,
+      frequency: frequency ?? this.frequency,
+      sipAmount: sipAmount ?? this.sipAmount,
+      lumpsumAmount: lumpsumAmount ?? this.lumpsumAmount,
       progressPercent: progressPercent ?? this.progressPercent,
       savedAmount: savedAmount ?? this.savedAmount,
       remainingAmount: remainingAmount ?? this.remainingAmount,
@@ -90,6 +113,7 @@ class SingleGoalDetailEntity {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       duration: duration ?? this.duration,
+      expectedReturnRate: expectedReturnRate ?? this.expectedReturnRate,
       deadlineLabel: deadlineLabel ?? this.deadlineLabel,
       dailySavings: dailySavings ?? this.dailySavings,
       weeklySavings: weeklySavings ?? this.weeklySavings,
@@ -172,6 +196,7 @@ class GoalLinkedFundEntity {
   final double purchaseNav;
   final double? latestPurchaseNav;
   final double currentNav;
+  final double nav;
   final String investedDate;
   final String? firstInvestedDate;
   final String? latestInvestedDate;
@@ -179,10 +204,12 @@ class GoalLinkedFundEntity {
   final double navChange;
   final double dayChange;
   final double dayChangePercent;
+  final double oneDayChangePercent;
   final double oneDayReturn;
   final double oneDayReturnPercent;
   final double fundInvested;
   final double investedAmount;
+  final double investmentAmount;
   final double currentValue;
   final double gainLoss;
   final double gainLossPercent;
@@ -191,6 +218,9 @@ class GoalLinkedFundEntity {
   final String allotmentStatusLabel;
   final String allotmentMessage;
   final bool isUnitAllotted;
+  final bool isInvested;
+  final String investmentStatus;
+  final String orderStatus;
   final bool hasPendingRedemption;
   final String? redemptionStatus;
   final String? redemptionMessage;
@@ -208,6 +238,7 @@ class GoalLinkedFundEntity {
   final int mfuOrderFundId;
   final int goalId;
   final String type;
+  final String investmentType;
 
   GoalLinkedFundEntity({
     this.id = 0,
@@ -221,6 +252,7 @@ class GoalLinkedFundEntity {
     required this.purchaseNav,
     this.latestPurchaseNav,
     required this.currentNav,
+    this.nav = 0.0,
     required this.investedDate,
     this.firstInvestedDate,
     this.latestInvestedDate,
@@ -228,10 +260,12 @@ class GoalLinkedFundEntity {
     required this.navChange,
     required this.dayChange,
     required this.dayChangePercent,
+    this.oneDayChangePercent = 0.0,
     required this.oneDayReturn,
     required this.oneDayReturnPercent,
     required this.fundInvested,
     required this.investedAmount,
+    this.investmentAmount = 0.0,
     required this.currentValue,
     required this.gainLoss,
     required this.gainLossPercent,
@@ -240,6 +274,9 @@ class GoalLinkedFundEntity {
     required this.allotmentStatusLabel,
     required this.allotmentMessage,
     required this.isUnitAllotted,
+    this.isInvested = false,
+    this.investmentStatus = '',
+    this.orderStatus = '',
     required this.hasPendingRedemption,
     this.redemptionStatus,
     this.redemptionMessage,
@@ -257,5 +294,6 @@ class GoalLinkedFundEntity {
     required this.mfuOrderFundId,
     required this.goalId,
     required this.type,
+    this.investmentType = '',
   });
 }

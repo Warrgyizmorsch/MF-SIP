@@ -32,6 +32,11 @@ class SingleGoalDetailModel {
   final String? goalName;
   final String? goalCover;
   final String? status;
+  final String? investmentType;
+  final double? investmentAmount;
+  final String? frequency;
+  final double? sipAmount;
+  final double? lumpsumAmount;
   final double? progressPercent;
   final double? savedAmount;
   final double? remainingAmount;
@@ -40,6 +45,7 @@ class SingleGoalDetailModel {
   final String? startDate;
   final String? endDate;
   final String? duration;
+  final double? expectedReturnRate;
   final String? deadlineLabel;
   final double? dailySavings;
   final double? weeklySavings;
@@ -54,6 +60,11 @@ class SingleGoalDetailModel {
     this.goalName,
     this.goalCover,
     this.status,
+    this.investmentType,
+    this.investmentAmount,
+    this.frequency,
+    this.sipAmount,
+    this.lumpsumAmount,
     this.progressPercent,
     this.savedAmount,
     this.remainingAmount,
@@ -62,6 +73,7 @@ class SingleGoalDetailModel {
     this.startDate,
     this.endDate,
     this.duration,
+    this.expectedReturnRate,
     this.deadlineLabel,
     this.dailySavings,
     this.weeklySavings,
@@ -78,6 +90,11 @@ class SingleGoalDetailModel {
       goalName: json.parse<String>('goal_name'),
       goalCover: json.parse<String>('goal_cover'),
       status: json.parse<String>('status'),
+      investmentType: json.parse<String>('investment_type'),
+      investmentAmount: json.parse<double>('investment_amount'),
+      frequency: json.parse<String>('frequency'),
+      sipAmount: json.parse<double>('sip_amount'),
+      lumpsumAmount: json.parse<double>('lumpsum_amount'),
       progressPercent: json.parse<double>('progress_percent'),
       savedAmount:
           json.parse<double>('saved_amount') ?? json.parse<double>('saved'),
@@ -90,6 +107,7 @@ class SingleGoalDetailModel {
       startDate: json.parse<String>('start_date'),
       endDate: json.parse<String>('end_date'),
       duration: json.parse<String>('duration'),
+      expectedReturnRate: json.parse<double>('expected_return_rate'),
       deadlineLabel: json.parse<String>('deadline_label'),
       dailySavings: json.parse<double>('daily_savings'),
       weeklySavings: json.parse<double>('weekly_savings'),
@@ -116,6 +134,11 @@ class SingleGoalDetailModel {
       goalName: goalName ?? '',
       goalCover: goalCover ?? '',
       status: status ?? '',
+      investmentType: investmentType ?? '',
+      investmentAmount: investmentAmount ?? 0.0,
+      frequency: frequency ?? '',
+      sipAmount: sipAmount ?? 0.0,
+      lumpsumAmount: lumpsumAmount ?? 0.0,
       progressPercent: progressPercent ?? 0.0,
       savedAmount: savedAmount ?? saving?.saved ?? 0.0,
       remainingAmount: remainingAmount ?? saving?.remaining ?? 0.0,
@@ -124,6 +147,7 @@ class SingleGoalDetailModel {
       startDate: startDate,
       endDate: endDate,
       duration: duration,
+      expectedReturnRate: expectedReturnRate ?? 0.0,
       deadlineLabel: deadlineLabel ?? deadline?.label ?? '',
       dailySavings: dailySavings ?? deadline?.dailySavings ?? 0.0,
       weeklySavings: weeklySavings ?? deadline?.weeklySavings ?? 0.0,
@@ -272,6 +296,7 @@ class GoalLinkedFundModel {
   final double? purchaseNav;
   final double? latestPurchaseNav;
   final double currentNav;
+  final double? nav;
   final String? investedDate;
   final String? firstInvestedDate;
   final String? latestInvestedDate;
@@ -279,10 +304,12 @@ class GoalLinkedFundModel {
   final double? navChange;
   final double? dayChange;
   final double? dayChangePercent;
+  final double? oneDayChangePercent;
   final double? oneDayReturn;
   final double? oneDayReturnPercent;
   final double? fundInvested;
   final double? investedAmount;
+  final double? investmentAmount;
   final double? currentValue;
   final double? gainLoss;
   final double? gainLossPercent;
@@ -291,6 +318,9 @@ class GoalLinkedFundModel {
   final String? allotmentStatusLabel;
   final String? allotmentMessage;
   final bool? isUnitAllotted;
+  final bool? isInvested;
+  final String? investmentStatus;
+  final String? orderStatus;
   final bool? hasPendingRedemption;
   final String? redemptionStatus;
   final String? redemptionMessage;
@@ -308,6 +338,7 @@ class GoalLinkedFundModel {
   final int? mfuOrderFundId;
   final int? goalId;
   final String? type;
+  final String? investmentType;
 
   GoalLinkedFundModel({
     this.id,
@@ -321,6 +352,7 @@ class GoalLinkedFundModel {
     this.purchaseNav,
     this.latestPurchaseNav,
     required this.currentNav,
+    this.nav,
     this.investedDate,
     this.firstInvestedDate,
     this.latestInvestedDate,
@@ -328,10 +360,12 @@ class GoalLinkedFundModel {
     this.navChange,
     this.dayChange,
     this.dayChangePercent,
+    this.oneDayChangePercent,
     this.oneDayReturn,
     this.oneDayReturnPercent,
     this.fundInvested,
     this.investedAmount,
+    this.investmentAmount,
     this.currentValue,
     this.gainLoss,
     this.gainLossPercent,
@@ -340,6 +374,9 @@ class GoalLinkedFundModel {
     this.allotmentStatusLabel,
     this.allotmentMessage,
     this.isUnitAllotted,
+    this.isInvested,
+    this.investmentStatus,
+    this.orderStatus,
     this.hasPendingRedemption,
     this.redemptionStatus,
     this.redemptionMessage,
@@ -357,6 +394,7 @@ class GoalLinkedFundModel {
     this.mfuOrderFundId,
     this.goalId,
     this.type,
+    this.investmentType,
   });
 
   factory GoalLinkedFundModel.fromJson(Map<String, dynamic> json) {
@@ -380,6 +418,7 @@ class GoalLinkedFundModel {
           json.parse<double>('invested_nav') ??
           json.parse<double>('average_nav'),
       latestPurchaseNav: json.parse<double>('latest_purchase_nav'),
+      nav: json.parse<double>('nav') ?? json.parse<double>('current_nav'),
       currentNav:
           json.parse<double>('current_nav') ?? json.parse<double>('nav') ?? 0.0,
       investedDate:
@@ -395,6 +434,9 @@ class GoalLinkedFundModel {
       dayChangePercent:
           json.parse<double>('day_change_percent') ??
           json.parse<double>('one_day_change_percent'),
+      oneDayChangePercent:
+          json.parse<double>('one_day_change_percent') ??
+          json.parse<double>('day_change_percent'),
       oneDayReturn:
           json.parse<double>('one_day_return') ??
           json.parse<double>('day_change'),
@@ -403,8 +445,14 @@ class GoalLinkedFundModel {
           json.parse<double>('day_change_percent'),
       fundInvested:
           json.parse<double>('fund_invested') ??
-          json.parse<double>('invested_amount'),
+          json.parse<double>('invested_amount') ??
+          json.parse<double>('investment_amount'),
       investedAmount:
+          json.parse<double>('invested_amount') ??
+          json.parse<double>('fund_invested') ??
+          json.parse<double>('investment_amount'),
+      investmentAmount:
+          json.parse<double>('investment_amount') ??
           json.parse<double>('invested_amount') ??
           json.parse<double>('fund_invested'),
       currentValue: json.parse<double>('current_value'),
@@ -417,6 +465,11 @@ class GoalLinkedFundModel {
           json.parse<String>('unit_status'),
       allotmentMessage: json.parse<String>('allotment_message'),
       isUnitAllotted: json.parse<bool>('is_unit_allotted'),
+      isInvested: json.parse<bool>('is_invested'),
+      investmentStatus: json.parse<String>('investment_status'),
+      orderStatus:
+          json.parse<String>('order_status') ??
+          json.parse<String>('latest_order_status'),
       hasPendingRedemption: json.parse<bool>('has_pending_redemption'),
       redemptionStatus: json.parse<String>('redemption_status'),
       redemptionMessage: json.parse<String>('redemption_message'),
@@ -434,12 +487,17 @@ class GoalLinkedFundModel {
         'has_pending_sip_cancellation',
       ),
       sipCancellationDetails: json['sip_cancellation_details'],
-      latestOrderStatus: json.parse<String>('latest_order_status'),
+      latestOrderStatus:
+          json.parse<String>('latest_order_status') ??
+          json.parse<String>('order_status'),
       latestOrderStatusLabel: json.parse<String>('latest_order_status_label'),
       mfuOrderId: json.parse<int>('mfu_order_id'),
       mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
       goalId: json.parse<int>('goal_id'),
-      type: json.parse<String>('type'),
+      type:
+          json.parse<String>('type') ?? json.parse<String>('investment_type'),
+      investmentType:
+          json.parse<String>('investment_type') ?? json.parse<String>('type'),
     );
   }
 
@@ -456,6 +514,7 @@ class GoalLinkedFundModel {
       purchaseNav: purchaseNav ?? 0.0,
       latestPurchaseNav: latestPurchaseNav,
       currentNav: currentNav,
+      nav: nav ?? currentNav,
       investedDate: investedDate ?? '',
       firstInvestedDate: firstInvestedDate,
       latestInvestedDate: latestInvestedDate,
@@ -463,10 +522,13 @@ class GoalLinkedFundModel {
       navChange: navChange ?? 0.0,
       dayChange: dayChange ?? 0.0,
       dayChangePercent: dayChangePercent ?? 0.0,
+      oneDayChangePercent: oneDayChangePercent ?? dayChangePercent ?? 0.0,
       oneDayReturn: oneDayReturn ?? 0.0,
       oneDayReturnPercent: oneDayReturnPercent ?? 0.0,
       fundInvested: fundInvested ?? 0.0,
       investedAmount: investedAmount ?? 0.0,
+      investmentAmount:
+          investmentAmount ?? investedAmount ?? fundInvested ?? 0.0,
       currentValue: currentValue ?? 0.0,
       gainLoss: gainLoss ?? 0.0,
       gainLossPercent: gainLossPercent ?? 0.0,
@@ -475,6 +537,9 @@ class GoalLinkedFundModel {
       allotmentStatusLabel: allotmentStatusLabel ?? '',
       allotmentMessage: allotmentMessage ?? '',
       isUnitAllotted: isUnitAllotted ?? false,
+      isInvested: isInvested ?? false,
+      investmentStatus: investmentStatus ?? '',
+      orderStatus: orderStatus ?? latestOrderStatus ?? '',
       hasPendingRedemption: hasPendingRedemption ?? false,
       redemptionStatus: redemptionStatus,
       redemptionMessage: redemptionMessage,
@@ -487,12 +552,13 @@ class GoalLinkedFundModel {
       isSipCancelled: isSipCancelled ?? false,
       hasPendingSipCancellation: hasPendingSipCancellation ?? false,
       sipCancellationDetails: sipCancellationDetails,
-      latestOrderStatus: latestOrderStatus ?? '',
+      latestOrderStatus: latestOrderStatus ?? orderStatus ?? '',
       latestOrderStatusLabel: latestOrderStatusLabel ?? '',
       mfuOrderId: mfuOrderId ?? 0,
       mfuOrderFundId: mfuOrderFundId ?? 0,
       goalId: goalId ?? 0,
-      type: type ?? '',
+      type: type ?? investmentType ?? '',
+      investmentType: investmentType ?? type ?? '',
     );
   }
 }
