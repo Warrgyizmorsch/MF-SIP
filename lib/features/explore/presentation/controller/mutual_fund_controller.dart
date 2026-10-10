@@ -595,15 +595,22 @@ class MutualFundController extends GetxController {
       }
     }
 
-    // 2. Try to get it from Local Session
+    // 2. Try to get it from Cached Risk Score in SessionManager (restored immediately on startup/refresh)
+    final savedRiskScore = SessionManager.instance.getRiskScore?.profileName ??
+        SessionManager.instance.riskScoreObs.value?.profileName;
+    if (savedRiskScore != null && savedRiskScore.isNotEmpty) {
+      return savedRiskScore;
+    }
+
+    // 3. Try to get it from Local Session User Data
     final sessionRisk =
         SessionManager.instance.getUserData?.riskProfileModel?.profileName;
     if (sessionRisk != null && sessionRisk.isNotEmpty) {
       return sessionRisk;
     }
 
-    // 3. Not available - Return null instead of 'Balanced'
-    return null;
+    // 4. Default fallback when no profile is set
+    return 'Balanced';
   }
 
   @override
