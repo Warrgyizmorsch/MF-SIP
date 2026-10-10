@@ -264,6 +264,7 @@ class MutualFundController extends GetxController {
     _currentFilters.remove('return_min'); // ADD THIS
     _currentFilters.remove('return_max');
     _currentFilters.remove('return_year');
+    _currentFilters.remove('risk_type');
 
     // 2. Merge the newly selected parameters from FundhouseController
     _currentFilters.addAll(newParams);
@@ -343,19 +344,19 @@ class MutualFundController extends GetxController {
 
       apiParams['sort_order'] ??= 'desc';
 
-      // 4. Default Category & Search Logic:
-      // - If user is searching by text (_currentSearchQuery is not empty), search across ALL categories (do NOT force Equity).
-      // - If user selected 'All', remove scheme_category from parameters so all categories are fetched.
-      // - Otherwise, default to 'Equity' if no specific category/filter has been selected.
-      if (_currentSearchQuery.isNotEmpty) {
-        // Search across all categories
+      // 4. Search, Category & Risk Profile Logic:
+      // - If user is searching by text or selected 'All', remove scheme_category from parameters.
+      if (_currentSearchQuery.isNotEmpty ||
+          apiParams['scheme_category']?.toString().toLowerCase() == 'all') {
         apiParams.remove('scheme_category');
-      } else {
-        if (!apiParams.containsKey('scheme_category')) {
-          apiParams['scheme_category'] = 'Equity';
-        } else if (apiParams['scheme_category'].toString().toLowerCase() == 'all') {
-          apiParams.remove('scheme_category');
-        }
+      }
+
+      // - Apply risk_type when no specific manual filters are active
+      final bool hasActiveFilters =
+          _currentSearchQuery.isNotEmpty || _currentFilters.isNotEmpty;
+      final riskType = dynamicRiskType;
+      if (riskType != null && !hasActiveFilters) {
+        apiParams['risk_type'] = riskType;
       }
 
       // 5. Call API

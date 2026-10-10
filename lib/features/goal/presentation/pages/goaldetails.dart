@@ -13,6 +13,8 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
+import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
+import 'package:my_sip/features/dashboard/presentation/widgets/portfolio_fund_details_modal.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -20,6 +22,132 @@ import '../widget/add_fund_bottom_sheet.dart';
 
 import '../../domain/entity/goal_entity.dart';
 import '../../domain/entity/single_goal_detail_entity.dart';
+
+extension GoalLinkedFundMapper on GoalLinkedFundEntity {
+  MfuPortfolioItemEntity toPortfolioItem({String? goalName}) {
+    final String formattedLogo = amcLogo.isNotEmpty
+        ? (amcLogo.startsWith('http') ? amcLogo : "${Appurl.baseUrl}/$amcLogo")
+        : (amcImageUrl.isNotEmpty
+            ? (amcImageUrl.startsWith('http')
+                ? amcImageUrl
+                : "${Appurl.baseUrl}/$amcImageUrl")
+            : '');
+
+    final bool isSipBool = isSip ||
+        investmentType.toLowerCase() == 'sip' ||
+        type.toLowerCase() == 'sip';
+
+    final String invType = investmentType.isNotEmpty
+        ? investmentType
+        : (type.isNotEmpty ? type : (isSipBool ? 'sip' : 'lumpsum'));
+
+    final double invAmt = fundInvested > 0
+        ? fundInvested
+        : (investmentAmount > 0 ? investmentAmount : investedAmount);
+
+    final double unitsVal = totalUnits > 0 ? totalUnits : units;
+    final double navVal = currentNav > 0 ? currentNav : nav;
+    final double oneDChange = oneDayReturn != 0 ? oneDayReturn : dayChange;
+    final double oneDChangePct =
+        oneDayChangePercent != 0 ? oneDayChangePercent : dayChangePercent;
+
+    return MfuPortfolioItemEntity(
+      schemeCode: schemeCode,
+      fundName: fundName,
+      amcName: '',
+      amcLogo: formattedLogo,
+      investmentType: invType,
+      investedAmount: invAmt,
+      totalUnits: unitsVal,
+      currentNav: navVal,
+      currentValue: currentValue,
+      gainLoss: gainLoss,
+      gainLossPercent: gainLossPercent,
+      oneDayChange: oneDChange,
+      oneDayChangePercent: oneDChangePct,
+      purchaseNav: purchaseNav,
+      purchaseDate: investedDate,
+      folioNo: folioNo,
+      lastTransactionDate: investedDate,
+      navDate: navDate,
+      navChange: navChange,
+      allotmentStatus: allotmentStatus,
+      unitStatus: unitStatus,
+      allotmentStatusLabel: allotmentStatusLabel,
+      allotmentMessage: allotmentMessage,
+      isUnitAllotted: isUnitAllotted,
+      mfuOrderFundId: mfuOrderFundId != 0 ? mfuOrderFundId : id,
+      mfuOrderId: mfuOrderId != 0 ? mfuOrderId : null,
+      goalId: goalId != 0 ? goalId : null,
+      goalName: goalName,
+      hasPendingRedemption: hasPendingRedemption,
+      redemptionStatus: redemptionStatus ?? '',
+      redemptionMessage: redemptionMessage ?? '',
+      redemptionDetails: redemptionDetails.isNotEmpty
+          ? MfuRedemptionDetailsEntity(
+              orderRefNo: redemptionDetails.first.orderRefNo,
+              gorn: redemptionDetails.first.gorn,
+              amount: redemptionDetails.first.amount,
+              units: redemptionDetails.first.units,
+              requestedDate: redemptionDetails.first.requestedDate,
+              status: redemptionDetails.first.status,
+              statusCode: redemptionDetails.first.statusCode,
+              estimatedPayoutDays: redemptionDetails.first.estimatedPayoutDays,
+              message: redemptionDetails.first.message,
+            )
+          : null,
+      redeemedAmount: redeemedAmount,
+      redeemedUnits: redeemedUnits,
+      isSipFlag: isSipBool,
+      sipStatus: sipStatus ?? '',
+      isSipCancelled: isSipCancelled,
+      hasPendingSipCancellation: hasPendingSipCancellation,
+      latestOrderStatus:
+          latestOrderStatus.isNotEmpty ? latestOrderStatus : orderStatus,
+      latestOrderStatusLabel: latestOrderStatusLabel,
+    );
+  }
+}
+
+extension LegacyGoalFundMapper on GoalFundEntity {
+  MfuPortfolioItemEntity toPortfolioItem({String? goalName}) {
+    final String logo = mutualFund?.amc?.amcLogo ?? '';
+    final String formattedLogo = logo.isNotEmpty
+        ? (logo.startsWith('http') ? logo : "${Appurl.baseUrl}/$logo")
+        : '';
+
+    final bool isSipBool = orderType.toLowerCase() == 'sip' || sipAmount > 0;
+    final double invAmt = sipAmount > 0 ? sipAmount : lumpsumAmount;
+
+    return MfuPortfolioItemEntity(
+      schemeCode: schemeCode,
+      fundName: mutualFund?.schemeName ?? 'Unknown Fund',
+      amcName: mutualFund?.amc?.amcName ?? '',
+      amcLogo: formattedLogo,
+      investmentType:
+          orderType.isNotEmpty ? orderType : (isSipBool ? 'sip' : 'lumpsum'),
+      investedAmount: invAmt,
+      totalUnits: 0.0,
+      currentNav: 0.0,
+      currentValue: invAmt,
+      gainLoss: 0.0,
+      gainLossPercent: 0.0,
+      oneDayChange: 0.0,
+      oneDayChangePercent: 0.0,
+      purchaseNav: 0.0,
+      purchaseDate: orderDate,
+      folioNo: '',
+      lastTransactionDate: orderDate,
+      allotmentStatus: status,
+      unitStatus: status,
+      latestOrderStatus: mfuOrderStatus,
+      mfuOrderFundId: id,
+      goalId: goalId != 0 ? goalId : null,
+      goalName: goalName,
+      isSipFlag: isSipBool,
+    );
+  }
+}
 
 /// ----------------------------------------------------------------------
 /// Main Entry Page Router
@@ -1741,10 +1869,6 @@ class LinkedFundsCard extends StatelessWidget {
                     final double gainPercent = fund.gainLossPercent;
 
                     return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
@@ -1757,9 +1881,26 @@ class LinkedFundsCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () {
+                            PortfolioFundDetailsModal.show(
+                              context,
+                              fund.toPortfolioItem(
+                                goalName: goal?.goalName ?? liveDetail.goalName,
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
                           Container(
                             width: 38,
                             height: 38,
@@ -1927,8 +2068,11 @@ class LinkedFundsCard extends StatelessWidget {
                           }),
                         ],
                       ),
-                    );
-                  },
+                    ),
+                  ),
+                ),
+              );
+            },
                 );
               },
             );
@@ -1957,10 +2101,6 @@ class LinkedFundsCard extends StatelessWidget {
                       : '₹${fund.lumpsumAmount.toStringAsFixed(0)}';
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
@@ -1973,9 +2113,26 @@ class LinkedFundsCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () {
+                          PortfolioFundDetailsModal.show(
+                            context,
+                            fund.toPortfolioItem(
+                              goalName: goal?.goalName ?? freshGoal?.goalName,
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
                         Container(
                           width: 38,
                           height: 38,
@@ -2104,8 +2261,11 @@ class LinkedFundsCard extends StatelessWidget {
                         }),
                       ],
                     ),
-                  );
-                },
+                  ),
+                ),
+              ),
+            );
+          },
               );
             },
           );
@@ -2890,14 +3050,27 @@ class GoalDetailSection extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () {
+                          PortfolioFundDetailsModal.show(
+                            context,
+                            fund.toPortfolioItem(
+                              goalName:
+                                  freshGoal?.goalName ?? liveDetail.goalName,
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
                           CircleAvatar(
                             radius: 18,
                             backgroundColor: Colors.white,
@@ -3047,8 +3220,10 @@ class GoalDetailSection extends StatelessWidget {
                         ],
                       ),
                     ),
-                  );
-                })
+                  ),
+                ),
+              );
+            })
               else
                 ...linkedFunds.map((fund) {
                   return Obx(() {
@@ -3076,6 +3251,17 @@ class GoalDetailSection extends StatelessWidget {
                         ],
                       ),
                       child: ListTile(
+                        onTap: () {
+                          PortfolioFundDetailsModal.show(
+                            context,
+                            fund.toPortfolioItem(
+                              goalName:
+                                  freshGoal?.goalName ??
+                                  liveDetail?.goalName ??
+                                  '',
+                            ),
+                          );
+                        },
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 4,
