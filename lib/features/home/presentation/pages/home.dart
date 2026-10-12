@@ -2666,6 +2666,7 @@ class _MobileLayout extends StatelessWidget {
                   final canErrorMessage =
                       (controller.userData.value?.canErrorMessage ?? '').trim();
                   final bool hasCanError = canErrorMessage.isNotEmpty && userCanStatus != 'approved' ;
+                  final bool isCanCancelled = userCanStatus == 'cancelled';
 
                   final noCan =
                       canNumber.isEmpty || userCanStatus != 'approved';
@@ -2799,10 +2800,8 @@ class _MobileLayout extends StatelessWidget {
                           "Your KYC documents have been submitted to KRA/CAMS. Verification typically takes 2-3 business days. You can continue completing your bank details, nominee, and risk profile in the meantime.",
                     );
                   }
-                  final bool isCanCancelled = userCanStatus == 'cancelled';
-
                   // 4b. If CAN status is CANCELLED by MFU/KRA
-                  if (isCanCancelled) {
+                  else if (isCanCancelled) {
                     bgColor = Colors.red.shade50;
                     iconColor = Colors.red.shade700;
                     titleColor = Colors.red.shade900;

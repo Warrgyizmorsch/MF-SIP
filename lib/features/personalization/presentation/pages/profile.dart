@@ -399,7 +399,7 @@ class FooterSection extends StatelessWidget {
         Text('Version 1.0.0', style: UTextStyles.small),
         const Gap(12),
         Text(
-          'Ridit Finworld',
+          'Kriti Hinger',
           style: UTextStyles.small.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(

@@ -63,7 +63,11 @@ class DashboardController extends GetxController {
         result = allFunds.where((f) {
           final bool isActiveSip = f.isSipActive;
           final bool isActiveLumpsum = f.isLumpsum && !f.isFullyRedeemed;
-          return isActiveSip || isActiveLumpsum;
+          final bool isCancelledSipWithBalance =
+              f.isSipCancelledFlag &&
+              !f.isFullyRedeemed &&
+              (f.totalUnits > 0 || f.currentValue > 0);
+          return isActiveSip || isActiveLumpsum || isCancelledSipWithBalance;
         }).toList();
         break;
       case 'Active SIP':
