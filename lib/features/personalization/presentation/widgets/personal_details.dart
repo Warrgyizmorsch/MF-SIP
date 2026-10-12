@@ -170,7 +170,17 @@ class PersonalDetailsScreen extends GetView<AuthController> {
             ),
             const SizedBox(height: 20),
 
-            // Row 4: Income & Address
+            // Row 4: CAN Number & CAN Mobile
+            Row(
+              children: [
+                Expanded(child: _buildCanField(context)),
+                const SizedBox(width: 20),
+                Expanded(child: _buildCanMobileField(context)),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Row 5: Income & Address
             Row(
               children: [
                 Expanded(child: _buildIncomeField(context)),
@@ -205,8 +215,10 @@ class PersonalDetailsScreen extends GetView<AuthController> {
             const SizedBox(height: 16),
             _buildPhoneField(context),
             const SizedBox(height: 16),
+            _buildCanMobileField(context),
             _buildPanField(context),
             const SizedBox(height: 16),
+            _buildCanField(context),
             _buildOccupationField(context),
             const SizedBox(height: 16),
             _buildWealthSourceField(context),
@@ -352,6 +364,60 @@ class PersonalDetailsScreen extends GetView<AuthController> {
         ),
       ],
     );
+  }
+
+  Widget _buildCanField(BuildContext context) {
+    return Obx(() {
+      final reactiveUser = SessionManager.instance.userObs.value;
+      final canNumber = (personalisationController.userData.value?.canNumber ??
+              reactiveUser?.canNumber ??
+              '')
+          .trim();
+
+      if (canNumber.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SmallHeading(smallheading: 'CAN Number'),
+          const SizedBox(height: 5),
+          CustomTextField(
+            readOnly: true,
+            borderColor: Colors.grey.shade200,
+            height: MediaQuery.of(context).size.height * 0.065,
+            controller: TextEditingController(text: canNumber),
+            hint: 'CAN Number',
+          ),
+          const SizedBox(height: 16),
+        ],
+      );
+    });
+  }
+
+  Widget _buildCanMobileField(BuildContext context) {
+    return Obx(() {
+      final canMobile = (personalisationController.userData.value?.canMobile ??
+              personalisationController.canMobileController.text)
+          .trim();
+
+      if (canMobile.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SmallHeading(smallheading: 'CAN Mobile Number'),
+          const SizedBox(height: 5),
+          CustomTextField(
+            readOnly: true,
+            borderColor: Colors.grey.shade200,
+            height: MediaQuery.of(context).size.height * 0.065,
+            controller: TextEditingController(text: canMobile),
+            hint: 'CAN Mobile Number',
+          ),
+          const SizedBox(height: 16),
+        ],
+      );
+    });
   }
 
   Widget _buildWealthSourceField(BuildContext context) {

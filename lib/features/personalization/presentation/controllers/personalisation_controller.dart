@@ -336,6 +336,7 @@ class PersonalisationController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final mobileController = TextEditingController();
+  final canMobileController = TextEditingController();
   final panController = TextEditingController();
   final adharController = TextEditingController();
   final addressController = TextEditingController();
@@ -1728,6 +1729,7 @@ class PersonalisationController extends GetxController {
     nameController.text = userProfileData.name ?? '';
     emailController.text = userProfileData.email ?? '';
     mobileController.text = userProfileData.mobile ?? '';
+    canMobileController.text = userProfileData.canMobile ?? '';
     panController.text =
         userProfileData.panCard ?? ''; // Or wherever PAN is stored
 

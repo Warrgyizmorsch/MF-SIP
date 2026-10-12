@@ -7,15 +7,96 @@ class ProfileUpdateResponseEntity extends Equatable {
   final ProfileDataEntity? data;
   final List<String>? folios;
 
+  // New root fields from API
+  final String? registrationNumber;
+  final String? registrationMobileNumber;
+  final String? registrationMobile;
+  final String? canRegistrationNumber;
+  final String? canMobileNumber;
+  final String? canMobile;
+  final bool? hasTwoNumbers;
+  final String? nctRefNo;
+  final String? nctStatus;
+  final dynamic nctResults;
+  final dynamic canModification;
+  final String? canStatus;
+  final String? canStatusMessage;
+  final List<CanBlockReasonEntity>? canBlockReasons;
+
   const ProfileUpdateResponseEntity({
     required this.status,
     required this.message,
     required this.data,
     this.folios,
+    this.registrationNumber,
+    this.registrationMobileNumber,
+    this.registrationMobile,
+    this.canRegistrationNumber,
+    this.canMobileNumber,
+    this.canMobile,
+    this.hasTwoNumbers,
+    this.nctRefNo,
+    this.nctStatus,
+    this.nctResults,
+    this.canModification,
+    this.canStatus,
+    this.canStatusMessage,
+    this.canBlockReasons,
   });
 
   @override
-  List<Object?> get props => [status, message, data, folios];
+  List<Object?> get props => [
+    status,
+    message,
+    data,
+    folios,
+    registrationNumber,
+    registrationMobileNumber,
+    registrationMobile,
+    canRegistrationNumber,
+    canMobileNumber,
+    canMobile,
+    hasTwoNumbers,
+    nctRefNo,
+    nctStatus,
+    nctResults,
+    canModification,
+    canStatus,
+    canStatusMessage,
+    canBlockReasons,
+  ];
+}
+
+class CanBlockReasonEntity extends Equatable {
+  final String? blockName;
+  final String? blockSubName;
+  final String? seqNo;
+  final String? rspType;
+  final String? rspCode;
+
+  const CanBlockReasonEntity({
+    this.blockName,
+    this.blockSubName,
+    this.seqNo,
+    this.rspType,
+    this.rspCode,
+  });
+
+  @override
+  List<Object?> get props =>
+      [blockName, blockSubName, seqNo, rspType, rspCode];
+}
+
+extension CanBlockReasonEntityX on CanBlockReasonModel {
+  CanBlockReasonEntity toEntity() {
+    return CanBlockReasonEntity(
+      blockName: blockName,
+      blockSubName: blockSubName,
+      seqNo: seqNo,
+      rspType: rspType,
+      rspCode: rspCode,
+    );
+  }
 }
 
 extension ProfileUpdateResponseX on ProfileUpdateModel {
@@ -24,6 +105,20 @@ extension ProfileUpdateResponseX on ProfileUpdateModel {
       status: status,
       message: message,
       folios: folios ?? data?.folios,
+      registrationNumber: registrationNumber,
+      registrationMobileNumber: registrationMobileNumber,
+      registrationMobile: registrationMobile,
+      canRegistrationNumber: canRegistrationNumber,
+      canMobileNumber: canMobileNumber,
+      canMobile: canMobile,
+      hasTwoNumbers: hasTwoNumbers,
+      nctRefNo: nctRefNo,
+      nctStatus: nctStatus,
+      nctResults: nctResults,
+      canModification: canModification,
+      canStatus: canStatus,
+      canStatusMessage: canStatusMessage,
+      canBlockReasons: canBlockReasons?.map((e) => e.toEntity()).toList(),
       data: data?.toEntity(),
     );
   }
@@ -31,10 +126,15 @@ extension ProfileUpdateResponseX on ProfileUpdateModel {
 
 class ProfileDataEntity extends Equatable {
   final int? id;
+  final String? userType;
   final int? roleId;
   final String? name;
   final String? email;
+  final String? applicationId;
   final String? mobile;
+  final String? registrationMobile;
+  final String? canMobile;
+  final String? dob;
   final String? image;
   final String? panCard;
   final String? emailVerifiedAt;
@@ -82,10 +182,15 @@ class ProfileDataEntity extends Equatable {
 
   const ProfileDataEntity({
     required this.id,
+    this.userType,
     required this.roleId,
     required this.name,
     required this.email,
+    this.applicationId,
     required this.mobile,
+    this.registrationMobile,
+    this.canMobile,
+    this.dob,
     required this.image,
     required this.panCard,
     required this.emailVerifiedAt,
@@ -134,10 +239,15 @@ class ProfileDataEntity extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    userType,
     roleId,
     name,
     email,
+    applicationId,
     mobile,
+    registrationMobile,
+    canMobile,
+    dob,
     image,
     panCard,
     emailVerifiedAt,
@@ -188,10 +298,15 @@ extension ProfileDataEntityX on ProfileDataModel {
   ProfileDataEntity toEntity() {
     return ProfileDataEntity(
       id: id,
+      userType: userType,
       roleId: roleId,
       name: name,
       email: email,
+      applicationId: applicationId,
       mobile: mobile,
+      registrationMobile: registrationMobile,
+      canMobile: canMobile,
+      dob: dob,
       image: image,
       panCard: panCard,
       emailVerifiedAt: emailVerifiedAt,

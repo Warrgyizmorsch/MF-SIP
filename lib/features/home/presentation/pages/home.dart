@@ -2682,6 +2682,7 @@ class _MobileLayout extends StatelessWidget {
                       !noCan &&
                       !noMandate;
 
+
                   // --- 1. DEFAULT STATE ---
                   Color bgColor = Ucolors.light;
                   Color iconColor = Colors.black;

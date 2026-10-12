@@ -6,13 +6,68 @@ class ProfileUpdateModel {
   final ProfileDataModel? data;
   final List<String>? folios;
 
-  ProfileUpdateModel({this.status, this.message, this.data, this.folios});
+  // New root fields from API
+  final String? registrationNumber;
+  final String? registrationMobileNumber;
+  final String? registrationMobile;
+  final String? canRegistrationNumber;
+  final String? canMobileNumber;
+  final String? canMobile;
+  final bool? hasTwoNumbers;
+  final String? nctRefNo;
+  final String? nctStatus;
+  final dynamic nctResults;
+  final dynamic canModification;
+  final String? canStatus;
+  final String? canStatusMessage;
+  final List<CanBlockReasonModel>? canBlockReasons;
+
+  ProfileUpdateModel({
+    this.status,
+    this.message,
+    this.data,
+    this.folios,
+    this.registrationNumber,
+    this.registrationMobileNumber,
+    this.registrationMobile,
+    this.canRegistrationNumber,
+    this.canMobileNumber,
+    this.canMobile,
+    this.hasTwoNumbers,
+    this.nctRefNo,
+    this.nctStatus,
+    this.nctResults,
+    this.canModification,
+    this.canStatus,
+    this.canStatusMessage,
+    this.canBlockReasons,
+  });
 
   factory ProfileUpdateModel.fromJson(Map<String, dynamic> json) {
     return ProfileUpdateModel(
       status: json.parse<bool>('status'),
       message: json.parse<String>('message'),
       folios: (json['folios'] as List?)?.map((e) => e.toString()).toList(),
+      registrationNumber: json.parse<String>('registration_number'),
+      registrationMobileNumber:
+          json.parse<String>('registration_mobile_number'),
+      registrationMobile: json.parse<String>('registration_mobile'),
+      canRegistrationNumber: json.parse<String>('can_registration_number'),
+      canMobileNumber: json.parse<String>('can_mobile_number'),
+      canMobile: json.parse<String>('can_mobile'),
+      hasTwoNumbers: json.parse<bool>('has_two_numbers'),
+      nctRefNo: json.parse<String>('nct_ref_no'),
+      nctStatus: json.parse<String>('nct_status'),
+      nctResults: json['nct_results'],
+      canModification: json['can_modification'],
+      canStatus: json.parse<String>('can_status'),
+      canStatusMessage: json.parse<String>('can_status_message'),
+      canBlockReasons: json['can_block_reasons'] != null
+          ? (json['can_block_reasons'] as List)
+              .map((e) =>
+                  CanBlockReasonModel.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
       data: json.parseNested<ProfileDataModel>(
         'data',
         (m) => ProfileDataModel.fromJson(m),
@@ -21,12 +76,43 @@ class ProfileUpdateModel {
   }
 }
 
+class CanBlockReasonModel {
+  final String? blockName;
+  final String? blockSubName;
+  final String? seqNo;
+  final String? rspType;
+  final String? rspCode;
+
+  CanBlockReasonModel({
+    this.blockName,
+    this.blockSubName,
+    this.seqNo,
+    this.rspType,
+    this.rspCode,
+  });
+
+  factory CanBlockReasonModel.fromJson(Map<String, dynamic> json) {
+    return CanBlockReasonModel(
+      blockName: json.parse<String>('blockName'),
+      blockSubName: json.parse<String>('blockSubName'),
+      seqNo: json.parse<String>('seqNo'),
+      rspType: json.parse<String>('rspType'),
+      rspCode: json.parse<String>('rspCode'),
+    );
+  }
+}
+
 class ProfileDataModel {
   final int? id;
+  final String? userType;
   final int? roleId;
   final String? name;
   final String? email;
+  final String? applicationId;
   final String? mobile;
+  final String? registrationMobile;
+  final String? canMobile;
+  final String? dob;
   final String? image;
   final String? panCard;
   final String? emailVerifiedAt;
@@ -74,10 +160,15 @@ class ProfileDataModel {
 
   ProfileDataModel({
     this.id,
+    this.userType,
     this.roleId,
     this.name,
     this.email,
+    this.applicationId,
     this.mobile,
+    this.registrationMobile,
+    this.canMobile,
+    this.dob,
     this.image,
     this.panCard,
     this.emailVerifiedAt,
@@ -132,10 +223,15 @@ class ProfileDataModel {
 
     return ProfileDataModel(
       id: json.parse<int>('id'),
+      userType: json.parse<String>('user_type'),
       roleId: json.parse<int>('role_id'),
       name: json.parse<String>('name'),
       email: json.parse<String>('email'),
+      applicationId: json.parse<String>('application_id'),
       mobile: json.parse<String>('mobile'),
+      registrationMobile: json.parse<String>('registration_mobile'),
+      canMobile: json.parse<String>('can_mobile'),
+      dob: json.parse<String>('dob'),
       image: json.parse<String>('image'),
       panCard: json.parse<String>('pan_card'),
       emailVerifiedAt: json.parse<String>('email_verified_at'),

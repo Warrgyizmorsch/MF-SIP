@@ -55,7 +55,6 @@ class _MobileProfileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = SessionManager.instance.userObs.value;
     return Padding(
       padding: UPadding.screenPadding,
       child: SingleChildScrollView(
@@ -73,32 +72,23 @@ class _MobileProfileLayout extends StatelessWidget {
               // ),
               Obx(() {
                 final reactiveUser = SessionManager.instance.userObs.value;
+                final canNumber = (controller.userData.value?.canNumber ??
+                        reactiveUser?.canNumber ??
+                        '')
+                    .trim();
 
                 String displayImage = controller.imagePath.isNotEmpty
                     ? controller.imagePath.value
                     : (reactiveUser?.img ?? UImages.mfsiplogo);
 
-
                 return ProfileHeader(
-                  // onTap: () => controller.pickImage(
-                  //   ImageSource.gallery,
-                  // ), // Trigger image picker
-                  // onTap: () => UImagePicker.showImageSourceOptions(
-                  //   context: context,
-                  //   onImageSelected: (source) => controller.pickImage(source),
-                  // ),
                   onTap: () => Get.toNamed(AppRoutes.personaldetails),
-                  // img: controller.imagePath.isEmpty
-                  //     ? UImages.avatar
-                  //     : controller.imagePath.toString(),
-                  // img: user!.img == null ? UImages.avatar : user.img.toString(),
-                  // img: controller.imagePath.isEmpty
-                  //     ? (user?.img ?? UImages.avatar)
-                  //     : controller.imagePath.value,
                   img: displayImage,
-
-                  // : '${Appurl.baseUrl}${personalisationController}',
-                  subtitle: user?.name ?? '',
+                  name: reactiveUser?.name,
+                  subtitle: reactiveUser?.email ??
+                      reactiveUser?.mobile?.toString() ??
+                      '',
+                  canNumber: canNumber,
                   icon: Icons.edit,
                 );
               }),
@@ -157,21 +147,71 @@ class _WebProfileDashboard extends StatelessWidget {
                     ),
                     const Gap(24),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user?.name ?? 'User Name',
-                            style: UTextStyles.heading1.copyWith(fontSize: 24),
-                          ),
-                          Text(
-                            user?.email ?? 'email@address.com',
-                            style: UTextStyles.subtitle2.copyWith(
-                              color: Colors.grey,
+                      child: Obx(() {
+                        final reactiveUser =
+                            SessionManager.instance.userObs.value;
+                        final controller =
+                            Get.find<PersonalisationController>();
+                        final canNumber = (controller.userData.value?.canNumber ??
+                                reactiveUser?.canNumber ??
+                                '')
+                            .trim();
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              reactiveUser?.name ?? user?.name ?? 'User Name',
+                              style:
+                                  UTextStyles.heading1.copyWith(fontSize: 24),
                             ),
-                          ),
-                        ],
-                      ),
+                            Text(
+                              reactiveUser?.email ??
+                                  user?.email ??
+                                  'email@address.com',
+                              style: UTextStyles.subtitle2.copyWith(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            if (canNumber.isNotEmpty) ...[
+                              const Gap(8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEFF6FF),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: const Color(0xFFBFDBFE),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.verified_outlined,
+                                      size: 14,
+                                      color: Color(0xFF2563EB),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'CAN: $canNumber',
+                                      style: const TextStyle(
+                                        fontFamily: FontFamily.medium,
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF1D4ED8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      }),
                     ),
                     const SizedBox(
                       width: 150,
@@ -689,7 +729,8 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     required this.img,
     this.name,
-     this.subtitle,
+    this.subtitle,
+    this.canNumber,
     required this.icon,
     required this.onTap,
     this.iconColor = Colors.black,
@@ -698,6 +739,7 @@ class ProfileHeader extends StatelessWidget {
   final String img;
   final String? name;
   final String? subtitle;
+  final String? canNumber;
   final IconData icon;
   final VoidCallback onTap;
   final Color iconColor;
@@ -741,16 +783,47 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
         ],
-    if (subtitle != null && subtitle!.isNotEmpty) ...[
-        Text(
-          subtitle!,
-          style: TextStyle(
-            fontFamily: FontFamily.medium,
-            color: Colors.grey.shade700,
-            fontSize: 14,
+        if (subtitle != null && subtitle!.isNotEmpty) ...[
+          Text(
+            subtitle!,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              color: Colors.grey.shade700,
+              fontSize: 14,
+            ),
           ),
-        ),
-    ]
+        ],
+        if (canNumber != null && canNumber!.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFBFDBFE)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.verified_outlined,
+                  size: 14,
+                  color: Color(0xFF2563EB),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'CAN: $canNumber',
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1D4ED8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
