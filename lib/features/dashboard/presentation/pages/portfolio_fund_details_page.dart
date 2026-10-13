@@ -62,6 +62,8 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             activeFund.redemptionDetails?.amount ?? activeFund.redeemedAmount,
         pendingRedemptionUnits: activeFund.redeemedUnits,
         exitLoad: activeFund.exitLoad,
+        goalId: activeFund.goalId,
+        goalName: activeFund.goalName,
       );
 
       RedeemPage.navArgs = redeemArgs;

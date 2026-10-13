@@ -10,6 +10,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -52,6 +53,8 @@ class RedeemArgs {
   final double pendingRedemptionAmount;
   final double pendingRedemptionUnits;
   final String exitLoad;
+  final int? goalId;
+  final String? goalName;
 
   const RedeemArgs({
     this.mfuOrderFundId,
@@ -77,7 +80,13 @@ class RedeemArgs {
     this.pendingRedemptionAmount = 0.0,
     this.pendingRedemptionUnits = 0.0,
     this.exitLoad = '',
+    this.goalId,
+    this.goalName,
   });
+
+  bool get isGoalLinked =>
+      (goalId != null && goalId! > 0) ||
+      (goalName != null && goalName!.trim().isNotEmpty);
 
   double get netFreeValue => hasPendingRedemption
       ? (freeValue - pendingRedemptionAmount).clamp(0.0, freeValue)
@@ -197,6 +206,27 @@ class _RedeemPageState extends State<RedeemPage> {
     return args.ifsc;
   }
 
+  String get _resolvedGoalName {
+    if (args.goalName != null && args.goalName!.trim().isNotEmpty) {
+      return args.goalName!.trim();
+    }
+    if (Get.isRegistered<GoalSipController>() && args.goalId != null) {
+      final goals = Get.find<GoalSipController>().masterGoals;
+      final match = goals.firstWhereOrNull(
+        (g) =>
+            g.id == args.goalId ||
+            g.userGoalId == args.goalId ||
+            g.userGoal?.id == args.goalId,
+      );
+      if (match != null) {
+        final customName = match.userGoal?.goalName.trim() ?? '';
+        if (customName.isNotEmpty) return customName;
+        if (match.goalType.trim().isNotEmpty) return match.goalType.trim();
+      }
+    }
+    return args.goalId != null ? 'Goal #${args.goalId}' : 'your linked goal';
+  }
+
   void _onProceed() {
     FocusScope.of(context).unfocus();
     HapticFeedback.mediumImpact();
@@ -306,6 +336,10 @@ class _RedeemPageState extends State<RedeemPage> {
                     'Payout Bank',
                     '$_displayBankName\n(A/c ending $_displayBankAccount)',
                   ),
+                  if (args.isGoalLinked) ...[
+                    const Divider(height: 16),
+                    _buildConfirmRow('Linked Goal', _resolvedGoalName),
+                  ],
                   if (args.exitLoad.isNotEmpty) ...[
                     const Divider(height: 16),
                     _buildConfirmRow('Exit Load', args.exitLoad),
@@ -313,6 +347,40 @@ class _RedeemPageState extends State<RedeemPage> {
                 ],
               ),
             ),
+            if (args.isGoalLinked) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF7ED),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFFED7AA)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      size: 18,
+                      color: Color(0xFFEA580C),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Redeeming will reduce the savings accumulated for "$_resolvedGoalName".',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF9A3412),
+                          height: 1.35,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
 
             Obx(() {
@@ -501,6 +569,52 @@ class _RedeemPageState extends State<RedeemPage> {
     );
   }
 
+  Widget _buildGoalLinkedBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF), // soft blue / indigo
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFBFDBFE)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.track_changes_rounded,
+            color: Color(0xFF2563EB),
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Goal-Linked Investment',
+                  style: UTextStyles.bodyMediumBold.copyWith(
+                    color: const Color(0xFF1E40AF),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'This fund is linked to your "$_resolvedGoalName" goal. Redeeming these units will reduce your goal progress and target savings.',
+                  style: UTextStyles.bodyMedium.copyWith(
+                    color: const Color(0xFF1E3A8A),
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────────
 
   void _handleBack(BuildContext context) {
@@ -654,6 +768,10 @@ class _RedeemPageState extends State<RedeemPage> {
                 _buildPendingRedemptionBanner(),
                 const SizedBox(height: 16),
               ],
+              if (args.isGoalLinked) ...[
+                _buildGoalLinkedBanner(),
+                const SizedBox(height: 16),
+              ],
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -709,6 +827,10 @@ class _RedeemPageState extends State<RedeemPage> {
                 _buildPendingRedemptionBanner(),
                 const SizedBox(height: 14),
               ],
+              if (args.isGoalLinked) ...[
+                _buildGoalLinkedBanner(),
+                const SizedBox(height: 14),
+              ],
               _buildFundCard(),
               const SizedBox(height: 14),
               _buildSelectionCard(context),
@@ -738,6 +860,10 @@ class _RedeemPageState extends State<RedeemPage> {
             children: [
               if (args.hasPendingRedemption) ...[
                 _buildPendingRedemptionBanner(),
+                const SizedBox(height: 12),
+              ],
+              if (args.isGoalLinked) ...[
+                _buildGoalLinkedBanner(),
                 const SizedBox(height: 12),
               ],
               _buildFundCard(),

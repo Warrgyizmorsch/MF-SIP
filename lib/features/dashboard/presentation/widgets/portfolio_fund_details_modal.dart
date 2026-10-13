@@ -487,6 +487,8 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                               fund.redeemedAmount,
                           pendingRedemptionUnits: fund.redeemedUnits,
                           exitLoad: fund.exitLoad,
+                          goalId: fund.goalId,
+                          goalName: fund.goalName,
                         );
 
                         RedeemPage.navArgs = redeemArgs;
