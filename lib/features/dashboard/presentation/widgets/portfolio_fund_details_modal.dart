@@ -391,6 +391,14 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                       ? Colors.green.shade700
                       : Colors.red.shade700,
                 ),
+                if (fund.exitLoad.isNotEmpty) ...[
+                  const Divider(
+                    height: 20,
+                    thickness: 1,
+                    color: Color(0xFFE2E8F0),
+                  ),
+                  _detailRow('Exit Load', fund.exitLoad),
+                ],
               ],
             ),
           ),
@@ -478,6 +486,7 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                               fund.redemptionDetails?.amount ??
                               fund.redeemedAmount,
                           pendingRedemptionUnits: fund.redeemedUnits,
+                          exitLoad: fund.exitLoad,
                         );
 
                         RedeemPage.navArgs = redeemArgs;
@@ -620,6 +629,7 @@ class PortfolioFundDetailsModal extends StatelessWidget {
 
   Widget _detailRow(String label, String value, {Color? valueColor}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
@@ -630,12 +640,16 @@ class PortfolioFundDetailsModal extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: valueColor ?? const Color(0xFF0F172A),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: valueColor ?? const Color(0xFF0F172A),
+            ),
           ),
         ),
       ],

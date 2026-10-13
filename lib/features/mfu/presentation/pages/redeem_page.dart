@@ -51,6 +51,7 @@ class RedeemArgs {
   final String orderRefNo;
   final double pendingRedemptionAmount;
   final double pendingRedemptionUnits;
+  final String exitLoad;
 
   const RedeemArgs({
     this.mfuOrderFundId,
@@ -75,6 +76,7 @@ class RedeemArgs {
     this.orderRefNo = '',
     this.pendingRedemptionAmount = 0.0,
     this.pendingRedemptionUnits = 0.0,
+    this.exitLoad = '',
   });
 
   double get netFreeValue => hasPendingRedemption
@@ -304,6 +306,10 @@ class _RedeemPageState extends State<RedeemPage> {
                     'Payout Bank',
                     '$_displayBankName\n(A/c ending $_displayBankAccount)',
                   ),
+                  if (args.exitLoad.isNotEmpty) ...[
+                    const Divider(height: 16),
+                    _buildConfirmRow('Exit Load', args.exitLoad),
+                  ],
                 ],
               ),
             ),

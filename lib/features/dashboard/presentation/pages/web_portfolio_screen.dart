@@ -1046,6 +1046,7 @@ class _PortfolioTableRow extends StatelessWidget {
                                 fund.redemptionDetails?.amount ??
                                 fund.redeemedAmount,
                             pendingRedemptionUnits: fund.redeemedUnits,
+                            exitLoad: fund.exitLoad,
                           );
 
                           RedeemPage.navArgs = redeemArgs;

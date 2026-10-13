@@ -71,14 +71,24 @@ class DashboardController extends GetxController {
         }).toList();
         break;
       case 'Active SIP':
-        result = allFunds.where((f) => f.isSipActive).toList();
+        result = allFunds
+            .where((f) => f.isSipActive && !f.isFullyRedeemed)
+            .toList();
         break;
       case 'Lump Sum':
-        result = allFunds.where((f) => f.isLumpsum).toList();
+        result = allFunds
+            .where((f) => f.isLumpsum && !f.isFullyRedeemed)
+            .toList();
         break;
       case 'Redeem':
         result = allFunds
-            .where((f) => f.isRedemptionSettled || f.redeemedAmount > 0)
+            .where((f) =>
+                f.isRedeemed ||
+                f.holdingStatus.toLowerCase() == 'redeemed' ||
+                f.investmentType.toLowerCase() == 'redeem' ||
+                f.isRedemptionSettled ||
+                f.redeemedAmount > 0 ||
+                f.redeemedUnits > 0)
             .toList();
         break;
       case 'Cancelled SIP':

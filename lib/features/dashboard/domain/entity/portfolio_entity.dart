@@ -271,6 +271,12 @@ class MfuPortfolioItemEntity extends Equatable {
   final SipCancellationDetailsEntity? sipCancellationDetails;
   final String latestOrderStatus;
   final String latestOrderStatusLabel;
+  final String exitLoad;
+  final bool isRedeemed;
+  final String holdingStatus;
+  final String firstInvestedDate;
+  final String latestInvestedDate;
+  final double latestPurchaseNav;
 
   const MfuPortfolioItemEntity({
     required this.schemeCode,
@@ -314,6 +320,12 @@ class MfuPortfolioItemEntity extends Equatable {
     this.sipCancellationDetails,
     this.latestOrderStatus = '',
     this.latestOrderStatusLabel = '',
+    this.exitLoad = '',
+    this.isRedeemed = false,
+    this.holdingStatus = '',
+    this.firstInvestedDate = '',
+    this.latestInvestedDate = '',
+    this.latestPurchaseNav = 0.0,
   });
 
   // Computed properties for easy UI styling
@@ -333,7 +345,11 @@ class MfuPortfolioItemEntity extends Equatable {
   bool get isSipCancelledFlag =>
       isSipCancelled || sipStatus.toLowerCase() == 'cancelled';
 
-  bool get isFullyRedeemed => isRedemptionSettled && totalUnits == 0;
+  bool get isFullyRedeemed =>
+      isRedeemed ||
+      holdingStatus.toLowerCase() == 'redeemed' ||
+      allotmentStatus.toLowerCase() == 'redeemed' ||
+      (isRedemptionSettled && totalUnits == 0);
 
   bool get isPartiallyRedeemed => redeemedAmount > 0 && totalUnits > 0;
 
@@ -392,6 +408,14 @@ class MfuPortfolioItemEntity extends Equatable {
     isSipCancelled,
     hasPendingSipCancellation,
     sipCancellationDetails,
+    latestOrderStatus,
+    latestOrderStatusLabel,
+    exitLoad,
+    isRedeemed,
+    holdingStatus,
+    firstInvestedDate,
+    latestInvestedDate,
+    latestPurchaseNav,
   ];
 }
 
@@ -518,6 +542,12 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       sipCancellationDetails: sipCancellationDetails?.toEntity(),
       latestOrderStatus: latestOrderStatus ?? '',
       latestOrderStatusLabel: latestOrderStatusLabel ?? '',
+      exitLoad: exitLoad ?? '',
+      isRedeemed: isRedeemed ?? false,
+      holdingStatus: holdingStatus ?? '',
+      firstInvestedDate: firstInvestedDate ?? '',
+      latestInvestedDate: latestInvestedDate ?? '',
+      latestPurchaseNav: latestPurchaseNav ?? 0.0,
     );
   }
 }

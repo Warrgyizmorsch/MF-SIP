@@ -285,6 +285,12 @@ class MfuPortfolioItemModel {
   final SipCancellationDetailsModel? sipCancellationDetails;
   final String? latestOrderStatus;
   final String? latestOrderStatusLabel;
+  final String? exitLoad;
+  final bool? isRedeemed;
+  final String? holdingStatus;
+  final String? firstInvestedDate;
+  final String? latestInvestedDate;
+  final double? latestPurchaseNav;
 
   MfuPortfolioItemModel({
     this.schemeCode,
@@ -331,6 +337,12 @@ class MfuPortfolioItemModel {
     this.sipCancellationDetails,
     this.latestOrderStatus,
     this.latestOrderStatusLabel,
+    this.exitLoad,
+    this.isRedeemed,
+    this.holdingStatus,
+    this.firstInvestedDate,
+    this.latestInvestedDate,
+    this.latestPurchaseNav,
   });
 
   static MfuRedemptionDetailsModel? _parseRedemptionDetails(dynamic raw) {
@@ -459,6 +471,12 @@ class MfuPortfolioItemModel {
           : null,
       latestOrderStatus: json.parse<String>('latest_order_status'),
       latestOrderStatusLabel: json.parse<String>('latest_order_status_label'),
+      exitLoad: json.parse<String>('exit_load'),
+      isRedeemed: json.parse<bool>('is_redeemed'),
+      holdingStatus: json.parse<String>('holding_status'),
+      firstInvestedDate: json.parse<String>('first_invested_date'),
+      latestInvestedDate: json.parse<String>('latest_invested_date'),
+      latestPurchaseNav: json.parse<double>('latest_purchase_nav'),
     );
   }
 }

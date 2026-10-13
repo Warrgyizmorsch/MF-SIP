@@ -4843,6 +4843,7 @@ class PortfolioCard extends StatelessWidget {
                                         fund.redemptionDetails?.amount ??
                                         fund.redeemedAmount,
                                     pendingRedemptionUnits: fund.redeemedUnits,
+                                    exitLoad: fund.exitLoad,
                                   ),
                                 );
                               } else {

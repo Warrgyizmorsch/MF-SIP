@@ -61,6 +61,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
         pendingRedemptionAmount:
             activeFund.redemptionDetails?.amount ?? activeFund.redeemedAmount,
         pendingRedemptionUnits: activeFund.redeemedUnits,
+        exitLoad: activeFund.exitLoad,
       );
 
       RedeemPage.navArgs = redeemArgs;
@@ -750,6 +751,14 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             activeFund.folioNo,
             icon: Iconsax.folder_open,
           ),
+          if (activeFund.exitLoad.isNotEmpty) ...[
+            const Divider(height: 24),
+            _infoRow(
+              'Exit Load',
+              activeFund.exitLoad,
+              icon: Iconsax.info_circle,
+            ),
+          ],
         ],
       ),
     );
@@ -960,6 +969,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     Color? valueColor,
   }) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 18, color: Colors.grey.shade600),
         const SizedBox(width: 10),
@@ -971,8 +981,8 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             color: Colors.grey.shade600,
           ),
         ),
-        const Spacer(),
-        Flexible(
+        const SizedBox(width: 16),
+        Expanded(
           child: Text(
             value,
             style: TextStyle(
