@@ -10,6 +10,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart';
@@ -227,6 +228,23 @@ class _RedeemPageState extends State<RedeemPage> {
     return args.goalId != null ? 'Goal #${args.goalId}' : 'your linked goal';
   }
 
+  String get _resolvedExitLoad {
+    if (args.exitLoad.isNotEmpty) return args.exitLoad;
+    if (Get.isRegistered<DashboardController>()) {
+      final portfolioFunds =
+          Get.find<DashboardController>().portfolioData.value?.portfolio;
+      final match = portfolioFunds?.firstWhereOrNull(
+        (p) =>
+            p.schemeCode == args.schemeCode ||
+            (args.folioNumber.isNotEmpty && p.folioNo == args.folioNumber),
+      );
+      if (match != null && match.exitLoad.isNotEmpty) {
+        return match.exitLoad;
+      }
+    }
+    return '';
+  }
+
   void _onProceed() {
     FocusScope.of(context).unfocus();
     HapticFeedback.mediumImpact();
@@ -340,9 +358,9 @@ class _RedeemPageState extends State<RedeemPage> {
                     const Divider(height: 16),
                     _buildConfirmRow('Linked Goal', _resolvedGoalName),
                   ],
-                  if (args.exitLoad.isNotEmpty) ...[
+                  if (_resolvedExitLoad.isNotEmpty) ...[
                     const Divider(height: 16),
-                    _buildConfirmRow('Exit Load', args.exitLoad),
+                    _buildConfirmRow('Exit Load', _resolvedExitLoad),
                   ],
                 ],
               ),

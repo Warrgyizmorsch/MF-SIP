@@ -12,6 +12,7 @@ import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/dashboard/presentation/widgets/portfolio_fund_details_modal.dart';
@@ -50,6 +51,20 @@ extension GoalLinkedFundMapper on GoalLinkedFundEntity {
     final double oneDChange = oneDayReturn != 0 ? oneDayReturn : dayChange;
     final double oneDChangePct =
         oneDayChangePercent != 0 ? oneDayChangePercent : dayChangePercent;
+
+    String resolvedExitLoad = exitLoad;
+    if (resolvedExitLoad.isEmpty && Get.isRegistered<DashboardController>()) {
+      final portfolioFunds =
+          Get.find<DashboardController>().portfolioData.value?.portfolio;
+      final match = portfolioFunds?.firstWhereOrNull(
+        (p) =>
+            p.schemeCode == schemeCode ||
+            (folioNo.isNotEmpty && p.folioNo == folioNo),
+      );
+      if (match != null && match.exitLoad.isNotEmpty) {
+        resolvedExitLoad = match.exitLoad;
+      }
+    }
 
     return MfuPortfolioItemEntity(
       schemeCode: schemeCode,
@@ -105,6 +120,7 @@ extension GoalLinkedFundMapper on GoalLinkedFundEntity {
       latestOrderStatus:
           latestOrderStatus.isNotEmpty ? latestOrderStatus : orderStatus,
       latestOrderStatusLabel: latestOrderStatusLabel,
+      exitLoad: resolvedExitLoad,
     );
   }
 }
@@ -118,6 +134,18 @@ extension LegacyGoalFundMapper on GoalFundEntity {
 
     final bool isSipBool = orderType.toLowerCase() == 'sip' || sipAmount > 0;
     final double invAmt = sipAmount > 0 ? sipAmount : lumpsumAmount;
+
+    String resolvedExitLoad = '';
+    if (Get.isRegistered<DashboardController>()) {
+      final portfolioFunds =
+          Get.find<DashboardController>().portfolioData.value?.portfolio;
+      final match = portfolioFunds?.firstWhereOrNull(
+        (p) => p.schemeCode == schemeCode,
+      );
+      if (match != null && match.exitLoad.isNotEmpty) {
+        resolvedExitLoad = match.exitLoad;
+      }
+    }
 
     return MfuPortfolioItemEntity(
       schemeCode: schemeCode,
@@ -145,6 +173,7 @@ extension LegacyGoalFundMapper on GoalFundEntity {
       goalId: goalId != 0 ? goalId : null,
       goalName: goalName,
       isSipFlag: isSipBool,
+      exitLoad: resolvedExitLoad,
     );
   }
 }

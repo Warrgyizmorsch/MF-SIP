@@ -239,6 +239,7 @@ class GoalLinkedFundEntity {
   final int goalId;
   final String type;
   final String investmentType;
+  final String exitLoad;
 
   GoalLinkedFundEntity({
     this.id = 0,
@@ -295,5 +296,6 @@ class GoalLinkedFundEntity {
     required this.goalId,
     required this.type,
     this.investmentType = '',
+    this.exitLoad = '',
   });
 }

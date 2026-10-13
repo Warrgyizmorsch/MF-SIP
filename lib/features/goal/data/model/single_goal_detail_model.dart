@@ -339,6 +339,7 @@ class GoalLinkedFundModel {
   final int? goalId;
   final String? type;
   final String? investmentType;
+  final String? exitLoad;
 
   GoalLinkedFundModel({
     this.id,
@@ -395,6 +396,7 @@ class GoalLinkedFundModel {
     this.goalId,
     this.type,
     this.investmentType,
+    this.exitLoad,
   });
 
   factory GoalLinkedFundModel.fromJson(Map<String, dynamic> json) {
@@ -498,6 +500,7 @@ class GoalLinkedFundModel {
           json.parse<String>('type') ?? json.parse<String>('investment_type'),
       investmentType:
           json.parse<String>('investment_type') ?? json.parse<String>('type'),
+      exitLoad: json.parse<String>('exit_load'),
     );
   }
 
@@ -559,6 +562,7 @@ class GoalLinkedFundModel {
       goalId: goalId ?? 0,
       type: type ?? investmentType ?? '',
       investmentType: investmentType ?? type ?? '',
+      exitLoad: exitLoad ?? '',
     );
   }
 }
