@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/mfu/data/datasource/mfu_remote_data_source.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
@@ -1314,6 +1315,7 @@ class MfuController extends GetxController {
   Future<String?> openApprovalLink(
     String url, {
     String title = 'Order Confirmation',
+    Future<void> Function(String result)? onVerifying,
   }) async {
     if (url.isEmpty) return null;
     if (kIsWeb) {
@@ -1321,9 +1323,18 @@ class MfuController extends GetxController {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
+      if (onVerifying != null) {
+        await onVerifying('external');
+      }
       return 'external';
     } else {
-      final result = await Get.to(() => MandateWebView(url: url, title: title));
+      final result = await Get.to(
+        () => MandateWebView(
+          url: url,
+          title: title,
+          onVerifying: onVerifying,
+        ),
+      );
       return result as String?;
     }
   }
@@ -1405,49 +1416,56 @@ class MfuController extends GetxController {
           "[MfuController] Lumpsum Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
         );
 
-        if (data?.approvalLink != null && data!.approvalLink!.isNotEmpty) {
-          await openApprovalLink(
-            data.approvalLink!,
-            title: 'Confirm Investment',
-          );
-        }
-
         final groupRef = data?.entGroupRef ?? data?.mfuGorn ?? '';
         final gornRef = data?.mfuGorn ?? groupRef;
         final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
-        // Evaluate overall status using both STATUS-CHK-TXN and TXN-HISTORY
-        final evaluatedStatus = await evaluateOverallTxnStatus(
-          entGroupRefNo: groupRef,
-          mfuGorn: gornRef,
-          orderDate: todayStr,
-          stType: 'NORMAL-TXN',
-        );
+        Future<void> finalizeOrderAndNavigate() async {
+          // Evaluate overall status using both STATUS-CHK-TXN and TXN-HISTORY
+          final evaluatedStatus = await evaluateOverallTxnStatus(
+            entGroupRefNo: groupRef,
+            mfuGorn: gornRef,
+            orderDate: todayStr,
+            stType: 'NORMAL-TXN',
+          );
 
-        if (onSuccess != null && data != null) {
-          onSuccess(data);
+          if (onSuccess != null && data != null) {
+            await onSuccess(data);
+          }
+
+          // Calculate total amount for summary display
+          final double totalAmt = lumpsumFunds.fold<double>(
+            0.0,
+            (sum, item) => sum + (item.amount.toDouble()),
+          );
+
+          // Navigate directly to payment confirmation screen
+          Get.offNamed(
+            AppRoutes.paymentSuccess,
+            arguments: {
+              'orderId': data?.mfuOrderId?.toString() ?? '',
+              'gorn': gornRef,
+              'entGroupRefNo': groupRef,
+              'orderDate': todayStr,
+              'amount': totalAmt,
+              'isLumpsum': true,
+              'status': evaluatedStatus,
+              'fundsCount': lumpsumFunds.length,
+            },
+          );
         }
 
-        // Calculate total amount for summary display
-        final double totalAmt = lumpsumFunds.fold<double>(
-          0.0,
-          (sum, item) => sum + (item.amount.toDouble()),
-        );
-
-        // Navigate to payment confirmation screen
-        Get.offNamed(
-          AppRoutes.paymentSuccess,
-          arguments: {
-            'orderId': data?.mfuOrderId?.toString() ?? '',
-            'gorn': gornRef,
-            'entGroupRefNo': groupRef,
-            'orderDate': todayStr,
-            'amount': totalAmt,
-            'isLumpsum': true,
-            'status': evaluatedStatus,
-            'fundsCount': lumpsumFunds.length,
-          },
-        );
+        if (data?.approvalLink != null && data!.approvalLink!.isNotEmpty) {
+          await openApprovalLink(
+            data.approvalLink!,
+            title: 'Confirm Investment',
+            onVerifying: (webResult) async {
+              await finalizeOrderAndNavigate();
+            },
+          );
+        } else {
+          await finalizeOrderAndNavigate();
+        }
       },
       (error) {
         errorMessage.value = error.message;
@@ -1505,49 +1523,56 @@ class MfuController extends GetxController {
           "[MfuController] SIP Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
         );
 
-        if (data?.approvalLink != null && data!.approvalLink!.isNotEmpty) {
-          await openApprovalLink(
-            data.approvalLink!,
-            title: 'Confirm SIP Order',
-          );
-        }
-
         final groupRef = data?.entGroupRef ?? data?.mfuGorn ?? '';
         final gornRef = data?.mfuGorn ?? groupRef;
         final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
-        // Evaluate overall status using both STATUS-CHK-TXN and TXN-HISTORY
-        final evaluatedStatus = await evaluateOverallTxnStatus(
-          entGroupRefNo: groupRef,
-          mfuGorn: gornRef,
-          orderDate: todayStr,
-          stType: 'SYS-TXN',
-        );
+        Future<void> finalizeOrderAndNavigate() async {
+          // Evaluate overall status using both STATUS-CHK-TXN and TXN-HISTORY
+          final evaluatedStatus = await evaluateOverallTxnStatus(
+            entGroupRefNo: groupRef,
+            mfuGorn: gornRef,
+            orderDate: todayStr,
+            stType: 'SYS-TXN',
+          );
 
-        if (onSuccess != null && data != null) {
-          onSuccess(data);
+          if (onSuccess != null && data != null) {
+            await onSuccess(data);
+          }
+
+          // Calculate total amount for summary display
+          final double totalAmt = sipFunds.fold<double>(
+            0.0,
+            (sum, item) => sum + (item.amount.toDouble()),
+          );
+
+          // Navigate directly to payment confirmation screen
+          Get.offNamed(
+            AppRoutes.paymentSuccess,
+            arguments: {
+              'orderId': data?.mfuOrderId?.toString() ?? '',
+              'gorn': gornRef,
+              'entGroupRefNo': groupRef,
+              'orderDate': todayStr,
+              'amount': totalAmt,
+              'isLumpsum': false,
+              'status': evaluatedStatus,
+              'fundsCount': sipFunds.length,
+            },
+          );
         }
 
-        // Calculate total amount for summary display
-        final double totalAmt = sipFunds.fold<double>(
-          0.0,
-          (sum, item) => sum + (item.amount.toDouble()),
-        );
-
-        // Navigate to payment confirmation screen
-        Get.offNamed(
-          AppRoutes.paymentSuccess,
-          arguments: {
-            'orderId': data?.mfuOrderId?.toString() ?? '',
-            'gorn': gornRef,
-            'entGroupRefNo': groupRef,
-            'orderDate': todayStr,
-            'amount': totalAmt,
-            'isLumpsum': false,
-            'status': evaluatedStatus,
-            'fundsCount': sipFunds.length,
-          },
-        );
+        if (data?.approvalLink != null && data!.approvalLink!.isNotEmpty) {
+          await openApprovalLink(
+            data.approvalLink!,
+            title: 'Confirm SIP Order',
+            onVerifying: (webResult) async {
+              await finalizeOrderAndNavigate();
+            },
+          );
+        } else {
+          await finalizeOrderAndNavigate();
+        }
       },
       (error) {
         errorMessage.value = error.message;
@@ -1723,11 +1748,13 @@ bool _isMfuFailureUrl(String url) {
 class MandateWebView extends StatefulWidget {
   final String url;
   final String title;
+  final Future<void> Function(String result)? onVerifying;
 
   const MandateWebView({
     super.key,
     required this.url,
     this.title = 'Approve Mandate',
+    this.onVerifying,
   });
 
   @override
@@ -1736,6 +1763,27 @@ class MandateWebView extends StatefulWidget {
 
 class _MandateWebViewState extends State<MandateWebView> {
   bool _succeeded = false;
+  bool _isVerifying = false;
+
+  Future<void> _handleFinish(String result) async {
+    if (_isVerifying) return;
+
+    if (widget.onVerifying != null) {
+      if (mounted) {
+        setState(() => _isVerifying = true);
+      }
+      try {
+        await widget.onVerifying!(result);
+      } catch (e) {
+        debugPrint("[MandateWebView] Verification error: $e");
+      }
+      return;
+    }
+
+    if (mounted) {
+      Get.back(result: result);
+    }
+  }
 
   static const _desktopUA =
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -1763,92 +1811,162 @@ class _MandateWebViewState extends State<MandateWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () =>
-              Get.back(result: _succeeded ? 'success' : 'check_status'),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_isVerifying) return;
+        _handleFinish(_succeeded ? 'success' : 'check_status');
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_isVerifying ? 'Verifying Order' : widget.title),
+          automaticallyImplyLeading: false,
+          leading: _isVerifying
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () =>
+                      _handleFinish(_succeeded ? 'success' : 'check_status'),
+                ),
         ),
+        body: _isVerifying
+            ? _buildVerifyingView()
+            : InAppWebView(
+                initialData: InAppWebViewInitialData(data: _bridgeHtml),
+                initialSettings: _settings,
+
+                shouldOverrideUrlLoading: (controller, action) async {
+                  final url = action.request.url?.toString() ?? '';
+                  if (_isMfuSuccessUrl(url)) {
+                    _succeeded = true;
+                    if (mounted) _handleFinish('success');
+                    return NavigationActionPolicy.CANCEL;
+                  }
+                  if (_isMfuFailureUrl(url)) {
+                    if (mounted) _handleFinish('failed');
+                    return NavigationActionPolicy.CANCEL;
+                  }
+                  return NavigationActionPolicy.ALLOW;
+                },
+
+                onLoadStart: (controller, url) async {
+                  final currentUrl = url?.toString() ?? '';
+                  if (_isMfuSuccessUrl(currentUrl)) {
+                    _succeeded = true;
+                    if (mounted) _handleFinish('success');
+                  } else if (_isMfuFailureUrl(currentUrl)) {
+                    if (mounted) _handleFinish('failed');
+                  }
+                },
+
+                onLoadStop: (controller, url) async {
+                  final currentUrl = url?.toString() ?? '';
+                  debugPrint("Page Loaded: $currentUrl");
+                  if (_isMfuSuccessUrl(currentUrl)) {
+                    _succeeded = true;
+                    if (mounted) _handleFinish('success');
+                  } else if (_isMfuFailureUrl(currentUrl)) {
+                    if (mounted) _handleFinish('failed');
+                  }
+                },
+
+                onUpdateVisitedHistory: (controller, url, isReload) async {
+                  final currentUrl = url?.toString() ?? '';
+                  if (_isMfuSuccessUrl(currentUrl)) {
+                    _succeeded = true;
+                    if (mounted) _handleFinish('success');
+                  } else if (_isMfuFailureUrl(currentUrl)) {
+                    if (mounted) _handleFinish('failed');
+                  }
+                },
+
+                onReceivedHttpError: (controller, request, errorResponse) async {
+                  final reqUrl = request.url.toString();
+                  debugPrint("HTTP Error ${errorResponse.statusCode} on $reqUrl");
+                  if (_isMfuSuccessUrl(reqUrl)) {
+                    debugPrint(
+                      "🎉 Intercepted HTTP Error on Success URL! Auto-closing WebView as Success...",
+                    );
+                    _succeeded = true;
+                    if (mounted) _handleFinish('success');
+                  }
+                },
+
+                onCreateWindow: (controller, action) async {
+                  final result = await Get.to(
+                    () => _PopupWebView(
+                      windowId: action.windowId,
+                      desktopUA: _desktopUA,
+                      title: widget.title,
+                    ),
+                  );
+                  if (mounted) _handleFinish(result ?? 'check_status');
+                  return true;
+                },
+
+                onReceivedServerTrustAuthRequest:
+                    (controller, challenge) async => ServerTrustAuthResponse(
+                      action: ServerTrustAuthResponseAction.PROCEED,
+                    ),
+              ),
       ),
-      body: InAppWebView(
-        initialData: InAppWebViewInitialData(data: _bridgeHtml),
-        initialSettings: _settings,
+    );
+  }
 
-        shouldOverrideUrlLoading: (controller, action) async {
-          final url = action.request.url?.toString() ?? '';
-          if (_isMfuSuccessUrl(url)) {
-            _succeeded = true;
-            if (mounted) Get.back(result: 'success');
-            return NavigationActionPolicy.CANCEL;
-          }
-          if (_isMfuFailureUrl(url)) {
-            if (mounted) Get.back(result: 'failed');
-            return NavigationActionPolicy.CANCEL;
-          }
-          return NavigationActionPolicy.ALLOW;
-        },
-
-        onLoadStart: (controller, url) async {
-          final currentUrl = url?.toString() ?? '';
-          if (_isMfuSuccessUrl(currentUrl)) {
-            _succeeded = true;
-            if (mounted) Get.back(result: 'success');
-          } else if (_isMfuFailureUrl(currentUrl)) {
-            if (mounted) Get.back(result: 'failed');
-          }
-        },
-
-        onLoadStop: (controller, url) async {
-          final currentUrl = url?.toString() ?? '';
-          debugPrint("Page Loaded: $currentUrl");
-          if (_isMfuSuccessUrl(currentUrl)) {
-            _succeeded = true;
-            if (mounted) Get.back(result: 'success');
-          } else if (_isMfuFailureUrl(currentUrl)) {
-            if (mounted) Get.back(result: 'failed');
-          }
-        },
-
-        onUpdateVisitedHistory: (controller, url, isReload) async {
-          final currentUrl = url?.toString() ?? '';
-          if (_isMfuSuccessUrl(currentUrl)) {
-            _succeeded = true;
-            if (mounted) Get.back(result: 'success');
-          } else if (_isMfuFailureUrl(currentUrl)) {
-            if (mounted) Get.back(result: 'failed');
-          }
-        },
-
-        onReceivedHttpError: (controller, request, errorResponse) async {
-          final reqUrl = request.url.toString();
-          debugPrint("HTTP Error ${errorResponse.statusCode} on $reqUrl");
-          if (_isMfuSuccessUrl(reqUrl)) {
-            debugPrint(
-              "🎉 Intercepted HTTP Error on Success URL! Auto-closing WebView as Success...",
-            );
-            _succeeded = true;
-            if (mounted) Get.back(result: 'success');
-          }
-        },
-
-        onCreateWindow: (controller, action) async {
-          final result = await Get.to(
-            () => _PopupWebView(
-              windowId: action.windowId,
-              desktopUA: _desktopUA,
-              title: widget.title,
-            ),
-          );
-          if (mounted) Get.back(result: result ?? 'check_status');
-          return true;
-        },
-
-        onReceivedServerTrustAuthRequest: (controller, challenge) async =>
-            ServerTrustAuthResponse(
-              action: ServerTrustAuthResponseAction.PROCEED,
-            ),
+  Widget _buildVerifyingView() {
+    return Container(
+      color: Colors.white,
+      width: double.infinity,
+      height: double.infinity,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Ucolors.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: CircularProgressIndicator(
+                      color: Ucolors.primary,
+                      strokeWidth: 3.5,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+              const Text(
+                'Verifying Payment...',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0D1117),
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Please wait while we confirm your transaction with bank & MFU.\nDo not press back or close the app.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF6B7280),
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

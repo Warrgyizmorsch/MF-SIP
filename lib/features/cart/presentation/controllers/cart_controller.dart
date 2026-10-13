@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
@@ -288,7 +287,44 @@ class CartController extends GetxController {
     }).toList();
   }
 
+  Future<void> removePurchasedItems(List<CartItemEntity> purchasedItems) async {
+    final itemIds = purchasedItems
+        .map((e) => e.id)
+        .whereType<int>()
+        .where((id) => id > 0)
+        .toList();
+
+    if (itemIds.isEmpty) return;
+
+    // 1. Optimistic removal from local cart state
+    if (cartResponseEntity.value != null) {
+      final remainingItems = cartResponseEntity.value!.items
+          .where((item) => !itemIds.contains(item.id))
+          .toList();
+
+      cartResponseEntity.value = cartResponseEntity.value!.copyWith(
+        items: remainingItems,
+      );
+      cartResponseEntity.refresh();
+    }
+
+    // 2. Call delete API for each purchased item in parallel
+    await Future.wait(
+      itemIds.map((id) async {
+        try {
+          await cartUsecases.deleteCartItemUsecases.call({'item_id': id});
+        } catch (e) {
+          log("Error removing purchased item $id from cart: $e");
+        }
+      }),
+    );
+
+    // 3. Refresh cart from server to synchronize
+    await fetchCart(showFullLoader: false);
+  }
+
   Future<void> checkoutLumpsum() async {
+    final itemsToPurchase = List<CartItemEntity>.from(lumpsumItems);
     final funds = lumpsumFundItems;
     if (funds.isEmpty) {
       CustomSnackbar.error(
@@ -302,12 +338,8 @@ class CartController extends GetxController {
 
     await mfuCtrl.executeLumpsum(
       funds: funds,
-      onSuccess: (res) {
-        // CustomSnackbar.success(
-        //   title: 'Lumpsum Order Placed 🎉',
-        //   message: '${funds.length} lumpsum order(s) submitted successfully.',
-        // );
-        fetchCart(showFullLoader: false);
+      onSuccess: (res) async {
+        await removePurchasedItems(itemsToPurchase);
       },
     );
   }
@@ -340,6 +372,9 @@ class CartController extends GetxController {
   }
 
   Future<void> checkoutSip() async {
+    final itemsToPurchase = sipAndStepUpItems
+        .where((item) => (item.transType?.toLowerCase() ?? 'sip') != 'stepup')
+        .toList();
     final normalFunds = normalSipFundItems;
     final stepUpCount = sipAndStepUpItems.length - normalFunds.length;
 
@@ -356,14 +391,14 @@ class CartController extends GetxController {
 
     await mfuCtrl.executeSip(
       funds: normalFunds,
-      onSuccess: (res) {
+      onSuccess: (res) async {
         CustomSnackbar.success(
           title: 'SIP Processing',
           message: stepUpCount > 0
               ? '${normalFunds.length} Normal SIP order(s) placed ($stepUpCount Step-Up fund kept in cart).'
               : '${normalFunds.length} SIP order(s) submitted successfully.',
         );
-        fetchCart(showFullLoader: false);
+        await removePurchasedItems(itemsToPurchase);
       },
     );
   }
