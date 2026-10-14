@@ -64,7 +64,7 @@ class PortfolioFundDetailsModal extends StatelessWidget {
     final isProfit = fund.gainLoss >= 0;
     final is1DProfit = fund.oneDayChange >= 0;
 
-    return Container(
+    Widget modalContent = Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: isWeb
@@ -75,7 +75,7 @@ class PortfolioFundDetailsModal extends StatelessWidget {
         24,
         isWeb ? 20 : 14,
         24,
-        isWeb ? 24 : MediaQuery.of(context).padding.bottom + 24,
+        isWeb ? 24 : MediaQuery.of(context).padding.bottom + 16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -211,198 +211,20 @@ class PortfolioFundDetailsModal extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-          // ── 3. Hero Card: Current Value & Gain/Loss ────
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              gradient: Ucolors.backgroundGradient,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Ucolors.primary.withValues(alpha: 0.25),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Current Value',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isProfit
-                            ? Colors.green.withValues(alpha: 0.2)
-                            : Colors.redAccent.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isProfit
-                              ? Colors.greenAccent.withValues(alpha: 0.5)
-                              : Colors.redAccent.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isProfit
-                                ? Icons.arrow_upward_rounded
-                                : Icons.arrow_downward_rounded,
-                            size: 13,
-                            color: isProfit
-                                ? Colors.greenAccent
-                                : Colors.redAccent,
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            '${isProfit ? '+' : ''}₹${fund.gainLoss.abs().toStringAsFixed(2)} (${fund.gainLossPercent.abs().toStringAsFixed(2)}%)',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: isProfit
-                                  ? Colors.greenAccent
-                                  : Colors.redAccent,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+          // ── Middle Scrollable Content ───────────────────
+          if (!isWeb)
+            Flexible(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: _buildDetailsContent(isProfit, is1DProfit),
+              ),
+            )
+          else
+            _buildDetailsContent(isProfit, is1DProfit),
 
-                // Animated Counter for Current Value
-                TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: fund.currentValue),
-                  duration: const Duration(milliseconds: 700),
-                  curve: Curves.easeOutQuart,
-                  builder: (context, value, child) {
-                    return Text(
-                      '₹${value.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-
-          // ── 4. Dynamic Order / Status Stepper Banner ───
-          if (fund.isSipCancelledFlag) ...[
-            _buildStatusBanner(
-              icon: Icons.cancel_outlined,
-              title: 'SIP Cancelled',
-              subtitle: _buildSipCancellationSubtitle(),
-              color: Colors.grey,
-              stepIndex: 3,
-            ),
-            const SizedBox(height: 18),
-          ] else if (fund.isRedemptionSettled) ...[
-            _buildStatusBanner(
-              icon: Icons.check_circle_outline_rounded,
-              title: 'Redemption Settled & Credited',
-              subtitle: _buildRedemptionSettledSubtitle(),
-              color: Colors.green,
-              stepIndex: 3,
-            ),
-            const SizedBox(height: 18),
-          ] else if (fund.isRedemptionPending) ...[
-            _buildStatusBanner(
-              icon: Icons.hourglass_top_rounded,
-              title: 'Redemption In Progress',
-              subtitle: _buildRedemptionPendingSubtitle(),
-              color: Colors.amber,
-              stepIndex: 2,
-            ),
-            const SizedBox(height: 18),
-          ] else if (fund.isAllotmentPending) ...[
-            _buildStatusBanner(
-              icon: Icons.access_time_rounded,
-              title: 'Unit Allotment In Progress ⏳',
-              subtitle: fund.allotmentMessage.isNotEmpty
-                  ? fund.allotmentMessage
-                  : 'Order accepted. Unit allotment in progress by AMC (1-2 business days).',
-              color: Colors.blue,
-              stepIndex: 2,
-            ),
-            const SizedBox(height: 18),
-          ],
-
-          // ── 5. Detailed Breakdown Grid ─────────────────
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                _detailRow(
-                  'Total Invested',
-                  '₹${fund.investedAmount.toStringAsFixed(2)}',
-                ),
-                const Divider(
-                  height: 20,
-                  thickness: 1,
-                  color: Color(0xFFE2E8F0),
-                ),
-                _detailRow('Total Units', fund.totalUnits.toStringAsFixed(3)),
-                const Divider(
-                  height: 20,
-                  thickness: 1,
-                  color: Color(0xFFE2E8F0),
-                ),
-                _detailRow(
-                  'Current NAV',
-                  '₹${fund.currentNav.toStringAsFixed(4)} ${fund.navDate.isNotEmpty ? "(${fund.navDate})" : ""}',
-                ),
-                const Divider(
-                  height: 20,
-                  thickness: 1,
-                  color: Color(0xFFE2E8F0),
-                ),
-                _detailRow(
-                  '1-Day Returns',
-                  '${is1DProfit ? "+" : ""}₹${fund.oneDayChange.abs().toStringAsFixed(2)} (${fund.oneDayChangePercent.abs().toStringAsFixed(2)}%)',
-                  valueColor: is1DProfit
-                      ? Colors.green.shade700
-                      : Colors.red.shade700,
-                ),
-                // if (fund.exitLoad.isNotEmpty) ...[
-                //   const Divider(
-                //     height: 20,
-                //     thickness: 1,
-                //     color: Color(0xFFE2E8F0),
-                //   ),
-                //   _detailRow('Exit Load', fund.exitLoad),
-                // ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
 
           // ── 6. Bottom Action Buttons ───────────────────
           Row(
@@ -526,6 +348,206 @@ class PortfolioFundDetailsModal extends StatelessWidget {
           ),
         ],
       ),
+    );
+
+    if (!isWeb) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.88,
+        ),
+        child: modalContent,
+      );
+    }
+
+    return modalContent;
+  }
+
+  Widget _buildDetailsContent(bool isProfit, bool is1DProfit) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── 3. Hero Card: Current Value & Gain/Loss ────
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: Ucolors.backgroundGradient,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Ucolors.primary.withValues(alpha: 0.25),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Current Value',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isProfit
+                          ? Colors.green.withValues(alpha: 0.2)
+                          : Colors.redAccent.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isProfit
+                            ? Colors.greenAccent.withValues(alpha: 0.5)
+                            : Colors.redAccent.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isProfit
+                              ? Icons.arrow_upward_rounded
+                              : Icons.arrow_downward_rounded,
+                          size: 13,
+                          color: isProfit
+                              ? Colors.greenAccent
+                              : Colors.redAccent,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          '${isProfit ? '+' : ''}₹${fund.gainLoss.abs().toStringAsFixed(2)} (${fund.gainLossPercent.abs().toStringAsFixed(2)}%)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isProfit
+                                ? Colors.greenAccent
+                                : Colors.redAccent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Animated Counter for Current Value
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: fund.currentValue),
+                duration: const Duration(milliseconds: 700),
+                curve: Curves.easeOutQuart,
+                builder: (context, value, child) {
+                  return Text(
+                    '₹${value.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+
+        // ── 4. Dynamic Order / Status Stepper Banner ───
+        if (fund.isSipCancelledFlag) ...[
+          _buildStatusBanner(
+            icon: Icons.cancel_outlined,
+            title: 'SIP Cancelled',
+            subtitle: _buildSipCancellationSubtitle(),
+            color: Colors.grey,
+            stepIndex: 3,
+          ),
+          const SizedBox(height: 18),
+        ] else if (fund.isRedemptionSettled) ...[
+          _buildStatusBanner(
+            icon: Icons.check_circle_outline_rounded,
+            title: 'Redemption Settled & Credited',
+            subtitle: _buildRedemptionSettledSubtitle(),
+            color: Colors.green,
+            stepIndex: 3,
+          ),
+          const SizedBox(height: 18),
+        ] else if (fund.isRedemptionPending) ...[
+          _buildStatusBanner(
+            icon: Icons.hourglass_top_rounded,
+            title: 'Redemption In Progress',
+            subtitle: _buildRedemptionPendingSubtitle(),
+            color: Colors.amber,
+            stepIndex: 2,
+          ),
+          const SizedBox(height: 18),
+        ] else if (fund.isAllotmentPending) ...[
+          _buildStatusBanner(
+            icon: Icons.access_time_rounded,
+            title: 'Unit Allotment In Progress ⏳',
+            subtitle: fund.allotmentMessage.isNotEmpty
+                ? fund.allotmentMessage
+                : 'Order accepted. Unit allotment in progress by AMC (1-2 business days).',
+            color: Colors.blue,
+            stepIndex: 2,
+          ),
+          const SizedBox(height: 18),
+        ],
+
+        // ── 5. Detailed Breakdown Grid ─────────────────
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Column(
+            children: [
+              _detailRow(
+                'Total Invested',
+                '₹${fund.investedAmount.toStringAsFixed(2)}',
+              ),
+              const Divider(
+                height: 20,
+                thickness: 1,
+                color: Color(0xFFE2E8F0),
+              ),
+              _detailRow('Total Units', fund.totalUnits.toStringAsFixed(3)),
+              const Divider(
+                height: 20,
+                thickness: 1,
+                color: Color(0xFFE2E8F0),
+              ),
+              _detailRow(
+                'Current NAV',
+                '₹${fund.currentNav.toStringAsFixed(4)} ${fund.navDate.isNotEmpty ? "(${fund.navDate})" : ""}',
+              ),
+              const Divider(
+                height: 20,
+                thickness: 1,
+                color: Color(0xFFE2E8F0),
+              ),
+              _detailRow(
+                '1-Day Returns',
+                '${is1DProfit ? "+" : ""}₹${fund.oneDayChange.abs().toStringAsFixed(2)} (${fund.oneDayChangePercent.abs().toStringAsFixed(2)}%)',
+                valueColor: is1DProfit
+                    ? Colors.green.shade700
+                    : Colors.red.shade700,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
