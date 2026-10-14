@@ -1813,30 +1813,31 @@ class PersonalisationController extends GetxController {
       occupationTextEditingController.text = getOccupationName(
         int.tryParse(details.occupation ?? ''),
       );
-      addressController.text = details.address ?? '';
+      String cleanAddress = details.address ?? '';
+      if (details.city != null &&
+          details.city!.isNotEmpty &&
+          cleanAddress.contains(details.city!)) {
+        final cityIndex = cleanAddress.indexOf(', ${details.city}');
+        if (cityIndex != -1) {
+          cleanAddress = cleanAddress.substring(0, cityIndex).trim();
+        } else {
+          final directCityIndex = cleanAddress.indexOf(details.city!);
+          if (directCityIndex > 0) {
+            cleanAddress = cleanAddress
+                .substring(0, directCityIndex)
+                .replaceAll(RegExp(r'[, -]+$'), '')
+                .trim();
+          }
+        }
+      }
+
+      addressController.text = cleanAddress;
       fatherNameTextEditingController.text = details.fatherName ?? '';
       motherNameTextEditingController.text = details.motherName ?? '';
       adharController.text = details.adhar ?? '';
       cityTextEditingController.text = details.city ?? '';
       stateTextEditingController.text = details.state ?? '';
       pinCodeTextEditingController.text = details.pincode ?? '';
-
-      // The UI hint says "City, State, Pincode", so we format it if it's split in the backend
-      String fullAddress = details.address ?? '';
-      if (details.city != null && details.city!.isNotEmpty) {
-        fullAddress += '${details.city}';
-      }
-      if (details.state != null && details.state!.isNotEmpty) {
-        fullAddress += ', ${details.state}';
-      }
-      if (details.pincode != null && details.pincode!.isNotEmpty) {
-        fullAddress += ' - ${details.pincode}';
-      }
-
-      // Clean up leading commas if address was initially null
-      // if (fullAddress.startsWith(', ')) fullAddress = fullAddress.substring(2);
-
-      addressController.text = details.address ?? fullAddress;
     }
   }
 

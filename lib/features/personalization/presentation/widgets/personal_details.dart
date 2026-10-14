@@ -200,28 +200,24 @@ class PersonalDetailsScreen extends GetView<AuthController> {
             ),
             const SizedBox(height: 20),
 
-            // Row 7: Income Slab & PIN Code
-            Row(
-              children: [
-                Expanded(child: _buildIncomeField(context)),
-                const SizedBox(width: 20),
-                Expanded(child: _buildPinCodeField()),
-              ],
-            ),
+            // Row 7: Income Slab
+            _buildIncomeField(context),
             const SizedBox(height: 20),
 
-            // Row 8: City & State
+            // Row 8: House / Street Address
+            _buildAddressField(),
+            const SizedBox(height: 20),
+
+            // Row 9: City, State & PIN Code
             Row(
               children: [
                 Expanded(child: _buildCityField()),
                 const SizedBox(width: 20),
                 Expanded(child: _buildStateField()),
+                const SizedBox(width: 20),
+                Expanded(child: _buildPinCodeField()),
               ],
             ),
-            const SizedBox(height: 20),
-
-            // Row 9: Address
-            _buildAddressField(),
             const SizedBox(height: 40),
           ],
         ),
@@ -265,13 +261,13 @@ class PersonalDetailsScreen extends GetView<AuthController> {
             const SizedBox(height: 16),
             _buildIncomeField(context),
             const SizedBox(height: 16),
+            _buildAddressField(),
+            const SizedBox(height: 16),
             _buildCityField(),
             const SizedBox(height: 16),
             _buildStateField(),
             const SizedBox(height: 16),
             _buildPinCodeField(),
-            const SizedBox(height: 16),
-            _buildAddressField(),
             const SizedBox(height: 40),
           ],
         ),
@@ -570,13 +566,13 @@ class PersonalDetailsScreen extends GetView<AuthController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SmallHeading(smallheading: 'Address'),
+        const SmallHeading(smallheading: 'House / Street Address'),
         const SizedBox(height: 5),
         CustomTextField(
-          maxLines: 4,
+          maxLines: 2,
           controller: personalisationController.addressController,
-          leading: const Icon(Icons.location_on),
-          hint: 'Address',
+          leading: const Icon(Icons.home_outlined),
+          hint: 'Flat / House No., Building, Street / Area',
         ),
       ],
     );
