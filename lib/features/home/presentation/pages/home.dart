@@ -2876,10 +2876,12 @@ class _MobileLayout extends StatelessWidget {
                           .checkAndTriggerCanRegistration(
                             isManualTrigger: true,
                           );
-                      ULoaders.info(
+                      DialogHelper.showPrerequisiteDialog(
                         title: "Account Activation In Progress",
                         message:
                             "1. If you haven't yet, please open the consent link sent to your registered Email & SMS by MF Utility and approve it.\n\n2. If already approved, your account is being processed and will be activated shortly.",
+                        buttonText: "Okay, Got It",
+                        onTap: () => Get.back(),
                       );
                     };
                   } else if (noMandate) {
