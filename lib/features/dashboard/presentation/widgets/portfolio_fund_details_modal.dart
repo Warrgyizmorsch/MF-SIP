@@ -391,14 +391,14 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                       ? Colors.green.shade700
                       : Colors.red.shade700,
                 ),
-                if (fund.exitLoad.isNotEmpty) ...[
-                  const Divider(
-                    height: 20,
-                    thickness: 1,
-                    color: Color(0xFFE2E8F0),
-                  ),
-                  _detailRow('Exit Load', fund.exitLoad),
-                ],
+                // if (fund.exitLoad.isNotEmpty) ...[
+                //   const Divider(
+                //     height: 20,
+                //     thickness: 1,
+                //     color: Color(0xFFE2E8F0),
+                //   ),
+                //   _detailRow('Exit Load', fund.exitLoad),
+                // ],
               ],
             ),
           ),
