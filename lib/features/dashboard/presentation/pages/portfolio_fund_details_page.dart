@@ -11,6 +11,8 @@ import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 
+import '../widgets/portfolio_fund_details_modal.dart';
+
 class PortfolioFundDetailsPage extends StatelessWidget {
   /// Static holder to preserve the active fund during GetX nested navigation or refresh on Web.
   static MfuPortfolioItemEntity? navFund;
@@ -31,16 +33,20 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     }
   }
 
-  void _handleRedeemOrCancel(
+  Future<void> _handleRedeemOrCancel(
     BuildContext context,
     MfuPortfolioItemEntity activeFund,
-  ) {
+  ) async {
     if (activeFund.isSipActive) {
       CustomSnackbar.info(
         title: "Cancel SIP",
         message: "Navigating to SIP Cancellation...",
       );
     } else {
+      final shouldProceed = await PortfolioFundDetailsModal
+          .confirmGoalLinkedRedeemIfNeeded(context, activeFund);
+      if (!shouldProceed) return;
+
       final redeemArgs = RedeemArgs(
         mfuOrderFundId: activeFund.mfuOrderFundId,
         amcLogo: activeFund.amcLogo,

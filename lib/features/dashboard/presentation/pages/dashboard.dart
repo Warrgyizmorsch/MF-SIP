@@ -4773,7 +4773,7 @@ class PortfolioCard extends StatelessWidget {
                         ),
                         // elevation: 6,
                         offset: const Offset(0, 40),
-                        onSelected: (value) {
+                        onSelected: (value) async {
                           switch (value) {
                             case PortfolioMenuAction.viewDetails:
                               Get.toNamed(
@@ -4817,6 +4817,10 @@ class PortfolioCard extends StatelessWidget {
                               createLog('tap for redeem');
                               if (fund.totalUnits > 0 &&
                                   !fund.isFullyRedeemed) {
+                                final shouldProceed = await PortfolioFundDetailsModal
+                                    .confirmGoalLinkedRedeemIfNeeded(context, fund);
+                                if (!shouldProceed) break;
+
                                 Get.to(
                                   () => RedeemPage(),
                                   arguments: RedeemArgs(

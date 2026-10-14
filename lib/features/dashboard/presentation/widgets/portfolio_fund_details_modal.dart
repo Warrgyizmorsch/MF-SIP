@@ -59,6 +59,88 @@ class PortfolioFundDetailsModal extends StatelessWidget {
     }
   }
 
+  /// Displays a warning dialog if the fund is currently linked to an active goal.
+  /// Returns `true` if redemption should proceed, or `false` if user cancelled.
+  static Future<bool> confirmGoalLinkedRedeemIfNeeded(
+    BuildContext context,
+    MfuPortfolioItemEntity fund,
+  ) async {
+    final bool isLinkedToGoal = (fund.goalId != null && fund.goalId != 0) ||
+        (fund.goalName != null &&
+            fund.goalName!.trim().isNotEmpty &&
+            fund.goalName != 'null');
+
+    if (!isLinkedToGoal) {
+      return true; // Not linked to any goal, proceed directly
+    }
+
+    final String goalName = (fund.goalName != null &&
+            fund.goalName!.trim().isNotEmpty &&
+            fund.goalName != 'null')
+        ? fund.goalName!
+        : 'your goal';
+
+    final result = await Get.dialog<bool>(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Ucolors.red,
+              size: 28,
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Fund Linked to Goal',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          "This fund is currently linked to your goal '$goalName'. Redeeming this fund may impact your goal progress.\n\nAre you sure you want to proceed with redemption?",
+          style: const TextStyle(
+            fontSize: 14,
+            height: 1.4,
+            color: Colors.black87,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Ucolors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () => Get.back(result: true),
+            child: const Text('Proceed to Redeem'),
+          ),
+        ],
+      ),
+    );
+
+    return result == true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isProfit = fund.gainLoss >= 0;
@@ -279,14 +361,20 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
+                    onPressed: () async {
                       if (fund.isSipActive) {
+                        Navigator.pop(context);
                         CustomSnackbar.info(
                           title: "Cancel SIP",
                           message: "Navigating to SIP Cancellation...",
                         );
                       } else {
+                        final shouldProceed =
+                            await confirmGoalLinkedRedeemIfNeeded(context, fund);
+                        if (!shouldProceed) return;
+
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
                         final redeemArgs = RedeemArgs(
                           mfuOrderFundId: fund.mfuOrderFundId,
                           amcLogo: fund.amcLogo,
@@ -547,6 +635,7 @@ class PortfolioFundDetailsModal extends StatelessWidget {
             ],
           ),
         ),
+        
       ],
     );
   }
