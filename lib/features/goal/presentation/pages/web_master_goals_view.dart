@@ -800,6 +800,46 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                         }),
                                         const Gap(16),
                                         PopularAndSelectedFund(),
+                                        const Gap(12),
+                                        Center(
+                                          child: TextButton(
+                                            onPressed: () {
+                                              _showExploreMoreBottomSheet(
+                                                context,
+                                              );
+                                            },
+                                            style: TextButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 8,
+                                                  ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  'Explore More',
+                                                  style: TextStyle(
+                                                    fontFamily:
+                                                        FontFamily.medium,
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.w600,
+                                                    color: Ucolors.primary,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Icon(
+                                                  Icons
+                                                      .arrow_forward_ios_rounded,
+                                                  size: 13,
+                                                  color: Ucolors.primary,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                         const Gap(20),
                                       ],
                                     ),
