@@ -160,17 +160,27 @@ class PersonalDetailsScreen extends GetView<AuthController> {
             ),
             const SizedBox(height: 20),
 
-            // Row 3: PAN & Wealth Source
+            // Row 3: PAN & Aadhaar
             Row(
               children: [
                 Expanded(child: _buildPanField(context)),
                 const SizedBox(width: 20),
-                Expanded(child: _buildWealthSourceField(context)),
+                Expanded(child: _buildAdharField()),
               ],
             ),
             const SizedBox(height: 20),
 
-            // Row 4: CAN Number & CAN Mobile
+            // Row 4: Father's Name & Mother's Name
+            Row(
+              children: [
+                Expanded(child: _buildFatherNameField()),
+                const SizedBox(width: 20),
+                Expanded(child: _buildMotherNameField()),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Row 5: CAN Number & CAN Mobile
             Row(
               children: [
                 Expanded(child: _buildCanField(context)),
@@ -180,14 +190,38 @@ class PersonalDetailsScreen extends GetView<AuthController> {
             ),
             const SizedBox(height: 20),
 
-            // Row 5: Income & Address
+            // Row 6: Occupation & Wealth Source
+            Row(
+              children: [
+                Expanded(child: _buildOccupationField(context)),
+                const SizedBox(width: 20),
+                Expanded(child: _buildWealthSourceField(context)),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Row 7: Income Slab & PIN Code
             Row(
               children: [
                 Expanded(child: _buildIncomeField(context)),
                 const SizedBox(width: 20),
-                Expanded(child: _buildAddressField()),
+                Expanded(child: _buildPinCodeField()),
               ],
             ),
+            const SizedBox(height: 20),
+
+            // Row 8: City & State
+            Row(
+              children: [
+                Expanded(child: _buildCityField()),
+                const SizedBox(width: 20),
+                Expanded(child: _buildStateField()),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Row 9: Address
+            _buildAddressField(),
             const SizedBox(height: 40),
           ],
         ),
@@ -218,12 +252,24 @@ class PersonalDetailsScreen extends GetView<AuthController> {
             _buildCanMobileField(context),
             _buildPanField(context),
             const SizedBox(height: 16),
+            _buildAdharField(),
+            const SizedBox(height: 16),
+            _buildFatherNameField(),
+            const SizedBox(height: 16),
+            _buildMotherNameField(),
+            const SizedBox(height: 16),
             _buildCanField(context),
             _buildOccupationField(context),
             const SizedBox(height: 16),
             _buildWealthSourceField(context),
             const SizedBox(height: 16),
             _buildIncomeField(context),
+            const SizedBox(height: 16),
+            _buildCityField(),
+            const SizedBox(height: 16),
+            _buildStateField(),
+            const SizedBox(height: 16),
+            _buildPinCodeField(),
             const SizedBox(height: 16),
             _buildAddressField(),
             const SizedBox(height: 40),
@@ -529,8 +575,109 @@ class PersonalDetailsScreen extends GetView<AuthController> {
         CustomTextField(
           maxLines: 4,
           controller: personalisationController.addressController,
-          leading: Icon(Icons.location_on),
-          hint: 'City, State, Pincode',
+          leading: const Icon(Icons.location_on),
+          hint: 'Address',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAdharField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallHeading(smallheading: 'Aadhaar Number'),
+        const SizedBox(height: 5),
+        CustomTextField(
+          borderColor: Colors.grey.shade200,
+          keyboardType: TextInputType.number,
+          height: 60,
+          hint: 'Enter 12-digit Aadhaar',
+          controller: personalisationController.adharController,
+          validationType: ValidationType.maxLength,
+          maxLength: 12,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFatherNameField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallHeading(smallheading: "Father's Name"),
+        const SizedBox(height: 5),
+        UTextFormField(
+          prefixIcon: null,
+          hintText: "Enter Father's Name",
+          controller: personalisationController.fatherNameTextEditingController,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMotherNameField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallHeading(smallheading: "Mother's Name"),
+        const SizedBox(height: 5),
+        UTextFormField(
+          prefixIcon: null,
+          hintText: "Enter Mother's Name",
+          controller: personalisationController.motherNameTextEditingController,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCityField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallHeading(smallheading: 'City'),
+        const SizedBox(height: 5),
+        UTextFormField(
+          prefixIcon: null,
+          hintText: 'City',
+          controller: personalisationController.cityTextEditingController,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStateField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallHeading(smallheading: 'State'),
+        const SizedBox(height: 5),
+        UTextFormField(
+          prefixIcon: null,
+          hintText: 'State',
+          controller: personalisationController.stateTextEditingController,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPinCodeField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallHeading(smallheading: 'PIN Code'),
+        const SizedBox(height: 5),
+        CustomTextField(
+          borderColor: Colors.grey.shade200,
+          keyboardType: TextInputType.number,
+          height: 60,
+          hint: 'PIN Code',
+          controller: personalisationController.pinCodeTextEditingController,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(6),
+          ],
         ),
       ],
     );

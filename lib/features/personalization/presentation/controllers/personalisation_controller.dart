@@ -1184,6 +1184,11 @@ class PersonalisationController extends GetxController {
       'dob': formatToSqlDate(dobController.text),
       'address': addressController.text,
       'adhar': adharController.text,
+      'father_name': fatherNameTextEditingController.text,
+      'mother_name': motherNameTextEditingController.text,
+      'pin_code': pinCodeTextEditingController.text,
+      'city': cityTextEditingController.text,
+      'state': stateTextEditingController.text,
       'wealth_source': getWealthSourceId(wealthSource.text),
       'yearly_income': getIncomeSlabId(yearlyIncome.text),
       'occupation': getOccupationId(occupationTextEditingController.text),
@@ -1809,6 +1814,12 @@ class PersonalisationController extends GetxController {
         int.tryParse(details.occupation ?? ''),
       );
       addressController.text = details.address ?? '';
+      fatherNameTextEditingController.text = details.fatherName ?? '';
+      motherNameTextEditingController.text = details.motherName ?? '';
+      adharController.text = details.adhar ?? '';
+      cityTextEditingController.text = details.city ?? '';
+      stateTextEditingController.text = details.state ?? '';
+      pinCodeTextEditingController.text = details.pincode ?? '';
 
       // The UI hint says "City, State, Pincode", so we format it if it's split in the backend
       String fullAddress = details.address ?? '';
@@ -1825,7 +1836,7 @@ class PersonalisationController extends GetxController {
       // Clean up leading commas if address was initially null
       // if (fullAddress.startsWith(', ')) fullAddress = fullAddress.substring(2);
 
-      addressController.text = details.address ?? fullAddress ?? '';
+      addressController.text = details.address ?? fullAddress;
     }
   }
 
