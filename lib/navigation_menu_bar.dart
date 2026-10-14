@@ -990,6 +990,39 @@ class NavigationBarController extends GetxController {
     }
   }
 
+  void returnToMainMenu({int targetTab = 0}) {
+    assert(targetTab >= 0 && targetTab < 4);
+
+    // Keep the shell and its controller alive when leaving the investment flow.
+    // On web, the first root route is the shell for URLs such as /home.
+    Get.until(
+      (route) => route.settings.name == AppRoutes.navMenuBar || route.isFirst,
+    );
+
+    isProfileExpanded.value = false;
+    isHelpExpanded.value = false;
+    isInvestExpanded.value = false;
+    changePage(targetTab, isDesktop: false);
+
+    if (Get.nestedKey(1)?.currentState != null) {
+      final route = [
+        AppRoutes.home,
+        AppRoutes.explorePage,
+        AppRoutes.dashBoardPage,
+        AppRoutes.goalScreen,
+      ][targetTab];
+
+      if (kIsWeb) {
+        replaceWebPath(route);
+        _previousWebUrl = null;
+        _webNavigationDepth = 0;
+      }
+
+      // Remove investment pages from the nested stack without replacing the shell.
+      Get.offAllNamed(route, id: 1);
+    }
+  }
+
   void navigateToExploreWithFilter(
     VoidCallback? filterLogic, {
     String? filter,
@@ -999,6 +1032,10 @@ class NavigationBarController extends GetxController {
         AppRoutes.explorePage,
         queryParameters: filter == null ? null : {'filter': filter},
       );
+    } else if (Get.nestedKey(1)?.currentState != null) {
+      // Tablets use the nested navigator even when running a native app.
+      selectedIndex.value = 1;
+      Get.toNamed(AppRoutes.explorePage, id: 1, preventDuplicates: false);
     } else {
       changePage(1, isDesktop: false);
     }

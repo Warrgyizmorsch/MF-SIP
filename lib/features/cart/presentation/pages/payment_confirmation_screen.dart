@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -6,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
@@ -32,11 +30,18 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
 
   String _status = '';
   bool _isCheckingStatus = false;
+  bool _hasLoadedArguments = false;
 
   @override
-  void initState() {
-    super.initState();
-    args = (Get.arguments as Map<String, dynamic>?) ?? {};
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasLoadedArguments) return;
+    _hasLoadedArguments = true;
+    // Nested routes carry their own arguments; Get.arguments reads the root route.
+    args =
+        ((ModalRoute.of(context)?.settings.arguments ?? Get.arguments)
+            as Map<String, dynamic>?) ??
+        {};
     gorn = args['gorn']?.toString() ?? 'N/A';
     orderId = args['orderId']?.toString() ?? '';
     entGroupRefNo = args['entGroupRefNo']?.toString() ?? gorn;
@@ -49,14 +54,8 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
     _status = (args['status']?.toString() ?? 'PROCESSING').toUpperCase();
   }
 
-  void _navigateToDashboard({int targetTab = 0}) {
-    Get.offAllNamed(AppRoutes.navMenuBar);
-    try {
-      if (Get.isRegistered<NavigationBarController>()) {
-        final navCtrl = Get.find<NavigationBarController>();
-        navCtrl.changePage(2, isDesktop: kIsWeb);
-      }
-    } catch (_) {}
+  void _returnToMainMenu({int targetTab = 0}) {
+    Get.find<NavigationBarController>().returnToMainMenu(targetTab: targetTab);
   }
 
   Future<void> _checkStatusAgain() async {
@@ -136,7 +135,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          _navigateToDashboard();
+          _returnToMainMenu();
         }
       },
       child: Scaffold(
@@ -149,7 +148,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
             IconButton(
               tooltip: 'Close',
               icon: const Icon(Icons.close, color: Colors.black87),
-              onPressed: () => _navigateToDashboard(),
+              onPressed: () => _returnToMainMenu(),
             ),
           ],
         ),
@@ -374,7 +373,8 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                     height: 50,
                     child: UElevatedBUtton(
                       color: isFailed ? Colors.grey.shade800 : Ucolors.blue,
-                      onPressed: () => _navigateToDashboard(),
+                      onPressed: () =>
+                          _returnToMainMenu(targetTab: isFailed ? 0 : 2),
                       child: Center(
                         child: Text(
                           isFailed ? 'Return to Home' : 'Go to Dashboard',
@@ -389,7 +389,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                   const Gap(12),
 
                   TextButton(
-                    onPressed: () => _navigateToDashboard(targetTab: 1),
+                    onPressed: () => _returnToMainMenu(targetTab: 2),
                     child: Text(
                       'View Portfolio & Investments',
                       style: UTextStyles.medium.copyWith(

@@ -1442,6 +1442,7 @@ class MfuController extends GetxController {
           // Navigate directly to payment confirmation screen
           Get.offNamed(
             AppRoutes.paymentSuccess,
+            id: kIsWeb ? 1 : null,
             arguments: {
               'orderId': data?.mfuOrderId?.toString() ?? '',
               'gorn': gornRef,
@@ -1549,6 +1550,7 @@ class MfuController extends GetxController {
           // Navigate directly to payment confirmation screen
           Get.offNamed(
             AppRoutes.paymentSuccess,
+            id: kIsWeb ? 1 : null,
             arguments: {
               'orderId': data?.mfuOrderId?.toString() ?? '',
               'gorn': gornRef,
