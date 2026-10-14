@@ -111,6 +111,26 @@ class PersonalisationController extends GetxController {
   final hasPersonalDetails = false.obs;
   final isProfileLoading = true.obs;
 
+  /// When true, user is going through the continuous onboarding flow step-by-step
+  final isContinuousOnboarding = false.obs;
+
+  /// Evaluates remaining onboarding requirements and routes directly to the next step.
+  void navigateToNextOnboardingStep() {
+    if (!hasPersonalDetails.value) {
+      Get.offNamed(AppRoutes.additionalInfo);
+    } else if (!hasRiskProfile.value) {
+      Get.offNamed(AppRoutes.riskProfile);
+    } else if (!hasBank.value) {
+      Get.offNamed(AppRoutes.addanotherbank);
+    } else if (!hasNominee.value) {
+      Get.offNamed(AppRoutes.nomineeDetail);
+    } else {
+      isContinuousOnboarding.value = false;
+      checkAndTriggerCanRegistration(isManualTrigger: true);
+      Get.offAllNamed(AppRoutes.navMenuBar);
+    }
+  }
+
   // --- UI Controllers ---
   final PageController pageController = PageController();
 
@@ -951,15 +971,21 @@ class PersonalisationController extends GetxController {
         (success) async {
           log("✅ Bank added successfully: ${success.data?.message}");
           await fetchUserDetails();
+          hasBank.value = true;
           clearBankFields();
 
-          Get.back();
           isBankAdding.value = false;
 
           CustomSnackbar.success(
             title: "Success",
             message: "Bank account added successfully",
           );
+
+          if (isContinuousOnboarding.value) {
+            navigateToNextOnboardingStep();
+          } else {
+            Get.back();
+          }
         },
         (error) async {
           isBankAdding.value = false;
@@ -1298,7 +1324,11 @@ class PersonalisationController extends GetxController {
             message: "Your details have been saved securely.",
           );
 
-          Get.offAllNamed(AppRoutes.navMenuBar);
+          if (isContinuousOnboarding.value) {
+            navigateToNextOnboardingStep();
+          } else {
+            Get.offAllNamed(AppRoutes.navMenuBar);
+          }
         },
         (error) {
           ULoaders.stopLoading();
@@ -1476,44 +1506,62 @@ class PersonalisationController extends GetxController {
     // Navigate to results (Total score logic can be added here)
     // Get.offNamed('/risk-result');
     log(selectedAnswers.toString());
-    await submitAssessment();
-    Get.back();
+    final success = await submitAssessment();
     isAnalyzing.value = false;
     currentQuestionIndex.value = 0;
+    if (success) {
+      hasRiskProfile.value = true;
+      navigateToNextOnboardingStep();
+    } else {
+      Get.back();
+    }
     // selectedAnswers.clear();
   }
 
-  Future<void> submitAssessment() async {
+  Future<bool> submitAssessment() async {
     isAnalyzing(true);
 
-    // Convert Map<int, int> selectedAnswers to List<Map<String, int>>
-    final answersList = selectedAnswers.entries
-        .map((e) => {"question_id": e.key, "option_id": e.value})
-        .toList();
+    try {
+      // Convert Map<int, int> selectedAnswers to List<Map<String, int>>
+      final answersList = selectedAnswers.entries
+          .map((e) => {"question_id": e.key, "option_id": e.value})
+          .toList();
 
-    final request = RiskSubmitRequest(
-      userId: SessionManager.instance.getUserData?.id ?? 0,
-      // Replace with your actual logged-in user ID
-      answers: answersList,
-    ).toJson();
+      final request = RiskSubmitRequest(
+        userId: SessionManager.instance.getUserData?.id ?? 0,
+        // Replace with your actual logged-in user ID
+        answers: answersList,
+      ).toJson();
 
-    // Call your submit usecase
-    final result = await _useCases.riskSubmitUsecases.call(request);
-    fetchUserDetails();
+      // Call your submit usecase
+      final result = await _useCases.riskSubmitUsecases.call(request);
 
-    result.fold(
-      (entity) async {
-        final data = await SessionManager.instance.saveRiskScore(entity.data);
-        if (data == true) {
-          riskResult.value = entity.data;
-        }
-        // Small delay to let the 'Analyzing' animation finish naturally
-      },
-      (failure) {
-        isAnalyzing(false);
-        Get.snackbar("Error", "Submission failed. Please try again.");
-      },
-    );
+      bool isSuccess = false;
+      await result.fold(
+        (entity) async {
+          final data = await SessionManager.instance.saveRiskScore(entity.data);
+          if (data == true) {
+            riskResult.value = entity.data;
+          }
+          hasRiskProfile.value = true;
+          isSuccess = true;
+        },
+        (failure) async {
+          isAnalyzing(false);
+          Get.snackbar("Error", "Submission failed. Please try again.");
+          isSuccess = false;
+        },
+      );
+
+      if (isSuccess) {
+        hasRiskProfile.value = true;
+        await fetchUserDetails();
+      }
+      return isSuccess;
+    } catch (e) {
+      isAnalyzing(false);
+      return false;
+    }
   }
 
   // Get Nominee
@@ -1657,12 +1705,18 @@ class PersonalisationController extends GetxController {
           nomineeForms.clear();
           initNomineeForms();
 
+          hasNominee.value = true;
+
           CustomSnackbar.success(
             title: 'Success',
             message: 'Nominees added successfully',
           );
 
-          Get.back();
+          if (isContinuousOnboarding.value) {
+            navigateToNextOnboardingStep();
+          } else {
+            Get.back();
+          }
         },
         (failure) {
           Get.snackbar("Error Adding Nominee", failure.message);

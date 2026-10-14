@@ -1,7 +1,6 @@
 // ignore_for_file: unnecessary_brace_in_string_interps, unused_element_parameter, unused_local_variable
 
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -2721,7 +2720,10 @@ class _MobileLayout extends StatelessWidget {
                     rightIcon = Icons.arrow_forward_ios;
                     titleText = 'KYC Verification Failed';
                     subText = controller.kycErrorMessage;
-                    onTapAction = () => Get.toNamed(AppRoutes.kycScreen);
+                    onTapAction = () {
+                      controller.isContinuousOnboarding.value = true;
+                      Get.toNamed(AppRoutes.kycScreen);
+                    };
                   }
                   // 1. If KYC hasn't even been started or is not verified
                   else if (!isVerified && !isPending) {
@@ -2733,7 +2735,10 @@ class _MobileLayout extends StatelessWidget {
                     rightIcon = Icons.arrow_forward_ios;
                     titleText = 'Complete KYC & Profile';
                     subText = 'Verify your Identity to start Investing';
-                    onTapAction = () => Get.toNamed(AppRoutes.kycScreen);
+                    onTapAction = () {
+                      controller.isContinuousOnboarding.value = true;
+                      Get.toNamed(AppRoutes.kycScreen);
+                    };
                   } else if (noPersonalDetails) {
                     bgColor = Ucolors.blue; // or any color you prefer
                     iconColor = Ucolors.light;
@@ -2743,7 +2748,10 @@ class _MobileLayout extends StatelessWidget {
                     rightIcon = Icons.arrow_forward_ios;
                     titleText = 'Complete Profile Details';
                     subText = 'Add your income and family details';
-                    onTapAction = () => Get.toNamed(AppRoutes.additionalInfo);
+                    onTapAction = () {
+                      controller.isContinuousOnboarding.value = true;
+                      Get.toNamed(AppRoutes.additionalInfo);
+                    };
                   }
                   // 2. If Risk Profile is missing (even if KYC is pending)
                   else if (noRiskProfile) {
@@ -2759,7 +2767,10 @@ class _MobileLayout extends StatelessWidget {
                     rightIcon = Icons.arrow_forward_ios;
                     titleText = 'Check Your Risk Profile Now!';
                     subText = 'Discover your investment style';
-                    onTapAction = () => Get.toNamed(AppRoutes.riskProfile);
+                    onTapAction = () {
+                      controller.isContinuousOnboarding.value = true;
+                      Get.toNamed(AppRoutes.riskProfile);
+                    };
                   }
                   // 3. If Nominee is missing (even if KYC is pending)
                   // 4. If Bank is missing (even if KYC is pending)
@@ -2773,7 +2784,10 @@ class _MobileLayout extends StatelessWidget {
                     rightIcon = Icons.arrow_forward_ios;
                     titleText = 'Add Bank Account';
                     subText = 'Link your bank for fast transactions';
-                    onTapAction = () => Get.toNamed(AppRoutes.addanotherbank);
+                    onTapAction = () {
+                      controller.isContinuousOnboarding.value = true;
+                      Get.toNamed(AppRoutes.addanotherbank);
+                    };
                   } else if (noNominee) {
                     bgColor = Ucolors.light;
                     iconColor = Ucolors.blue;
@@ -2784,7 +2798,10 @@ class _MobileLayout extends StatelessWidget {
                     rightIcon = Icons.arrow_forward_ios;
                     titleText = 'Add a Nominee';
                     subText = 'Secure your investments for your family';
-                    onTapAction = () => Get.toNamed(AppRoutes.nomineeDetail);
+                    onTapAction = () {
+                      controller.isContinuousOnboarding.value = true;
+                      Get.toNamed(AppRoutes.nomineeDetail);
+                    };
                   } else if (isPending && !isVerified) {
                     bgColor = Colors.orange.shade50;
                     iconColor = Colors.orange.shade700;

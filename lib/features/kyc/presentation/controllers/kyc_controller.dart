@@ -349,8 +349,19 @@ class KycController extends GetxController {
                   'Your KYC is already completed! You can start investing.',
             );
             session.setKycVerified(true);
+            if (Get.isRegistered<PersonalisationController>()) {
+              final pController = Get.find<PersonalisationController>();
+              await pController.fetchUserDetails();
+              pController.isKycVerified.value = true;
+              pController.isKycPending.value = false;
+            }
             await Future.delayed(const Duration(seconds: 2));
-            Get.offAllNamed(AppRoutes.navMenuBar);
+            if (Get.isRegistered<PersonalisationController>() &&
+                Get.find<PersonalisationController>().isContinuousOnboarding.value) {
+              Get.find<PersonalisationController>().navigateToNextOnboardingStep();
+            } else {
+              Get.offAllNamed(AppRoutes.navMenuBar);
+            }
           } else {
             return;
           }
@@ -1654,7 +1665,12 @@ class KycController extends GetxController {
               await Future.delayed(const Duration(seconds: 2));
 
               // 3. FINAL NAV (Uncomment to go to dashboard)
-              Get.offAllNamed(AppRoutes.navMenuBar);
+              if (Get.isRegistered<PersonalisationController>() &&
+                  Get.find<PersonalisationController>().isContinuousOnboarding.value) {
+                Get.find<PersonalisationController>().navigateToNextOnboardingStep();
+              } else {
+                Get.offAllNamed(AppRoutes.navMenuBar);
+              }
             }
           } else {
             ULoaders.stopLoading();
