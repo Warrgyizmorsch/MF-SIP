@@ -2865,11 +2865,11 @@ class _MobileLayout extends StatelessWidget {
                     iconColor = Colors.purple.shade700;
                     titleColor = Colors.purple.shade900;
                     subTextColor = Colors.purple.shade800;
-                    leftIcon = Icons.auto_awesome_rounded;
+                    leftIcon = Icons.mark_email_unread_rounded;
                     customLeftIcon = null;
                     rightIcon = Icons.arrow_forward_ios;
                     titleText = 'Setting Up Investment Account';
-                    subText = 'Final activation in progress. Almost ready! 🚀';
+                    subText = 'Activation in progress. Please approve Email/SMS consent ✉️';
 
                     onTapAction = () {
                       Get.find<PersonalisationController>()
@@ -2877,9 +2877,9 @@ class _MobileLayout extends StatelessWidget {
                             isManualTrigger: true,
                           );
                       ULoaders.info(
-                        title: "Account Activation In Progress 🎉",
+                        title: "Account Activation In Progress",
                         message:
-                            "Your profile and bank details are complete! We are carrying out the final investment account activation in the background. No action is needed from your end.",
+                            "1. If you haven't yet, please open the consent link sent to your registered Email & SMS by MF Utility and approve it.\n\n2. If already approved, your account is being processed and will be activated shortly.",
                       );
                     };
                   } else if (noMandate) {
