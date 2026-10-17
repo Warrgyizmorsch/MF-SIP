@@ -903,73 +903,78 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                   fund.minSipAmount,
                 );
 
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected
-                          ? Ucolors.primary
-                          : const Color(0xFFE2E8F0),
-                      width: isSelected ? 1.5 : 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
+                void toggleSelection() {
+                  setState(() {
+                    if (isSelected) {
+                      _selectedSchemeCodes.remove(schemeCode);
+                      _selectedFundsMap.remove(schemeCode);
+                    } else {
+                      _selectedSchemeCodes.add(schemeCode);
+                      _selectedFundsMap[schemeCode] = fund;
+                    }
+                  });
+                }
+
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: isSelected ? null : toggleSelection,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
                         color: isSelected
-                            ? Ucolors.primary.withValues(alpha: 0.08)
-                            : Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
+                            ? Ucolors.primary
+                            : const Color(0xFFE2E8F0),
+                        width: isSelected ? 1.5 : 1,
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header Row: Checkbox, AMC Logo, Name, Returns
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (isSelected) {
-                                  _selectedSchemeCodes.remove(schemeCode);
-                                  _selectedFundsMap.remove(schemeCode);
-                                } else {
-                                  _selectedSchemeCodes.add(schemeCode);
-                                  _selectedFundsMap[schemeCode] = fund;
-                                }
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 150),
-                              width: 22,
-                              height: 22,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isSelected
-                                    ? Ucolors.primary
-                                    : Colors.white,
-                                border: Border.all(
+                      boxShadow: [
+                        BoxShadow(
+                          color: isSelected
+                              ? Ucolors.primary.withValues(alpha: 0.08)
+                              : Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header Row: Checkbox, AMC Logo, Name, Returns
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: toggleSelection,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
                                   color: isSelected
                                       ? Ucolors.primary
-                                      : const Color(0xFFCBD5E1),
-                                  width: 1.5,
+                                      : Colors.white,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Ucolors.primary
+                                        : const Color(0xFFCBD5E1),
+                                    width: 1.5,
+                                  ),
                                 ),
+                                child: isSelected
+                                    ? const Icon(
+                                        Icons.check,
+                                        size: 14,
+                                        color: Colors.white,
+                                      )
+                                    : null,
                               ),
-                              child: isSelected
-                                  ? const Icon(
-                                      Icons.check,
-                                      size: 14,
-                                      color: Colors.white,
-                                    )
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
+                              const SizedBox(width: 8),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: CustomCachedImage(
@@ -1019,8 +1024,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           ),
                         ],
                       ),
+                    ),
 
-                      // When Selected: Amount Input & Quick Chips
+                    // When Selected: Amount Input & Quick Chips
                       if (isSelected) ...[
                         const SizedBox(height: 8),
                         const Divider(height: 1, color: Color(0xFFF1F5F9)),
@@ -1122,8 +1128,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                       ],
                     ],
                   ),
-                );
-              },
+                ),
+              );
+            },
             );
           }),
         ),

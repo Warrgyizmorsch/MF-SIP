@@ -34,6 +34,7 @@ Future<void> main() async {
       return session;   
     });
     runApp(const MyApp());
+    
   } catch (e, stackTrace) {
     createLog("Error in main initialization: $e");
 

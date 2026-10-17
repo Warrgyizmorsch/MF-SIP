@@ -2673,7 +2673,7 @@ class _MobileLayout extends StatelessWidget {
                   final noMandate = !controller.hasApprovedMandate;
 
                   final isAllComplete =
-                      isVerified &&
+                      isVerified && 
                       !noPersonalDetails &&
                       !noRiskProfile &&
                       !noNominee &&
