@@ -83,6 +83,7 @@ class CustomSnackbar {
       case SnackbarType.info:
         backgroundColor = const Color(0xFF0288D1);
         icon = Icons.info_outline_rounded;
+        
         break;
     }
 

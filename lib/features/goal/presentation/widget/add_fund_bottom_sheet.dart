@@ -72,7 +72,7 @@ class AddFundBottomSheet extends StatefulWidget {
 }
 
 class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
-  int _activeTabIndex = 0; // 0 = Invest New Funds, 1 = Link from Portfolio
+  int _activeTabIndex = 0; // 0 = Monthly SIP, 1 = One-Time Lumpsum, 2 = Link from Portfolio
   String _selectedCategory = 'Equity';
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _fundsScrollController = ScrollController();
@@ -94,6 +94,11 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
   @override
   void initState() {
     super.initState();
+    final initialIsLumpsum =
+        (widget.goal?.txnType.toLowerCase() == 'lumpsum') ||
+        (_goalController.savedInvestmentType.value == 'lumpsum');
+    _activeTabIndex = initialIsLumpsum ? 1 : 0;
+
     // Setup pagination listener
     _fundsScrollController.addListener(() {
       if (_fundsScrollController.position.pixels >=
@@ -123,9 +128,30 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
     super.dispose();
   }
 
-  bool get _isLumpsum =>
-      (widget.goal?.txnType.toLowerCase() == 'lumpsum') ||
-      (_goalController.savedInvestmentType.value == 'lumpsum');
+  bool get _isLumpsum => _activeTabIndex == 1;
+
+  void _switchTab(int newIndex) {
+    if (_activeTabIndex == newIndex) return;
+    setState(() {
+      _activeTabIndex = newIndex;
+      // If switching between SIP (0) and Lumpsum (1), auto-adjust any amount that is below the new minimum
+      if (newIndex == 0 || newIndex == 1) {
+        for (final schemeCode in _selectedSchemeCodes) {
+          final fund = _selectedFundsMap[schemeCode];
+          if (fund != null) {
+            final newMin = _getMinAmountForFund(fund);
+            final ctrl = _amountControllers[schemeCode];
+            if (ctrl != null) {
+              final currentVal = double.tryParse(ctrl.text) ?? 0.0;
+              if (currentVal < newMin) {
+                ctrl.text = newMin.toString();
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 
   int _getMinAmountForFund(MutualFundListEntity fund) {
     if (_isLumpsum) {
@@ -458,28 +484,29 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
 
           const SizedBox(height: 8),
 
-          // Segmented Two-Tab Selector
+          // Segmented Three-Tab Selector
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
                 color: const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
+                  // Tab 0: Monthly SIP
                   Expanded(
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(10),
-                      onTap: () => setState(() => _activeTabIndex = 0),
+                      borderRadius: BorderRadius.circular(9),
+                      onTap: () => _switchTab(0),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
                           color: _activeTabIndex == 0
                               ? Colors.white
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(9),
                           boxShadow: _activeTabIndex == 0
                               ? const [
                                   BoxShadow(
@@ -494,17 +521,17 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Iconsax.add_circle,
-                              size: 15,
+                              Icons.repeat_rounded,
+                              size: 14,
                               color: _activeTabIndex == 0
                                   ? Ucolors.primary
                                   : Colors.grey.shade600,
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 4),
                             Text(
-                              "Invest New Funds",
+                              "Monthly SIP",
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: _activeTabIndex == 0
                                     ? FontWeight.bold
                                     : FontWeight.w500,
@@ -518,17 +545,19 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 3),
+                  // Tab 1: One-Time Lumpsum
                   Expanded(
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(10),
-                      onTap: () => setState(() => _activeTabIndex = 1),
+                      borderRadius: BorderRadius.circular(9),
+                      onTap: () => _switchTab(1),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
                           color: _activeTabIndex == 1
                               ? Colors.white
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(9),
                           boxShadow: _activeTabIndex == 1
                               ? const [
                                   BoxShadow(
@@ -543,21 +572,72 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Iconsax.wallet_3,
-                              size: 15,
+                              Icons.flash_on_rounded,
+                              size: 14,
                               color: _activeTabIndex == 1
                                   ? Ucolors.primary
                                   : Colors.grey.shade600,
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 4),
                             Text(
-                              "Link from Portfolio",
+                              "Lumpsum",
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: _activeTabIndex == 1
                                     ? FontWeight.bold
                                     : FontWeight.w500,
                                 color: _activeTabIndex == 1
+                                    ? Ucolors.primary
+                                    : Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  // Tab 2: Link from Portfolio
+                  Expanded(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(9),
+                      onTap: () => _switchTab(2),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _activeTabIndex == 2
+                              ? Colors.white
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(9),
+                          boxShadow: _activeTabIndex == 2
+                              ? const [
+                                  BoxShadow(
+                                    color: Color(0x0F000000),
+                                    blurRadius: 4,
+                                    offset: Offset(0, 1),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Iconsax.wallet_3,
+                              size: 14,
+                              color: _activeTabIndex == 2
+                                  ? Ucolors.primary
+                                  : Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "From Portfolio",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: _activeTabIndex == 2
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                                color: _activeTabIndex == 2
                                     ? Ucolors.primary
                                     : Colors.grey.shade600,
                               ),
@@ -576,13 +656,13 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
 
           // Tab Content Area
           Expanded(
-            child: _activeTabIndex == 0
+            child: _activeTabIndex != 2
                 ? _buildInvestNewFundsTab()
                 : _buildLinkPortfolioTab(),
           ),
 
-          // Bottom Bar for Tab 0 (Invest)
-          if (_activeTabIndex == 0)
+          // Bottom Bar for Invest (Tab 0 & Tab 1)
+          if (_activeTabIndex != 2)
             Container(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomInset),
               decoration: BoxDecoration(
@@ -647,9 +727,11 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              "Invest Now",
-                              style: TextStyle(
+                          : Text(
+                              _isLumpsum
+                                  ? "Invest Lumpsum"
+                                  : "Start Monthly SIP",
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -664,7 +746,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
     );
   }
 
-  /// ── Tab 0: Invest New Funds View ──
+  /// ── Tab 0 & Tab 1: Invest New Funds View ──
   Widget _buildInvestNewFundsTab() {
     return Column(
       children: [
