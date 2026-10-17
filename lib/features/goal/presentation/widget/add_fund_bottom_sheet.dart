@@ -123,6 +123,37 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
     super.dispose();
   }
 
+  bool get _isLumpsum =>
+      (widget.goal?.txnType.toLowerCase() == 'lumpsum') ||
+      (_goalController.savedInvestmentType.value == 'lumpsum');
+
+  int _getMinAmountForFund(MutualFundListEntity fund) {
+    if (_isLumpsum) {
+      return (fund.minLumpsum != null && fund.minLumpsum! > 0)
+          ? fund.minLumpsum!
+          : 1000;
+    } else {
+      return (fund.minSipAmount != null && fund.minSipAmount! > 0)
+          ? fund.minSipAmount!
+          : 500;
+    }
+  }
+
+  bool _hasInvalidAmounts() {
+    for (final schemeCode in _selectedSchemeCodes) {
+      final fund = _selectedFundsMap[schemeCode];
+      if (fund != null) {
+        final minAllowed = _getMinAmountForFund(fund);
+        final ctrl = _amountControllers[schemeCode];
+        final amount = double.tryParse(ctrl?.text ?? '0') ?? 0.0;
+        if (amount < minAllowed) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   TextEditingController _getControllerForScheme(
     String schemeCode,
     int? defaultMin,
@@ -165,9 +196,24 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
       return;
     }
 
-    final isLumpsum =
-        (widget.goal?.txnType.toLowerCase() == 'lumpsum') ||
-        (_goalController.savedInvestmentType.value == 'lumpsum');
+    // Verify all selected funds meet minimum amount requirement
+    for (final fund in selectedFunds) {
+      final schemeCode = fund.schemeCode?.toString() ?? '';
+      final minAllowed = _getMinAmountForFund(fund);
+      final amount =
+          double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ?? 0.0;
+      if (amount < minAllowed) {
+        Get.snackbar(
+          "Invalid Amount",
+          "Minimum ${_isLumpsum ? 'Lumpsum' : 'SIP'} amount for ${fund.baseSchemeName ?? 'selected fund'} is ₹$minAllowed",
+          backgroundColor: Colors.red.shade100,
+          colorText: Colors.red.shade900,
+        );
+        return;
+      }
+    }
+
+    final isLumpsum = _isLumpsum;
 
     GatekeeperHelper.runWithPrerequisites(
       isLumpsum: isLumpsum,
@@ -586,9 +632,12 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _isSubmitting || _selectedSchemeCodes.isEmpty
-                          ? null
-                          : _handleInvest,
+                      onPressed:
+                          _isSubmitting ||
+                          _selectedSchemeCodes.isEmpty ||
+                          _hasInvalidAmounts()
+                              ? null
+                              : _handleInvest,
                       child: _isSubmitting
                           ? const SizedBox(
                               width: 20,
@@ -898,9 +947,17 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                 final name = fund.baseSchemeName ?? 'Unknown Fund';
                 final logoUrl = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
                 final threeYear = fund.returnsEntity?.threeYear ?? '0';
+                final minAllowed = _getMinAmountForFund(fund);
+                final sipMin =
+                    (fund.minSipAmount != null && fund.minSipAmount! > 0)
+                        ? fund.minSipAmount!
+                        : 500;
+                final lumpMin = (fund.minLumpsum != null && fund.minLumpsum! > 0)
+                    ? fund.minLumpsum!
+                    : 1000;
                 final amountCtrl = _getControllerForScheme(
                   schemeCode,
-                  fund.minSipAmount,
+                  minAllowed,
                 );
 
                 void toggleSelection() {
@@ -1017,6 +1074,14 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                         color: Ucolors.success,
                                       ),
                                     ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      "• Min Lumpsum: ₹$lumpMin",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],
@@ -1031,58 +1096,128 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                         const SizedBox(height: 8),
                         const Divider(height: 1, color: Color(0xFFF1F5F9)),
                         const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Text(
-                              "Amount:",
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF475569),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: SizedBox(
-                                height: 34,
-                                child: TextFormField(
-                                  controller: amountCtrl,
-                                  keyboardType: TextInputType.number,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  onChanged: (_) => setState(() {}),
-                                  decoration: InputDecoration(
-                                    prefixText: "₹ ",
-                                    prefixStyle: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1E293B),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 0,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                        color: Color(0xFFCBD5E1),
+                        Builder(
+                          builder: (context) {
+                            final currentAmount =
+                                double.tryParse(amountCtrl.text) ?? 0.0;
+                            final isAmountBelowMin = currentAmount < minAllowed;
+                            final modeLabel = _isLumpsum ? 'Lumpsum' : 'SIP';
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Amount:",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF475569),
                                       ),
                                     ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                        color: Ucolors.primary,
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 34,
+                                        child: TextFormField(
+                                          controller: amountCtrl,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: isAmountBelowMin
+                                                ? Colors.red.shade700
+                                                : const Color(0xFF1E293B),
+                                          ),
+                                          onChanged: (_) => setState(() {}),
+                                          decoration: InputDecoration(
+                                            prefixText: "₹ ",
+                                            prefixStyle: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                              color: isAmountBelowMin
+                                                  ? Colors.red.shade700
+                                                  : const Color(0xFF1E293B),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 0,
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              borderSide: BorderSide(
+                                                color: isAmountBelowMin
+                                                    ? Colors.red.shade400
+                                                    : const Color(0xFFCBD5E1),
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              borderSide: BorderSide(
+                                                color: isAmountBelowMin
+                                                    ? Colors.red.shade400
+                                                    : const Color(0xFFCBD5E1),
+                                                width:
+                                                    isAmountBelowMin ? 1.5 : 1.0,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              borderSide: BorderSide(
+                                                color: isAmountBelowMin
+                                                    ? Colors.red.shade600
+                                                    : Ucolors.primary,
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 4, bottom: 4),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        isAmountBelowMin
+                                            ? Icons.error_outline
+                                            : Icons.info_outline,
+                                        size: 13,
+                                        color: isAmountBelowMin
+                                            ? Colors.red.shade600
+                                            : Colors.grey.shade500,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        isAmountBelowMin
+                                            ? "Minimum $modeLabel amount is ₹$minAllowed"
+                                            : "Min SIP: ₹$sipMin  •  Min Lumpsum: ₹$lumpMin",
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: isAmountBelowMin
+                                              ? FontWeight.bold
+                                              : FontWeight.w500,
+                                          color: isAmountBelowMin
+                                              ? Colors.red.shade700
+                                              : Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
+                              ],
+                            );
+                          },
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         // Quick increment chips
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -1095,7 +1230,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                   onTap: () {
                                     final current =
                                         int.tryParse(amountCtrl.text) ?? 0;
-                                    final updated = current + step;
+                                    final updated =
+                                        (current < minAllowed ? minAllowed : current) +
+                                            step;
                                     amountCtrl.text = updated.toString();
                                     setState(() {});
                                   },
