@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/images/image_picker.dart';
+import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/common/widget/showbottomsheet/datepicker.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
@@ -15,7 +15,6 @@ import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
-import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -48,7 +47,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: isDesktop ? null : CustomAppBarNormal(title: 'Personal Info'),
+      appBar: isDesktop ? null : _buildMobileAppBar(context),
 
       // 🚀 FIX: Removed bottomNavigationBar for Web. It feels unnatural on desktop.
       bottomNavigationBar: isDesktop
@@ -226,52 +225,229 @@ class PersonalDetailsScreen extends GetView<AuthController> {
   }
 
   // =========================================
-  // 📱 MOBILE LAYOUT (Stacked)
+  // 📱 MOBILE LAYOUT
   // =========================================
   Widget _buildMobileLayout(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: kToolbarHeight - kTextTabBarHeight / 2),
+        const SizedBox(height: 4),
         _buildProfileImagePicker(context),
-        const SizedBox(height: 30),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        const SizedBox(height: 14),
+        _buildMobileBasicDetails(context),
+        const SizedBox(height: 14),
+        _PersonalInfoSection(
+          title: 'Professional & Financial Details',
+          subtitle: 'Help us understand your profile',
+          icon: Icons.business_center,
           children: [
-            _buildNameField(),
-            const SizedBox(height: 16),
-            _buildDobField(context),
-            const SizedBox(height: 16),
-            _buildEmailField(),
-            const SizedBox(height: 16),
-            _buildPhoneField(context),
-            const SizedBox(height: 16),
-            _buildCanMobileField(context),
-            _buildPanField(context),
-            const SizedBox(height: 16),
-            _buildAdharField(),
-            const SizedBox(height: 16),
-            _buildFatherNameField(),
-            const SizedBox(height: 16),
-            _buildMotherNameField(),
-            const SizedBox(height: 16),
-            _buildCanField(context),
-            _buildOccupationField(context),
-            const SizedBox(height: 16),
-            _buildWealthSourceField(context),
-            const SizedBox(height: 16),
-            _buildIncomeField(context),
-            const SizedBox(height: 16),
-            _buildAddressField(),
-            const SizedBox(height: 16),
-            _buildCityField(),
-            const SizedBox(height: 16),
-            _buildStateField(),
-            const SizedBox(height: 16),
-            _buildPinCodeField(),
-            const SizedBox(height: 40),
+            _buildMobileSelectionField(
+              context,
+              label: 'Occupation',
+              icon: Icons.work,
+              fieldController:
+                  personalisationController.occupationTextEditingController,
+              items: ProfileUtils.occupationList,
+              title: 'Select Occupation',
+            ),
+            _buildMobileSelectionField(
+              context,
+              label: 'Wealth Source',
+              icon: Icons.account_balance_wallet,
+              fieldController: personalisationController.wealthSource,
+              items: personalisationController.wealthSourceList,
+              title: 'Select Wealth Source',
+            ),
+            _buildMobileSelectionField(
+              context,
+              label: 'Income Yearly',
+              icon: Icons.currency_rupee,
+              fieldController: personalisationController.yearlyIncome,
+              items: personalisationController.incomeSlabList,
+              title: 'Select Yearly Income',
+            ),
           ],
         ),
+        const SizedBox(height: 14),
+        _PersonalInfoSection(
+          title: 'Address',
+          subtitle: 'Your current residential address',
+          icon: Icons.location_on,
+          children: [
+            _PersonalInfoField(
+              label: 'House / Street Address',
+              icon: Icons.home,
+              controller: personalisationController.addressController,
+              hint: 'Flat / House No., Building, Street / Area',
+              maxLines: 2,
+            ),
+            _PersonalInfoField(
+              label: 'City',
+              icon: Icons.location_city,
+              controller: personalisationController.cityTextEditingController,
+              hint: 'City',
+            ),
+            _PersonalInfoField(
+              label: 'State',
+              icon: Icons.map,
+              controller: personalisationController.stateTextEditingController,
+              hint: 'State',
+            ),
+            _PersonalInfoField(
+              label: 'PIN Code',
+              icon: Icons.local_post_office,
+              controller:
+                  personalisationController.pinCodeTextEditingController,
+              hint: 'PIN Code',
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(6),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 40),
       ],
+    );
+  }
+
+  Widget _buildMobileBasicDetails(BuildContext context) {
+    return Obx(() {
+      final profile = personalisationController.userData.value;
+      final user = SessionManager.instance.userObs.value;
+      final canNumber = (profile?.canNumber ?? user?.canNumber ?? '').trim();
+      final canMobile =
+          (profile?.canMobile ??
+                  personalisationController.canMobileController.text)
+              .trim();
+
+      return _PersonalInfoSection(
+        title: 'Basic Details',
+        subtitle: 'Your personal identity details',
+        icon: Icons.person,
+        children: [
+          _PersonalInfoField(
+            label: 'Full Name',
+            icon: Icons.person,
+            controller: personalisationController.nameController,
+            hint: 'Name',
+          ),
+          _PersonalInfoField(
+            label: 'Date of Birth',
+            icon: Icons.calendar_month,
+            trailingIcon: Icons.calendar_month,
+            controller: personalisationController.dobController,
+            hint: 'DD/MM/YYYY',
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              showDOBPickerBottomSheet(
+                context: context,
+                controller: personalisationController.dobController,
+              );
+            },
+          ),
+          _PersonalInfoField(
+            label: 'Email',
+            icon: Icons.email,
+            controller: personalisationController.emailController,
+            hint: 'abc@gmail.com',
+            keyboardType: TextInputType.emailAddress,
+          ),
+          _PersonalInfoField(
+            label: 'Phone Number',
+            icon: Icons.call,
+            controller: personalisationController.mobileController,
+            hint: '+91 Enter mobile no.',
+            keyboardType: TextInputType.phone,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(10),
+            ],
+            validator: (value) =>
+                RegExp(r'^\d{10}$').hasMatch(value?.trim() ?? '')
+                ? null
+                : 'Enter a valid 10 digit phone number',
+          ),
+          Obx(
+            () => _PersonalInfoField(
+              label: 'PAN Number',
+              icon: Icons.badge,
+              controller: personalisationController.panController,
+              focusNode: personalisationController.panFocusNode,
+              readOnly: !personalisationController.canEditPan.value,
+              keyboardType: personalisationController.panKeyboardType.value,
+              hint: DocumentFormatterFactory.getHint('Pan'),
+              inputFormatters: DocumentFormatterFactory.getFormatters('Pan'),
+              validator: (value) =>
+                  DocumentFormatterFactory.validate('Pan', value),
+            ),
+          ),
+          _PersonalInfoField(
+            label: 'Aadhaar Number',
+            icon: Icons.credit_card,
+            controller: personalisationController.adharController,
+            hint: 'Enter 12-digit Aadhaar',
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(12),
+            ],
+          ),
+          _PersonalInfoField(
+            label: "Father's Name",
+            icon: Icons.person,
+            controller:
+                personalisationController.fatherNameTextEditingController,
+            hint: "Enter Father's Name",
+          ),
+          _PersonalInfoField(
+            label: "Mother's Name",
+            icon: Icons.person,
+            controller:
+                personalisationController.motherNameTextEditingController,
+            hint: "Enter Mother's Name",
+          ),
+          if (canNumber.isNotEmpty)
+            _PersonalInfoField(
+              label: 'CAN Number',
+              icon: Icons.account_box,
+              value: canNumber,
+            ),
+          if (canMobile.isNotEmpty)
+            _PersonalInfoField(
+              label: 'CAN Mobile Number',
+              icon: Icons.phone_android,
+              value: canMobile,
+            ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildMobileSelectionField(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    required TextEditingController fieldController,
+    required List<String> items,
+    required String title,
+  }) {
+    return _PersonalInfoField(
+      label: label,
+      icon: icon,
+      controller: fieldController,
+      hint: title,
+      trailingIcon: Icons.keyboard_arrow_down,
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        showSelectionBottomSheet(
+          context: context,
+          title: title,
+          items: items,
+          controller: fieldController,
+          search: false,
+        );
+      },
     );
   }
 
@@ -279,25 +455,52 @@ class PersonalDetailsScreen extends GetView<AuthController> {
   // 🧩 REUSABLE FORM COMPONENTS
   // =========================================
 
-  Widget _buildProfileImagePicker(BuildContext context) {
-    return Obx(() {
-      final reactiveUser = SessionManager.instance.userObs.value;
-      String displayImage = personalisationController.imagePath.isNotEmpty
-          ? personalisationController.imagePath.value
-          : (reactiveUser?.img ?? UImages.mfsiplogo);
-
-      return ProfileHeader(
-        onTap: () => UImagePicker.showImageSourceOptions(
-          context: context,
-          onImageSelected: (source) =>
-              personalisationController.pickImage(source),
+  PreferredSizeWidget _buildMobileAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Ucolors.skyblue1.withValues(alpha: 0.3),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      toolbarHeight: 60,
+      centerTitle: true,
+      leadingWidth: 68,
+      leading: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
+        child: Material(
+          color: Ucolors.skyblue1,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => Navigator.maybePop(context),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 22,
+              color: Ucolors.blue,
+              semanticLabel: 'Back',
+            ),
+          ),
         ),
+      ),
+      title: Text(
+        'Personal Info',
+        style: UTextStyles.subtitle1.copyWith(
+          color: Ucolors.blue,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
 
-        img: displayImage,
-        subtitle: 'Change Photo',
-        icon: Iconsax.export,
-      );
-    });
+  Widget _buildProfileImagePicker(BuildContext context) {
+    return _PersonalInfoPhotoHeader(
+      controller: personalisationController,
+      onTap: () => UImagePicker.showImageSourceOptions(
+        context: context,
+        onImageSelected: (source) =>
+            personalisationController.pickImage(source),
+      ),
+    );
   }
 
   Widget _buildNameField() {
@@ -411,10 +614,11 @@ class PersonalDetailsScreen extends GetView<AuthController> {
   Widget _buildCanField(BuildContext context) {
     return Obx(() {
       final reactiveUser = SessionManager.instance.userObs.value;
-      final canNumber = (personalisationController.userData.value?.canNumber ??
-              reactiveUser?.canNumber ??
-              '')
-          .trim();
+      final canNumber =
+          (personalisationController.userData.value?.canNumber ??
+                  reactiveUser?.canNumber ??
+                  '')
+              .trim();
 
       if (canNumber.isEmpty) return const SizedBox.shrink();
 
@@ -438,9 +642,10 @@ class PersonalDetailsScreen extends GetView<AuthController> {
 
   Widget _buildCanMobileField(BuildContext context) {
     return Obx(() {
-      final canMobile = (personalisationController.userData.value?.canMobile ??
-              personalisationController.canMobileController.text)
-          .trim();
+      final canMobile =
+          (personalisationController.userData.value?.canMobile ??
+                  personalisationController.canMobileController.text)
+              .trim();
 
       if (canMobile.isEmpty) return const SizedBox.shrink();
 
@@ -676,6 +881,475 @@ class PersonalDetailsScreen extends GetView<AuthController> {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _PersonalInfoPhotoHeader extends StatelessWidget {
+  const _PersonalInfoPhotoHeader({
+    required this.controller,
+    required this.onTap,
+  });
+
+  final PersonalisationController controller;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final avatarSize = (width * 0.25).clamp(80.0, 104.0).toDouble();
+
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Ucolors.white, Ucolors.skyblue1.withValues(alpha: 0.55)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Ucolors.primary.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Ucolors.white, width: 1.2),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: -width * 0.2,
+                left: -width * 0.2,
+                child: _cornerCircle(width * 0.4),
+              ),
+              Positioned(
+                top: -width * 0.19,
+                right: -width * 0.19,
+                child: _cornerCircle(width * 0.38),
+              ),
+              Positioned(
+                bottom: -width * 0.22,
+                left: -width * 0.22,
+                child: _cornerCircle(width * 0.44),
+              ),
+              Positioned(
+                bottom: -width * 0.45,
+                right: -width * 0.35,
+                child: _cornerCircle(width * 0.7),
+              ),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onTap,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildAvatar(avatarSize),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Change Photo',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Ucolors.primary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Upload a clear photo\nof yourself',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Ucolors.darkgrey,
+                              fontSize: 12,
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _cornerCircle(double diameter) {
+    return Container(
+      width: diameter,
+      height: diameter,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Ucolors.primary.withValues(alpha: 0.035),
+      ),
+    );
+  }
+
+  Widget _buildAvatar(double size) {
+    return SizedBox.square(
+      dimension: size,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Ucolors.borderColor.withValues(alpha: 0.65),
+                border: Border.all(color: Ucolors.white, width: 2),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(2),
+                child: ClipOval(
+                  child: Obx(() {
+                    final selected = controller.imagePath.value.trim();
+                    final stored =
+                        (SessionManager.instance.userObs.value?.img ?? '')
+                            .trim();
+                    final image = selected.isNotEmpty
+                        ? selected
+                        : stored.startsWith('/storage/')
+                        ? stored.substring(1)
+                        : stored;
+
+                    if (image.isEmpty ||
+                        image == 'null' ||
+                        image == UImages.mfsiplogo) {
+                      return Center(
+                        child: SvgPicture.asset(
+                          UImages.user,
+                          width: size * 0.36,
+                          height: size * 0.36,
+                          colorFilter: const ColorFilter.mode(
+                            Ucolors.outline,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      );
+                    }
+                    return UCircularImage(image: image, radius: size / 2 - 2);
+                  }),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: Ucolors.backgroundGradient,
+                border: Border.all(color: Ucolors.white, width: 2.5),
+              ),
+              child: const Icon(
+                Icons.camera_alt_outlined,
+                color: Ucolors.white,
+                size: 17,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PersonalInfoSection extends StatefulWidget {
+  const _PersonalInfoSection({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.children,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final List<Widget> children;
+
+  @override
+  State<_PersonalInfoSection> createState() => _PersonalInfoSectionState();
+}
+
+class _PersonalInfoSectionState extends State<_PersonalInfoSection> {
+  bool _expanded = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE9EDF3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(11),
+            child: Ink(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(11),
+                gradient: LinearGradient(
+                  colors: [
+                    Ucolors.skyblue1.withValues(alpha: 0.35),
+                    Ucolors.skyblue1.withValues(alpha: 0.12),
+                  ],
+                ),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(11),
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                  setState(() => _expanded = !_expanded);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Ucolors.skyblue1,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(widget.icon, size: 23, color: Ucolors.blue),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.title,
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Ucolors.blue,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              widget.subtitle,
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 12,
+                                color: Ucolors.darkgrey,
+                                height: 1.25,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: Ucolors.skyblue1.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                        child: Icon(
+                          _expanded
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          size: 21,
+                          color: Ucolors.blue,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: Offstage(
+              offstage: !_expanded,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(2, 10, 2, 2),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (
+                      var index = 0;
+                      index < widget.children.length;
+                      index++
+                    ) ...[
+                      if (index > 0) const SizedBox(height: 10),
+                      widget.children[index],
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PersonalInfoField extends StatelessWidget {
+  const _PersonalInfoField({
+    required this.label,
+    required this.icon,
+    this.controller,
+    this.value,
+    this.hint,
+    this.trailingIcon,
+    this.onTap,
+    this.readOnly = false,
+    this.keyboardType,
+    this.inputFormatters,
+    this.validator,
+    this.focusNode,
+    this.maxLines = 1,
+  }) : assert(controller != null || value != null);
+
+  final String label;
+  final IconData icon;
+  final TextEditingController? controller;
+  final String? value;
+  final String? hint;
+  final IconData? trailingIcon;
+  final VoidCallback? onTap;
+  final bool readOnly;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final String? Function(String?)? validator;
+  final FocusNode? focusNode;
+  final int maxLines;
+
+  @override
+  Widget build(BuildContext context) {
+    const valueStyle = TextStyle(
+      fontFamily: FontFamily.medium,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: Ucolors.dark,
+      height: 1.25,
+    );
+
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFFE1E6EF)),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40),
+            child: Row(
+              children: [
+                Icon(icon, size: 22, color: const Color(0xFF828895)),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          height: 1.25,
+                          color: Color(0xFF747B8B),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      if (value != null)
+                        SelectableText(value!, style: valueStyle)
+                      else
+                        AbsorbPointer(
+                          absorbing: onTap != null,
+                          child: TextFormField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            readOnly: readOnly || onTap != null,
+                            keyboardType:
+                                keyboardType ??
+                                (maxLines > 1
+                                    ? TextInputType.multiline
+                                    : TextInputType.text),
+                            textInputAction: maxLines > 1
+                                ? TextInputAction.newline
+                                : TextInputAction.next,
+                            minLines: 1,
+                            maxLines: maxLines,
+                            inputFormatters: inputFormatters,
+                            validator: validator,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            style: valueStyle,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              isCollapsed: true,
+                              filled: false,
+                              hintText: hint,
+                              hintStyle: valueStyle.copyWith(
+                                color: const Color(0xFF828895),
+                                fontWeight: FontWeight.w400,
+                              ),
+                              contentPadding: EdgeInsets.zero,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              errorStyle: const TextStyle(fontSize: 11),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (trailingIcon != null) ...[
+                  const SizedBox(width: 8),
+                  Icon(trailingIcon, size: 22, color: const Color(0xFF747B8B)),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
