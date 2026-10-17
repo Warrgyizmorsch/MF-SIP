@@ -11,6 +11,7 @@ import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import '../../../../common/widget/animated/custom_toast.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
 import '../../../../common/widget/table/table_header.dart';
@@ -20,7 +21,8 @@ import '../../../../core/utils/constant/appUrl.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/helper/helpers.dart';
-import '../../../cart/presentation/controllers/cart_controller.dart';
+import '../../../cart/presentation/controllers/cart_controller.dart'
+    hide showCustomToast;
 import '../../../cart/presentation/pages/cart_page.dart';
 import '../../../explore/presentation/controller/fundhouse_controller.dart';
 import '../../../explore/presentation/controller/mutual_fund_controller.dart';
@@ -2042,6 +2044,7 @@ class SIPSectionGoal extends GetView<GoalSipController> {
           // ── SIP / Lumpsum Tab Toggle ──────────────────────────────────────
           Obx(() {
             final isSip = controller.investmentMode.value == 'sip';
+            final isSaved = controller.isGoalSaved.value;
             return Container(
               decoration: BoxDecoration(
                 color: const Color(0xffF3F4F6),
@@ -2053,12 +2056,38 @@ class SIPSectionGoal extends GetView<GoalSipController> {
                   _TabButton(
                     label: 'SIP',
                     isSelected: isSip,
-                    onTap: () => controller.investmentMode.value = 'sip',
+                    isLocked: isSaved,
+                    onTap: () {
+                      if (isSaved) {
+                        if (!isSip) {
+                          showCustomToast(
+                            title: "Goal type cannot be changed once saved",
+                            message: "",
+                            backgroundColor: const Color(0xFF323232),
+                            icon: Icons.lock_outline_rounded,
+                          );
+                        }
+                        return;
+                      }
+                      controller.investmentMode.value = 'sip';
+                    },
                   ),
                   _TabButton(
                     label: 'Lumpsum',
                     isSelected: !isSip,
+                    isLocked: isSaved,
                     onTap: () {
+                      if (isSaved) {
+                        if (isSip) {
+                          showCustomToast(
+                            title: "Goal type cannot be changed once saved",
+                            message: "",
+                            backgroundColor: const Color(0xFF323232),
+                            icon: Icons.lock_outline_rounded,
+                          );
+                        }
+                        return;
+                      }
                       controller.investmentMode.value = 'lumpsum';
                       controller.recalculateLumpsum();
                     },
@@ -2087,11 +2116,13 @@ class _TabButton extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.isLocked = false,
   });
 
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool isLocked;
 
   @override
   Widget build(BuildContext context) {
@@ -2116,14 +2147,32 @@ class _TabButton extends StatelessWidget {
                 : [],
           ),
           child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontFamily: FontFamily.medium,
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Ucolors.primary : Colors.grey.shade500,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isLocked && isSelected) ...[
+                  const Icon(
+                    Icons.lock_rounded,
+                    size: 13,
+                    color: Ucolors.primary,
+                  ),
+                  const SizedBox(width: 5),
+                ],
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected
+                        ? Ucolors.primary
+                        : (isLocked
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade500),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

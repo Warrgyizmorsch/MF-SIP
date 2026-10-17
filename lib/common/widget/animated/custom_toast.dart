@@ -33,20 +33,23 @@ void showCustomToast({
           children: [
             Icon(icon, color: Colors.white, size: 18),
             const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontFamily: FontFamily.medium,
-                fontWeight: FontWeight.w500,
+            Flexible(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontFamily: FontFamily.medium,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
         ),
       ),
     ),
-    margin: const EdgeInsets.only(bottom: 100),
+    margin: const EdgeInsets.only(bottom: 100, left: 24, right: 24),
     duration: const Duration(seconds: 2),
     isDismissible: true,
   );
