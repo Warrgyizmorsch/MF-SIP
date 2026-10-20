@@ -13,12 +13,12 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
-import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/dashboard/presentation/widgets/portfolio_fund_details_modal.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import '../../../../common/widget/images/custom_cached_image.dart';
 import '../widget/add_fund_bottom_sheet.dart';
 
 import '../../domain/entity/goal_entity.dart';
@@ -104,6 +104,8 @@ extension GoalLinkedFundMapper on GoalLinkedFundEntity {
               gorn: redemptionDetails.first.gorn,
               amount: redemptionDetails.first.amount,
               units: redemptionDetails.first.units,
+              transactionVolumeType:
+                  redemptionDetails.first.transactionVolumeType,
               requestedDate: redemptionDetails.first.requestedDate,
               status: redemptionDetails.first.status,
               statusCode: redemptionDetails.first.statusCode,
@@ -2048,12 +2050,74 @@ class LinkedFundsCard extends StatelessWidget {
                                     ],
                                   ],
                                 ),
+                                if (fund.hasPendingRedemption) ...[
+                                  const SizedBox(height: 3),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 1.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF7ED),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: const Color(0xFFFDBA74),
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      fund.redeemedUnits > 0
+                                          ? "Redemption Pending (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
+                                          : (fund.redeemedAmount > 0
+                                              ? "Redemption Pending (₹${fund.redeemedAmount.toStringAsFixed(0)})"
+                                              : "Redemption Pending"),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFFC2410C),
+                                      ),
+                                    ),
+                                  ),
+                                ] else if (fund.isRedeemed ||
+                                    fund.holdingStatus.toLowerCase() ==
+                                        'redeemed') ...[
+                                  const SizedBox(height: 3),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 1.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF1F5F9),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: const Color(0xFFCBD5E1),
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      fund.redeemedUnits > 0
+                                          ? "Redeemed (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
+                                          : (fund.redeemedAmount > 0
+                                              ? "Redeemed (₹${fund.redeemedAmount.toStringAsFixed(0)})"
+                                              : "Redeemed"),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF475569),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
                           Obx(() {
                             final bool isDel =
                                 goalSipController.isDeleting[fundId] ?? false;
+                            if (fund.hasPendingRedemption) {
+                              return const SizedBox.shrink();
+                            }
                             return isDel
                                 ? const SizedBox(
                                     width: 20,
@@ -2736,14 +2800,7 @@ class GoalDetailsMobileView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SingleChildScrollView(
-                      child: Column(
-                        children: List.generate(
-                          10,
-                          (index) => const TransactionCard(),
-                        ),
-                      ),
-                    ),
+                    GoalRecordTab(goalId: goal?.id ?? 0),
                   ],
                 ),
               ),
@@ -2763,6 +2820,490 @@ class GoalDetailsMobileView extends StatelessWidget {
       //     ),
       //   ),
       // ),
+    );
+  }
+}
+
+/// ----------------------------------------------------------------------
+/// Goal Record / Transactions Tab (Mobile)
+/// ----------------------------------------------------------------------
+class GoalRecordTab extends StatefulWidget {
+  final int goalId;
+  const GoalRecordTab({super.key, required this.goalId});
+
+  @override
+  State<GoalRecordTab> createState() => _GoalRecordTabState();
+}
+
+class _GoalRecordTabState extends State<GoalRecordTab> {
+  String _selectedFilter = 'All';
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<GoalSipController>();
+
+    return Obx(() {
+      final liveDetail = controller.currentGoalDetail.value;
+
+      // Extract all transactions from all linked funds and include redemption details
+      final List<GoalFundTransactionEntity> allTxns = [];
+      if (liveDetail != null) {
+        for (final fund in liveDetail.linkedFunds) {
+          allTxns.addAll(fund.transactions);
+
+          // Add redemption details if not already present in transactions
+          for (final r in fund.redemptionDetails) {
+            final bool alreadyExists = fund.transactions.any((t) =>
+                (r.orderRefNo.isNotEmpty &&
+                    (t.orderId == r.orderRefNo || t.mfOrderId == r.orderRefNo)) ||
+                (r.gorn.isNotEmpty && t.mfuGorn == r.gorn));
+
+            if (!alreadyExists) {
+              final bool isUnits =
+                  r.transactionVolumeType.toUpperCase() == 'U' ||
+                      (r.amount <= 0 && r.units > 0);
+
+              final String displayAmount = isUnits
+                  ? "-${r.units.toStringAsFixed(3)} Units"
+                  : (r.amount > 0 ? "-₹${r.amount.toStringAsFixed(2)}" : "");
+
+              allTxns.add(
+                GoalFundTransactionEntity(
+                  id: 0,
+                  txnId: 0,
+                  orderId: r.orderRefNo,
+                  mfOrderId: r.orderRefNo,
+                  date: r.requestedDate,
+                  txnDate: r.requestedDate,
+                  displayDate: r.requestedDate,
+                  type: 'redeem',
+                  txtType: 'redeem',
+                  investmentType: 'redeem',
+                  schemeCode: fund.schemeCode,
+                  amfiSchemeCode: fund.schemeCode,
+                  mfuSchemeCode: '',
+                  fundName: fund.fundName,
+                  amcName: '',
+                  amcLogo: fund.amcLogo,
+                  amcImageUrl: fund.amcImageUrl,
+                  folioNo: fund.folioNo,
+                  folio: fund.folioNo,
+                  amount: r.amount,
+                  units: r.units,
+                  nav: fund.currentNav,
+                  status: r.status,
+                  statusLabel: r.statusLabel.isNotEmpty
+                      ? r.statusLabel
+                      : (r.orderStatusLabel.isNotEmpty
+                          ? r.orderStatusLabel
+                          : r.status),
+                  orderStatus: r.statusCode,
+                  orderStatusLabel: r.orderStatusLabel.isNotEmpty
+                      ? r.orderStatusLabel
+                      : (r.statusLabel.isNotEmpty ? r.statusLabel : r.status),
+                  mfuGorn: r.gorn,
+                  mfuItrn: '',
+                  direction: 'debit',
+                  display: GoalFundTransactionDisplayEntity(
+                    amount: displayAmount,
+                    units: r.units > 0 ? r.units.toStringAsFixed(3) : '',
+                  ),
+                  goalId: fund.goalId != 0 ? fund.goalId : widget.goalId,
+                ),
+              );
+            }
+          }
+        }
+      }
+
+      // Sort newest first
+      allTxns.sort((a, b) {
+        final dateA = DateTime.tryParse(a.date.isNotEmpty ? a.date : a.txnDate) ??
+            DateTime(1970);
+        final dateB = DateTime.tryParse(b.date.isNotEmpty ? b.date : b.txnDate) ??
+            DateTime(1970);
+        return dateB.compareTo(dateA);
+      });
+
+      // Filter by type
+      final filteredTxns = allTxns.where((t) {
+        if (_selectedFilter == 'All') return true;
+        final type = (t.investmentType.isNotEmpty ? t.investmentType : t.type).toLowerCase();
+        final isDebit = t.direction.toLowerCase() == 'debit' ||
+            type == 'redeem' ||
+            type == 'redemption' ||
+            type == 'red' ||
+            t.txtType.toLowerCase() == 'redeem';
+
+        if (_selectedFilter == 'SIP') {
+          return !isDebit && (type == 'sip' || type == 'systematic');
+        }
+        if (_selectedFilter == 'Lumpsum') {
+          return !isDebit && (type == 'lumpsum' || type == 'normal');
+        }
+        if (_selectedFilter == 'Redeem') {
+          return isDebit;
+        }
+        return true;
+      }).toList();
+
+      return RefreshIndicator(
+        onRefresh: () async {
+          if (widget.goalId != 0) {
+            await controller.fetchSingleGoal(widget.goalId);
+          }
+        },
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+
+            // Horizontal Filter Chips (only when there are transactions)
+            if (allTxns.isNotEmpty)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  children: ['All', 'SIP', 'Lumpsum', 'Redeem'].map((filter) {
+                    final isSelected = _selectedFilter == filter;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        label: Text(
+                          filter,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected ? Colors.white : Colors.grey.shade700,
+                          ),
+                        ),
+                        selected: isSelected,
+                        selectedColor: Ucolors.primary,
+                        backgroundColor: Colors.white,
+                        showCheckmark: false,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: isSelected ? Ucolors.primary : Colors.grey.shade300,
+                          ),
+                        ),
+                        onSelected: (val) {
+                          if (val) setState(() => _selectedFilter = filter);
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+            if (allTxns.isNotEmpty) const SizedBox(height: 8),
+
+            // Content Area
+            Expanded(
+              child: filteredTxns.isEmpty
+                  ? Center(
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Ucolors.primary.withValues(alpha: 0.08),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Iconsax.receipt_2,
+                                  size: 46,
+                                  color: Ucolors.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _selectedFilter == 'All'
+                                    ? "No transactions yet"
+                                    : "No $_selectedFilter transactions",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E293B),
+                                  fontFamily: FontFamily.medium,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                "Transactions for your linked funds will appear here once orders are processed.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                  fontFamily: FontFamily.regular,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 24, top: 4),
+                      itemCount: filteredTxns.length,
+                      itemBuilder: (context, index) {
+                        return _GoalTransactionCardItem(transaction: filteredTxns[index]);
+                      },
+                    ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+class _GoalTransactionCardItem extends StatelessWidget {
+  final GoalFundTransactionEntity transaction;
+
+  const _GoalTransactionCardItem({required this.transaction});
+
+  @override
+  Widget build(BuildContext context) {
+    final txn = transaction;
+    final bool isDebit = txn.direction.toLowerCase() == 'debit' ||
+        txn.type.toLowerCase() == 'redeem' ||
+        txn.investmentType.toLowerCase() == 'redeem';
+
+    final Color amountColor =
+        isDebit ? const Color(0xFFE53935) : const Color(0xFF2E7D32);
+
+    final String unitStr = txn.display?.units.isNotEmpty == true
+        ? txn.display!.units
+        : (txn.units > 0 ? txn.units.toStringAsFixed(3) : '');
+
+    final bool isRedeemInUnits = isDebit &&
+        (txn.amount <= 0 || (unitStr.isNotEmpty && txn.amount <= 0));
+
+    final String amountStr;
+    if (txn.display?.amount.isNotEmpty == true) {
+      amountStr = txn.display!.amount;
+    } else if (isRedeemInUnits && unitStr.isNotEmpty) {
+      amountStr = "-$unitStr Units";
+    } else {
+      amountStr = isDebit
+          ? "-₹${txn.amount.toStringAsFixed(2)}"
+          : "+₹${txn.amount.toStringAsFixed(2)}";
+    }
+
+    final String typeLabel = isDebit
+        ? (isRedeemInUnits ? 'REDEEM (UNITS)' : 'REDEEM')
+        : (txn.investmentType.isNotEmpty
+            ? txn.investmentType.toUpperCase()
+            : (txn.type.isNotEmpty ? txn.type.toUpperCase() : 'INVESTMENT'));
+
+    final String statusLabel = txn.orderStatusLabel.isNotEmpty
+        ? txn.orderStatusLabel
+        : (txn.statusLabel.isNotEmpty ? txn.statusLabel : txn.status);
+
+    Color statusBg;
+    Color statusColor;
+    final lowerStatus = statusLabel.toLowerCase();
+    if (lowerStatus.contains('settled') ||
+        lowerStatus.contains('processed') ||
+        lowerStatus.contains('success')) {
+      statusBg = const Color(0xFFE8F5E9);
+      statusColor = const Color(0xFF2E7D32);
+    } else if (lowerStatus.contains('accept') || lowerStatus.contains('order')) {
+      statusBg = const Color(0xFFE3F2FD);
+      statusColor = const Color(0xFF1565C0);
+    } else if (lowerStatus.contains('pending') ||
+        lowerStatus.contains('approval')) {
+      statusBg = const Color(0xFFFFF8E1);
+      statusColor = const Color(0xFFF57F17);
+    } else if (lowerStatus.contains('cancel') || lowerStatus.contains('fail')) {
+      statusBg = const Color(0xFFFFEBEE);
+      statusColor = const Color(0xFFC62828);
+    } else {
+      statusBg = const Color(0xFFF5F5F5);
+      statusColor = const Color(0xFF616161);
+    }
+
+    final String dateStr = txn.displayDate.isNotEmpty
+        ? txn.displayDate
+        : (txn.date.isNotEmpty ? txn.date : txn.txnDate);
+
+    final String logoUrl = txn.amcLogo.isNotEmpty
+        ? (txn.amcLogo.startsWith('http')
+            ? txn.amcLogo
+            : '${Appurl.baseUrl}/${txn.amcLogo}')
+        : (txn.amcImageUrl.isNotEmpty
+            ? (txn.amcImageUrl.startsWith('http')
+                ? txn.amcImageUrl
+                : '${Appurl.baseUrl}/${txn.amcImageUrl}')
+            : '');
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.shade200, width: 0.8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row 1: Logo + Fund name + Amount
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 38,
+                width: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.grey.shade50,
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: ClipOval(
+                  child: logoUrl.isNotEmpty
+                      ? CustomCachedImage(imageUrl: logoUrl, size: 38)
+                      : const Icon(
+                          Iconsax.empty_wallet,
+                          size: 20,
+                          color: Colors.grey,
+                        ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      txn.fundName.isNotEmpty ? txn.fundName : 'Mutual Fund',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1E293B),
+                        height: 1.25,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            typeLabel,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          dateStr,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                            fontFamily: FontFamily.regular,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                amountStr,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: FontFamily.medium,
+                  color: amountColor,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+          const Divider(height: 1, thickness: 0.6, color: Color(0xFFF1F5F9)),
+          const SizedBox(height: 8),
+
+          // Row 2: Status badge + Units / Order ID
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: statusBg,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  statusLabel,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: statusColor,
+                  ),
+                ),
+              ),
+              if (unitStr.isNotEmpty) ...[
+                Text(
+                  isDebit
+                      ? (isRedeemInUnits
+                          ? "$unitStr units${txn.nav > 0 ? ' • NAV ₹${txn.nav.toStringAsFixed(2)}' : ''}"
+                          : "-$unitStr units${txn.nav > 0 ? ' @ ₹${txn.nav.toStringAsFixed(2)}' : ''}")
+                      : "$unitStr units${txn.nav > 0 ? ' @ ₹${txn.nav.toStringAsFixed(2)}' : ''}",
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: isDebit ? FontWeight.w600 : FontWeight.w400,
+                    color: isDebit
+                        ? const Color(0xFFC62828)
+                        : Colors.grey.shade600,
+                    fontFamily: FontFamily.regular,
+                  ),
+                ),
+              ] else if (txn.orderId.isNotEmpty) ...[
+                Text(
+                  "Order: ${txn.orderId}",
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade500,
+                    fontFamily: FontFamily.regular,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -3199,12 +3740,74 @@ class GoalDetailSection extends StatelessWidget {
                                     ],
                                   ],
                                 ),
+                                if (fund.hasPendingRedemption) ...[
+                                  const SizedBox(height: 3),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 1.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF7ED),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: const Color(0xFFFDBA74),
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      fund.redeemedUnits > 0
+                                          ? "Redemption Pending (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
+                                          : (fund.redeemedAmount > 0
+                                              ? "Redemption Pending (₹${fund.redeemedAmount.toStringAsFixed(0)})"
+                                              : "Redemption Pending"),
+                                      style: const TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFFC2410C),
+                                      ),
+                                    ),
+                                  ),
+                                ] else if (fund.isRedeemed ||
+                                    fund.holdingStatus.toLowerCase() ==
+                                        'redeemed') ...[
+                                  const SizedBox(height: 3),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 1.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF1F5F9),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: const Color(0xFFCBD5E1),
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      fund.redeemedUnits > 0
+                                          ? "Redeemed (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
+                                          : (fund.redeemedAmount > 0
+                                              ? "Redeemed (₹${fund.redeemedAmount.toStringAsFixed(0)})"
+                                              : "Redeemed"),
+                                      style: const TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF475569),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
                           Obx(() {
                             final bool deleting =
                                 goalSipController.isDeleting[fundId] ?? false;
+                            if (fund.hasPendingRedemption) {
+                              return const SizedBox.shrink();
+                            }
                             return deleting
                                 ? const Padding(
                                     padding: EdgeInsets.only(left: 6),
