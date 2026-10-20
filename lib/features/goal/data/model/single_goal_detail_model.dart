@@ -284,6 +284,212 @@ class GoalRedemptionDetailModel {
   }
 }
 
+class GoalSipCancellationDetailModel {
+  final String? status;
+  final String? statusCode;
+  final String? orderRefNo;
+  final String? message;
+  final String? cancelledDate;
+
+  GoalSipCancellationDetailModel({
+    this.status,
+    this.statusCode,
+    this.orderRefNo,
+    this.message,
+    this.cancelledDate,
+  });
+
+  factory GoalSipCancellationDetailModel.fromJson(Map<String, dynamic> json) {
+    return GoalSipCancellationDetailModel(
+      status: json.parse<String>('status'),
+      statusCode: json.parse<String>('status_code'),
+      orderRefNo: json.parse<String>('order_ref_no'),
+      message: json.parse<String>('message'),
+      cancelledDate: json.parse<String>('cancelled_date'),
+    );
+  }
+
+  GoalSipCancellationDetailEntity toEntity() {
+    return GoalSipCancellationDetailEntity(
+      status: status ?? '',
+      statusCode: statusCode ?? '',
+      orderRefNo: orderRefNo ?? '',
+      message: message ?? '',
+      cancelledDate: cancelledDate ?? '',
+    );
+  }
+}
+
+class GoalFundTransactionDisplayModel {
+  final String? amount;
+  final String? units;
+
+  GoalFundTransactionDisplayModel({this.amount, this.units});
+
+  factory GoalFundTransactionDisplayModel.fromJson(Map<String, dynamic> json) {
+    return GoalFundTransactionDisplayModel(
+      amount: json.parse<String>('amount'),
+      units: json.parse<String>('units'),
+    );
+  }
+
+  GoalFundTransactionDisplayEntity toEntity() {
+    return GoalFundTransactionDisplayEntity(
+      amount: amount ?? '',
+      units: units ?? '',
+    );
+  }
+}
+
+class GoalFundTransactionModel {
+  final int? id;
+  final int? txnId;
+  final String? orderId;
+  final String? mfOrderId;
+  final String? date;
+  final String? txnDate;
+  final String? displayDate;
+  final String? type;
+  final String? txtType;
+  final String? investmentType;
+  final String? schemeCode;
+  final String? amfiSchemeCode;
+  final String? mfuSchemeCode;
+  final String? fundName;
+  final String? amcName;
+  final String? amcLogo;
+  final String? amcImageUrl;
+  final String? folioNo;
+  final String? folio;
+  final double? amount;
+  final double? units;
+  final double? nav;
+  final String? status;
+  final String? statusLabel;
+  final String? orderStatus;
+  final String? orderStatusLabel;
+  final String? mfuGorn;
+  final String? mfuItrn;
+  final String? direction;
+  final GoalFundTransactionDisplayModel? display;
+  final int? goalId;
+
+  GoalFundTransactionModel({
+    this.id,
+    this.txnId,
+    this.orderId,
+    this.mfOrderId,
+    this.date,
+    this.txnDate,
+    this.displayDate,
+    this.type,
+    this.txtType,
+    this.investmentType,
+    this.schemeCode,
+    this.amfiSchemeCode,
+    this.mfuSchemeCode,
+    this.fundName,
+    this.amcName,
+    this.amcLogo,
+    this.amcImageUrl,
+    this.folioNo,
+    this.folio,
+    this.amount,
+    this.units,
+    this.nav,
+    this.status,
+    this.statusLabel,
+    this.orderStatus,
+    this.orderStatusLabel,
+    this.mfuGorn,
+    this.mfuItrn,
+    this.direction,
+    this.display,
+    this.goalId,
+  });
+
+  factory GoalFundTransactionModel.fromJson(Map<String, dynamic> json) {
+    return GoalFundTransactionModel(
+      id: json.parse<int>('id'),
+      txnId: json.parse<int>('txn_id') ?? json.parse<int>('id'),
+      orderId: json.parse<String>('order_id'),
+      mfOrderId:
+          json.parse<String>('mf_order_id') ?? json.parse<String>('order_id'),
+      date: json.parse<String>('date'),
+      txnDate: json.parse<String>('txn_date') ?? json.parse<String>('date'),
+      displayDate: json.parse<String>('display_date'),
+      type: json.parse<String>('type'),
+      txtType: json.parse<String>('txt_type') ?? json.parse<String>('type'),
+      investmentType: json.parse<String>('investment_type'),
+      schemeCode: json.parse<String>('scheme_code'),
+      amfiSchemeCode:
+          json.parse<String>('amfi_scheme_code') ??
+          json.parse<String>('scheme_code'),
+      mfuSchemeCode: json.parse<String>('mfu_scheme_code'),
+      fundName: json.parse<String>('fund_name'),
+      amcName: json.parse<String>('amc_name'),
+      amcLogo:
+          json.parse<String>('amc_logo') ?? json.parse<String>('amc_image_url'),
+      amcImageUrl:
+          json.parse<String>('amc_image_url') ?? json.parse<String>('amc_logo'),
+      folioNo: json.parse<String>('folio_no') ?? json.parse<String>('folio'),
+      folio: json.parse<String>('folio') ?? json.parse<String>('folio_no'),
+      amount: json.parse<double>('amount'),
+      units: json.parse<double>('units'),
+      nav: json.parse<double>('nav'),
+      status: json.parse<String>('status'),
+      statusLabel: json.parse<String>('status_label'),
+      orderStatus: json.parse<String>('order_status'),
+      orderStatusLabel: json.parse<String>('order_status_label'),
+      mfuGorn: json.parse<String>('mfu_gorn'),
+      mfuItrn: json.parse<String>('mfu_itrn'),
+      direction: json.parse<String>('direction'),
+      display: json['display'] is Map<String, dynamic>
+          ? GoalFundTransactionDisplayModel.fromJson(
+              json['display'] as Map<String, dynamic>,
+            )
+          : null,
+      goalId: json.parse<int>('goal_id'),
+    );
+  }
+
+  GoalFundTransactionEntity toEntity() {
+    return GoalFundTransactionEntity(
+      id: id ?? 0,
+      txnId: txnId ?? id ?? 0,
+      orderId: orderId ?? '',
+      mfOrderId: mfOrderId ?? orderId ?? '',
+      date: date ?? '',
+      txnDate: txnDate ?? date ?? '',
+      displayDate: displayDate ?? '',
+      type: type ?? '',
+      txtType: txtType ?? type ?? '',
+      investmentType: investmentType ?? '',
+      schemeCode: schemeCode ?? '',
+      amfiSchemeCode: amfiSchemeCode ?? schemeCode ?? '',
+      mfuSchemeCode: mfuSchemeCode ?? '',
+      fundName: fundName ?? '',
+      amcName: amcName ?? '',
+      amcLogo: amcLogo ?? '',
+      amcImageUrl: amcImageUrl ?? '',
+      folioNo: folioNo ?? folio ?? '',
+      folio: folio ?? folioNo ?? '',
+      amount: amount ?? 0.0,
+      units: units ?? 0.0,
+      nav: nav ?? 0.0,
+      status: status ?? '',
+      statusLabel: statusLabel ?? '',
+      orderStatus: orderStatus ?? '',
+      orderStatusLabel: orderStatusLabel ?? '',
+      mfuGorn: mfuGorn ?? '',
+      mfuItrn: mfuItrn ?? '',
+      direction: direction ?? '',
+      display: display?.toEntity(),
+      goalId: goalId ?? 0,
+    );
+  }
+}
+
 class GoalLinkedFundModel {
   final int? id;
   final String? amcImageUrl;
@@ -318,6 +524,8 @@ class GoalLinkedFundModel {
   final String? allotmentStatusLabel;
   final String? allotmentMessage;
   final bool? isUnitAllotted;
+  final bool? isRedeemed;
+  final String? holdingStatus;
   final bool? isInvested;
   final String? investmentStatus;
   final String? orderStatus;
@@ -330,8 +538,8 @@ class GoalLinkedFundModel {
   final bool? isSip;
   final String? sipStatus;
   final bool? isSipCancelled;
-  final bool? hasPendingSipCancellation;
-  final dynamic sipCancellationDetails;
+  final bool hasPendingSipCancellation;
+  final GoalSipCancellationDetailModel? sipCancellationDetails;
   final String? latestOrderStatus;
   final String? latestOrderStatusLabel;
   final int? mfuOrderId;
@@ -340,6 +548,7 @@ class GoalLinkedFundModel {
   final String? type;
   final String? investmentType;
   final String? exitLoad;
+  final List<GoalFundTransactionModel>? transactions;
 
   GoalLinkedFundModel({
     this.id,
@@ -375,6 +584,8 @@ class GoalLinkedFundModel {
     this.allotmentStatusLabel,
     this.allotmentMessage,
     this.isUnitAllotted,
+    this.isRedeemed,
+    this.holdingStatus,
     this.isInvested,
     this.investmentStatus,
     this.orderStatus,
@@ -387,7 +598,7 @@ class GoalLinkedFundModel {
     this.isSip,
     this.sipStatus,
     this.isSipCancelled,
-    this.hasPendingSipCancellation,
+    this.hasPendingSipCancellation = false,
     this.sipCancellationDetails,
     this.latestOrderStatus,
     this.latestOrderStatusLabel,
@@ -397,6 +608,7 @@ class GoalLinkedFundModel {
     this.type,
     this.investmentType,
     this.exitLoad,
+    this.transactions,
   });
 
   factory GoalLinkedFundModel.fromJson(Map<String, dynamic> json) {
@@ -467,6 +679,8 @@ class GoalLinkedFundModel {
           json.parse<String>('unit_status'),
       allotmentMessage: json.parse<String>('allotment_message'),
       isUnitAllotted: json.parse<bool>('is_unit_allotted'),
+      isRedeemed: json.parse<bool>('is_redeemed'),
+      holdingStatus: json.parse<String>('holding_status'),
       isInvested: json.parse<bool>('is_invested'),
       investmentStatus: json.parse<String>('investment_status'),
       orderStatus:
@@ -485,10 +699,13 @@ class GoalLinkedFundModel {
       isSip: json.parse<bool>('is_sip'),
       sipStatus: json.parse<String>('sip_status'),
       isSipCancelled: json.parse<bool>('is_sip_cancelled'),
-      hasPendingSipCancellation: json.parse<bool>(
-        'has_pending_sip_cancellation',
-      ),
-      sipCancellationDetails: json['sip_cancellation_details'],
+      hasPendingSipCancellation:
+          json.parse<bool>('has_pending_sip_cancellation') ?? false,
+      sipCancellationDetails: json['sip_cancellation_details'] is Map<String, dynamic>
+          ? GoalSipCancellationDetailModel.fromJson(
+              json['sip_cancellation_details'] as Map<String, dynamic>,
+            )
+          : null,
       latestOrderStatus:
           json.parse<String>('latest_order_status') ??
           json.parse<String>('order_status'),
@@ -501,6 +718,11 @@ class GoalLinkedFundModel {
       investmentType:
           json.parse<String>('investment_type') ?? json.parse<String>('type'),
       exitLoad: json.parse<String>('exit_load'),
+      transactions: json.parseListOf<GoalFundTransactionModel>(
+        'transactions',
+        (item) =>
+            GoalFundTransactionModel.fromJson(item as Map<String, dynamic>),
+      ),
     );
   }
 
@@ -540,6 +762,8 @@ class GoalLinkedFundModel {
       allotmentStatusLabel: allotmentStatusLabel ?? '',
       allotmentMessage: allotmentMessage ?? '',
       isUnitAllotted: isUnitAllotted ?? false,
+      isRedeemed: isRedeemed ?? false,
+      holdingStatus: holdingStatus ?? 'active',
       isInvested: isInvested ?? false,
       investmentStatus: investmentStatus ?? '',
       orderStatus: orderStatus ?? latestOrderStatus ?? '',
@@ -553,8 +777,8 @@ class GoalLinkedFundModel {
       isSip: isSip ?? false,
       sipStatus: sipStatus,
       isSipCancelled: isSipCancelled ?? false,
-      hasPendingSipCancellation: hasPendingSipCancellation ?? false,
-      sipCancellationDetails: sipCancellationDetails,
+      hasPendingSipCancellation: hasPendingSipCancellation,
+      sipCancellationDetails: sipCancellationDetails?.toEntity(),
       latestOrderStatus: latestOrderStatus ?? orderStatus ?? '',
       latestOrderStatusLabel: latestOrderStatusLabel ?? '',
       mfuOrderId: mfuOrderId ?? 0,
@@ -563,6 +787,7 @@ class GoalLinkedFundModel {
       type: type ?? investmentType ?? '',
       investmentType: investmentType ?? type ?? '',
       exitLoad: exitLoad ?? '',
+      transactions: transactions?.map((t) => t.toEntity()).toList() ?? const [],
     );
   }
 }

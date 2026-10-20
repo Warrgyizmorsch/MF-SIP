@@ -218,6 +218,8 @@ class GoalLinkedFundEntity {
   final String allotmentStatusLabel;
   final String allotmentMessage;
   final bool isUnitAllotted;
+  final bool isRedeemed;
+  final String holdingStatus;
   final bool isInvested;
   final String investmentStatus;
   final String orderStatus;
@@ -231,7 +233,7 @@ class GoalLinkedFundEntity {
   final String? sipStatus;
   final bool isSipCancelled;
   final bool hasPendingSipCancellation;
-  final dynamic sipCancellationDetails;
+  final GoalSipCancellationDetailEntity? sipCancellationDetails;
   final String latestOrderStatus;
   final String latestOrderStatusLabel;
   final int mfuOrderId;
@@ -240,6 +242,7 @@ class GoalLinkedFundEntity {
   final String type;
   final String investmentType;
   final String exitLoad;
+  final List<GoalFundTransactionEntity> transactions;
 
   GoalLinkedFundEntity({
     this.id = 0,
@@ -275,6 +278,8 @@ class GoalLinkedFundEntity {
     required this.allotmentStatusLabel,
     required this.allotmentMessage,
     required this.isUnitAllotted,
+    this.isRedeemed = false,
+    this.holdingStatus = 'active',
     this.isInvested = false,
     this.investmentStatus = '',
     this.orderStatus = '',
@@ -297,5 +302,100 @@ class GoalLinkedFundEntity {
     required this.type,
     this.investmentType = '',
     this.exitLoad = '',
+    this.transactions = const [],
+  });
+}
+
+class GoalSipCancellationDetailEntity {
+  final String status;
+  final String statusCode;
+  final String orderRefNo;
+  final String message;
+  final String cancelledDate;
+
+  GoalSipCancellationDetailEntity({
+    this.status = '',
+    this.statusCode = '',
+    this.orderRefNo = '',
+    this.message = '',
+    this.cancelledDate = '',
+  });
+}
+
+class GoalFundTransactionDisplayEntity {
+  final String amount;
+  final String units;
+
+  GoalFundTransactionDisplayEntity({
+    this.amount = '',
+    this.units = '',
+  });
+}
+
+class GoalFundTransactionEntity {
+  final int id;
+  final int txnId;
+  final String orderId;
+  final String mfOrderId;
+  final String date;
+  final String txnDate;
+  final String displayDate;
+  final String type;
+  final String txtType;
+  final String investmentType;
+  final String schemeCode;
+  final String amfiSchemeCode;
+  final String mfuSchemeCode;
+  final String fundName;
+  final String amcName;
+  final String amcLogo;
+  final String amcImageUrl;
+  final String folioNo;
+  final String folio;
+  final double amount;
+  final double units;
+  final double nav;
+  final String status;
+  final String statusLabel;
+  final String orderStatus;
+  final String orderStatusLabel;
+  final String mfuGorn;
+  final String mfuItrn;
+  final String direction;
+  final GoalFundTransactionDisplayEntity? display;
+  final int goalId;
+
+  GoalFundTransactionEntity({
+    this.id = 0,
+    this.txnId = 0,
+    this.orderId = '',
+    this.mfOrderId = '',
+    this.date = '',
+    this.txnDate = '',
+    this.displayDate = '',
+    this.type = '',
+    this.txtType = '',
+    this.investmentType = '',
+    this.schemeCode = '',
+    this.amfiSchemeCode = '',
+    this.mfuSchemeCode = '',
+    this.fundName = '',
+    this.amcName = '',
+    this.amcLogo = '',
+    this.amcImageUrl = '',
+    this.folioNo = '',
+    this.folio = '',
+    this.amount = 0.0,
+    this.units = 0.0,
+    this.nav = 0.0,
+    this.status = '',
+    this.statusLabel = '',
+    this.orderStatus = '',
+    this.orderStatusLabel = '',
+    this.mfuGorn = '',
+    this.mfuItrn = '',
+    this.direction = '',
+    this.display,
+    this.goalId = 0,
   });
 }
