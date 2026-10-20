@@ -3,22 +3,25 @@ import 'package:my_sip/features/explore/data/model/mutual_fund_list_model.dart';
 
 class MutualFundListResponseEntity extends Equatable {
   final bool? success;
+  final int? count;
   final List<MutualFundListEntity> data;
   final PaginationModelEntity? pagination;
 
   const MutualFundListResponseEntity({
     required this.success,
+    this.count,
     required this.data,
     this.pagination,
   });
   @override
-  List<Object?> get props => [success, data, pagination];
+  List<Object?> get props => [success, count, data, pagination];
 }
 
 extension MutualFundListResponseEntityX on MutualFundListResponseModel {
   MutualFundListResponseEntity toEntity() {
     return MutualFundListResponseEntity(
       success: success ?? false,
+      count: count,
       data: data.map((e) => e.toEntity()).toList(),
       pagination: pagination?.toEntity(),
     );
@@ -26,57 +29,93 @@ extension MutualFundListResponseEntityX on MutualFundListResponseModel {
 }
 
 class MutualFundListEntity extends Equatable {
+  final int? fundId;
+  final int? amcId;
   final String? baseSchemeName;
   final String? schemeType;
   final String? riskLevel;
   final String? isin;
   final String? schemeCode;
+  final String? mfuSchemeCode;
+  final String? rtaAmcCode;
   final AmcEntity? amc;
   final ReturnsEntity? returnsEntity;
 
   final double? nav;
+  final String? navDate;
+  final double? navChange;
 
   final int? minSipAmount;
   final int? minLumpsum;
   final int? minTopUp;
-  final String? schemecategory;
+  final String? allowedSipDates;
+  final bool? isSipAllowed;
+  final bool? isLumpsumAllowed;
+  final bool? isPurchaseAllowed;
+  final bool? isRedeemAllowed;
 
+  final String? schemecategory;
   final String? divoption;
 
   final List<VariantModelEntity> variants;
 
   const MutualFundListEntity({
+    this.fundId,
+    this.amcId,
     required this.returnsEntity,
     required this.schemeCode,
     required this.nav,
-
+    this.navDate,
+    this.navChange,
     required this.baseSchemeName,
     required this.schemeType,
     required this.riskLevel,
     required this.isin,
+    this.mfuSchemeCode,
+    this.rtaAmcCode,
     required this.amc,
     required this.minSipAmount,
     required this.minLumpsum,
     required this.minTopUp,
-    required this.variants,
+    this.allowedSipDates,
+    this.isSipAllowed,
+    this.isLumpsumAllowed,
+    this.isPurchaseAllowed,
+    this.isRedeemAllowed,
+    this.variants = const [],
     required this.schemecategory,
     this.divoption,
   });
 
+  /// Convenient alias for fund name
+  String? get fundName => baseSchemeName;
+
   @override
   List<Object?> get props => [
+    fundId,
+    amcId,
     returnsEntity,
     baseSchemeName,
     schemeType,
     riskLevel,
     isin,
+    schemeCode,
+    mfuSchemeCode,
+    rtaAmcCode,
     amc,
     minSipAmount,
     schemecategory,
     minLumpsum,
     minTopUp,
+    allowedSipDates,
+    isSipAllowed,
+    isLumpsumAllowed,
+    isPurchaseAllowed,
+    isRedeemAllowed,
     variants,
     nav,
+    navDate,
+    navChange,
     divoption,
   ];
 }
@@ -84,18 +123,29 @@ class MutualFundListEntity extends Equatable {
 extension MutualFundListEntityX on MutualFundListModel {
   MutualFundListEntity toEntity() {
     return MutualFundListEntity(
+      fundId: fundId,
+      amcId: amcId,
       returnsEntity: returns?.toEntity(),
       schemeCode: schemeCode,
       nav: nav,
+      navDate: navDate,
+      navChange: navChange,
       baseSchemeName: baseSchemeName,
       schemeType: schemeType,
       schemecategory: schemecategory,
       riskLevel: riskLevel,
       isin: isin,
+      mfuSchemeCode: mfuSchemeCode,
+      rtaAmcCode: rtaAmcCode,
       amc: amc?.toEntity(),
       minSipAmount: minSipAmount,
       minLumpsum: minLumpsum,
       minTopUp: minTopUp,
+      allowedSipDates: allowedSipDates,
+      isSipAllowed: isSipAllowed,
+      isLumpsumAllowed: isLumpsumAllowed,
+      isPurchaseAllowed: isPurchaseAllowed,
+      isRedeemAllowed: isRedeemAllowed,
       divoption: divoption,
       variants: variants.map((e) => e.toEntity()).toList(),
     );

@@ -2,10 +2,13 @@ import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
 class MutualFundListResponseModel {
   final bool? success;
+  final int? count;
   final List<MutualFundListModel> data;
   final PaginationModel? pagination;
+
   MutualFundListResponseModel({
     required this.success,
+    this.count,
     required this.data,
     this.pagination,
   });
@@ -13,6 +16,7 @@ class MutualFundListResponseModel {
   factory MutualFundListResponseModel.fromJson(Map<String, dynamic> json) {
     return MutualFundListResponseModel(
       success: json.parse<bool>('success'),
+      count: json.parse<int>('count'),
       data:
           json.parseListOf('data', (e) => MutualFundListModel.fromJson(e)) ??
           [],
@@ -25,57 +29,95 @@ class MutualFundListResponseModel {
 }
 
 class MutualFundListModel {
+  final int? fundId;
+  final int? amcId;
   final String? baseSchemeName;
   final String? schemeType;
   final String? riskLevel;
   final String? schemeCode;
   final String? schemecategory;
   final String? isin;
+  final String? mfuSchemeCode;
+  final String? rtaAmcCode;
   final AmcModel? amc;
   final ReturnsModel? returns;
 
   final double? nav;
+  final String? navDate;
+  final double? navChange;
 
   final int? minSipAmount;
   final int? minLumpsum;
   final int? minTopUp;
+  final String? allowedSipDates;
+  final bool? isSipAllowed;
+  final bool? isLumpsumAllowed;
+  final bool? isPurchaseAllowed;
+  final bool? isRedeemAllowed;
   final List<VariantModel> variants;
 
   final String? divoption;
 
   MutualFundListModel({
+    this.fundId,
+    this.amcId,
     this.returns,
     required this.schemeCode,
     required this.baseSchemeName,
-    required this.schemeType,
+    this.schemeType,
     required this.isin,
+    this.mfuSchemeCode,
+    this.rtaAmcCode,
     required this.riskLevel,
     required this.amc,
-    required this.variants,
+    this.variants = const [],
     required this.minSipAmount,
     required this.minLumpsum,
     required this.minTopUp,
+    this.allowedSipDates,
+    this.isSipAllowed,
+    this.isLumpsumAllowed,
+    this.isPurchaseAllowed,
+    this.isRedeemAllowed,
     required this.schemecategory,
     required this.nav,
+    this.navDate,
+    this.navChange,
     this.divoption,
   });
 
   factory MutualFundListModel.fromJson(Map<String, dynamic> json) {
     return MutualFundListModel(
+      fundId: json.parse<int>('fund_id'),
+      amcId: json.parse<int>('amc_id'),
       schemeCode: json.parse<String>('scheme_code'),
-      baseSchemeName: json.parse<String>('fund_name'),
+      baseSchemeName: json.parse<String>('fund_name') ??
+          json.parse<String>('base_scheme_name'),
       schemeType: json.parse<String>('scheme_type'),
       isin: json.parse<String>('isin'),
-      minSipAmount: json.parse<int>('min_sip_amount'),
-      minLumpsum: json.parse<int>('min_lumpsum'),
-      minTopUp: json.parse<int>('minimum_topup'),
+      mfuSchemeCode: json.parse<String>('mfu_scheme_code'),
+      rtaAmcCode: json.parse<String>('rta_amc_code'),
+      minSipAmount: json.parse<int>('min_sip_amount') ??
+          json.parse<int>('min_sip') ??
+          json.parse<int>('sip_minimum_amount'),
+      minLumpsum: json.parse<int>('min_lumpsum') ??
+          json.parse<int>('min_investment') ??
+          json.parse<int>('minimum_investment'),
+      minTopUp: json.parse<int>('minimum_topup') ??
+          json.parse<int>('min_topup'),
+      allowedSipDates: json.parse<String>('allowed_sip_dates'),
+      isSipAllowed: json.parse<bool>('is_sip_allowed'),
+      isLumpsumAllowed: json.parse<bool>('is_lumpsum_allowed'),
+      isPurchaseAllowed: json.parse<bool>('is_purchase_allowed'),
+      isRedeemAllowed: json.parse<bool>('is_redeem_allowed'),
       nav: json.parse<double>('nav'),
+      navDate: json.parse<String>('nav_date'),
+      navChange: json.parse<double>('nav_change'),
       schemecategory: json.parse<String>('scheme_category'),
       riskLevel: json.parse<String>('risk_level'),
       divoption: json.parse<String>('divoption'),
       amc: json.parseNested('amc', (e) => AmcModel.fromJson(e)),
       returns: json.parseNested('returns', (e) => ReturnsModel.fromJson(e)),
-
       variants:
           json.parseListOf('variants', (e) => VariantModel.fromJson(e)) ?? [],
     );
