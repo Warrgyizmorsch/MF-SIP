@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
+    hide showCustomToast, showCustomToast1;
 import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
@@ -31,6 +33,9 @@ class FundDetailsController extends GetxController
   late String contact;
   late String address;
   late String isin;
+  final isPurchaseAllowed = true.obs;
+  final isSipAllowed = true.obs;
+  final isLumpsumAllowed = true.obs;
 
   // Controllers
   late TabController tabController;
@@ -150,6 +155,24 @@ class FundDetailsController extends GetxController
     isin =
         _firstValid([navArgs['isin'], getArgs['isin'], params['isin']]) ?? '--';
 
+    final purchaseAllowedVal =
+        navArgs['is_purchase_allowed'] ?? getArgs['is_purchase_allowed'];
+    if (purchaseAllowedVal != null) {
+      isPurchaseAllowed.value = purchaseAllowedVal != false;
+    }
+
+    final sipAllowedVal =
+        navArgs['is_sip_allowed'] ?? getArgs['is_sip_allowed'];
+    if (sipAllowedVal != null) {
+      isSipAllowed.value = sipAllowedVal != false;
+    }
+
+    final lumpsumAllowedVal =
+        navArgs['is_lumpsum_allowed'] ?? getArgs['is_lumpsum_allowed'];
+    if (lumpsumAllowedVal != null) {
+      isLumpsumAllowed.value = lumpsumAllowedVal != false;
+    }
+
     FundDetailsScreen.navData = null;
 
     createLog("Loading Fund: $schemeName with code: $schemeCode, isin: $isin");
@@ -202,6 +225,36 @@ class FundDetailsController extends GetxController
   Future<void> handleAddToCart({bool isLumpsum = false}) async {
     final fund = fundDetail.value;
     if (fund == null) return;
+
+    if (isPurchaseAllowed.value == false) {
+      showCustomToast(
+        title: "Purchase Paused",
+        message: "This fund is currently not accepting new investments.",
+        backgroundColor: Colors.orange.shade800,
+        icon: Icons.pause_circle_outline,
+      );
+      return;
+    }
+
+    if (isLumpsum && isLumpsumAllowed.value == false) {
+      showCustomToast(
+        title: "Lumpsum Unavailable",
+        message: "Lumpsum investments are not allowed for this scheme.",
+        backgroundColor: Colors.orange.shade800,
+        icon: Icons.pause_circle_outline,
+      );
+      return;
+    }
+
+    if (!isLumpsum && isSipAllowed.value == false) {
+      showCustomToast(
+        title: "SIP Unavailable",
+        message: "SIP investments are not allowed for this scheme.",
+        backgroundColor: Colors.orange.shade800,
+        icon: Icons.pause_circle_outline,
+      );
+      return;
+    }
 
     String type = isLumpsum ? 'lumpsum' : 'sip';
 

@@ -285,6 +285,11 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   Widget _buildWebFundCard(MutualFundListEntity fund, int index) {
     return Obx(() {
       final isSelected = controller.isSelected(fund.schemeCode ?? "");
+      final bool canPurchase = fund.isPurchaseAllowed != false;
+      final bool canInvestInMode = controller.isLumpsum.value
+          ? (canPurchase && fund.isLumpsumAllowed != false)
+          : (canPurchase && fund.isSipAllowed != false);
+      final bool isPaused = !canInvestInMode;
       final textController = controller.getTextController(
         fund.schemeCode ?? "",
       );
@@ -298,15 +303,19 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? Ucolors.primary.withValues(alpha: 0.04)
-                  : Colors.white,
+              color: isPaused
+                  ? Colors.grey.shade50
+                  : (isSelected
+                      ? Ucolors.primary.withValues(alpha: 0.04)
+                      : Colors.white),
               border: Border.all(
-                color: isSelected ? Ucolors.primary : Colors.grey.shade300,
-                width: isSelected ? 2.0 : 1.2,
+                color: isPaused
+                    ? Colors.grey.shade300
+                    : (isSelected ? Ucolors.primary : Colors.grey.shade300),
+                width: isSelected && !isPaused ? 2.0 : 1.2,
               ),
               borderRadius: BorderRadius.circular(12),
-              boxShadow: isSelected
+              boxShadow: isSelected && !isPaused
                   ? [
                       BoxShadow(
                         color: Ucolors.primary.withValues(alpha: 0.08),
@@ -347,43 +356,82 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                         ),
                       ),
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
+                    if (isPaused)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.red.shade200,
+                            width: 0.8,
                           ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Ucolors.primary.withValues(alpha: 0.1)
-                                : Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            isSelected ? "✓ Selected" : "+ Select",
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.pause_circle_filled,
+                              size: 12,
+                              color: Colors.red.shade700,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              !canPurchase
+                                  ? "Paused"
+                                  : (controller.isLumpsum.value
+                                      ? "Lumpsum Paused"
+                                      : "SIP Paused"),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
                               color: isSelected
-                                  ? Ucolors.primary
-                                  : Colors.grey.shade600,
+                                  ? Ucolors.primary.withValues(alpha: 0.1)
+                                  : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              isSelected ? "✓ Selected" : "+ Select",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isSelected
+                                    ? Ucolors.primary
+                                    : Colors.grey.shade600,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          isSelected
-                              ? Icons.check_circle
-                              : Icons.radio_button_unchecked,
-                          color: isSelected
-                              ? Ucolors.primary
-                              : Colors.grey.shade400,
-                          size: 20,
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            isSelected
+                                ? Icons.check_circle
+                                : Icons.radio_button_unchecked,
+                            color: isSelected
+                                ? Ucolors.primary
+                                : Colors.grey.shade400,
+                            size: 20,
+                          ),
+                        ],
+                      ),
                   ],
                 ),
             const SizedBox(height: 4),
@@ -1007,6 +1055,11 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                             final isSelected = controller.isSelected(
                               fund.schemeCode ?? "",
                             );
+                            final bool canPurchase = fund.isPurchaseAllowed != false;
+                            final bool canInvestInMode = controller.isLumpsum.value
+                                ? (canPurchase && fund.isLumpsumAllowed != false)
+                                : (canPurchase && fund.isSipAllowed != false);
+                            final bool isPaused = !canInvestInMode;
 
                             return Stack(
                               children: [
@@ -1028,14 +1081,18 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                       width: 24,
                                       height: 24,
                                       decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? Ucolors.primary
-                                            : Colors.white,
+                                        color: isPaused
+                                            ? Colors.grey.shade200
+                                            : (isSelected
+                                                ? Ucolors.primary
+                                                : Colors.white),
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(
-                                          color: isSelected
-                                              ? Ucolors.primary
-                                              : Colors.grey.shade400,
+                                          color: isPaused
+                                              ? Colors.grey.shade400
+                                              : (isSelected
+                                                  ? Ucolors.primary
+                                                  : Colors.grey.shade400),
                                           width: 1.5,
                                         ),
                                         boxShadow: [
@@ -1048,13 +1105,19 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                           ),
                                         ],
                                       ),
-                                      child: isSelected
-                                          ? const Icon(
-                                              Icons.check,
-                                              size: 16,
-                                              color: Colors.white,
+                                      child: isPaused
+                                          ? Icon(
+                                              Icons.block,
+                                              size: 14,
+                                              color: Colors.grey.shade600,
                                             )
-                                          : null,
+                                          : (isSelected
+                                              ? const Icon(
+                                                  Icons.check,
+                                                  size: 16,
+                                                  color: Colors.white,
+                                                )
+                                              : null),
                                     ),
                                   ),
                                 ),
@@ -1392,6 +1455,12 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   Widget _buildSchemeCard(MutualFundListEntity fund, int index) {
     return Obx(() {
       final isSelected = controller.isSelected(fund.schemeCode ?? "");
+      final bool canPurchase = fund.isPurchaseAllowed != false;
+      final bool canInvestInMode = controller.isLumpsum.value
+          ? (canPurchase && fund.isLumpsumAllowed != false)
+          : (canPurchase && fund.isSipAllowed != false);
+      final bool isPaused = !canInvestInMode;
+
       return Material(
         color: Colors.transparent,
         child: InkWell(
@@ -1401,15 +1470,19 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? Ucolors.primary.withValues(alpha: 0.04)
-                  : Colors.white,
+              color: isPaused
+                  ? Colors.grey.shade50
+                  : (isSelected
+                      ? Ucolors.primary.withValues(alpha: 0.04)
+                      : Colors.white),
               border: Border.all(
-                color: isSelected ? Ucolors.primary : Colors.grey.shade300,
-                width: isSelected ? 1.8 : 1.0,
+                color: isPaused
+                    ? Colors.grey.shade300
+                    : (isSelected ? Ucolors.primary : Colors.grey.shade300),
+                width: isSelected && !isPaused ? 1.8 : 1.0,
               ),
               borderRadius: BorderRadius.circular(16.0),
-              boxShadow: isSelected
+              boxShadow: isSelected && !isPaused
                   ? [
                       BoxShadow(
                         color: Ucolors.primary.withValues(alpha: 0.08),
@@ -1451,38 +1524,78 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? Ucolors.primary.withValues(alpha: 0.1)
-                            : Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        isSelected ? "✓ Selected" : "+ Select",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                    if (isPaused)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.red.shade200,
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.pause_circle_filled,
+                              size: 12,
+                              color: Colors.red.shade700,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              !canPurchase
+                                  ? "Paused"
+                                  : (controller.isLumpsum.value
+                                      ? "Lumpsum Paused"
+                                      : "SIP Paused"),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
                           color: isSelected
-                              ? Ucolors.primary
-                              : Colors.grey.shade600,
+                              ? Ucolors.primary.withValues(alpha: 0.1)
+                              : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          isSelected ? "✓ Selected" : "+ Select",
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected
+                                ? Ucolors.primary
+                                : Colors.grey.shade600,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Icon(
-                      isSelected
-                          ? Icons.check_circle
-                          : Icons.radio_button_unchecked,
-                      color: isSelected
-                          ? Ucolors.primary
-                          : Colors.grey.shade400,
-                      size: 22,
-                    ),
+                      const SizedBox(width: 6),
+                      Icon(
+                        isSelected
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: isSelected
+                            ? Ucolors.primary
+                            : Colors.grey.shade400,
+                        size: 22,
+                      ),
+                    ],
                   ],
                 ),
               const SizedBox(height: 12),

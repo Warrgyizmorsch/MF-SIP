@@ -9,9 +9,11 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/custom_footer.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
+    hide showCustomToast, showCustomToast1;
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
@@ -88,6 +90,55 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                             .riskStatisticsList
                             .isNotEmpty
                         ? Obx(() {
+                            if (controller.isPurchaseAllowed.value == false) {
+                              return Container(
+                                width: double.infinity,
+                                height: 50,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF2F4F7),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: const Color(0xFFD0D5DD),
+                                  ),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    showCustomToast(
+                                      title: "Purchase Paused",
+                                      message:
+                                          "This fund is currently not accepting new investments.",
+                                      backgroundColor: Colors.orange.shade800,
+                                      icon: Icons.pause_circle_outline,
+                                    );
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(
+                                        Icons.pause_circle_outline_rounded,
+                                        size: 18,
+                                        color: Color(0xFF667085),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "Currently Not Accepting Investments",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF667085),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+
                             final bool isAlreadyInCart = cartController
                                 .cartItems
                                 .any(
@@ -3350,78 +3401,101 @@ class _DesktopActionCard extends StatelessWidget {
             ),
           ),
           const Gap(28),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: () =>
-                  Get.find<FundDetailsController>().handleAddToCart(),
-              // onPressed: () async {
-              //   await cartController.addToCart(
-              //     Get.find<FundDetailsController>().schemeCode,
-              //     Get.find<FundDetailsController>().schemeName,
-              //     Get.find<FundDetailsController>()
-              //             .fundDetail
-              //             .value
-              //             ?.sipMinimumAmount ??
-              //         1000,
+          Obx(() {
+            final fdc = Get.find<FundDetailsController>();
+            final bool isPaused = fdc.isPurchaseAllowed.value == false;
+            final bool sipPaused = isPaused || fdc.isSipAllowed.value == false;
+            final bool lumpsumPaused =
+                isPaused || fdc.isLumpsumAllowed.value == false;
 
-              //     // fund.schemeCode ?? '',
-              //     // fund.baseSchemeName ?? '',
-              //     // fund.minSipAmount ?? 0,
-              //     null,
-              //   );
-              //   // await cartController.fetchCart();
-
-              //   Get.toNamed(AppRoutes.cart, id: 1);
-              //   log('start sip');
-              // },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Ucolors.primary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            return Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: sipPaused
+                        ? () {
+                            showCustomToast(
+                              title: "SIP Unavailable",
+                              message: isPaused
+                                  ? "This fund is currently not accepting new investments."
+                                  : "SIP investments are not allowed for this scheme.",
+                              backgroundColor: Colors.orange.shade800,
+                              icon: Icons.pause_circle_outline,
+                            );
+                          }
+                        : () => fdc.handleAddToCart(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          sipPaused ? const Color(0xFFE4E7EC) : Colors.white,
+                      foregroundColor:
+                          sipPaused ? const Color(0xFF667085) : Ucolors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      sipPaused ? "SIP Paused" : "Start SIP",
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: sipPaused
+                            ? const Color(0xFF667085)
+                            : Ucolors.primary,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: const Text(
-                "Start SIP",
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                const Gap(12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: OutlinedButton(
+                    onPressed: lumpsumPaused
+                        ? () {
+                            showCustomToast(
+                              title: "Lumpsum Unavailable",
+                              message: isPaused
+                                  ? "This fund is currently not accepting new investments."
+                                  : "Lumpsum investments are not allowed for this scheme.",
+                              backgroundColor: Colors.orange.shade800,
+                              icon: Icons.pause_circle_outline,
+                            );
+                          }
+                        : () => fdc.handleAddToCart(isLumpsum: true),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: lumpsumPaused
+                            ? const Color(0xFFD0D5DD)
+                            : Colors.white,
+                        width: 2,
+                      ),
+                      foregroundColor: lumpsumPaused
+                          ? const Color(0xFFD0D5DD)
+                          : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      lumpsumPaused ? "Lumpsum Paused" : "Lumpsum Invest",
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: lumpsumPaused
+                            ? const Color(0xFFD0D5DD)
+                            : Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          const Gap(12),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: OutlinedButton(
-              // onPressed: () {
-              //   log('lumpsum invest ');
-
-              // },
-              onPressed: () => Get.find<FundDetailsController>()
-                  .handleAddToCart(isLumpsum: true),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.white, width: 2),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                "Lumpsum Invest",
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
+              ],
+            );
+          }),
         ],
       ),
     );

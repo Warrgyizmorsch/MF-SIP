@@ -113,6 +113,25 @@ class SipProcessController extends GetxController
       selectedFunds.removeWhere((item) => item.schemeCode == code);
       fundAmounts.remove(code);
     } else {
+      final bool canPurchase = fund.isPurchaseAllowed != false;
+      final bool canInvestInMode = isLumpsum.value
+          ? (canPurchase && fund.isLumpsumAllowed != false)
+          : (canPurchase && fund.isSipAllowed != false);
+
+      if (!canInvestInMode) {
+        showCustomToast(
+          title: "Investment Unavailable",
+          message: !canPurchase
+              ? "Purchases for this fund are temporarily suspended by the AMC."
+              : (isLumpsum.value
+                  ? "Lumpsum investments are not allowed for this scheme."
+                  : "SIP investments are not allowed for this scheme."),
+          backgroundColor: Colors.orange.shade800,
+          icon: Icons.pause_circle_outline,
+        );
+        return;
+      }
+
       selectedFunds.add(fund);
 
       double initialValue = amount.value < minAmount
@@ -146,6 +165,23 @@ class SipProcessController extends GetxController
         backgroundColor: Colors.red,
         icon: Icons.warning,
         message: "", // Not used in your title-only toast
+      );
+      return;
+    }
+
+    final unpurchasable = selectedFunds.where((fund) {
+      if (fund.isPurchaseAllowed == false) return true;
+      if (isLumpsum.value && fund.isLumpsumAllowed == false) return true;
+      if (!isLumpsum.value && fund.isSipAllowed == false) return true;
+      return false;
+    }).toList();
+
+    if (unpurchasable.isNotEmpty) {
+      showCustomToast(
+        title: "Investment Unavailable",
+        message: "${unpurchasable.first.baseSchemeName ?? 'Selected fund'} is currently not accepting investments.",
+        backgroundColor: Colors.orange.shade800,
+        icon: Icons.pause_circle_outline,
       );
       return;
     }

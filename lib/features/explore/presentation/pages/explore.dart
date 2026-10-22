@@ -1,6 +1,4 @@
-// ignore_for_file: dead_null_aware_expression, dead_code, unused_element_parameter
-
-import 'dart:developer';
+// ignore_for_file: dead_null_aware_expression, dead_code, unused_element_parameter, unused_local_variable
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +53,37 @@ PopupMenuItem<FundMenuAction> buildFundMenuItem({
         Text(
           text,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _purchasePausedBadge({double fontSize = 10, double iconSize = 11}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFEF3F2),
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: const Color(0xFFFECDCA)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.pause_circle_outline_rounded,
+          size: iconSize,
+          color: const Color(0xFFB42318),
+        ),
+        const SizedBox(width: 3.5),
+        Text(
+          'Purchase Paused',
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFFB42318),
+            letterSpacing: 0.1,
+          ),
         ),
       ],
     ),
@@ -950,7 +979,16 @@ class WebFundListCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 5),
-        _riskPill(entity.riskLevel, isLaptop: isLaptop),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _riskPill(entity.riskLevel, isLaptop: isLaptop),
+            if (entity.isPurchaseAllowed == false) ...[
+              const SizedBox(width: 6),
+              _purchasePausedBadge(fontSize: isLaptop ? 9.5 : 10),
+            ],
+          ],
+        ),
       ],
     );
   }
@@ -1161,6 +1199,9 @@ class WebFundListCard extends StatelessWidget {
     RxBool isPressed, {
     required double size,
   }) {
+    if (entity.isPurchaseAllowed == false) {
+      return SizedBox(width: size, height: size);
+    }
     return Obx(() {
       final cartController = Get.find<CartController>();
       final String code = entity.schemeCode ?? '';
@@ -1227,53 +1268,72 @@ class WebFundListCard extends StatelessWidget {
     required double height,
     required bool isLaptop,
   }) {
+    final bool isPaused = entity.isPurchaseAllowed == false;
+
     return SizedBox(
       width: width,
       height: height,
       child: ElevatedButton(
-        onPressed: () {
-          GatekeeperHelper.runWithPrerequisites(
-            isLumpsum: true,
-            onSuccess: () {
-              final purchaseArgs = SipPurchaseArgs(
-                schemeCode: entity.schemeCode ?? '',
-                fundName: entity.baseSchemeName ?? '',
-                category: 'Unknown',
-                riskLabel: entity.riskLevel ?? '',
-                minSip: entity.minSipAmount ?? 1000,
-                minLumpsum: entity.minLumpsum ?? 1000,
-                minTopup: entity.minTopUp ?? 5000,
-                folio: null,
-                imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
-                divoption: entity.divoption,
-              );
+        onPressed: isPaused
+          ? () {
+                showCustomToast(
+                  title: "Purchase Paused",
+                  message:
+                      "This fund is currently not accepting new investments.",
+                  backgroundColor: Colors.orange.shade800,
+                  icon: Icons.pause_circle_outline,
+                );
+              }
+            : () {
+                GatekeeperHelper.runWithPrerequisites(
+                  isLumpsum: true,
+                  onSuccess: () {
+                    final purchaseArgs = SipPurchaseArgs(
+                      schemeCode: entity.schemeCode ?? '',
+                      fundName: entity.baseSchemeName ?? '',
+                      category: 'Unknown',
+                      riskLabel: entity.riskLevel ?? '',
+                      minSip: entity.minSipAmount ?? 1000,
+                      minLumpsum: entity.minLumpsum ?? 1000,
+                      minTopup: entity.minTopUp ?? 5000,
+                      folio: null,
+                      imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+                      divoption: entity.divoption,
+                    );
 
-              SIPPurchasePage.tempData = purchaseArgs;
+                    SIPPurchasePage.tempData = purchaseArgs;
 
-              Get.toNamed(
-                AppRoutes.investNowPage,
-                id: kIsWeb ? 1 : null,
-                arguments: purchaseArgs,
-              );
-            },
-          );
-        },
+                    Get.toNamed(
+                      AppRoutes.investNowPage,
+                      id: kIsWeb ? 1 : null,
+                      arguments: purchaseArgs,
+                    );
+                  },
+                );
+              },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Ucolors.primary,
-          foregroundColor: Colors.white,
+          backgroundColor:
+              isPaused ? const Color(0xFFF2F4F7) : Ucolors.primary,
+          foregroundColor:
+              isPaused ? const Color(0xFF667085) : Colors.white,
           elevation: 0,
           padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(7),
+            side: isPaused
+                ? const BorderSide(color: Color(0xFFD0D5DD))
+                : BorderSide.none,
+          ),
         ),
         child: Text(
-          'Invest Now',
+          isPaused ? 'Paused' : 'Invest Now',
           maxLines: 1,
           softWrap: false,
           style: TextStyle(
             fontFamily: FontFamily.medium,
             fontSize: isLaptop ? 11.5 : 13,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: isPaused ? const Color(0xFF667085) : Colors.white,
           ),
         ),
       ),
@@ -1357,6 +1417,9 @@ class WebFundListCard extends StatelessWidget {
           'email': entity.amc?.email,
           'address': entity.amc?.address,
           'contact': entity.amc?.contact,
+          'is_purchase_allowed': entity.isPurchaseAllowed,
+          'is_sip_allowed': entity.isSipAllowed,
+          'is_lumpsum_allowed': entity.isLumpsumAllowed,
         },
         beforeOpen: () {
           if (Get.isRegistered<FundDetailsController>()) {
@@ -1371,6 +1434,9 @@ class WebFundListCard extends StatelessWidget {
             'email': entity.amc?.email,
             'address': entity.amc?.address,
             'contact': entity.amc?.contact,
+            'is_purchase_allowed': entity.isPurchaseAllowed,
+            'is_sip_allowed': entity.isSipAllowed,
+            'is_lumpsum_allowed': entity.isLumpsumAllowed,
           };
         },
       );
@@ -1387,6 +1453,9 @@ class WebFundListCard extends StatelessWidget {
         'email': entity.amc?.email,
         'address': entity.amc?.address,
         'contact': entity.amc?.contact,
+        'is_purchase_allowed': entity.isPurchaseAllowed,
+        'is_sip_allowed': entity.isSipAllowed,
+        'is_lumpsum_allowed': entity.isLumpsumAllowed,
       };
 
       Get.toNamed(AppRoutes.funddetails);
@@ -2004,6 +2073,9 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
   }
 
   Widget _webCartButton(MutualFundListEntity entity, RxBool isPressed) {
+    if (entity.isPurchaseAllowed == false) {
+      return const SizedBox.shrink();
+    }
     return Obx(() {
       final cartController = Get.find<CartController>();
       final String code = entity.schemeCode ?? '';
@@ -2166,6 +2238,9 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
           'email': entity.amc?.email,
           'address': entity.amc?.address,
           'contact': entity.amc?.contact,
+          'is_purchase_allowed': entity.isPurchaseAllowed,
+          'is_sip_allowed': entity.isSipAllowed,
+          'is_lumpsum_allowed': entity.isLumpsumAllowed,
         },
         beforeOpen: () {
           if (Get.isRegistered<FundDetailsController>()) {
@@ -2180,6 +2255,9 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
             'email': entity.amc?.email,
             'address': entity.amc?.address,
             'contact': entity.amc?.contact,
+            'is_purchase_allowed': entity.isPurchaseAllowed,
+            'is_sip_allowed': entity.isSipAllowed,
+            'is_lumpsum_allowed': entity.isLumpsumAllowed,
           };
         },
       );
@@ -2196,6 +2274,9 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
         'email': entity.amc?.email,
         'address': entity.amc?.address,
         'contact': entity.amc?.contact,
+        'is_purchase_allowed': entity.isPurchaseAllowed,
+        'is_sip_allowed': entity.isSipAllowed,
+        'is_lumpsum_allowed': entity.isLumpsumAllowed,
       };
 
       Get.toNamed(AppRoutes.funddetails);
@@ -2283,67 +2364,88 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
     MutualFundListEntity entity,
     double Function(double) scale,
   ) {
+    final bool isPaused = entity.isPurchaseAllowed == false;
+
     return SizedBox(
       height: scale(38),
 
       child: ElevatedButton(
-        onPressed: () async {
-          // await controller.addToCart(
-          //   entity.schemeCode ?? '',
-          //   entity.baseSchemeName ?? '',
-          //   entity.minSipAmount ?? 0,
-          //   null,
-          // );
+        onPressed: isPaused
+            ? () {
+                showCustomToast(
+                  title: "Purchase Paused",
+                  message:
+                      "This fund is currently not accepting new investments.",
+                  backgroundColor: Colors.orange.shade800,
+                  icon: Icons.pause_circle_outline,
+                );
+              }
+            : () async {
+                // await controller.addToCart(
+                //   entity.schemeCode ?? '',
+                //   entity.baseSchemeName ?? '',
+                //   entity.minSipAmount ?? 0,
+                //   null,
+                // );
 
-          // // await controller.fetchCart();
-          GatekeeperHelper.runWithPrerequisites(
-            isLumpsum: true,
-            onSuccess: () {
-              // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
-              final argVal = controller.fundDetail.value;
+                // // await controller.fetchCart();
+                GatekeeperHelper.runWithPrerequisites(
+                  isLumpsum: true,
+                  onSuccess: () {
+                    // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
+                    final argVal = controller.fundDetail.value;
 
-              final purchaseArgs = SipPurchaseArgs(
-                schemeCode: entity.schemeCode ?? '',
-                fundName: entity.baseSchemeName ?? '',
-                category: '' ?? "Unknown",
-                riskLabel: entity.riskLevel ?? "",
-                minSip: entity.minSipAmount ?? 1000,
-                minLumpsum: entity.minLumpsum ?? 1000,
-                minTopup: entity.minTopUp ?? 5000,
-                folio: null,
-                imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}' ?? "",
-                divoption: entity.divoption,
-              );
+                    final purchaseArgs = SipPurchaseArgs(
+                      schemeCode: entity.schemeCode ?? '',
+                      fundName: entity.baseSchemeName ?? '',
+                      category: '' ?? "Unknown",
+                      riskLabel: entity.riskLevel ?? "",
+                      minSip: entity.minSipAmount ?? 1000,
+                      minLumpsum: entity.minLumpsum ?? 1000,
+                      minTopup: entity.minTopUp ?? 5000,
+                      folio: null,
+                      imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}' ?? "",
+                      divoption: entity.divoption,
+                    );
 
-              SIPPurchasePage.tempData = purchaseArgs;
+                    SIPPurchasePage.tempData = purchaseArgs;
 
-              Get.toNamed(
-                AppRoutes.investNowPage,
-                // id: 1,
-                id: kIsWeb ? 1 : null,
+                    Get.toNamed(
+                      AppRoutes.investNowPage,
+                      // id: 1,
+                      id: kIsWeb ? 1 : null,
 
-                arguments: purchaseArgs,
-              );
-            },
-          );
-        },
+                      arguments: purchaseArgs,
+                    );
+                  },
+                );
+              },
 
         style: ElevatedButton.styleFrom(
-          backgroundColor: Ucolors.primary,
-          foregroundColor: Colors.white,
+          backgroundColor:
+              isPaused ? const Color(0xFFF2F4F7) : Ucolors.primary,
+          foregroundColor:
+              isPaused ? const Color(0xFF667085) : Colors.white,
           elevation: 0,
 
           padding: EdgeInsets.symmetric(horizontal: scale(20)),
 
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(scale(10)),
+            side: isPaused
+                ? const BorderSide(color: Color(0xFFD0D5DD))
+                : BorderSide.none,
           ),
         ),
 
         child: Text(
-          "Invest",
+          isPaused ? "Paused" : "Invest",
 
-          style: TextStyle(fontSize: scale(12), fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: scale(12),
+            fontWeight: FontWeight.bold,
+            color: isPaused ? const Color(0xFF667085) : Colors.white,
+          ),
         ),
       ),
     );
@@ -2412,6 +2514,11 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                   ),
+
+                  if (entity.isPurchaseAllowed == false) ...[
+                    const Gap(6),
+                    _purchasePausedBadge(),
+                  ],
                 ],
               ),
             ),
@@ -2795,6 +2902,9 @@ class MutualFundCard extends StatelessWidget {
                 'email': entity.amc?.email,
                 'address': entity.amc?.address,
                 'contact': entity.amc?.contact,
+                'is_purchase_allowed': entity.isPurchaseAllowed,
+                'is_sip_allowed': entity.isSipAllowed,
+                'is_lumpsum_allowed': entity.isLumpsumAllowed,
               },
             );
           },
@@ -2866,6 +2976,10 @@ class MutualFundCard extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (entity.isPurchaseAllowed == false) ...[
+                        const SizedBox(height: 4),
+                        _purchasePausedBadge(),
+                      ],
                     ],
                   ),
                 ),
@@ -2879,6 +2993,19 @@ class MutualFundCard extends StatelessWidget {
                         ),
                         offset: const Offset(0, 40),
                         onSelected: (value) async {
+                          if (entity.isPurchaseAllowed == false &&
+                              (value == FundMenuAction.addToCart ||
+                                  value == FundMenuAction.buySIP ||
+                                  value == FundMenuAction.buyLumpsum)) {
+                            showCustomToast(
+                              title: "Purchase Paused",
+                              message:
+                                  "This fund is currently not accepting new investments.",
+                              backgroundColor: Colors.orange.shade800,
+                              icon: Icons.pause_circle_outline,
+                            );
+                            return;
+                          }
                           switch (value) {
                             // Add to cart
                             case FundMenuAction.addToCart:
@@ -2930,6 +3057,11 @@ class MutualFundCard extends StatelessWidget {
                                       "${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}",
                                   'scheme_code': entity.schemeCode.toString(),
                                   'isin': entity.isin,
+                                  'is_purchase_allowed':
+                                      entity.isPurchaseAllowed,
+                                  'is_sip_allowed': entity.isSipAllowed,
+                                  'is_lumpsum_allowed':
+                                      entity.isLumpsumAllowed,
                                 },
                               );
                               mutualFundController.addToLocalRecentlyViewed(
@@ -2938,35 +3070,47 @@ class MutualFundCard extends StatelessWidget {
                               break;
                           }
                         },
-                        itemBuilder: (context) => [
-                          buildFundMenuItem(
-                            icon: Iconsax.card_send,
-                            text: 'Add to cart',
-                            value: FundMenuAction.addToCart,
-                          ),
-                          if (showTrainlings) ...[
+                        itemBuilder: (context) {
+                          final bool canPurchase =
+                              entity.isPurchaseAllowed != false;
+                          final bool canSip =
+                              canPurchase && (entity.isSipAllowed != false);
+                          final bool canLumpsum =
+                              canPurchase && (entity.isLumpsumAllowed != false);
+
+                          return [
+                            if (canPurchase)
+                              buildFundMenuItem(
+                                icon: Iconsax.card_send,
+                                text: 'Add to cart',
+                                value: FundMenuAction.addToCart,
+                              ),
+                            if (showTrainlings) ...[
+                              if (canSip)
+                                buildFundMenuItem(
+                                  icon: Iconsax.edit_2,
+                                  text: 'Buy SIP',
+                                  value: FundMenuAction.buySIP,
+                                ),
+                              if (canLumpsum)
+                                buildFundMenuItem(
+                                  icon: Iconsax.pause,
+                                  text: 'Buy Lumpsum',
+                                  value: FundMenuAction.buyLumpsum,
+                                ),
+                            ],
                             buildFundMenuItem(
-                              icon: Iconsax.edit_2,
-                              text: 'Buy SIP',
-                              value: FundMenuAction.buySIP,
+                              icon: Iconsax.add,
+                              text: 'Add to watchlist',
+                              value: FundMenuAction.addToWatchlist,
                             ),
                             buildFundMenuItem(
-                              icon: Iconsax.pause, // Or Iconsax.convert_card
-                              text: 'Buy Lumpsum',
-                              value: FundMenuAction.buyLumpsum,
+                              icon: Iconsax.receipt,
+                              text: 'Fund Details',
+                              value: FundMenuAction.fundDetails,
                             ),
-                          ],
-                          buildFundMenuItem(
-                            icon: Iconsax.add,
-                            text: 'Add to watchlist',
-                            value: FundMenuAction.addToWatchlist,
-                          ),
-                          buildFundMenuItem(
-                            icon: Iconsax.receipt,
-                            text: 'Fund Details',
-                            value: FundMenuAction.fundDetails,
-                          ),
-                        ],
+                          ];
+                        },
                       )
                     : Deleteiconwithcontainer(containercolor: containercolor),
               ],
