@@ -1028,7 +1028,25 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                 final isSelected = _selectedSchemeCodes.contains(schemeCode);
                 final name = fund.baseSchemeName ?? 'Unknown Fund';
                 final logoUrl = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
-                final threeYear = fund.returnsEntity?.threeYear ?? '0';
+                final activeSort = _mutualController.currentSortLabel.value;
+                final String returnLabel;
+                final String returnVal;
+                switch (activeSort) {
+                  case '1Y':
+                    returnLabel = '1Y';
+                    returnVal = fund.returnsEntity?.oneYear ?? '0';
+                    break;
+                  case '5Y':
+                    returnLabel = '5Y';
+                    returnVal = fund.returnsEntity?.fiveYear ?? '0';
+                    break;
+                  case '3Y':
+                  default:
+                    returnLabel = '3Y';
+                    returnVal = fund.returnsEntity?.threeYear ?? '0';
+                    break;
+                }
+                final double retNum = double.tryParse(returnVal) ?? 0.0;
                 final minAllowed = _getMinAmountForFund(fund);
                 final sipMin =
                     (fund.minSipAmount != null && fund.minSipAmount! > 0)
@@ -1149,11 +1167,13 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      "3Y: $threeYear%",
-                                      style: const TextStyle(
+                                      "$returnLabel: $returnVal%",
+                                      style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
-                                        color: Ucolors.success,
+                                        color: retNum < 0
+                                            ? Colors.red
+                                            : Ucolors.success,
                                       ),
                                     ),
                                     const SizedBox(width: 6),

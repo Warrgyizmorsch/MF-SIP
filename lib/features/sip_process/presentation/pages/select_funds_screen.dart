@@ -294,6 +294,28 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
         fund.schemeCode ?? "",
       );
 
+      final mutualCtrl = Get.isRegistered<MutualFundController>()
+          ? Get.find<MutualFundController>()
+          : null;
+      final activeSort = mutualCtrl?.currentSortLabel.value;
+      final String returnLabel;
+      final String returnVal;
+      switch (activeSort) {
+        case '1Y':
+          returnLabel = '1Y';
+          returnVal = fund.returnsEntity?.oneYear ?? '0.0';
+          break;
+        case '5Y':
+          returnLabel = '5Y';
+          returnVal = fund.returnsEntity?.fiveYear ?? '0.0';
+          break;
+        case '3Y':
+        default:
+          returnLabel = '3Y';
+          returnVal = fund.returnsEntity?.threeYear ?? '0.0';
+          break;
+      }
+
       return Material(
         color: Colors.transparent,
         child: InkWell(
@@ -513,16 +535,18 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      "${fund.returnsEntity?.oneYear ?? '0.0'}%",
-                      style: const TextStyle(
+                      "$returnVal%",
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                        color: (double.tryParse(returnVal) ?? 0.0) < 0
+                            ? Colors.red
+                            : Colors.green,
                       ),
                     ),
-                    const Text(
-                      "3Y RETURNS", // Changed from 1Y to 3Y to match your design view
-                      style: TextStyle(
+                    Text(
+                      "$returnLabel RETURNS",
+                      style: const TextStyle(
                         fontSize: 9,
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
@@ -1461,6 +1485,29 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           : (canPurchase && fund.isSipAllowed != false);
       final bool isPaused = !canInvestInMode;
 
+      final mutualCtrl = Get.isRegistered<MutualFundController>()
+          ? Get.find<MutualFundController>()
+          : null;
+      final activeSort = mutualCtrl?.currentSortLabel.value;
+      final String returnLabel;
+      final String returnVal;
+      switch (activeSort) {
+        case '1Y':
+          returnLabel = '1Y';
+          returnVal = fund.returnsEntity?.oneYear ?? '0.0';
+          break;
+        case '5Y':
+          returnLabel = '5Y';
+          returnVal = fund.returnsEntity?.fiveYear ?? '0.0';
+          break;
+        case '3Y':
+        default:
+          returnLabel = '3Y';
+          returnVal = fund.returnsEntity?.threeYear ?? '0.0';
+          break;
+      }
+      final double retNum = double.tryParse(returnVal) ?? 0.0;
+
       return Material(
         color: Colors.transparent,
         child: InkWell(
@@ -1630,16 +1677,16 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                         Row(
                           children: [
                             Text(
-                              "Returns (1Y): ",
+                              "Returns ($returnLabel): ",
                               style: AppTextStyles.bodySmall(
                                 color: Colors.grey.shade700,
                                 size: 12,
                               ),
                             ),
                             Text(
-                              "${fund.returnsEntity?.oneYear ?? '0.0'}%",
+                              "$returnVal%",
                               style: AppTextStyles.bodySmallBold(
-                                color: Colors.green,
+                                color: retNum < 0 ? Colors.red : Colors.green,
                                 size: 12,
                               ),
                             ),
@@ -1699,16 +1746,16 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     Row(
                       children: [
                         Text(
-                          "Returns (1Y): ",
+                          "Returns ($returnLabel): ",
                           style: AppTextStyles.bodySmall(
                             color: Colors.grey.shade700,
                             size: 12,
                           ),
                         ),
                         Text(
-                          "${fund.returnsEntity?.oneYear ?? '0.0'}%",
+                          "$returnVal%",
                           style: AppTextStyles.bodySmallBold(
-                            color: Colors.green,
+                            color: retNum < 0 ? Colors.red : Colors.green,
                             size: 12,
                           ),
                         ),
