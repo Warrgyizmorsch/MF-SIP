@@ -3421,7 +3421,13 @@ class _MobileLayout extends StatelessWidget {
                               : (target * (goal.progressPercent / 100));
                           final double progress = (target > 0 ? (invested / target) : 0.0).clamp(0.0, 1.0);
                           final String name = goal.goalName.isNotEmpty ? goal.goalName : 'Goal ${index + 1}';
-                          final Color color = goalCtrl.getGoalColor(goal.goalType?.typeName ?? '');
+                          final Color rawColor = goalCtrl.getGoalColor(
+                            goal.goalType?.typeName ?? '',
+                            goalName: name,
+                          );
+                          final Color color = (rawColor == Colors.grey)
+                              ? const Color(0xFF213C73)
+                              : rawColor;
 
                           return GestureDetector(
                             onTap: () {

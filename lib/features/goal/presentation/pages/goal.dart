@@ -266,9 +266,12 @@ class MobileGoalCard extends StatelessWidget {
         ? "${goalEntity!.progressPercent.toStringAsFixed(1)}%"
         : "${(percentage * 100).toStringAsFixed(0)}%";
 
-    final Color goalColor = controller.getGoalColor(
+    final Color rawColor = controller.getGoalColor(
       goalEntity?.goalType?.typeName ?? '',
+      goalName: goalName,
     );
+    final Color goalColor =
+        (rawColor == Colors.grey) ? const Color(0xFF213C73) : rawColor;
 
     return GestureDetector(
       onTap: () {
@@ -664,9 +667,12 @@ class _WebGoalCardState extends State<WebGoalCard> {
         ? "${widget.goalEntity!.progressPercent.toStringAsFixed(1)}%"
         : "${(percentage * 100).toStringAsFixed(0)}%";
 
-    final Color goalColor = controller.getGoalColor(
+    final Color rawColor = controller.getGoalColor(
       widget.goalEntity?.goalType?.typeName ?? '',
+      goalName: widget.goalName,
     );
+    final Color goalColor =
+        (rawColor == Colors.grey) ? const Color(0xFF213C73) : rawColor;
 
     final bool isNeedsAttention = widget.goalName.toLowerCase().contains(
       "marriage",
