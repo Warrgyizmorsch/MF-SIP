@@ -1381,6 +1381,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
       final allGoals = _goalController.goalResponse.value?.data ?? [];
 
       final unlinkedFunds = portfolio.where((item) {
+        // Filter out holdings where the balance or units are 0 or negative
+        if (item.currentValue <= 0 || item.totalUnits <= 0) return false;
+
         // 1 fund can only be linked to 1 goal.
         // 1. If holding is already linked to any goal directly
         if (item.goalId != null && item.goalId! > 0) return false;
