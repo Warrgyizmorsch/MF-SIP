@@ -1938,53 +1938,51 @@ class CartItemCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isPaused ? const Color(0xFFFFF9F9) : Ucolors.light,
+        color: Ucolors.light,
         borderRadius: BorderRadius.circular(18),
-        border: isPaused
-            ? Border.all(color: Colors.red.shade300, width: 1.2)
-            : null,
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: isPaused
-                ? Colors.red.withValues(alpha: 0.05)
-                : Colors.black12,
+            color: Colors.black12,
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (isPaused) ...[
+          FundHeader(index: index, itemEntity: itemEntity),
+          const SizedBox(height: 12),
+          const DashedLine(color: Color(0xffACACAC), dashSpace: 3.5),
+          const SizedBox(height: 12),
+          if (isPaused)
             Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: const Color(0xFFFEF3F2),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.red.shade200, width: 0.8),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.pause_circle_filled,
-                    color: Colors.red.shade700,
+                  const Icon(
+                    Icons.pause_circle_filled_rounded,
+                    color: Color(0xFFD92D20),
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       itemEntity.isPurchaseAllowed == false
-                          ? "Investment paused by AMC. Remove this scheme to proceed."
+                          ? "Investment paused by AMC"
                           : (itemEntity.transType?.toLowerCase() == 'lumpsum'
-                              ? "Lumpsum investment paused for this scheme."
-                              : "SIP investment paused for this scheme."),
-                      style: TextStyle(
+                              ? "Lumpsum paused for this scheme"
+                              : "SIP paused for this scheme"),
+                      style: const TextStyle(
                         fontFamily: FontFamily.medium,
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.red.shade900,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFB42318),
                       ),
                     ),
                   ),
@@ -1999,11 +1997,11 @@ class CartItemCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: 10,
+                        vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade700,
+                        color: const Color(0xFFD92D20),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: const Text(
@@ -2019,19 +2017,9 @@ class CartItemCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ],
-          FundHeader(index: index, itemEntity: itemEntity),
-          const SizedBox(height: 12),
-          const DashedLine(color: Color(0xffACACAC), dashSpace: 3.5),
-          const SizedBox(height: 12),
-          IgnorePointer(
-            ignoring: isPaused,
-            child: Opacity(
-              opacity: isPaused ? 0.45 : 1.0,
-              child: InvestmentInputsRow(itemEntity: itemEntity),
-            ),
-          ),
+            )
+          else
+            InvestmentInputsRow(itemEntity: itemEntity),
         ],
       ),
     );
