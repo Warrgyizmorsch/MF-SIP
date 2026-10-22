@@ -367,9 +367,7 @@ class SipProcessController extends GetxController
     final result = await _getMutualFundListUsecases.call(params);
 
     result.fold((success) {
-      final List<MutualFundListEntity> funds = (success.data?.data ?? [])
-          .where((fund) => fund.isPurchaseAllowed != false)
-          .toList();
+      final List<MutualFundListEntity> funds = success.data?.data ?? [];
       baseFunds.assignAll(funds);
 
       final displayed = allDisplayedFunds;
@@ -389,9 +387,7 @@ class SipProcessController extends GetxController
     final result = await _getMutualFundListUsecases.call({'best_sip': 1});
 
     result.fold((success) {
-      final List<MutualFundListEntity> funds = (success.data?.data ?? [])
-          .where((fund) => fund.isPurchaseAllowed != false)
-          .toList();
+      final List<MutualFundListEntity> funds = success.data?.data ?? [];
       baseFunds.assignAll(funds);
 
       final displayed = allDisplayedFunds;

@@ -371,10 +371,7 @@ class MutualFundController extends GetxController {
 
       result.fold(
         (success) {
-          final rawData = success.data?.data ?? [];
-          final newData = rawData
-              .where((fund) => fund.isPurchaseAllowed != false)
-              .toList();
+          final newData = success.data?.data ?? [];
           final pagination = success.data?.pagination;
 
           // Update Total Count UI
