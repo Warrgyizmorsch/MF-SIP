@@ -891,18 +891,8 @@ class _MobileDownloadStatementsLayout extends StatelessWidget {
         child: Column(
           children: [
             // Card 1 – Statement Type
-            Obx(() {
-              if (ctrl.isCapitalGain.value) {
-                return const SizedBox.shrink();
-              } else {
-                return Column(
-                  children: [
-                    _StatementTypeCard(ctrl: ctrl),
-                    const SizedBox(height: 16),
-                  ],
-                );
-              }
-            }),
+            _StatementTypeCard(ctrl: ctrl),
+            const SizedBox(height: 16),
 
             // Card 2 – Input (PAN or Folio)
             Obx(
@@ -1123,36 +1113,27 @@ class _WebStatementFormCard extends StatelessWidget {
         builder: (context, constraints) {
           final bool compact = constraints.maxWidth < 950;
 
-          return Obx(
-            () => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                compact
-                    ? Column(
-                        children: [
-                          ctrl.isCapitalGain.value
-                              ? const SizedBox.shrink()
-                              : _WebStatementSource(ctrl: ctrl),
-                          ctrl.isCapitalGain.value
-                              ? const SizedBox.shrink()
-                              : const SizedBox(height: 18),
-                          _WebPanFolioInput(ctrl: ctrl),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ctrl.isCapitalGain.value
-                              ? const SizedBox.shrink()
-                              : Expanded(
-                                  child: _WebStatementSource(ctrl: ctrl),
-                                ),
-                          ctrl.isCapitalGain.value
-                              ? const SizedBox.shrink()
-                              : const SizedBox(width: 42),
-                          Expanded(child: _WebPanFolioInput(ctrl: ctrl)),
-                        ],
-                      ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              compact
+                  ? Column(
+                      children: [
+                        _WebStatementSource(ctrl: ctrl),
+                        const SizedBox(height: 18),
+                        _WebPanFolioInput(ctrl: ctrl),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _WebStatementSource(ctrl: ctrl),
+                        ),
+                        const SizedBox(width: 42),
+                        Expanded(child: _WebPanFolioInput(ctrl: ctrl)),
+                      ],
+                    ),
 
                 const SizedBox(height: 28),
 
@@ -1221,8 +1202,7 @@ class _WebStatementFormCard extends StatelessWidget {
                   ],
                 ),
               ],
-            ),
-          );
+            );
         },
       ),
     );
@@ -1237,10 +1217,6 @@ class _WebStatementSource extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (ctrl.isCapitalGain.value) {
-        return const SizedBox.shrink();
-      }
-
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1327,7 +1303,7 @@ class _WebPanFolioInput extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _WebStepTitle(
-            number: ctrl.statementTypeIndex.value == 0 ? '2.' : '1.',
+            number: '2.',
             title: isPan ? 'Enter PAN' : 'Select Folio',
           ),
           const SizedBox(height: 12),
@@ -1524,7 +1500,7 @@ class _WebDurationSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _WebStepTitle(
-          number: ctrl.statementTypeIndex.value == 0 ? '3.' : '2.',
+          number: '3.',
           title: 'Select Duration',
         ),
 
@@ -2222,7 +2198,7 @@ class _WebStepTitle extends StatelessWidget {
 //           const SizedBox(height: 22),
 
 //           Obx(() {
-//             if (ctrl.isCapitalGain.value) {
+//             if (false) {
 //               return const SizedBox.shrink();
 //             }
 

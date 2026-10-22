@@ -1,4 +1,3 @@
-
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
@@ -14,7 +13,8 @@ class RequestCapitalGainStatementUseCase {
     required int uid,
     required String type,
     String? email,
-    required String folioNo,
+    String? folioNo,
+    String? panNumber,
     required String startDate,
     required String endDate,
   }) async {
@@ -23,6 +23,7 @@ class RequestCapitalGainStatementUseCase {
       type: type,
       email: email,
       folioNo: folioNo,
+      panNumber: panNumber,
       startDate: startDate,
       endDate: endDate,
     );

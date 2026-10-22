@@ -1973,7 +1973,7 @@ class PersonalisationController extends GetxController {
     debugPrint("isCapitalGain.value :${isCapitalGain.value}");
 
     // Optional: Reset other variables to default when opening the screen
-    isCapital ? statementTypeIndex.value = 1 : statementTypeIndex.value = 0;
+    statementTypeIndex.value = 0;
     // panController.text = 'ABCDE1234F';
     initFolios();
   }
@@ -1990,12 +1990,19 @@ class PersonalisationController extends GetxController {
   //   CustomSnackbar.success(title: 'Download', message: 'Generating statement…');
   // }
   void onDownload() {
-    // Validation for folio if in Capital Gain or Folio mode
-    if ((isCapitalGain.value || statementTypeIndex.value == 1) &&
+    if (statementTypeIndex.value == 0 &&
+        (session.getUserData?.panCard ?? panController.text.trim()).isEmpty) {
+      Get.snackbar('Missing Info', 'Please enter a valid PAN number');
+      return;
+    }
+    final isFolioMode = statementTypeIndex.value == 1;
+    if (isFolioMode &&
         selectedFolio.value.trim().isEmpty) {
       Get.snackbar('Missing Info', 'Please select a valid folio number');
       return;
     }
+
+
 
     // Validation for custom dates
     if (selectedDuration.value == 3 &&
@@ -2005,22 +2012,27 @@ class PersonalisationController extends GetxController {
     }
 
     final dates = _getStartAndEndDates();
+    final folioParam = isFolioMode ? selectedFolio.value : null;
+    final panParam = !isFolioMode
+        ? (session.getUserData?.panCard ?? panController.text.trim())
+        : null;
 
     if (isCapitalGain.value) {
       requestCapitalGainStatement(
         type: "download",
         email: null,
-        folioNo: selectedFolio.value, // passing the dynamically selected folio
+        folioNo: folioParam,
+        panNumber: panParam,
         startDate: dates['start']!,
         endDate: dates['end']!,
       );
     } else {
       // Handle normal account statement download here
-      final isFolioMode = statementTypeIndex.value == 1;
-      final folioParam = isFolioMode ? selectedFolio.value : null;
-      final panParam = !isFolioMode
-          ? (session.getUserData?.panCard ?? panController.text.trim())
-          : null;
+
+
+
+
+
 
       requestAccountStatement(
         type: "download",
@@ -2048,8 +2060,13 @@ class PersonalisationController extends GetxController {
   //   );
   // }
   void onEmail() {
-    // Validation for folio if in Capital Gain or Folio mode
-    if ((isCapitalGain.value || statementTypeIndex.value == 1) &&
+    if (statementTypeIndex.value == 0 &&
+        (session.getUserData?.panCard ?? panController.text.trim()).isEmpty) {
+      Get.snackbar('Missing Info', 'Please enter a valid PAN number');
+      return;
+    }
+    final isFolioMode = statementTypeIndex.value == 1;
+    if (isFolioMode &&
         selectedFolio.value.trim().isEmpty) {
       Get.snackbar('Missing Info', 'Please select a valid folio number');
       return;
@@ -2062,6 +2079,10 @@ class PersonalisationController extends GetxController {
     }
 
     final dates = _getStartAndEndDates();
+    final folioParam = isFolioMode ? selectedFolio.value : null;
+    final panParam = !isFolioMode
+        ? (session.getUserData?.panCard ?? panController.text.trim())
+        : null;
 
     if (isCapitalGain.value) {
       requestCapitalGainStatement(
@@ -2069,17 +2090,18 @@ class PersonalisationController extends GetxController {
         email: userData
             .value
             ?.email, // Replace with user's actual registered email
-        folioNo: selectedFolio.value,
+        folioNo: folioParam,
+        panNumber: panParam,
         startDate: dates['start']!,
         endDate: dates['end']!,
       );
     } else {
       // Handle normal account statement email here
-      final isFolioMode = statementTypeIndex.value == 1;
-      final folioParam = isFolioMode ? selectedFolio.value : null;
-      final panParam = !isFolioMode
-          ? (session.getUserData?.panCard ?? panController.text.trim())
-          : null;
+
+
+
+
+
 
       requestAccountStatement(
         type: "email",
@@ -2343,7 +2365,8 @@ class PersonalisationController extends GetxController {
   Future<void> requestCapitalGainStatement({
     required String type, // "email" or "download"
     String? email,
-    required String folioNo,
+    String? folioNo,
+    String? panNumber,
     required String startDate,
     required String endDate,
   }) async {
@@ -2355,6 +2378,7 @@ class PersonalisationController extends GetxController {
 
     // Make the API call
     final result = await _useCases.requestCapitalGainStatementUseCase(
+      panNumber: panNumber,
       uid: uid, // for testing
       // uid: uid,
       type: type,
@@ -2373,7 +2397,10 @@ class PersonalisationController extends GetxController {
           if (data.isDownload && data.downloadUrl.isNotEmpty) {
             ULoaders.stopLoading();
             log("[MfuController] Download link ready: ${data.downloadUrl}");
-            await _downloadAndSavePdf(data.downloadUrl, folioNo);
+            final identifier = (folioNo != null && folioNo.isNotEmpty)
+                ? folioNo
+                : (panNumber ?? "all");
+            await _downloadAndSavePdf(data.downloadUrl, identifier);
           } else if (data.isEmail) {
             ULoaders.stopLoading();
             log("[MfuController] Email sent to: ${data.emailTo}");

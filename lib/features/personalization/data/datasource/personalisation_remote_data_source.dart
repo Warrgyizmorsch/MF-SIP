@@ -240,7 +240,8 @@ class PersonalisationRemoteDataSource {
     required int uid,
     required String type,
     String? email,
-    required String folioNo,
+    String? folioNo,
+    String? panNumber,
     required String startDate,
     required String endDate,
   }) async {
@@ -249,7 +250,9 @@ class PersonalisationRemoteDataSource {
         "uid": uid,
         "type": type,
         if (email != null && email.isNotEmpty) "email": email,
-        "folio_no": folioNo,
+        if (folioNo != null && folioNo.trim().isNotEmpty) "folio_no": folioNo,
+        if (panNumber != null && panNumber.trim().isNotEmpty)
+          "pan_number": panNumber,
         "start_date": startDate,
         "end_date": endDate,
       };

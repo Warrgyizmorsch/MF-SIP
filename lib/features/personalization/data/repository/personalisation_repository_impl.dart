@@ -209,12 +209,14 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
     required int uid,
     required String type,
     String? email,
-    required String folioNo,
+    String? folioNo,
+    String? panNumber,
     required String startDate,
     required String endDate,
   }) async {
     try {
       final response = await _remoteDataSource.requestCapitalGainStatement(
+        panNumber: panNumber,
         uid: uid,
         type: type,
         email: email,

@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/personalization/data/model/capital_gain_statement_model.dart';
 
@@ -6,6 +5,10 @@ class CapitalGainStatementEntity extends Equatable {
   final bool success;
   final String message;
   final String type;
+  final String mode;
+  final String statementView;
+  final String folio;
+  final String pan;
   final bool emailSent;
   final String emailTo;
   final String downloadUrl;
@@ -15,6 +18,10 @@ class CapitalGainStatementEntity extends Equatable {
     required this.success,
     required this.message,
     required this.type,
+    required this.mode,
+    required this.statementView,
+    required this.folio,
+    required this.pan,
     required this.emailSent,
     required this.emailTo,
     required this.downloadUrl,
@@ -27,12 +34,16 @@ class CapitalGainStatementEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        success, 
-        message, 
-        type, 
-        emailSent, 
-        emailTo, 
-        downloadUrl, 
+        success,
+        message,
+        type,
+        mode,
+        statementView,
+        folio,
+        pan,
+        emailSent,
+        emailTo,
+        downloadUrl,
         expiresInMinutes,
       ];
 }
@@ -45,6 +56,10 @@ extension CapitalGainStatementMapper on CapitalGainStatementModel {
       success: success ?? false,
       message: message ?? '',
       type: type ?? '',
+      mode: mode ?? '',
+      statementView: statementView ?? '',
+      folio: folio ?? '',
+      pan: pan ?? '',
       emailSent: emailSent ?? false,
       emailTo: emailTo ?? '',
       downloadUrl: downloadUrl ?? '',
