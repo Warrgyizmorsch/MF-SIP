@@ -576,7 +576,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SmallHeading(
-          smallheading: 'Email (Optional)',
+          smallheading: 'Email ID',
           fontWeight: FontWeight.w600,
         ),
         const SizedBox(height: 5),

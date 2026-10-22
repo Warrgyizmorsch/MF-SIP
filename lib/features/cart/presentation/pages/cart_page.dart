@@ -58,6 +58,114 @@ class CartPage extends GetView<CartController> {
     final targetItems = isLumpsum
         ? controller.lumpsumItems
         : controller.sipAndStepUpItems;
+
+    final paused = controller.getPausedItems(targetItems, isLumpsum: isLumpsum);
+    if (paused.isNotEmpty) {
+      Get.dialog(
+        AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(
+                Icons.pause_circle_filled,
+                color: Colors.red.shade700,
+                size: 26,
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Investment Paused',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 17,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'The following fund(s) are currently not accepting new investments from the AMC:',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.grey.shade700,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ...paused.map(
+                (p) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      Icon(Icons.circle, size: 6, color: Colors.red.shade700),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          p.schemeName ?? 'Mutual Fund Scheme',
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Please remove these funds to proceed with your checkout.',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.black87,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade700,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Get.back();
+                controller.removePausedItems(isLumpsum: isLumpsum);
+              },
+              child: const Text(
+                'Remove Paused Funds',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     if (!controller.isListValid(targetItems)) return;
 
     GatekeeperHelper.runWithPrerequisites(
@@ -180,11 +288,50 @@ class CartPage extends GetView<CartController> {
                           ? controller.totalLumpsumAmount
                           : controller.totalSipStepUpAmount;
 
-                      return CartBottomBar(
-                        isValid: controller.isListValid(targetItems),
-                        isLoading: isSubmitting,
-                        amount: isLoading ? '0' : targetAmount.toString(),
-                        ontap: () => _handlePurchase(isLumpsum: isLumpsumTab),
+                      final hasPaused = controller.hasPausedItems(
+                        targetItems,
+                        isLumpsum: isLumpsumTab,
+                      );
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (hasPaused)
+                            Container(
+                              width: double.infinity,
+                              color: Colors.red.shade50,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 16,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.info_outline,
+                                    size: 14,
+                                    color: Colors.red.shade800,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "Remove paused schemes to proceed to pay",
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.red.shade800,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          CartBottomBar(
+                            isValid: controller.isListValid(targetItems),
+                            isLoading: isSubmitting,
+                            amount: isLoading ? '0' : targetAmount.toString(),
+                            ontap: () => _handlePurchase(isLumpsum: isLumpsumTab),
+                          ),
+                        ],
                       );
                     }),
                   ),
@@ -882,6 +1029,39 @@ class CartPage extends GetView<CartController> {
             const Gap(18),
             const TermAndPolicy(term: 'By Proceeding I accept the '),
             const Gap(18),
+            if (controller.hasPausedItems(targetItems, isLumpsum: isLumpsumTab)) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                margin: const EdgeInsets.only(bottom: 14),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.pause_circle_filled,
+                      size: 18,
+                      color: Colors.red.shade800,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "Cart contains paused schemes. Please remove them to enable checkout.",
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red.shade900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             UElevatedBUtton(
               color: isValid ? Ucolors.primary : Colors.grey,
               height: 54,
@@ -1751,28 +1931,107 @@ class CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CartController controller = Get.find<CartController>();
+    final bool isPaused = controller.isItemPaused(itemEntity);
+
     return Container(
       padding: const EdgeInsets.all(14),
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Ucolors.light,
+        color: isPaused ? const Color(0xFFFFF9F9) : Ucolors.light,
         borderRadius: BorderRadius.circular(18),
+        border: isPaused
+            ? Border.all(color: Colors.red.shade300, width: 1.2)
+            : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
+            color: isPaused
+                ? Colors.red.withValues(alpha: 0.05)
+                : Colors.black12,
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (isPaused) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.red.shade200, width: 0.8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.pause_circle_filled,
+                    color: Colors.red.shade700,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      itemEntity.isPurchaseAllowed == false
+                          ? "Investment paused by AMC. Remove this scheme to proceed."
+                          : (itemEntity.transType?.toLowerCase() == 'lumpsum'
+                              ? "Lumpsum investment paused for this scheme."
+                              : "SIP investment paused for this scheme."),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.red.shade900,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () {
+                      controller.deleteCartItem(
+                        itemEntity.id ?? 0,
+                        itemEntity.schemeName ?? "",
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade700,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        "Remove",
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           FundHeader(index: index, itemEntity: itemEntity),
-          SizedBox(height: 12),
-          DashedLine(color: Color(0xffACACAC), dashSpace: 3.5),
-          SizedBox(height: 12),
-          InvestmentInputsRow(itemEntity: itemEntity),
+          const SizedBox(height: 12),
+          const DashedLine(color: Color(0xffACACAC), dashSpace: 3.5),
+          const SizedBox(height: 12),
+          IgnorePointer(
+            ignoring: isPaused,
+            child: Opacity(
+              opacity: isPaused ? 0.45 : 1.0,
+              child: InvestmentInputsRow(itemEntity: itemEntity),
+            ),
+          ),
         ],
       ),
     );

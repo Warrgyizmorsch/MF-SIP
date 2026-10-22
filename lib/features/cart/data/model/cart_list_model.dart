@@ -131,6 +131,9 @@ class CartItemModel {
   final String? minLumpsum;
   final String? amcLogo;
   final String? minTopupAmount;
+  final bool? isPurchaseAllowed;
+  final bool? isSipAllowed;
+  final bool? isLumpsumAllowed;
 
   //
   // Added Goal Specific Fields
@@ -165,6 +168,9 @@ class CartItemModel {
     this.minLumpsum,
     this.amcLogo,
     this.stepUpPercentage,
+    this.isPurchaseAllowed,
+    this.isSipAllowed,
+    this.isLumpsumAllowed,
 
     //this.goalName,
     this.goalId,
@@ -200,6 +206,21 @@ class CartItemModel {
       minLumpsum: json.parse<String>('min_lumpsum'),
       amcLogo: json.parse<String>('amc_logo'),
       minTopupAmount: json.parse<String>('minimum_topup'),
+      isPurchaseAllowed: json['is_purchase_allowed'] != null
+          ? (json['is_purchase_allowed'] is bool
+              ? json['is_purchase_allowed'] as bool
+              : json['is_purchase_allowed'].toString() == 'true' || json['is_purchase_allowed'].toString() == '1')
+          : null,
+      isSipAllowed: json['is_sip_allowed'] != null
+          ? (json['is_sip_allowed'] is bool
+              ? json['is_sip_allowed'] as bool
+              : json['is_sip_allowed'].toString() == 'true' || json['is_sip_allowed'].toString() == '1')
+          : null,
+      isLumpsumAllowed: json['is_lumpsum_allowed'] != null
+          ? (json['is_lumpsum_allowed'] is bool
+              ? json['is_lumpsum_allowed'] as bool
+              : json['is_lumpsum_allowed'].toString() == 'true' || json['is_lumpsum_allowed'].toString() == '1')
+          : null,
       //
       // Added Goal Mappings
       // goalId: json.parse<int>('goal_id'), // Added mapping

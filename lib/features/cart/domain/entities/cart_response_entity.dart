@@ -128,6 +128,9 @@ class CartItemEntity extends Equatable {
   final String? minLumpsum;
   final String? amcLogo;
   final String? minTopupAmount;
+  final bool? isPurchaseAllowed;
+  final bool? isSipAllowed;
+  final bool? isLumpsumAllowed;
 
   //
   final int? goalId;
@@ -161,6 +164,9 @@ class CartItemEntity extends Equatable {
     this.schemeName,
     this.minSipAmount,
     this.minLumpsum,
+    this.isPurchaseAllowed,
+    this.isSipAllowed,
+    this.isLumpsumAllowed,
     //
     this.goalId,
     this.goalTargetAmount,
@@ -193,7 +199,11 @@ class CartItemEntity extends Equatable {
     String? schemeName,
     String? minSipAmount,
     String? minLumpsum,
+    String? amcLogo,
     String? minTopupAmount,
+    bool? isPurchaseAllowed,
+    bool? isSipAllowed,
+    bool? isLumpsumAllowed,
     int? goalId,
     String? goalName,
     String? goalTargetAmount,
@@ -225,6 +235,9 @@ class CartItemEntity extends Equatable {
       minLumpsum: minLumpsum ?? this.minLumpsum,
       amcLogo: amcLogo ?? this.amcLogo,
       minTopupAmount: minTopupAmount ?? this.minTopupAmount,
+      isPurchaseAllowed: isPurchaseAllowed ?? this.isPurchaseAllowed,
+      isSipAllowed: isSipAllowed ?? this.isSipAllowed,
+      isLumpsumAllowed: isLumpsumAllowed ?? this.isLumpsumAllowed,
     );
   }
 
@@ -260,6 +273,9 @@ class CartItemEntity extends Equatable {
     minSipAmount,
     minLumpsum,
     amcLogo,
+    isPurchaseAllowed,
+    isSipAllowed,
+    isLumpsumAllowed,
   ];
 }
 
@@ -341,6 +357,9 @@ extension CartItemModelX on CartItemModel {
       minLumpsum: minLumpsum,
       amcLogo: amcLogo,
       minTopupAmount: minTopupAmount,
+      isPurchaseAllowed: isPurchaseAllowed,
+      isSipAllowed: isSipAllowed,
+      isLumpsumAllowed: isLumpsumAllowed,
     );
   }
 }

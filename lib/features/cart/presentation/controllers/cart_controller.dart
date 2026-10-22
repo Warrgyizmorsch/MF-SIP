@@ -7,6 +7,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
 import 'package:my_sip/features/cart/domain/usecases/cart_usecases.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
@@ -324,6 +325,18 @@ class CartController extends GetxController {
   }
 
   Future<void> checkoutLumpsum() async {
+    final paused = getPausedItems(lumpsumItems, isLumpsum: true);
+    if (paused.isNotEmpty) {
+      showCustomToast(
+        title: "Paused Scheme Detected",
+        message:
+            "${paused.first.schemeName ?? 'A fund'} is currently not accepting lumpsum investments. Please remove it to proceed.",
+        backgroundColor: Colors.orange.shade800,
+        icon: Icons.pause_circle_outline,
+      );
+      return;
+    }
+
     final itemsToPurchase = List<CartItemEntity>.from(lumpsumItems);
     final funds = lumpsumFundItems;
     if (funds.isEmpty) {
@@ -372,6 +385,18 @@ class CartController extends GetxController {
   }
 
   Future<void> checkoutSip() async {
+    final paused = getPausedItems(sipAndStepUpItems, isLumpsum: false);
+    if (paused.isNotEmpty) {
+      showCustomToast(
+        title: "Paused Scheme Detected",
+        message:
+            "${paused.first.schemeName ?? 'A fund'} is currently not accepting SIP investments. Please remove it to proceed.",
+        backgroundColor: Colors.orange.shade800,
+        icon: Icons.pause_circle_outline,
+      );
+      return;
+    }
+
     final itemsToPurchase = sipAndStepUpItems
         .where((item) => (item.transType?.toLowerCase() ?? 'sip') != 'stepup')
         .toList();
@@ -712,7 +737,11 @@ class CartController extends GetxController {
     );
   }
 
-  Future<void> deleteCartItem(int itemId, String schemeName) async {
+  Future<void> deleteCartItem(
+    int itemId,
+    String schemeName, {
+    bool showToast = true,
+  }) async {
     // Safety check: If ID is null/0, the spinner won't show because 0 != null.
     if (itemId == 0) {
       Get.snackbar("Error", "Invalid Item ID. Cannot delete.");
@@ -744,13 +773,15 @@ class CartController extends GetxController {
             cartResponseEntity.refresh(); // Tell UI to rebuild list
           }
 
-          // 4. Show custom toast
-          showCustomToast(
-            title: 'Removed',
-            message: schemeName,
-            backgroundColor: Colors.red.shade700,
-            icon: Icons.delete_outline,
-          );
+          // 4. Show custom toast if requested
+          if (showToast) {
+            showCustomToast(
+              title: 'Removed',
+              message: schemeName,
+              backgroundColor: Colors.red.shade700,
+              icon: Icons.delete_outline,
+            );
+          }
 
           // 5. Refresh totals from server in background
           await fetchCart();
@@ -771,11 +802,84 @@ class CartController extends GetxController {
     }
   }
 
+  /// Checks if a cart item cannot be purchased based on AMC restrictions
+  bool isItemPaused(CartItemEntity item, {bool? isLumpsum}) {
+    final bool modeIsLumpsum =
+        isLumpsum ?? (item.transType?.toLowerCase() == 'lumpsum');
+
+    // 1. Direct flags on the cart item
+    if (item.isPurchaseAllowed == false) return true;
+    if (modeIsLumpsum && item.isLumpsumAllowed == false) return true;
+    if (!modeIsLumpsum && item.isSipAllowed == false) return true;
+
+    // 2. Fallback check from MutualFundController cache if available in memory
+    if (Get.isRegistered<MutualFundController>()) {
+      try {
+        final mfCtrl = Get.find<MutualFundController>();
+        final codeStr = item.schemeCode?.toString();
+        if (codeStr != null && codeStr.isNotEmpty) {
+          final matched = mfCtrl.searchFund.firstWhereOrNull(
+                (f) => f.schemeCode == codeStr,
+              ) ??
+              mfCtrl.mutualfund.firstWhereOrNull(
+                (f) => f.schemeCode == codeStr,
+              );
+          if (matched != null) {
+            if (matched.isPurchaseAllowed == false) return true;
+            if (modeIsLumpsum && matched.isLumpsumAllowed == false) return true;
+            if (!modeIsLumpsum && matched.isSipAllowed == false) return true;
+          }
+        }
+      } catch (_) {}
+    }
+
+    return false;
+  }
+
+  bool hasPausedItems(List<CartItemEntity> currentItems, {bool? isLumpsum}) {
+    return currentItems.any((item) => isItemPaused(item, isLumpsum: isLumpsum));
+  }
+
+  List<CartItemEntity> getPausedItems(
+    List<CartItemEntity> currentItems, {
+    bool? isLumpsum,
+  }) {
+    return currentItems
+        .where((item) => isItemPaused(item, isLumpsum: isLumpsum))
+        .toList();
+  }
+
+  Future<void> removePausedItems({bool? isLumpsum}) async {
+    final targetItems = isLumpsum == null
+        ? (cartResponseEntity.value?.items ?? [])
+        : (isLumpsum ? lumpsumItems : sipAndStepUpItems);
+    final paused = getPausedItems(targetItems, isLumpsum: isLumpsum);
+    if (paused.isEmpty) return;
+
+    for (final item in paused) {
+      if (item.id != null) {
+        await deleteCartItem(
+          item.id!,
+          item.schemeName ?? "Paused Fund",
+          showToast: false,
+        );
+      }
+    }
+    await fetchCart();
+    showCustomToast(
+      title: "Paused Funds Removed",
+      message: "Removed ${paused.length} paused scheme(s) from your cart.",
+      backgroundColor: Colors.green.shade700,
+      icon: Icons.check_circle_outline,
+    );
+  }
+
   bool isListValid(List<CartItemEntity> currentItems) {
     if (currentItems.isEmpty) return false;
 
     for (var item in currentItems) {
       if (item.id != null && itemErrors[item.id] == true) return false;
+      if (isItemPaused(item)) return false;
 
       int amt = item.amount ?? 0;
       String type = item.transType?.toLowerCase() ?? 'sip';
