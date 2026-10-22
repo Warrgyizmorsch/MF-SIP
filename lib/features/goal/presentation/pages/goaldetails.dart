@@ -218,6 +218,9 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       final liveDetail = controller.currentGoalDetail.value;
       final bool isCurrentGoalMatch =
           liveDetail != null && liveDetail.id == currentGoalId;
+      final matchedGoal = controller.goalResponse.value?.data?.firstWhereOrNull(
+        (g) => g.id == currentGoalId,
+      );
 
       final UserGoalEntity? goal = (isCurrentGoalMatch && liveDetail != null)
           ? UserGoalEntity(
@@ -262,10 +265,10 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                   : (initialGoal?.status ?? 'pending'),
               mfuOrderStatus: initialGoal?.mfuOrderStatus ?? '',
               progressPercent: liveDetail.progressPercent,
-              goalType: initialGoal?.goalType,
+              goalType: initialGoal?.goalType ?? matchedGoal?.goalType,
               goalFunds: initialGoal?.goalFunds ?? [],
             )
-          : initialGoal;
+          : (initialGoal ?? matchedGoal);
 
       final String emoji = args?['emoji'] ?? '🎯';
       final double target = isCurrentGoalMatch && liveDetail.targetAmount > 0
@@ -1283,9 +1286,17 @@ class GoalOverviewCard extends StatelessWidget {
                 : (rawPercent < 10
                       ? "${rawPercent.toStringAsFixed(1)}%"
                       : "${rawPercent.toStringAsFixed(0)}%"));
-      final Color progressColor = controller.getGoalColor(
-        goal?.goalType?.typeName ?? '',
+      final String effectiveGoalType = goal?.goalType?.typeName ?? '';
+      final String effectiveGoalName = (isMatch && liveDetail.goalName.isNotEmpty)
+          ? liveDetail.goalName
+          : (goal?.goalName ?? '');
+      final Color rawColor = controller.getGoalColor(
+        effectiveGoalType,
+        goalName: effectiveGoalName,
       );
+      final Color progressColor = (rawColor == Colors.grey)
+          ? const Color(0xFF213C73)
+          : rawColor;
 
       return Container(
         decoration: BoxDecoration(
@@ -3398,7 +3409,9 @@ class GoalDetailSection extends StatelessWidget {
               goalName: (isMatch && liveDetail.goalName.isNotEmpty)
                   ? liveDetail.goalName
                   : (goal?.goalName ?? ''),
-              goalType: goal?.goalType?.typeName ?? '',
+              goalType: freshGoal?.goalType?.typeName.isNotEmpty == true
+                  ? freshGoal!.goalType!.typeName
+                  : (goal?.goalType?.typeName ?? ''),
               targetAmount: liveTarget,
               investedAmount: liveSaved,
               progressPercent: isMatch && liveDetail.progressPercent > 0

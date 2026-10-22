@@ -15,6 +15,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
   final double? progressPercent;
   final String emoji;
   final String imageUrl;
+  final Color? progressColor;
 
   const CircularGoalIndicatorDetails({
     super.key,
@@ -26,6 +27,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
     this.progressPercent,
     this.emoji = '🎯',
     required this.imageUrl,
+    this.progressColor,
   });
 
   String _fmt(double amount) {
@@ -36,7 +38,11 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final GoalSipController controller = Get.find<GoalSipController>();
-    final Color goalColor = controller.getGoalColor(goalType);
+    final Color rawColor = progressColor ??
+        controller.getGoalColor(goalType, goalName: goalName);
+    final Color goalColor = (rawColor == Colors.grey)
+        ? const Color(0xFF213C73)
+        : rawColor;
 
     final double computedPercent =
         (progressPercent != null && progressPercent! > 0)

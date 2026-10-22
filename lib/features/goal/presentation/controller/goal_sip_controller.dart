@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -1200,6 +1199,7 @@ class GoalSipController extends GetxController {
       final totalSip = (sipAmount).toDouble();
       final selectedFundCount = selectedPopularFund.length;
 
+      // ignore: unused_local_variable
       final sipPerFund = selectedFundCount > 0
           ? totalSip / selectedFundCount
           : 0.0;
@@ -1765,31 +1765,24 @@ class GoalSipController extends GetxController {
     }
   }
 
-  Color getGoalColor(String goalType) {
-    switch (goalType.toLowerCase()) {
-      case 'car':
-        return Colors.blue.shade300;
-
-      case 'house':
-        return Colors.orange.shade300;
-
-      case 'education':
-        return Colors.green.shade300;
-
-      case 'marriage':
-        return Colors.pink.shade300;
-
-      case 'retirement':
-        return Colors.deepPurple.shade300;
-
-      case 'vacation':
-        return Colors.teal.shade300;
-
-      case 'other':
-        return Colors.indigo.shade300;
-
-      default:
-        return Colors.grey;
+  Color getGoalColor(String goalType, {String? goalName}) {
+    final combined = '${goalType.toLowerCase()} ${(goalName ?? '').toLowerCase()}';
+    if (combined.contains('car') || combined.contains('vehicle') || combined.contains('auto')) {
+      return Colors.blue.shade300;
+    } else if (combined.contains('house') || combined.contains('home') || combined.contains('property')) {
+      return Colors.orange.shade300;
+    } else if (combined.contains('education') || combined.contains('school') || combined.contains('college') || combined.contains('study')) {
+      return Colors.green.shade300;
+    } else if (combined.contains('marriage') || combined.contains('wedding')) {
+      return Colors.pink.shade300;
+    } else if (combined.contains('retirement') || combined.contains('pension') || combined.contains('elderly')) {
+      return Colors.deepPurple.shade300;
+    } else if (combined.contains('vacation') || combined.contains('travel') || combined.contains('holiday') || combined.contains('trip') || combined.contains('flight')) {
+      return Colors.teal.shade300;
+    } else if (combined.contains('other') || combined.contains('custom')) {
+      return Colors.indigo.shade300;
+    } else {
+      return const Color(0xFF213C73);
     }
   }
 
