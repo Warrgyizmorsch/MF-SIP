@@ -982,11 +982,10 @@ class WebFundListCard extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _riskPill(entity.riskLevel, isLaptop: isLaptop),
-            if (entity.isPurchaseAllowed == false) ...[
-              const SizedBox(width: 6),
-              _purchasePausedBadge(fontSize: isLaptop ? 9.5 : 10),
-            ],
+            if (entity.isPurchaseAllowed == false)
+              _purchasePausedBadge(fontSize: isLaptop ? 9.5 : 10)
+            else
+              _riskPill(entity.riskLevel, isLaptop: isLaptop),
           ],
         ),
       ],
@@ -2514,11 +2513,6 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                   ),
-
-                  if (entity.isPurchaseAllowed == false) ...[
-                    const Gap(6),
-                    _purchasePausedBadge(),
-                  ],
                 ],
               ),
             ),
@@ -2545,7 +2539,11 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
         /// BOTTOM ACTION
         Row(
           children: [
-            Expanded(child: _riskChip(entity)),
+            Expanded(
+              child: entity.isPurchaseAllowed == false
+                  ? _purchasePausedBadge(fontSize: 11, iconSize: 13)
+                  : _riskChip(entity),
+            ),
 
             const Gap(12),
 
@@ -2952,34 +2950,35 @@ class MutualFundCard extends StatelessWidget {
                           color: const Color(0xff383838),
                         ),
                       ),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Risk: ',
-                              // text: entity.riskLevel,
-                              style: Theme.of(context).textTheme.labelSmall!
-                                  .copyWith(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 11,
-                                  ),
-                            ),
-                            TextSpan(
-                              text: entity.riskLevel,
-                              style: Theme.of(context).textTheme.labelMedium!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                    color: getRiskMeter(entity.riskLevel).color,
-                                  ),
-                            ),
-                          ],
+                      if (entity.isPurchaseAllowed == false)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: _purchasePausedBadge(),
+                        )
+                      else
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Risk: ',
+                                style: Theme.of(context).textTheme.labelSmall!
+                                    .copyWith(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 11,
+                                    ),
+                              ),
+                              TextSpan(
+                                text: entity.riskLevel,
+                                style: Theme.of(context).textTheme.labelMedium!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                      color: getRiskMeter(entity.riskLevel).color,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      if (entity.isPurchaseAllowed == false) ...[
-                        const SizedBox(height: 4),
-                        _purchasePausedBadge(),
-                      ],
                     ],
                   ),
                 ),
