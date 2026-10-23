@@ -2559,6 +2559,9 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
   /// =======================================================
 
   Widget _miniReturn(String label, dynamic value) {
+    final bool isMissing = value == null ||
+        value.toString().trim().isEmpty ||
+        value.toString().trim().toLowerCase() == 'null';
     final double val = double.tryParse(value?.toString() ?? '0') ?? 0;
 
     return Column(
@@ -2572,7 +2575,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
         const Gap(4),
 
         Text(
-          "${val > 0 ? '+' : ''}$val%",
+          isMissing ? "0%" : "${val > 0 ? '+' : ''}$val%",
 
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -3140,7 +3143,7 @@ class MutualFundCard extends StatelessWidget {
                         ? true
                         : false,
                     title: '1M',
-                    value: '${entity.returnsEntity?.oneMonth}%',
+                    value: _formatReturn(entity.returnsEntity?.oneMonth),
                     // isNegative: true,
                   ),
                   _ReturnItem(
@@ -3148,7 +3151,7 @@ class MutualFundCard extends StatelessWidget {
                         ? true
                         : false,
                     title: '1Y',
-                    value: '${entity.returnsEntity?.oneYear}%',
+                    value: _formatReturn(entity.returnsEntity?.oneYear),
                   ),
                   _ReturnItem(
                     isNegative:
@@ -3156,14 +3159,14 @@ class MutualFundCard extends StatelessWidget {
                         ? true
                         : false,
                     title: '3Y',
-                    value: '${entity.returnsEntity?.threeYear}%',
+                    value: _formatReturn(entity.returnsEntity?.threeYear),
                   ),
                   _ReturnItem(
                     isNegative: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
                         ? true
                         : false,
                     title: '5Y',
-                    value: '${entity.returnsEntity?.fiveYear}%',
+                    value: _formatReturn(entity.returnsEntity?.fiveYear),
                   ),
                 ],
               ),
@@ -3173,6 +3176,18 @@ class MutualFundCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatReturn(String? value) {
+  if (value == null ||
+      value.trim().isEmpty ||
+      value.trim().toLowerCase() == 'null') {
+    return '0%';
+  }
+  final clean = value.replaceAll('%', '').trim();
+  final d = double.tryParse(clean);
+  if (d == null) return '0%';
+  return '$clean%';
 }
 
 // ==========================================
