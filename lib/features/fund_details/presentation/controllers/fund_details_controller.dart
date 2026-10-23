@@ -72,40 +72,7 @@ class FundDetailsController extends GetxController
           .toList() ??
       [];
 
-  // Constructor to initialize arguments on each instance
-  // FundDetailsController({required this.fundDetailsUsecases}) {
-  //   // 1. Pehle humara Brahmastra (navData) check karo, agar wo khali hai tab Get.arguments uthao
-  //   final args =
-  //       FundDetailsScreen.navData ??
-  //       Get.arguments as Map<String, dynamic>? ??
-  //       {};
-
-  //   schemeName = args['scheme'] ?? 'Fund Details';
-  //   imgUrl = args['imgUrl'] ?? '--';
-  //   schemeCode = args['scheme_code'] ?? '';
-  //   email = args['email'] ?? '--';
-  //   contact = args['contact'] ?? '--';
-  //   address = args['address'] ?? '--';
-
-  //   // 2. Data nikalne ke baad Brahmastra ko wapas null kar do, taaki agle fund ke liye saaf rahe
-  //   FundDetailsScreen.navData = null;
-
-  //   createLog("Loading Fund: $schemeName with code: $schemeCode");
-
-  //   // 3. Apna API fetch call shuru karo
-  //   fetchAllData(scheme: schemeName, id: schemeCode);
-
-  //   // final args = Get.arguments as Map<String, dynamic>? ?? {};
-  //   // schemeName = args['scheme'] ?? 'Fund Details';
-  //   // imgUrl = args['imgUrl'] ?? '--';
-
-  //   // schemeCode = args['scheme_code'] ?? '';
-  //   // email = args['email'] ?? '--';
-  //   // contact = args['contact'] ?? '--';
-  //   // address = args['address'] ?? '--';
-
-  //   // fetchAllData(scheme: schemeName, id: schemeCode);
-  // }
+  
   FundDetailsController({required this.fundDetailsUsecases}) {
     final Map<String, dynamic> navArgs = FundDetailsScreen.navData == null
         ? {}
@@ -198,15 +165,23 @@ class FundDetailsController extends GetxController
     for (final value in values) {
       if (value == null) continue;
 
-      final text = Uri.decodeComponent(value.toString()).trim();
+      String text = value.toString().trim();
+      if (text.contains('%')) {
+        try {
+          text = Uri.decodeComponent(text).trim();
+        } catch (_) {
+          // If decoding fails, keep raw text
+        }
+      }
 
-      if (text.isNotEmpty && text != '--' && text != 'null') {
+      if (text.isNotEmpty && text != '--' && text.toLowerCase() != 'null') {
         return text;
       }
     }
 
     return null;
   }
+
 
   //   Future<void> handleAddToCart() async {
   //   final fund = fundDetail.value;

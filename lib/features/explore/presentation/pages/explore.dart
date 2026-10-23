@@ -2625,7 +2625,9 @@ class MobileExploreLayout extends StatelessWidget {
   final TextEditingController sortController;
   final List<String> sortItems;
 
-  const MobileExploreLayout({
+  const 
+  
+  MobileExploreLayout({
     required this.scrollController,
     required this.searchFocus,
     required this.sortController,
