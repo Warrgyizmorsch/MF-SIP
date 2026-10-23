@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/widget/animated/custom_toast.dart';
+
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -12,6 +12,7 @@ import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 
 import '../widgets/portfolio_fund_details_modal.dart';
+import '../widgets/sip_cancel_otp_modal.dart';
 
 class PortfolioFundDetailsPage extends StatelessWidget {
   /// Static holder to preserve the active fund during GetX nested navigation or refresh on Web.
@@ -38,10 +39,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     MfuPortfolioItemEntity activeFund,
   ) async {
     if (activeFund.isSipActive) {
-      CustomSnackbar.info(
-        title: "Cancel SIP",
-        message: "Navigating to SIP Cancellation...",
-      );
+      SipCancelOtpModal.show(context, activeFund);
     } else {
       final shouldProceed = await PortfolioFundDetailsModal
           .confirmGoalLinkedRedeemIfNeeded(context, activeFund);
