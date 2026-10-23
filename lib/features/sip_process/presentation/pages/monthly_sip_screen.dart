@@ -12,10 +12,11 @@ import '../../../../common/widget/animated/custom_footer.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
-import '../../../../core/utils/constant/text.dart';
+
 import '../../../../core/utils/constant/text_style.dart';
 import '../controllers/sip_process_controller.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 
 class MonthlySipScreen extends GetView<SipProcessController> {
   const MonthlySipScreen({super.key});
@@ -331,7 +332,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                   () => Text(
                     controller.isLumpsum.value
                         ? 'Lumpsum Investment'
-                        : UText.freedomSipTitle,
+                        : '${controller.selectedFrequency.value.label} SIP',
                     style: AppTextStyles.bodyLarge(color: Colors.white),
                   ),
                 ),
@@ -391,7 +392,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
           () => Text(
             controller.isLumpsum.value
                 ? "Lumpsum Investment"
-                : "Monthly Investment",
+                : "${controller.selectedFrequency.value.label} Investment",
             style: AppTextStyles.bodyLargeBold(color: Ucolors.dark),
           ),
         ),
@@ -418,74 +419,243 @@ class MonthlySipScreen extends GetView<SipProcessController> {
             }
           },
         ),
-        if (!controller.isLumpsum.value) const SizedBox(height: 28),
-        controller.isLumpsum.value
-            ? SizedBox.shrink()
-            : Text(
-                "SIP Date",
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-              ),
-        if (!controller.isLumpsum.value) const SizedBox(height: 8),
-        controller.isLumpsum.value
-            ? SizedBox.shrink()
-            : DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  isExpanded: true,
-
-                  valueListenable: controller.selectedSipDay,
-
-                  items: List.generate(
-                    28,
-                    (i) => DropdownItem<String>(
-                      value: '${i + 1}',
-                      child: Text(
-                        '${controller.getOrdinal(i + 1)} of every month',
-                        style: const TextStyle(
-                          fontFamily: FontFamily.medium,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color: Color(0xFF142438),
+        if (!controller.isLumpsum.value) ...[
+          const SizedBox(height: 24),
+          Text(
+            "SIP Frequency",
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 10),
+          Obx(() {
+            return Row(
+              children: SipFrequency.values.map((freq) {
+                final bool isSelected =
+                    controller.selectedFrequency.value == freq;
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => controller.setFrequency(freq),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Ucolors.primary
+                              : const Color(0xFFF5F7FA),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected
+                                ? Ucolors.primary
+                                : Colors.grey.shade300,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            freq.label,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontWeight:
+                                  isSelected ? FontWeight.w700 : FontWeight.w500,
+                              fontSize: 14,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF142438),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  onChanged: (val) {
-                    if (val != null) {
-                      controller.selectedSipDay.value = val;
-                    }
-                  },
-                  buttonStyleData: ButtonStyleData(
-                    padding: const EdgeInsets.only(right: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 1.5,
+                );
+              }).toList(),
+            );
+          }),
+          const SizedBox(height: 20),
+          Obx(() {
+            switch (controller.selectedFrequency.value) {
+              case SipFrequency.daily:
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F7FF),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCCE4FF)),
+                  ),
+                  child: Row(
+                    children: const [
+                      Icon(
+                        Icons.info_outline,
+                        size: 20,
+                        color: Color(0xFF0061A0),
                       ),
-                      color: Colors.white,
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "SIP installment will be processed automatically on every trading day.",
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF004573),
+                            fontFamily: FontFamily.medium,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+
+              case SipFrequency.weekly:
+                final weekDays = [
+                  'Monday',
+                  'Tuesday',
+                  'Wednesday',
+                  'Thursday',
+                  'Friday',
+                ];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "SIP Day of Week",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.grey[600]),
                     ),
-                  ),
-                  iconStyleData: IconStyleData(
-                    icon: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 24,
-                      color: Colors.grey.shade600,
+                    const SizedBox(height: 8),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton2<String>(
+                        isExpanded: true,
+                        valueListenable: controller.selectedWeekDay,
+                        items: weekDays
+                            .map(
+                              (day) => DropdownItem<String>(
+                                value: day,
+                                child: Text(
+                                  'Every $day',
+                                  style: const TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    color: Color(0xFF142438),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            controller.setWeekDay(val);
+                          }
+                        },
+                        buttonStyleData: ButtonStyleData(
+                          padding: const EdgeInsets.only(right: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1.5,
+                            ),
+                            color: Colors.white,
+                          ),
+                        ),
+                        iconStyleData: IconStyleData(
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 24,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        dropdownStyleData: DropdownStyleData(
+                          maxHeight: 220,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.white,
+                          ),
+                        ),
+                        menuItemStyleData: const MenuItemStyleData(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ),
                     ),
-                  ),
-                  dropdownStyleData: DropdownStyleData(
-                    maxHeight: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
+                  ],
+                );
+
+              case SipFrequency.monthly:
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "SIP Date",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.grey[600]),
                     ),
-                  ),
-                  menuItemStyleData: const MenuItemStyleData(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                ),
-              ),
+                    const SizedBox(height: 8),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton2<String>(
+                        isExpanded: true,
+                        valueListenable: controller.selectedSipDay,
+                        items: List.generate(
+                          28,
+                          (i) => DropdownItem<String>(
+                            value: '${i + 1}',
+                            child: Text(
+                              '${controller.getOrdinal(i + 1)} of every month',
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: Color(0xFF142438),
+                              ),
+                            ),
+                          ),
+                        ),
+                        onChanged: (val) {
+                          if (val != null) {
+                            controller.selectedSipDay.value = val;
+                          }
+                        },
+                        buttonStyleData: ButtonStyleData(
+                          padding: const EdgeInsets.only(right: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1.5,
+                            ),
+                            color: Colors.white,
+                          ),
+                        ),
+                        iconStyleData: IconStyleData(
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 24,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        dropdownStyleData: DropdownStyleData(
+                          maxHeight: 200,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.white,
+                          ),
+                        ),
+                        menuItemStyleData: const MenuItemStyleData(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+            }
+          }),
+        ],
       ],
     );
   }

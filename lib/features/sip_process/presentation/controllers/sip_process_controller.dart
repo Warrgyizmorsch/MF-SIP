@@ -12,6 +12,11 @@ import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_use
 import 'package:my_sip/services/session_manager.dart';
 import '../../domain/usecases/get_fund_list_usecase.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
+import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 
 // FIX: Updated StateMixin to use MutualFundListEntity to match your API result
 class SipProcessController extends GetxController
@@ -31,6 +36,46 @@ class SipProcessController extends GetxController
   final RxInt selectedApproach = 0.obs;
   final RxBool isLumpsum = false.obs; // Track if it's Lumpsum mode
   final ValueNotifier<String?> selectedSipDay = ValueNotifier<String?>('10');
+  final Rx<SipFrequency> selectedFrequency = SipFrequency.monthly.obs;
+  final ValueNotifier<String?> selectedWeekDay =
+      ValueNotifier<String?>('Monday');
+
+  void setFrequency(SipFrequency freq) {
+    selectedFrequency.value = freq;
+    _calculateSipProjection();
+  }
+
+  void setWeekDay(String day) {
+    selectedWeekDay.value = day;
+  }
+
+  int get selectedWeekDayIndex {
+    final idx = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        .indexOf(selectedWeekDay.value ?? 'Monday');
+    return idx >= 0 ? idx + 1 : 1;
+  }
+
+  String formatMfuFrequency() {
+    switch (selectedFrequency.value) {
+      case SipFrequency.daily:
+        return 'D';
+      case SipFrequency.weekly:
+        return 'W';
+      case SipFrequency.monthly:
+        return 'M';
+    }
+  }
+
+  String formatMfuDay() {
+    switch (selectedFrequency.value) {
+      case SipFrequency.daily:
+        return 'NA';
+      case SipFrequency.weekly:
+        return selectedWeekDayIndex.toString();
+      case SipFrequency.monthly:
+        return selectedSipDay.value ?? '10';
+    }
+  }
   final RxDouble totalInvested = 0.0.obs;
   final RxDouble totalProjected = 0.0.obs;
   final RxList<FlSpot> chartInvestedSpots = <FlSpot>[].obs;
@@ -295,6 +340,132 @@ class SipProcessController extends GetxController
     }
   }
 
+  Future<void> proceedToInvest() async {
+    if (selectedFunds.isEmpty) {
+      showCustomToast(
+        title: "Selection Required",
+        backgroundColor: Colors.red,
+        icon: Icons.warning,
+        message: "",
+      );
+      return;
+    }
+
+    final unpurchasable = selectedFunds.where((fund) {
+      if (fund.isPurchaseAllowed == false) return true;
+      if (isLumpsum.value && fund.isLumpsumAllowed == false) return true;
+      if (!isLumpsum.value && fund.isSipAllowed == false) return true;
+      return false;
+    }).toList();
+
+    if (unpurchasable.isNotEmpty) {
+      showCustomToast(
+        title: "Investment Unavailable",
+        message:
+            "${unpurchasable.first.baseSchemeName ?? 'Selected fund'} is currently not accepting investments.",
+        backgroundColor: Colors.orange.shade800,
+        icon: Icons.pause_circle_outline,
+      );
+      return;
+    }
+
+    for (var fund in selectedFunds) {
+      final String code = fund.schemeCode ?? "";
+      final double entered = fundAmounts[code] ?? amount.value;
+      final int min = isLumpsum.value
+          ? (fund.minLumpsum ?? 1000)
+          : (fund.minSipAmount ?? 500);
+
+      if (entered < min || entered % 100 != 0) {
+        showCustomToast1(
+          title: "Check amount (Min. ₹$min)",
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error_outline,
+          message: "${fund.baseSchemeName}",
+        );
+        return;
+      }
+    }
+
+    // Single-fund direct investment -> Open SIPPurchasePage immediately
+    if (selectedFunds.length == 1) {
+      final fund = selectedFunds.first;
+      final String code = fund.schemeCode ?? "";
+      final String name = fund.baseSchemeName ?? "Fund";
+      final int fundAmount = (fundAmounts[code] ?? amount.value).toInt();
+
+      final purchaseArgs = SipPurchaseArgs(
+        schemeCode: code,
+        fundName: name,
+        minSip: fundAmount,
+        minLumpsum: fundAmount,
+        imgUrl: fund.amc?.amcLogoUrl,
+        category: fund.schemecategory ?? 'Equity',
+        riskLabel: fund.riskLevel ?? 'Moderate Risk',
+        divoption: fund.divoption ?? 'GROWTH',
+        initialInvType: isLumpsum.value ? InvType.lumpsum : InvType.sip,
+        initialFrequency: selectedFrequency.value,
+        initialSipDay: int.tryParse(selectedSipDay.value ?? '10') ?? 10,
+        initialWeekDay: selectedWeekDayIndex,
+      );
+
+      SIPPurchasePage.tempData = purchaseArgs;
+      Get.to(() => const SIPPurchasePage(), arguments: purchaseArgs);
+      return;
+    }
+
+    // Multiple funds: Direct MFU executeLumpsum / executeSip with Gatekeeper
+    final mfuCtrl = Get.find<MfuController>();
+    final bool lumpsumMode = isLumpsum.value;
+
+    GatekeeperHelper.runWithPrerequisites(
+      isLumpsum: lumpsumMode,
+      onSuccess: () async {
+        if (lumpsumMode) {
+          final List<LumpsumFundItemModel> lumpsumFunds =
+              selectedFunds.map((fund) {
+            final code = fund.schemeCode ?? "";
+            final double fundAmount = fundAmounts[code] ?? amount.value;
+            return LumpsumFundItemModel(
+              schemeCode: code,
+              amount: fundAmount,
+              folio: 'NEW',
+              devopt: fund.divoption,
+            );
+          }).toList();
+
+          await mfuCtrl.executeLumpsum(
+            funds: lumpsumFunds,
+            onSuccess: (res) {
+              selectedFunds.clear();
+              fundAmounts.clear();
+            },
+          );
+        } else {
+          final List<SipFundItemModel> sipFunds = selectedFunds.map((fund) {
+            final code = fund.schemeCode ?? "";
+            final double fundAmount = fundAmounts[code] ?? amount.value;
+            return SipFundItemModel(
+              schemeCode: code,
+              amount: fundAmount,
+              folio: 'NEW',
+              frequency: formatMfuFrequency(),
+              day: formatMfuDay(),
+            );
+          }).toList();
+
+          await mfuCtrl.executeSip(
+            funds: sipFunds,
+            onSuccess: (res) {
+              selectedFunds.clear();
+              fundAmounts.clear();
+            },
+          );
+        }
+      },
+    );
+  }
+
   // Future<void> proceedToCart() async {
   //   if (selectedFunds.isEmpty) return;
 
@@ -461,9 +632,26 @@ class SipProcessController extends GetxController
     } else {
       // --- SIP CALCULATION (Using your exact formula) ---
 
-      // Pass the raw percentage (12.0) since your function divides by 100 internally
-      double mRate = effectiveMonthlyRate(expectedReturnRate);
+      // --- SIP CALCULATION (Dynamic based on selectedFrequency) ---
+      int periodsPerYear;
+      double periodRate;
 
+      switch (selectedFrequency.value) {
+        case SipFrequency.daily:
+          periodsPerYear = 250;
+          periodRate = math.pow(1 + annualRate, 1.0 / 250.0) - 1;
+          break;
+        case SipFrequency.weekly:
+          periodsPerYear = 52;
+          periodRate = math.pow(1 + annualRate, 1.0 / 52.0) - 1;
+          break;
+        case SipFrequency.monthly:
+          periodsPerYear = 12;
+          periodRate = effectiveMonthlyRate(expectedReturnRate);
+          break;
+      }
+
+      int totalPeriods = durationYears * periodsPerYear;
       double invested = 0;
       double value = 0;
 
@@ -471,13 +659,13 @@ class SipProcessController extends GetxController
       tempInvested.add(FlSpot(startYear.toDouble(), 0));
       tempProjected.add(FlSpot(startYear.toDouble(), 0));
 
-      for (int month = 1; month <= totalMonths; month++) {
+      for (int p = 1; p <= totalPeriods; p++) {
         invested += principal;
-        value = (value + principal) * (1 + mRate);
+        value = (value + principal) * (1 + periodRate);
 
-        // Record chart spots at the end of each year (every 12 months)
-        if (month % 12 == 0) {
-          double xValue = (startYear + (month ~/ 12)).toDouble();
+        // Record chart spots at the end of each year
+        if (p % periodsPerYear == 0) {
+          double xValue = (startYear + (p ~/ periodsPerYear)).toDouble();
           tempInvested.add(FlSpot(xValue, invested));
           tempProjected.add(FlSpot(xValue, value));
         }

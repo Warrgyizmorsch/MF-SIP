@@ -183,7 +183,9 @@ class MfuController extends GetxController {
 
   void initSipPurchase(SipPurchaseArgs args) {
     sipArgs.value = args;
-    sipAmount.value = args.minSip;
+    sipAmount.value = (args.initialInvType == InvType.lumpsum)
+        ? args.minLumpsum
+        : args.minSip;
     sipStepUpAmt.value = args.minTopup;
     sipCapAmount.value = args.minSip + args.minTopup + 100;
 
@@ -191,10 +193,10 @@ class MfuController extends GetxController {
     sipAmountError.value = null;
     sipStepUpError.value = null;
     sipCapError.value = null;
-    sipInvType.value = InvType.sip;
-    sipFreq.value = SipFrequency.monthly;
-    sipDay.value = 16;
-    sipWeekDay.value = 1;
+    sipInvType.value = args.initialInvType ?? InvType.sip;
+    sipFreq.value = args.initialFrequency ?? SipFrequency.monthly;
+    sipDay.value = args.initialSipDay ?? 16;
+    sipWeekDay.value = args.initialWeekDay ?? 1;
     sipStepByPct.value = false;
     sipStepUpPct.value = 10;
     sipFrequency.value = '6';

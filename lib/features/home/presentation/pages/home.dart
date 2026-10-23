@@ -2490,12 +2490,16 @@ class _MobileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+
+
     final size = MediaQuery.of(context).size;
     final user = SessionManager.instance.getUserData;
 
     return SafeArea(
       top: false,
       child: CustomScrollView(
+
         slivers: [
           //Appbar
           SliverAppBar(

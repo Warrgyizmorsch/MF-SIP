@@ -568,6 +568,10 @@ class SipPurchaseArgs {
   final int minLumpsum;
   final int minTopup;
   final String? divoption;
+  final InvType? initialInvType;
+  final SipFrequency? initialFrequency;
+  final int? initialSipDay;
+  final int? initialWeekDay;
 
   const SipPurchaseArgs({
     required this.schemeCode,
@@ -580,6 +584,10 @@ class SipPurchaseArgs {
     this.minLumpsum = 1000,
     this.minTopup = 500,
     this.divoption,
+    this.initialInvType,
+    this.initialFrequency,
+    this.initialSipDay,
+    this.initialWeekDay,
   });
 }
 

@@ -725,7 +725,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
             width: 160,
             child: UElevatedButtonWeb(
               onPressed: controller.selectedFunds.isNotEmpty
-                  ? controller.proceedToCart
+                  ? controller.proceedToInvest
                   : null,
               color: controller.selectedFunds.isNotEmpty
                   ? Ucolors.primary
@@ -734,7 +734,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Add to Cart',
+                    'Invest Now',
                     style: AppTextStyles.bodyMedium(color: Colors.white),
                   ),
                   const SizedBox(width: 8),
@@ -1243,19 +1243,19 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   color: Ucolors.primary,
 
                   onPressed: controller.selectedFunds.isNotEmpty
-                      ? controller.proceedToCart
+                      ? controller.proceedToInvest
                       : null,
                   child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Add to Cart',
+                          'Invest Now',
                           style: AppTextStyles.bodyMedium(color: Colors.white),
                         ),
                         const SizedBox(width: 8),
                         const Icon(
-                          Icons.shopping_cart_checkout_sharp,
+                          Icons.arrow_forward_rounded,
                           color: Colors.white,
                           size: 16,
                         ),
@@ -1444,21 +1444,21 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       color: Ucolors.primary,
 
                       onPressed: controller.selectedFunds.isNotEmpty
-                          ? controller.proceedToCart
+                          ? controller.proceedToInvest
                           : null,
                       child: Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Add to Cart',
+                              'Invest Now',
                               style: AppTextStyles.bodyMedium(
                                 color: Colors.white,
                               ),
                             ),
                             const SizedBox(width: 5),
                             const Icon(
-                              Icons.shopping_cart_checkout_sharp,
+                              Icons.arrow_forward_rounded,
                               color: Colors.white,
                               size: 15,
                             ),
