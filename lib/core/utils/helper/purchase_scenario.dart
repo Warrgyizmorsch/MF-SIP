@@ -70,21 +70,6 @@ class GatekeeperHelper {
         (canStatus == 'approved' || canStatus == 'active');
 
     if (!isCanApproved) {
-      // If CAN is not approved yet, ensure Nominee is added first before CAN can be created
-      if (!userCtrl.hasNominee.value) {
-        DialogHelper.showPrerequisiteDialog(
-          title: 'Nominee Details Required',
-          message:
-              'Please add a nominee to secure your investments and set up your investment account (CAN).',
-          buttonText: 'Add Nominee',
-          onTap: () {
-            Get.back();
-            Get.toNamed(AppRoutes.nomineeDetail, id: isDesktop ? 1 : null);
-          },
-        );
-        return;
-      }
-
       if (canStatus == 'cancelled') {
         DialogHelper.showPrerequisiteDialog(
           title: 'CAN Account Cancelled',
