@@ -44,6 +44,9 @@ class NomineeResponseModel {
 }
 
 class NomineeModel {
+  final String? nominationLevel;
+  final String? folioNumber;
+  final String? rtaAmcCode;
   final int? id;
   final int? customerId;
   final String? name;
@@ -64,6 +67,9 @@ class NomineeModel {
   final String? nctUniqId;
 
   NomineeModel({
+    this.nominationLevel,
+    this.folioNumber,
+    this.rtaAmcCode,
     this.id,
     this.customerId,
     this.name,
@@ -85,6 +91,9 @@ class NomineeModel {
 
   factory NomineeModel.fromJson(Map<String, dynamic> json) {
     return NomineeModel(
+      nominationLevel: json.parse<String>('nomination_level'),
+      folioNumber: json.parse<String>('folio_number') ?? json.parse<String>('folio'),
+      rtaAmcCode: json.parse<String>('rta_amc_code') ?? json.parse<String>('amc_code'),
       id: json.parse<int>('id'),
       customerId: json.parse<int>('customer_id'),
       name: json.parse<String>('name'),

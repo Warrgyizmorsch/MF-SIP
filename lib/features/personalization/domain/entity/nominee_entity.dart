@@ -40,6 +40,9 @@ class NomineeResponseEntity extends Equatable {
 }
 
 class NomineeEntity extends Equatable {
+  final String nominationLevel;
+  final String folioNumber;
+  final String rtaAmcCode;
   final int id;
   final int customerId;
   final String name;
@@ -59,6 +62,9 @@ class NomineeEntity extends Equatable {
   final String nctUniqId;
 
   const NomineeEntity({
+    this.nominationLevel = 'CAN',
+    this.folioNumber = '',
+    this.rtaAmcCode = '',
     required this.id,
     required this.customerId,
     required this.name,
@@ -80,6 +86,9 @@ class NomineeEntity extends Equatable {
 
   @override
   List<Object?> get props => [
+    nominationLevel,
+    folioNumber,
+    rtaAmcCode,
     id,
     customerId,
     name,
@@ -119,6 +128,9 @@ extension NomineeResponseMapper on NomineeResponseModel {
 extension NomineeMapper on NomineeModel {
   NomineeEntity toEntity() {
     return NomineeEntity(
+      nominationLevel: nominationLevel ?? 'CAN',
+      folioNumber: folioNumber ?? '',
+      rtaAmcCode: rtaAmcCode ?? '',
       id: id ?? 0,
       customerId: customerId ?? 0,
       name: name ?? '',
