@@ -15,6 +15,8 @@ import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 
 class NomineeDetailsScreen extends GetView<PersonalisationController> {
   const NomineeDetailsScreen({super.key});
@@ -46,6 +48,11 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // --- Total Allocation Banner ---
+                  // --- Nomination Level Selector (CAN vs FOLIO) ---
+                  _buildNominationLevelCard(context),
+                  const SizedBox(height: 16),
+
                   // --- Total Allocation Banner ---
                   _buildAllocationProgressBanner(totalAlloc, isExact100),
                   const SizedBox(height: 24),
@@ -165,6 +172,453 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
   // =========================================
   // 📊 ALLOCATION PROGRESS BANNER
   // =========================================
+  // =========================================
+  // 🏷️ NOMINATION LEVEL SELECTOR (CAN / FOLIO)
+  // =========================================
+  Widget _buildNominationLevelCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Ucolors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.account_tree_outlined,
+                  size: 20,
+                  color: Ucolors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Nomination Level",
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    "Choose where to apply this nomination",
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Option buttons: CAN Level vs Folio Level
+          Row(
+            children: [
+              Expanded(
+                child: _buildLevelChoiceTile(
+                  title: "CAN Level",
+                  subtitle: "Entire Account",
+                  isSelected: controller.nominationLevel.value == 'CAN',
+                  icon: Icons.shield_outlined,
+                  onTap: () => controller.setNominationLevel('CAN'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildLevelChoiceTile(
+                  title: "Folio Level",
+                  subtitle: "Specific Folio",
+                  isSelected: controller.nominationLevel.value == 'FOLIO',
+                  icon: Icons.folder_shared_outlined,
+                  onTap: () => controller.setNominationLevel('FOLIO'),
+                ),
+              ),
+            ],
+          ),
+          // If FOLIO Level selected, show Folio Picker Tile
+          if (controller.nominationLevel.value == 'FOLIO') ...[
+            const SizedBox(height: 16),
+            const Divider(height: 1, color: Color(0xFFF1F5F9)),
+            const SizedBox(height: 14),
+            const Text(
+              "Target Folio",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF475569),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildSelectedFolioPickerTile(context),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLevelChoiceTile({
+    required String title,
+    required String subtitle,
+    required bool isSelected,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Ucolors.primary.withValues(alpha: 0.08)
+              : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Ucolors.primary : Colors.grey.shade200,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 22,
+              color: isSelected ? Ucolors.primary : Colors.grey.shade600,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      color: isSelected ? Ucolors.primary : const Color(0xFF1E293B),
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 11,
+                      color: isSelected
+                          ? Ucolors.primary.withValues(alpha: 0.8)
+                          : Colors.grey.shade500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(
+                Icons.check_circle,
+                color: Ucolors.primary,
+                size: 18,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectedFolioPickerTile(BuildContext context) {
+    final selectedItem = controller.selectedNominationFolio.value;
+    final folioNum = selectedItem?.folioNumber ?? selectedItem?.folio;
+    final amcName = selectedItem?.amcName ?? '';
+
+    String? logoUrl = selectedItem?.amcLogo;
+    if (logoUrl != null && logoUrl.isNotEmpty && !logoUrl.startsWith('http')) {
+      logoUrl = '${Appurl.baseUrl}$logoUrl';
+    }
+
+    return InkWell(
+      onTap: () => _showNominationFolioPicker(context),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          children: [
+            if (selectedItem != null) ...[
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                alignment: Alignment.center,
+                child: (logoUrl != null && logoUrl.isNotEmpty)
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: CustomCachedImage(
+                          imageUrl: logoUrl,
+                          width: 28,
+                          height: 28,
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                    : const Icon(Icons.description_outlined, size: 20, color: Ucolors.primary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      folioNum ?? 'Select Folio',
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    if (amcName.isNotEmpty)
+                      Text(
+                        amcName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ] else ...[
+              const Icon(Icons.folder_open_outlined, color: Colors.grey, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  "Tap to select a folio",
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ),
+            ],
+            const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showNominationFolioPicker(BuildContext context) {
+    final folioItems = controller.userFolioItems;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    height: 4,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Select Folio for Nominee',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(Icons.close, size: 20, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                if (folioItems.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Text(
+                        'No folios available for this account',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.55,
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: folioItems.length,
+                      separatorBuilder: (_, __) => const Divider(
+                        height: 1,
+                        color: Color(0xFFF1F5F9),
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = folioItems[index];
+                        final folioNum = item.folioNumber ?? item.folio ?? '';
+                        final isSelected = item == controller.selectedNominationFolio.value;
+
+                        String amcName = item.amcName ?? '';
+                        if (amcName.isEmpty && item.displayLabel != null) {
+                          final match = RegExp(r'\((.*?)\)').firstMatch(item.displayLabel!);
+                          if (match != null && match.group(1) != null) {
+                            amcName = match.group(1)!;
+                          }
+                        }
+
+                        String? logoUrl = item.amcLogo;
+                        if (logoUrl != null &&
+                            logoUrl.isNotEmpty &&
+                            !logoUrl.startsWith('http')) {
+                          logoUrl = '${Appurl.baseUrl}$logoUrl';
+                        }
+
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 6,
+                          ),
+                          leading: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Ucolors.primary.withValues(alpha: 0.1)
+                                  : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            alignment: Alignment.center,
+                            child: (logoUrl != null && logoUrl.isNotEmpty)
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: CustomCachedImage(
+                                      imageUrl: logoUrl,
+                                      width: 32,
+                                      height: 32,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.description_outlined,
+                                    size: 22,
+                                    color: isSelected
+                                        ? Ucolors.primary
+                                        : Colors.grey.shade700,
+                                  ),
+                          ),
+                          title: Text(
+                            folioNum,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 15,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w600,
+                              color: isSelected
+                                  ? Ucolors.primary
+                                  : const Color(0xFF1E293B),
+                            ),
+                          ),
+                          subtitle: amcName.isNotEmpty
+                              ? Text(
+                                  amcName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                )
+                              : null,
+                          trailing: isSelected
+                              ? const Icon(
+                                  Icons.check_circle,
+                                  color: Ucolors.primary,
+                                  size: 22,
+                                )
+                              : null,
+                          onTap: () {
+                            controller.selectNominationFolio(item);
+                            Navigator.pop(ctx);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildAllocationProgressBanner(double totalAlloc, bool isExact100) {
     Color bannerColor;
     IconData bannerIcon;
@@ -205,12 +659,18 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Total Allocation",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade700,
+                    Expanded(
+                      child: Text(
+                        controller.nominationLevel.value == 'FOLIO'
+                            ? "Folio Allocation: ${controller.selectedNominationFolio.value?.folioNumber ?? controller.selectedNominationFolio.value?.folio ?? 'Selected Folio'}"
+                            : "CAN Account Allocation",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
                       ),
                     ),
                     Text(

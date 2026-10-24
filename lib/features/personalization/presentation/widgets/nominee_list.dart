@@ -62,7 +62,7 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                     ],
                   ),
                   Obx(() {
-                    if (controller.remainingAllocation <= 0) {
+                    if (!controller.canAddNominee) {
                       return const SizedBox.shrink();
                     }
                     return ElevatedButton.icon(
@@ -254,7 +254,7 @@ class NomineeListScreen extends GetView<PersonalisationController> {
             if (!isDesktop) ...[
               const Gap(12),
               Obx(() {
-                if (controller.remainingAllocation <= 0) {
+                if (!controller.canAddNominee) {
                   return const SizedBox.shrink();
                 }
                 return UElevatedBUtton(

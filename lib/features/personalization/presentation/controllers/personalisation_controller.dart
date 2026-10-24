@@ -243,7 +243,7 @@ class PersonalisationController extends GetxController {
     'Mother-In-Law',
     'Son',
     'Spouse',
-    'Testing',
+  
   ];
 
   final occupationList = [
@@ -310,9 +310,43 @@ class PersonalisationController extends GetxController {
 
   // Dynamic multi-nominee list
   final RxList<NomineeFormItem> nomineeForms = <NomineeFormItem>[].obs;
+  final nominationLevel = 'CAN'.obs; // 'CAN' or 'FOLIO'
+  final selectedNominationFolio = Rxn<FolioItemEntity>();
+
+  void setNominationLevel(String level) {
+    if (nominationLevel.value == level) return;
+    nominationLevel.value = level;
+    if (level == 'CAN') {
+      selectedNominationFolio.value = null;
+    } else if (selectedNominationFolio.value == null && userFolioItems.isNotEmpty) {
+      selectedNominationFolio.value = userFolioItems.first;
+    }
+    resetNomineeForms();
+  }
+
+  void selectNominationFolio(FolioItemEntity folioItem) {
+    if (selectedNominationFolio.value == folioItem) return;
+    selectedNominationFolio.value = folioItem;
+    resetNomineeForms();
+  }
+
+  void resetNomineeForms() {
+    for (final item in nomineeForms) {
+      item.dispose();
+    }
+    nomineeForms.clear();
+    nomineeForms.add(NomineeFormItem(defaultAllocation: '100'));
+  }
 
   void initNomineeForms() {
     if (nomineeForms.isEmpty) {
+      // If CAN is already at 100% and user has folios, default to FOLIO level
+      if (isCanNominationFull && userFolioItems.isNotEmpty) {
+        nominationLevel.value = 'FOLIO';
+        if (selectedNominationFolio.value == null) {
+          selectedNominationFolio.value = userFolioItems.first;
+        }
+      }
       nomineeForms.add(NomineeFormItem(defaultAllocation: '100'));
     }
   }
@@ -1398,11 +1432,24 @@ class PersonalisationController extends GetxController {
 
   /// ------------- edit pan status --- ////////
 
+  /// --- Nominee Allocations by Level ---
+  double get currentCanAllocation {
+    if (nomineeList.value == null || nomineeList.value!.nominees.isEmpty) {
+      return 0.0;
+    }
+    return nomineeList.value!.nominees
+        .where((n) => n.nominationLevel.toUpperCase() != 'FOLIO')
+        .fold(0.0, (sum, item) => sum + item.allocationPercent);
+  }
+
+  double get remainingCanAllocation => (100.0 - currentCanAllocation).clamp(0.0, 100.0);
+
+  bool get isCanNominationFull => remainingCanAllocation <= 0.01;
+
   double get currentTotalAllocation {
     if (nomineeList.value == null || nomineeList.value!.nominees.isEmpty) {
       return 0.0;
     }
-    // Sum up all existing nominees' allocation
     return nomineeList.value!.nominees.fold(
       0.0,
       (sum, item) => sum + item.allocationPercent,
@@ -1410,6 +1457,9 @@ class PersonalisationController extends GetxController {
   }
 
   double get remainingAllocation => 100.0 - currentTotalAllocation;
+
+  /// User can add a nominee if CAN has space OR if user has existing folios to add folio-level nominees
+  bool get canAddNominee => !isCanNominationFull || userFolioItems.isNotEmpty;
 
   void _onPanTextChanged() {
     final text = panController.text;
@@ -1718,7 +1768,31 @@ class PersonalisationController extends GetxController {
         return map;
       }).toList();
 
-      final requestData = {"customer_id": userId, "nominees": nomineesList};
+      final Map<String, dynamic> requestData = {
+        "customer_id": userId,
+        "nomination_level": nominationLevel.value,
+        "nominees": nomineesList,
+      };
+
+      if (nominationLevel.value == "FOLIO") {
+        if (selectedNominationFolio.value == null) {
+          CustomSnackbar.warning(
+            title: "Folio Required",
+            message: "Please select a folio for Folio-level nomination",
+          );
+          addNomineeLoading.value = false;
+          return;
+        }
+        final folio = selectedNominationFolio.value!.folioNumber ??
+            selectedNominationFolio.value!.folio ??
+            '';
+        requestData["folio_number"] = folio;
+        final rtaCode = selectedNominationFolio.value!.rtaAmcCode ??
+            selectedNominationFolio.value!.amcCode;
+        if (rtaCode != null && rtaCode.isNotEmpty) {
+          requestData["rta_amc_code"] = rtaCode;
+        }
+      }
 
       final result = await _useCases.addNomineeUseCase.call(requestData);
       fetchUserDetails();
@@ -1734,7 +1808,7 @@ class PersonalisationController extends GetxController {
 
           CustomSnackbar.success(
             title: 'Success',
-            message: 'Nominees added successfully',
+            message: success.data ?? 'Nominees added successfully',
           );
 
           if (isContinuousOnboarding.value) {
