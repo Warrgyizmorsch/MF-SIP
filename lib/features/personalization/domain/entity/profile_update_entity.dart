@@ -1,11 +1,62 @@
 import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/personalization/data/model/profile_update_model.dart';
 
+class FolioItemEntity extends Equatable {
+  final String? folioNumber;
+  final String? folio;
+  final String? amcName;
+  final String? rtaAmcCode;
+  final String? amcCode;
+  final String? amcLogo;
+  final String? schemeName;
+  final String? displayLabel;
+
+  const FolioItemEntity({
+    this.folioNumber,
+    this.folio,
+    this.amcName,
+    this.rtaAmcCode,
+    this.amcCode,
+    this.amcLogo,
+    this.schemeName,
+    this.displayLabel,
+  });
+
+  @override
+  List<Object?> get props => [
+    folioNumber,
+    folio,
+    amcName,
+    rtaAmcCode,
+    amcCode,
+    amcLogo,
+    schemeName,
+    displayLabel,
+  ];
+}
+
+extension FolioItemModelX on FolioItemModel {
+  FolioItemEntity toEntity() => FolioItemEntity(
+    folioNumber: folioNumber,
+    folio: folio,
+    amcName: amcName,
+    rtaAmcCode: rtaAmcCode,
+    amcCode: amcCode,
+    amcLogo: amcLogo,
+    schemeName: schemeName,
+    displayLabel: displayLabel,
+  );
+}
+
 class ProfileUpdateResponseEntity extends Equatable {
   final bool? status;
   final String? message;
   final ProfileDataEntity? data;
-  final List<String>? folios;
+  final List<FolioItemEntity>? folios;
+  final List<String>? rawFolios;
+  final String? nomineeVerifyLinkH1;
+  final String? nomineeVerifyLinkH2;
+  final String? nomineeVerifyLinkH3;
 
   // New root fields from API
   final String? registrationNumber;
@@ -28,6 +79,10 @@ class ProfileUpdateResponseEntity extends Equatable {
     required this.message,
     required this.data,
     this.folios,
+    this.rawFolios,
+    this.nomineeVerifyLinkH1,
+    this.nomineeVerifyLinkH2,
+    this.nomineeVerifyLinkH3,
     this.registrationNumber,
     this.registrationMobileNumber,
     this.registrationMobile,
@@ -50,6 +105,10 @@ class ProfileUpdateResponseEntity extends Equatable {
     message,
     data,
     folios,
+    rawFolios,
+    nomineeVerifyLinkH1,
+    nomineeVerifyLinkH2,
+    nomineeVerifyLinkH3,
     registrationNumber,
     registrationMobileNumber,
     registrationMobile,
@@ -104,7 +163,11 @@ extension ProfileUpdateResponseX on ProfileUpdateModel {
     return ProfileUpdateResponseEntity(
       status: status,
       message: message,
-      folios: folios ?? data?.folios,
+      folios: folios?.map((e) => e.toEntity()).toList() ?? data?.toEntity().folios,
+      rawFolios: rawFolios ?? data?.rawFolios,
+      nomineeVerifyLinkH1: nomineeVerifyLinkH1,
+      nomineeVerifyLinkH2: nomineeVerifyLinkH2,
+      nomineeVerifyLinkH3: nomineeVerifyLinkH3,
       registrationNumber: registrationNumber,
       registrationMobileNumber: registrationMobileNumber,
       registrationMobile: registrationMobile,
@@ -178,7 +241,8 @@ class ProfileDataEntity extends Equatable {
   final List<NomineeEntity>? nominees;
   final List<BankAccountEntity>? bankAccounts;
   final MfuMandateEntity? mfuMandate;
-  final List<String>? folios;
+  final List<FolioItemEntity>? folios;
+  final List<String>? rawFolios;
 
   const ProfileDataEntity({
     required this.id,
@@ -234,6 +298,7 @@ class ProfileDataEntity extends Equatable {
     required this.bankAccounts,
     required this.mfuMandate,
     this.folios,
+    this.rawFolios,
   });
 
   @override
@@ -291,6 +356,7 @@ class ProfileDataEntity extends Equatable {
     bankAccounts,
     mfuMandate,
     folios,
+    rawFolios,
   ];
 }
 
@@ -349,7 +415,8 @@ extension ProfileDataEntityX on ProfileDataModel {
       nominees: nominees?.map((e) => e.toEntity()).toList(),
       bankAccounts: bankAccounts?.map((e) => e.toEntity()).toList(),
       mfuMandate: mfuMandate?.toEntity(),
-      folios: folios,
+      folios: folios?.map((e) => e.toEntity()).toList(),
+      rawFolios: rawFolios,
     );
   }
 }

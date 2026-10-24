@@ -1,10 +1,60 @@
 import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
+class FolioItemModel {
+  final String? folioNumber;
+  final String? folio;
+  final String? amcName;
+  final String? rtaAmcCode;
+  final String? amcCode;
+  final String? amcLogo;
+  final String? schemeName;
+  final String? displayLabel;
+
+  FolioItemModel({
+    this.folioNumber,
+    this.folio,
+    this.amcName,
+    this.rtaAmcCode,
+    this.amcCode,
+    this.amcLogo,
+    this.schemeName,
+    this.displayLabel,
+  });
+
+  factory FolioItemModel.fromJson(Map<String, dynamic> json) {
+    return FolioItemModel(
+      folioNumber: json['folio_number']?.toString(),
+      folio: json['folio']?.toString(),
+      amcName: json['amc_name']?.toString(),
+      rtaAmcCode: json['rta_amc_code']?.toString(),
+      amcCode: json['amc_code']?.toString(),
+      amcLogo: json['amc_logo']?.toString(),
+      schemeName: json['scheme_name']?.toString(),
+      displayLabel: json['display_label']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'folio_number': folioNumber,
+    'folio': folio,
+    'amc_name': amcName,
+    'rta_amc_code': rtaAmcCode,
+    'amc_code': amcCode,
+    'amc_logo': amcLogo,
+    'scheme_name': schemeName,
+    'display_label': displayLabel,
+  };
+}
+
 class ProfileUpdateModel {
   final bool? status;
   final String? message;
   final ProfileDataModel? data;
-  final List<String>? folios;
+  final List<FolioItemModel>? folios;
+  final List<String>? rawFolios;
+  final String? nomineeVerifyLinkH1;
+  final String? nomineeVerifyLinkH2;
+  final String? nomineeVerifyLinkH3;
 
   // New root fields from API
   final String? registrationNumber;
@@ -27,6 +77,10 @@ class ProfileUpdateModel {
     this.message,
     this.data,
     this.folios,
+    this.rawFolios,
+    this.nomineeVerifyLinkH1,
+    this.nomineeVerifyLinkH2,
+    this.nomineeVerifyLinkH3,
     this.registrationNumber,
     this.registrationMobileNumber,
     this.registrationMobile,
@@ -47,7 +101,25 @@ class ProfileUpdateModel {
     return ProfileUpdateModel(
       status: json.parse<bool>('status'),
       message: json.parse<String>('message'),
-      folios: (json['folios'] as List?)?.map((e) => e.toString()).toList(),
+      folios: json['folios'] != null
+          ? (json['folios'] as List).map((e) {
+              if (e is Map<String, dynamic>) {
+                return FolioItemModel.fromJson(e);
+              } else if (e is Map) {
+                return FolioItemModel.fromJson(Map<String, dynamic>.from(e));
+              } else {
+                return FolioItemModel(
+                  folioNumber: e.toString(),
+                  folio: e.toString(),
+                  displayLabel: e.toString(),
+                );
+              }
+            }).toList()
+          : null,
+      rawFolios: (json['raw_folios'] as List?)?.map((e) => e.toString()).toList(),
+      nomineeVerifyLinkH1: json.parse<String>('nominee_verify_link_h1'),
+      nomineeVerifyLinkH2: json.parse<String>('nominee_verify_link_h2'),
+      nomineeVerifyLinkH3: json.parse<String>('nominee_verify_link_h3'),
       registrationNumber: json.parse<String>('registration_number'),
       registrationMobileNumber:
           json.parse<String>('registration_mobile_number'),
@@ -156,7 +228,8 @@ class ProfileDataModel {
   final List<NomineeModel>? nominees;
   final List<BankAccountModel>? bankAccounts;
   final MfuMandateModel? mfuMandate;
-  final List<String>? folios;
+  final List<FolioItemModel>? folios;
+  final List<String>? rawFolios;
 
   ProfileDataModel({
     this.id,
@@ -212,6 +285,7 @@ class ProfileDataModel {
     this.nominees,
     this.mfuMandate,
     this.folios,
+    this.rawFolios,
   });
 
   factory ProfileDataModel.fromJson(Map<String, dynamic> json) {
@@ -294,7 +368,22 @@ class ProfileDataModel {
               (json['mfu_mandates'] as List).isNotEmpty)
           ? MfuMandateModel.fromJson((json['mfu_mandates'] as List).first)
           : null,
-      folios: (json['folios'] as List?)?.map((e) => e.toString()).toList(),
+      folios: json['folios'] != null
+          ? (json['folios'] as List).map((e) {
+              if (e is Map<String, dynamic>) {
+                return FolioItemModel.fromJson(e);
+              } else if (e is Map) {
+                return FolioItemModel.fromJson(Map<String, dynamic>.from(e));
+              } else {
+                return FolioItemModel(
+                  folioNumber: e.toString(),
+                  folio: e.toString(),
+                  displayLabel: e.toString(),
+                );
+              }
+            }).toList()
+          : null,
+      rawFolios: (json['raw_folios'] as List?)?.map((e) => e.toString()).toList(),
     );
   }
 }

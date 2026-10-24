@@ -834,6 +834,8 @@ import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 class DownloadStatementsScreen extends GetView<PersonalisationController> {
@@ -1452,6 +1454,13 @@ class _WebFolioDropdown extends StatelessWidget {
               color: Color(0xFF667085),
             ),
             items: folios.map((folio) {
+              final matchingItem = ctrl.userFolioItems.firstWhereOrNull(
+                (f) =>
+                    (f.folioNumber != null && f.folioNumber == folio) ||
+                    (f.folio != null && f.folio == folio),
+              );
+              final display = matchingItem?.displayLabel ?? folio;
+
               return DropdownMenuItem<String>(
                 value: folio,
                 child: Row(
@@ -1464,7 +1473,7 @@ class _WebFolioDropdown extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        folio,
+                        display,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UTextStyles.bodyMedium.copyWith(
@@ -2700,13 +2709,37 @@ class _FolioInputCard extends StatelessWidget {
       child: Column(
         children: [
           Obx(
-            () => _DropdownTile(
-              label: 'Select Folio',
-              value: ctrl.selectedFolio.value.isEmpty
-                  ? 'Select Folio'
-                  : ctrl.selectedFolio.value,
-              onTap: () => _showFolioPicker(context, ctrl),
-            ),
+            () {
+              final selected = ctrl.selectedFolio.value;
+              String displayLabel = 'Select Folio';
+
+              if (selected.isNotEmpty) {
+                final matchingItem = ctrl.userFolioItems.firstWhereOrNull(
+                  (f) =>
+                      (f.folioNumber != null && f.folioNumber == selected) ||
+                      (f.folio != null && f.folio == selected),
+                );
+                if (matchingItem != null) {
+                  final folio = matchingItem.folioNumber ?? matchingItem.folio ?? selected;
+                  final amc = matchingItem.amcName;
+                  if (amc != null && amc.isNotEmpty) {
+                    displayLabel = '$folio ($amc)';
+                  } else if (matchingItem.displayLabel != null && matchingItem.displayLabel!.isNotEmpty) {
+                    displayLabel = matchingItem.displayLabel!;
+                  } else {
+                    displayLabel = folio;
+                  }
+                } else {
+                  displayLabel = selected;
+                }
+              }
+
+              return _DropdownTile(
+                label: 'Select Folio',
+                value: displayLabel,
+                onTap: () => _showFolioPicker(context, ctrl),
+              );
+            },
           ),
         ],
       ),
@@ -2714,11 +2747,12 @@ class _FolioInputCard extends StatelessWidget {
   }
 
   void _showFolioPicker(BuildContext context, PersonalisationController ctrl) {
-    final folios = ctrl.userFolios.isNotEmpty
+    final folioItems = ctrl.userFolioItems;
+    final plainFolios = ctrl.userFolios.isNotEmpty
         ? ctrl.userFolios.toList()
         : (ctrl.selectedFolio.value.isNotEmpty
-              ? [ctrl.selectedFolio.value]
-              : <String>[]);
+            ? [ctrl.selectedFolio.value]
+            : <String>[]);
 
     showModalBottomSheet(
       context: context,
@@ -2769,7 +2803,7 @@ class _FolioInputCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                if (folios.isEmpty)
+                if (folioItems.isEmpty && plainFolios.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Center(
@@ -2786,65 +2820,179 @@ class _FolioInputCard extends StatelessWidget {
                 else
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.45,
+                      maxHeight: MediaQuery.of(context).size.height * 0.55,
                     ),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: folios.length,
-                      separatorBuilder: (_, __) =>
-                          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                      itemBuilder: (context, index) {
-                        final folio = folios[index];
-                        final isSelected = folio == ctrl.selectedFolio.value;
+                    child: folioItems.isNotEmpty
+                        ? ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: folioItems.length,
+                            separatorBuilder: (_, __) => const Divider(
+                              height: 1,
+                              color: Color(0xFFF1F5F9),
+                            ),
+                            itemBuilder: (context, index) {
+                              final item = folioItems[index];
+                              final folioNum =
+                                  item.folioNumber ?? item.folio ?? '';
+                              final isSelected =
+                                  folioNum == ctrl.selectedFolio.value;
 
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Ucolors.primary.withValues(alpha: 0.1)
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(8),
+                              // AMC Name logic
+                              String amcName = item.amcName ?? '';
+                              if (amcName.isEmpty && item.displayLabel != null) {
+                                final match = RegExp(r'\((.*?)\)').firstMatch(item.displayLabel!);
+                                if (match != null && match.group(1) != null) {
+                                  amcName = match.group(1)!;
+                                }
+                              }
+
+                              // Logo URL formatting
+                              String? logoUrl = item.amcLogo;
+                              if (logoUrl != null &&
+                                  logoUrl.isNotEmpty &&
+                                  !logoUrl.startsWith('http')) {
+                                logoUrl = '${Appurl.baseUrl}$logoUrl';
+                              }
+
+                              return ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
+                                ),
+                                // LOGO (Leading)
+                                leading: Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Ucolors.primary.withValues(alpha: 0.1)
+                                        : Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: (logoUrl != null && logoUrl.isNotEmpty)
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: CustomCachedImage(
+                                            imageUrl: logoUrl,
+                                            width: 32,
+                                            height: 32,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        )
+                                      : Icon(
+                                          Icons.description_outlined,
+                                          size: 22,
+                                          color: isSelected
+                                              ? Ucolors.primary
+                                              : Colors.grey.shade700,
+                                        ),
+                                ),
+                                // TITLE: Folio Number
+                                title: Text(
+                                  folioNum,
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 15,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.w600,
+                                    color: isSelected
+                                        ? Ucolors.primary
+                                        : const Color(0xFF1E293B),
+                                  ),
+                                ),
+                                // SUBTITLE: AMC Name
+                                subtitle: amcName.isNotEmpty
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(top: 2),
+                                        child: Text(
+                                          amcName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.medium,
+                                            fontSize: 13,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                                trailing: isSelected
+                                    ? const Icon(
+                                        Icons.check_circle,
+                                        color: Ucolors.primary,
+                                        size: 22,
+                                      )
+                                    : null,
+                                onTap: () {
+                                  ctrl.selectFolio(folioNum);
+                                  Navigator.pop(ctx);
+                                },
+                              );
+                            },
+                          )
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: plainFolios.length,
+                            separatorBuilder: (_, __) => const Divider(
+                              height: 1,
+                              color: Color(0xFFF1F5F9),
                             ),
-                            child: Icon(
-                              Icons.description_outlined,
-                              size: 20,
-                              color: isSelected
-                                  ? Ucolors.primary
-                                  : Colors.grey.shade700,
-                            ),
+                            itemBuilder: (context, index) {
+                              final folio = plainFolios[index];
+                              final isSelected =
+                                  folio == ctrl.selectedFolio.value;
+
+                              return ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                leading: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Ucolors.primary.withValues(alpha: 0.1)
+                                        : Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.description_outlined,
+                                    size: 20,
+                                    color: isSelected
+                                        ? Ucolors.primary
+                                        : Colors.grey.shade700,
+                                  ),
+                                ),
+                                title: Text(
+                                  folio,
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 15,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.w500,
+                                    color: isSelected
+                                        ? Ucolors.primary
+                                        : const Color(0xFF1E293B),
+                                  ),
+                                ),
+                                trailing: isSelected
+                                    ? const Icon(
+                                        Icons.check_circle,
+                                        color: Ucolors.primary,
+                                        size: 22,
+                                      )
+                                    : null,
+                                onTap: () {
+                                  ctrl.selectFolio(folio);
+                                  Navigator.pop(ctx);
+                                },
+                              );
+                            },
                           ),
-                          title: Text(
-                            folio,
-                            style: TextStyle(
-                              fontFamily: FontFamily.medium,
-                              fontSize: 15,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
-                              color: isSelected
-                                  ? Ucolors.primary
-                                  : const Color(0xFF1E293B),
-                            ),
-                          ),
-                          trailing: isSelected
-                              ? const Icon(
-                                  Icons.check_circle,
-                                  color: Ucolors.primary,
-                                  size: 22,
-                                )
-                              : null,
-                          onTap: () {
-                            ctrl.selectFolio(folio);
-                            Navigator.pop(ctx);
-                          },
-                        );
-                      },
-                    ),
                   ),
                 const SizedBox(height: 12),
               ],

@@ -28,6 +28,8 @@ import 'package:my_sip/services/session_manager.dart';
 import 'dart:async';
 
 import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart'
+    show FolioItemEntity;
+import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart'
     as profileEntity;
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
@@ -585,16 +587,31 @@ class PersonalisationController extends GetxController {
             userData.value = profileData;
 
             // Sync folios from profile
-            final folios = profileData.folios ?? success.data?.folios;
-            if (folios != null && folios.isNotEmpty) {
-              userFolios.assignAll(folios);
+            final rawFoliosList = profileData.rawFolios ?? success.data?.rawFolios;
+            final richFolios = profileData.folios ?? success.data?.folios;
+
+            if (richFolios != null && richFolios.isNotEmpty) {
+              userFolioItems.assignAll(richFolios);
+            }
+
+            final List<String> stringFolios = rawFoliosList ??
+                richFolios
+                    ?.map((FolioItemEntity e) => e.folioNumber ?? e.folio ?? '')
+                    .where((s) => s.isNotEmpty)
+                    .toList() ??
+                [];
+
+            if (stringFolios.isNotEmpty) {
+              userFolios.assignAll(stringFolios);
               if (selectedFolio.value.isEmpty ||
                   !userFolios.contains(selectedFolio.value)) {
                 selectedFolio.value = userFolios.first;
               }
               final currentUser = session.getUserData;
               if (currentUser != null) {
-                session.updateUserData(currentUser.copyWith(folios: folios));
+                session.updateUserData(
+                  currentUser.copyWith(folios: stringFolios),
+                );
               }
             }
             // linkedBankAccount.value = profileData.bankAccount;
@@ -1250,7 +1267,12 @@ class PersonalisationController extends GetxController {
               image: apiData.data?.image,
               panCard: apiData.data?.panCard,
               kycStatus: apiData.data?.kycStatus,
-              folios: apiData.data?.folios ?? apiData.folios,
+              folios: apiData.data?.rawFolios ??
+                  apiData.rawFolios ??
+                  (apiData.data?.folios ?? apiData.folios)
+                      ?.map((FolioItemEntity e) => e.folioNumber ?? e.folio ?? '')
+                      .where((s) => s.isNotEmpty)
+                      .toList(),
               // ... map other fields
             );
 
@@ -1924,6 +1946,7 @@ class PersonalisationController extends GetxController {
   // Folio / scheme selections
   final selectedFolio = ''.obs;
   final userFolios = <String>[].obs;
+  final userFolioItems = <FolioItemEntity>[].obs;
   final selectedScheme = 'Growth Fund - Direct'.obs;
 
   // Duration: 0=Current FY, 1=Previous FY, 2=Full Statement, 3=Custom
