@@ -14,6 +14,7 @@ import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.da
 import 'package:flutter/material.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/services/session_manager.dart';
+import 'package:my_sip/services/firebase_services.dart';
 
 class AuthController extends GetxController {
   final AuthUseCases _authUseCases;
@@ -713,6 +714,9 @@ class AuthController extends GetxController {
     user.value = null;
     mobileController.clear();
     otpController.clear();
+    if (Get.isRegistered<NotificationService>()) {
+      Get.find<NotificationService>().deleteTokenOnLogout();
+    }
     SessionManager.instance.clearSession();
 
     Get.offAllNamed(AppRoutes.login);

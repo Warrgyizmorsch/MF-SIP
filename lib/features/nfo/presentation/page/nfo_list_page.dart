@@ -519,7 +519,10 @@ class NfoListPage extends GetView<NfoController> {
   }
 
   Widget _buildMobileLayout(BuildContext context) {
-    return _buildNfoContent(isWeb: false);
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: _buildNfoContent(isWeb: false),
+    );
   }
 
   Widget _buildNfoContent({required bool isWeb}) {
