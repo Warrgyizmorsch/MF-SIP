@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable, dead_null_aware_expression, dead_code
+﻿// ignore_for_file: unused_local_variable, dead_null_aware_expression, dead_code
 
 import 'dart:async';
 import 'dart:developer';
@@ -39,6 +39,7 @@ import 'package:my_sip/features/mfu/presentation/pages/mandate_waiting_screen.da
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart' show FolioItemEntity;
 import 'package:my_sip/services/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -139,6 +140,135 @@ class MfuController extends GetxController {
     const SipPurchaseArgs(schemeCode: '', fundName: ''),
   );
 
+  // ─── Folio Selection State ─────────────────────────────────────────────────
+  final RxString selectedFolioMode = 'NEW'.obs; // 'NEW' or 'EXISTING'
+  final Rxn<FolioItemEntity> selectedExistingFolio = Rxn<FolioItemEntity>();
+
+  void setFolioMode(String mode) {
+    selectedFolioMode.value = mode;
+    if (mode == 'NEW') {
+      selectedExistingFolio.value = null;
+    } else if (selectedExistingFolio.value == null && matchingAmcFolios.isNotEmpty) {
+      selectedExistingFolio.value = matchingAmcFolios.first;
+    }
+  }
+
+  void selectExistingFolio(FolioItemEntity item) {
+    selectedFolioMode.value = 'EXISTING';
+    selectedExistingFolio.value = item;
+  }
+
+  /// Extracts the brand name or keywords from an AMC or Fund name
+  static Set<String> _extractAmcKeywords(String name) {
+    if (name.isEmpty) return {};
+    const stopWords = {
+      'asset', 'management', 'company', 'co', 'ltd', 'limited', 'pvt',
+      'private', 'mutual', 'fund', 'funds', 'amc', 'trustee', 'services',
+      'india', 'investments', 'investment', 'llc', 'corp', 'corporation',
+      'regular', 'direct', 'growth', 'plan', 'dividend', 'idcw', 'scheme',
+      'cap', 'large', 'mid', 'small', 'flexi', 'multi', 'equity', 'debt',
+      'hybrid', 'elss', 'index', 'etf', 'fund-of-funds', 'opportunities'
+    };
+
+    return name
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')
+        .split(RegExp(r'\s+'))
+        .where((t) => t.length >= 3 && !stopWords.contains(t))
+        .toSet();
+  }
+
+  /// Returns user's existing folios matching the current fund's AMC / Name, deduplicated by folio number.
+  List<FolioItemEntity> get matchingAmcFolios {
+    if (!Get.isRegistered<PersonalisationController>()) return [];
+    final pCtrl = Get.find<PersonalisationController>();
+    final allItems = pCtrl.userFolioItems;
+    if (allItems.isEmpty) return [];
+
+    final targetAmcCode = (sipArgs.value.amcCode ?? '').trim().toLowerCase();
+    final targetAmcName = (sipArgs.value.amcName ?? '').trim().toLowerCase();
+    final fundName = sipArgs.value.fundName.trim().toLowerCase();
+
+    final targetKeywords = _extractAmcKeywords(
+      targetAmcName.isNotEmpty ? targetAmcName : fundName,
+    );
+
+    final matched = allItems.where((item) {
+      final fAmcCode = (item.amcCode ?? '').trim().toLowerCase();
+      final fRtaCode = (item.rtaAmcCode ?? '').trim().toLowerCase();
+      final fAmcName = (item.amcName ?? '').trim().toLowerCase();
+      final fSchemeName = (item.schemeName ?? '').trim().toLowerCase();
+
+      // 1. Direct AMC Code match (Definitive when codes exist on both sides)
+      if (targetAmcCode.isNotEmpty) {
+        final hasFolioCode = fAmcCode.isNotEmpty || fRtaCode.isNotEmpty;
+        if (hasFolioCode) {
+          return (fAmcCode.isNotEmpty && targetAmcCode == fAmcCode) ||
+              (fRtaCode.isNotEmpty && targetAmcCode == fRtaCode);
+        }
+      }
+
+      // 2. Direct AMC Name match (Fallback when codes are not available)
+      if (targetAmcName.isNotEmpty && fAmcName.isNotEmpty) {
+        if (targetAmcName == fAmcName ||
+            targetAmcName.contains(fAmcName) ||
+            fAmcName.contains(targetAmcName)) {
+          return true;
+        }
+      }
+
+      // 3. Keyword / Token match (e.g. 'axis', 'kotak', 'hdfc', 'nippon', 'sbi', 'icici', etc.)
+      final folioKeywords = _extractAmcKeywords('$fAmcName $fSchemeName');
+      for (final kw in targetKeywords) {
+        if (folioKeywords.contains(kw) ||
+            fAmcName.contains(kw) ||
+            fSchemeName.contains(kw)) {
+          return true;
+        }
+      }
+
+      return false;
+    }).toList();
+
+    // Deduplicate by folioNumber so each unique folio number appears once
+    final seen = <String>{};
+    final uniqueMatched = <FolioItemEntity>[];
+    for (final item in matched) {
+      final num = (item.folioNumber ?? item.folio ?? '').trim();
+      if (num.isNotEmpty && seen.add(num)) {
+        uniqueMatched.add(item);
+      }
+    }
+
+    return uniqueMatched;
+  }
+
+  /// Returns all scheme names held under this folio number from user's portfolio
+  List<String> getSchemesForFolio(String folioNumber) {
+    if (!Get.isRegistered<PersonalisationController>()) return [];
+    final pCtrl = Get.find<PersonalisationController>();
+    final schemes = <String>{};
+    for (final item in pCtrl.userFolioItems) {
+      final num = (item.folioNumber ?? item.folio ?? '').trim();
+      if (num == folioNumber.trim()) {
+        final scheme = (item.schemeName ?? '').trim();
+        if (scheme.isNotEmpty) {
+          schemes.add(scheme);
+        }
+      }
+    }
+    return schemes.toList();
+  }
+
+  String get effectiveFolio {
+    if (selectedFolioMode.value == 'EXISTING' && selectedExistingFolio.value != null) {
+      final f = selectedExistingFolio.value!.folioNumber ??
+          selectedExistingFolio.value!.folio;
+      if (f != null && f.trim().isNotEmpty) return f.trim();
+    }
+    return 'NEW';
+  }
+
   // ─── Investment State ─────────────────────────────────────────────────────────
 
   final Rx<InvType> sipInvType = Rx<InvType>(InvType.sip);
@@ -188,6 +318,30 @@ class MfuController extends GetxController {
         : args.minSip;
     sipStepUpAmt.value = args.minTopup;
     sipCapAmount.value = args.minSip + args.minTopup + 100;
+
+    // Initialize Folio Mode
+    final available = matchingAmcFolios;
+    if (args.folio == 'NEW') {
+      selectedFolioMode.value = 'NEW';
+      selectedExistingFolio.value = null;
+    } else if (args.folio != null && args.folio!.isNotEmpty) {
+      selectedFolioMode.value = 'EXISTING';
+      final match = available.firstWhereOrNull(
+        (f) => (f.folioNumber ?? f.folio) == args.folio,
+      );
+      selectedExistingFolio.value = match ??
+          FolioItemEntity(
+            folioNumber: args.folio,
+            folio: args.folio,
+            amcName: args.amcName ?? args.fundName,
+          );
+    } else if (available.isNotEmpty) {
+      selectedFolioMode.value = 'EXISTING';
+      selectedExistingFolio.value = available.first;
+    } else {
+      selectedFolioMode.value = 'NEW';
+      selectedExistingFolio.value = null;
+    }
 
     // Reset all errors and optional state
     sipAmountError.value = null;
@@ -379,7 +533,7 @@ class MfuController extends GetxController {
     final schemeCode = args.schemeCode;
     final amount = sipAmount.value.toDouble();
     final day = formatMfuSipDay();
-    final folio = args.folio ?? 'NEW';
+    final folio = effectiveFolio;
 
     final bool isLumpsum = sipInvType.value == InvType.lumpsum;
 

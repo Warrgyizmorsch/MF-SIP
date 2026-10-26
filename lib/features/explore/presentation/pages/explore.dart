@@ -1,4 +1,4 @@
-// ignore_for_file: dead_null_aware_expression, dead_code, unused_element_parameter, unused_local_variable
+﻿// ignore_for_file: dead_null_aware_expression, dead_code, unused_element_parameter, unused_local_variable
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -1290,6 +1290,8 @@ class WebFundListCard extends StatelessWidget {
                     final purchaseArgs = SipPurchaseArgs(
                       schemeCode: entity.schemeCode ?? '',
                       fundName: entity.baseSchemeName ?? '',
+                      amcName: entity.amc?.amcName,
+                      amcCode: entity.rtaAmcCode,
                       category: 'Unknown',
                       riskLabel: entity.riskLevel ?? '',
                       minSip: entity.minSipAmount ?? 1000,
@@ -1419,6 +1421,8 @@ class WebFundListCard extends StatelessWidget {
           'is_purchase_allowed': entity.isPurchaseAllowed,
           'is_sip_allowed': entity.isSipAllowed,
           'is_lumpsum_allowed': entity.isLumpsumAllowed,
+            'rta_amc_code': entity.rtaAmcCode,
+            'amc_name': entity.amc?.amcName,
         },
         beforeOpen: () {
           if (Get.isRegistered<FundDetailsController>()) {
@@ -1436,6 +1440,8 @@ class WebFundListCard extends StatelessWidget {
             'is_purchase_allowed': entity.isPurchaseAllowed,
             'is_sip_allowed': entity.isSipAllowed,
             'is_lumpsum_allowed': entity.isLumpsumAllowed,
+            'rta_amc_code': entity.rtaAmcCode,
+            'amc_name': entity.amc?.amcName,
           };
         },
       );
@@ -1455,6 +1461,8 @@ class WebFundListCard extends StatelessWidget {
         'is_purchase_allowed': entity.isPurchaseAllowed,
         'is_sip_allowed': entity.isSipAllowed,
         'is_lumpsum_allowed': entity.isLumpsumAllowed,
+            'rta_amc_code': entity.rtaAmcCode,
+            'amc_name': entity.amc?.amcName,
       };
 
       Get.toNamed(AppRoutes.funddetails);
@@ -2153,6 +2161,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
               final purchaseArgs = SipPurchaseArgs(
                 schemeCode: entity.schemeCode ?? '',
                 fundName: entity.baseSchemeName ?? '',
+                amcName: entity.amc?.amcName,
+                      amcCode: entity.rtaAmcCode,
                 category: 'Unknown',
                 riskLabel: entity.riskLevel ?? '',
                 minSip: entity.minSipAmount ?? 1000,
@@ -2240,6 +2250,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
           'is_purchase_allowed': entity.isPurchaseAllowed,
           'is_sip_allowed': entity.isSipAllowed,
           'is_lumpsum_allowed': entity.isLumpsumAllowed,
+            'rta_amc_code': entity.rtaAmcCode,
+            'amc_name': entity.amc?.amcName,
         },
         beforeOpen: () {
           if (Get.isRegistered<FundDetailsController>()) {
@@ -2257,6 +2269,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
             'is_purchase_allowed': entity.isPurchaseAllowed,
             'is_sip_allowed': entity.isSipAllowed,
             'is_lumpsum_allowed': entity.isLumpsumAllowed,
+            'rta_amc_code': entity.rtaAmcCode,
+            'amc_name': entity.amc?.amcName,
           };
         },
       );
@@ -2276,6 +2290,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
         'is_purchase_allowed': entity.isPurchaseAllowed,
         'is_sip_allowed': entity.isSipAllowed,
         'is_lumpsum_allowed': entity.isLumpsumAllowed,
+            'rta_amc_code': entity.rtaAmcCode,
+            'amc_name': entity.amc?.amcName,
       };
 
       Get.toNamed(AppRoutes.funddetails);
@@ -2397,6 +2413,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                     final purchaseArgs = SipPurchaseArgs(
                       schemeCode: entity.schemeCode ?? '',
                       fundName: entity.baseSchemeName ?? '',
+                      amcName: entity.amc?.amcName,
+                      amcCode: entity.rtaAmcCode,
                       category: '' ?? "Unknown",
                       riskLabel: entity.riskLevel ?? "",
                       minSip: entity.minSipAmount ?? 1000,
@@ -2908,6 +2926,8 @@ class MutualFundCard extends StatelessWidget {
                 'is_purchase_allowed': entity.isPurchaseAllowed,
                 'is_sip_allowed': entity.isSipAllowed,
                 'is_lumpsum_allowed': entity.isLumpsumAllowed,
+            'rta_amc_code': entity.rtaAmcCode,
+            'amc_name': entity.amc?.amcName,
               },
             );
           },

@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_brace_in_string_interps, unused_element_parameter, unused_local_variable
+﻿// ignore_for_file: unnecessary_brace_in_string_interps, unused_element_parameter, unused_local_variable
 
 import 'dart:async';
 
@@ -1218,12 +1218,16 @@ class _WebDashboardLayout extends StatelessWidget {
                                 'scheme': schemeName,
                                 'scheme_code': schemeCode,
                                 'isin': fund.isin ?? '',
+                                'rta_amc_code': fund.rtaAmcCode ?? '',
+                                'amc_name': fund.amc?.amcName ?? '',
                               },
                               arguments: {
                                 'scheme': schemeName,
                                 'imgUrl': img,
                                 'scheme_code': schemeCode,
                                 'isin': fund.isin ?? '',
+                                'rta_amc_code': fund.rtaAmcCode ?? '',
+                                'amc_name': fund.amc?.amcName ?? '',
                               },
                               beforeOpen: () {
                                 if (Get.isRegistered<FundDetailsController>()) {
@@ -1235,6 +1239,8 @@ class _WebDashboardLayout extends StatelessWidget {
                                   'imgUrl': img,
                                   'scheme_code': schemeCode,
                                   'isin': fund.isin ?? '',
+                                  'rta_amc_code': fund.rtaAmcCode,
+                                  'amc_name': fund.amc?.amcName,
                                 };
                               },
                             );
@@ -1248,6 +1254,8 @@ class _WebDashboardLayout extends StatelessWidget {
                               'imgUrl': img,
                               'scheme_code': schemeCode,
                               'isin': fund.isin ?? '',
+                                  'rta_amc_code': fund.rtaAmcCode,
+                                  'amc_name': fund.amc?.amcName,
                             };
 
                             Get.toNamed(AppRoutes.funddetails);
@@ -1652,6 +1660,8 @@ class _WebDashboardLayout extends StatelessWidget {
                             'scheme_code': schemeCode,
                             'scheme': schemeName,
                             'isin': fund.isin ?? '',
+                            'rta_amc_code': fund.rtaAmcCode ?? '',
+                            'amc_name': fund.amc?.amcName ?? '',
                             'is_purchase_allowed': fund.isPurchaseAllowed?.toString() ?? '',
                             'is_sip_allowed': fund.isSipAllowed?.toString() ?? '',
                             'is_lumpsum_allowed': fund.isLumpsumAllowed?.toString() ?? '',
@@ -1661,6 +1671,8 @@ class _WebDashboardLayout extends StatelessWidget {
                             'imgUrl': img,
                             'scheme_code': schemeCode,
                             'isin': fund.isin ?? '',
+                                  'rta_amc_code': fund.rtaAmcCode,
+                                  'amc_name': fund.amc?.amcName,
                             'email': fund.amc?.email,
                             'address': fund.amc?.address,
                             'contact': fund.amc?.contact,
@@ -1678,6 +1690,8 @@ class _WebDashboardLayout extends StatelessWidget {
                               'imgUrl': img,
                               'scheme_code': schemeCode,
                               'isin': fund.isin ?? '',
+                                  'rta_amc_code': fund.rtaAmcCode,
+                                  'amc_name': fund.amc?.amcName,
                               'email': fund.amc?.email,
                               'address': fund.amc?.address,
                               'contact': fund.amc?.contact,
@@ -3845,6 +3859,8 @@ class _MobileLayout extends StatelessWidget {
                                   'imgUrl': img,
                                   'scheme_code': schemeCode,
                                   'isin': fund.isin ?? '',
+                                  'rta_amc_code': fund.rtaAmcCode,
+                                  'amc_name': fund.amc?.amcName,
                                   'email': fund.amc?.email,
                                   'address': fund.amc?.address,
                                   'contact': fund.amc?.contact,
@@ -3860,6 +3876,8 @@ class _MobileLayout extends StatelessWidget {
                                     'imgUrl': img,
                                     'scheme_code': schemeCode,
                                     'isin': fund.isin ?? '',
+                                  'rta_amc_code': fund.rtaAmcCode,
+                                  'amc_name': fund.amc?.amcName,
                                     'email': fund.amc?.email,
                                     'address': fund.amc?.address,
                                     'contact': fund.amc?.contact,
@@ -3941,6 +3959,8 @@ class _MobileLayout extends StatelessWidget {
                                 'imgUrl': img,
                                 'scheme_code': schemeCode,
                                 'isin': fund.isin ?? '',
+                                  'rta_amc_code': fund.rtaAmcCode,
+                                  'amc_name': fund.amc?.amcName,
                                 'email': fund.amc?.email,
                                 'address': fund.amc?.address,
                                 'contact': fund.amc?.contact,
@@ -3956,6 +3976,8 @@ class _MobileLayout extends StatelessWidget {
                                   'imgUrl': img,
                                   'scheme_code': schemeCode,
                                   'isin': fund.isin ?? '',
+                                  'rta_amc_code': fund.rtaAmcCode,
+                                  'amc_name': fund.amc?.amcName,
                                   'email': fund.amc?.email,
                                   'address': fund.amc?.address,
                                   'contact': fund.amc?.contact,

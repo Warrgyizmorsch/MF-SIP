@@ -1,4 +1,4 @@
-// ignore_for_file: curly_braces_in_flow_control_structures, dead_null_aware_expression, dead_code
+﻿// ignore_for_file: curly_braces_in_flow_control_structures, dead_null_aware_expression, dead_code
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -190,6 +190,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                         final purchaseArgs = SipPurchaseArgs(
                           schemeCode: fund1.schemeCode ?? '',
                           fundName: fund1.baseSchemeName ?? '',
+                          amcName: fund1.amc?.amcName,
                           riskLabel: '',
                           minSip: fund1.minSipAmount ?? 1000,
                           minLumpsum: fund1.minLumpsum?.toInt() ?? 5000,
@@ -211,6 +212,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                         final purchaseArgs = SipPurchaseArgs(
                           schemeCode: fund2.schemeCode ?? '',
                           fundName: fund2.baseSchemeName ?? '',
+                          amcName: fund2.amc?.amcName,
                           riskLabel: '',
                           minSip: fund2.minSipAmount ?? 1000,
                           minLumpsum: fund2.minLumpsum?.toInt() ?? 5000,

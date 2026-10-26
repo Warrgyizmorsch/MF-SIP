@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
@@ -744,6 +744,8 @@ class NavigationBarController extends GetxController {
           'scheme': params['scheme'] ?? '',
           'imgUrl': params['imgUrl'] ?? '',
           'scheme_code': params['scheme_code'] ?? '',
+          'rta_amc_code': params['rta_amc_code'] ?? '',
+          'amc_name': params['amc_name'] ?? '',
         };
         break;
 

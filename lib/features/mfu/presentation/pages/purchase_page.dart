@@ -1,10 +1,12 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart' show FolioItemEntity;
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -560,6 +562,8 @@ extension InvTypeX on InvType {
 class SipPurchaseArgs {
   final String schemeCode;
   final String fundName;
+  final String? amcName;
+  final String? amcCode;
   final String? imgUrl;
   final String? folio;
   final String riskLabel;
@@ -576,6 +580,8 @@ class SipPurchaseArgs {
   const SipPurchaseArgs({
     required this.schemeCode,
     required this.fundName,
+    this.amcName,
+    this.amcCode,
     this.imgUrl,
     this.folio,
     this.riskLabel = 'Very High Risk',
@@ -670,6 +676,298 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
   }
 
+  void _showNoFoliosNotice(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.info_outline, size: 36, color: Colors.blue.shade700),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'No Existing Folio Found',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'You do not have any existing folios registered with this fund house. Selecting "Create New Folio" will open a fresh account for you automatically.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Ucolors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Got It', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showFolioSelectionSheet(BuildContext context, List<FolioItemEntity> folios) {
+    final amcDisplayName = _c.sipArgs.value.amcName ?? _c.sipArgs.value.fundName;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  height: 4,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Select Existing Folio',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Found ${folios.length} folio${folios.length > 1 ? "s" : ""} matching $amcDisplayName',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close, size: 20, color: Colors.grey),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.50,
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: folios.length,
+                  separatorBuilder: (_, __) =>
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  itemBuilder: (context, index) {
+                    final item = folios[index];
+                    final folioNum = item.folioNumber ?? item.folio ?? '';
+                    final isSelected =
+                        item == _c.selectedExistingFolio.value ||
+                        folioNum == (_c.selectedExistingFolio.value?.folioNumber ??
+                            _c.selectedExistingFolio.value?.folio);
+
+                    String? logoUrl = item.amcLogo;
+                    if (logoUrl != null &&
+                        logoUrl.isNotEmpty &&
+                        !logoUrl.startsWith('http')) {
+                      logoUrl = '${Appurl.baseUrl}$logoUrl';
+                    }
+
+                    final heldSchemes = _c.getSchemesForFolio(folioNum);
+
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () {
+                        _c.selectExistingFolio(item);
+                        Navigator.pop(ctx);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 10,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              margin: const EdgeInsets.only(top: 2),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Ucolors.primary.withValues(alpha: 0.1)
+                                    : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              alignment: Alignment.center,
+                              child: (logoUrl != null && logoUrl.isNotEmpty)
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(6),
+                                      child: CustomCachedImage(
+                                        imageUrl: logoUrl,
+                                        width: 28,
+                                        height: 28,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.description_outlined,
+                                      size: 20,
+                                      color: isSelected
+                                          ? Ucolors.primary
+                                          : Colors.grey.shade700,
+                                    ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Folio: $folioNum',
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.medium,
+                                          fontSize: 15,
+                                          fontWeight: isSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.w600,
+                                          color: isSelected
+                                              ? Ucolors.primary
+                                              : const Color(0xFF1E293B),
+                                        ),
+                                      ),
+                                      if (isSelected) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Ucolors.primary.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: const Text(
+                                            'Selected',
+                                            style: TextStyle(
+                                              fontFamily: FontFamily.medium,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: Ucolors.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  if (item.amcName != null &&
+                                      item.amcName!.isNotEmpty)
+                                    Text(
+                                      item.amcName!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  if (heldSchemes.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Holding: ${heldSchemes.join(" â€¢ ")}',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
+                                        fontSize: 11,
+                                        color: const Color(0xFF475569),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              isSelected
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_off,
+                              color: isSelected
+                                  ? Ucolors.primary
+                                  : Colors.grey.shade400,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
   @override
   void dispose() {
     _entryCtrl.dispose();
@@ -1310,20 +1608,336 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
           );
         }),
 
-        // Folio tile
+        // ─── Investment Folio Selection Card ──────────────────────────
+        const SizedBox(height: 14),
         Obx(() {
-          final folio = _c.sipArgs.value.folio;
-          if (folio == null) return const SizedBox.shrink();
-          return Column(
-            children: [
-              const SizedBox(height: 10),
-              _DetailTile(
-                icon: Icons.folder_open_rounded,
-                iconColor: const Color(0xFF8B5CF6),
-                label: 'Folio',
-                value: folio,
-              ),
-            ],
+          final mode = _c.selectedFolioMode.value;
+          final availableFolios = _c.matchingAmcFolios;
+          final selectedItem = _c.selectedExistingFolio.value;
+
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.folder_shared_outlined,
+                        size: 20,
+                        color: Color(0xFF8B5CF6),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Investment Folio',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                          Text(
+                            availableFolios.isNotEmpty
+                                ? '${availableFolios.length} existing folio${availableFolios.length > 1 ? "s" : ""} found for this AMC'
+                                : 'Choose to create new or use existing folio',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+
+                // Option 1: Create New Folio
+                InkWell(
+                  onTap: () => _c.setFolioMode('NEW'),
+                  borderRadius: BorderRadius.circular(12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: mode == 'NEW'
+                          ? Ucolors.primary.withValues(alpha: 0.08)
+                          : Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: mode == 'NEW' ? Ucolors.primary : Colors.grey.shade200,
+                        width: mode == 'NEW' ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          mode == 'NEW'
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_off,
+                          size: 20,
+                          color: mode == 'NEW' ? Ucolors.primary : Colors.grey.shade500,
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Create New Folio',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E293B),
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'A new account number will be generated automatically',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Option 2: Existing Folio
+                InkWell(
+                  onTap: () {
+                    if (availableFolios.isEmpty) {
+                      _showNoFoliosNotice(context);
+                      return;
+                    }
+                    _c.setFolioMode('EXISTING');
+                    if (availableFolios.length > 1) {
+                      _showFolioSelectionSheet(context, availableFolios);
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: mode == 'EXISTING'
+                          ? Ucolors.primary.withValues(alpha: 0.08)
+                          : Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: mode == 'EXISTING'
+                            ? Ucolors.primary
+                            : Colors.grey.shade200,
+                        width: mode == 'EXISTING' ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          mode == 'EXISTING'
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_off,
+                          size: 20,
+                          color: mode == 'EXISTING'
+                              ? Ucolors.primary
+                              : Colors.grey.shade500,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Add to Existing Folio',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: availableFolios.isEmpty
+                                      ? Colors.grey.shade500
+                                      : const Color(0xFF1E293B),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                availableFolios.isNotEmpty
+                                    ? (selectedItem != null
+                                        ? 'Selected: ${selectedItem.folioNumber ?? selectedItem.folio ?? ""}'
+                                        : 'Select from ${availableFolios.length} existing folios')
+                                    : 'No existing folios found for this AMC',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (availableFolios.isNotEmpty && mode == 'EXISTING')
+                          OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Ucolors.primary,
+                              side: const BorderSide(color: Ucolors.primary),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () => _showFolioSelectionSheet(context, availableFolios),
+                            child: Text(
+                              availableFolios.length > 1 ? 'Change' : 'Select',
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Selected Folio Card Preview (when EXISTING mode is active)
+                if (mode == 'EXISTING' && selectedItem != null) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 2),
+                          child: Icon(
+                            Icons.check_circle,
+                            color: Ucolors.primary,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Folio: ${selectedItem.folioNumber ?? selectedItem.folio ?? ""}',
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
+                              if (selectedItem.amcName != null &&
+                                  selectedItem.amcName!.isNotEmpty)
+                                Text(
+                                  selectedItem.amcName!,
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 11,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              Builder(builder: (_) {
+                                final held = _c.getSchemesForFolio(
+                                  selectedItem.folioNumber ??
+                                      selectedItem.folio ??
+                                      '',
+                                );
+                                if (held.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    'Holding: ${held.join(" â€¢ ")}',
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 11,
+                                      color: const Color(0xFF475569),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                        if (availableFolios.length > 1)
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Ucolors.primary,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: () => _showFolioSelectionSheet(
+                              context,
+                              availableFolios,
+                            ),
+                            child: const Text(
+                              'Switch',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
           );
         }),
 
@@ -1724,7 +2338,8 @@ class _AmountCardState extends State<_AmountCard> {
       } else {
         _ctrl.text = _fmt(widget.amount);
       }
-    });
+    }); 
+    
   }
 
   @override
@@ -1735,6 +2350,7 @@ class _AmountCardState extends State<_AmountCard> {
     }
   }
 
+  @override
   @override
   void dispose() {
     _ctrl.dispose();

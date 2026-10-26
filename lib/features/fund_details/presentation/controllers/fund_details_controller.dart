@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_null_aware_operator, dead_null_aware_expression, dead_code
+﻿// ignore_for_file: invalid_null_aware_operator, dead_null_aware_expression, dead_code
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,6 +15,7 @@ import 'package:my_sip/features/fund_details/domain/entity/portfolio_analysis_en
 import 'package:my_sip/features/fund_details/domain/usecases/fund_details_usecases.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 
 class FundDetailsController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -33,6 +34,8 @@ class FundDetailsController extends GetxController
   late String contact;
   late String address;
   late String isin;
+  late String rtaAmcCode;
+  late String amcName;
   final isPurchaseAllowed = true.obs;
   final isSipAllowed = true.obs;
   final isLumpsumAllowed = true.obs;
@@ -121,6 +124,45 @@ class FundDetailsController extends GetxController
         '--';
     isin =
         _firstValid([navArgs['isin'], getArgs['isin'], params['isin']]) ?? '--';
+
+    rtaAmcCode = _firstValid([
+          navArgs['rta_amc_code'],
+          navArgs['amc_code'],
+          getArgs['rta_amc_code'],
+          getArgs['amc_code'],
+          params['rta_amc_code'],
+        ]) ??
+        '';
+
+    amcName = _firstValid([
+          navArgs['amc_name'],
+          getArgs['amc_name'],
+          params['amc_name'],
+        ]) ??
+        '';
+
+    // Fallback: lookup in MutualFundController if rtaAmcCode is empty
+    if (rtaAmcCode.isEmpty && Get.isRegistered<MutualFundController>()) {
+      final mfCtrl = Get.find<MutualFundController>();
+      final match = mfCtrl.mutualfund.firstWhereOrNull(
+            (f) =>
+                (schemeCode.isNotEmpty && f.schemeCode == schemeCode) ||
+                (isin.isNotEmpty && f.isin == isin),
+          ) ??
+          mfCtrl.searchFund.firstWhereOrNull(
+            (f) =>
+                (schemeCode.isNotEmpty && f.schemeCode == schemeCode) ||
+                (isin.isNotEmpty && f.isin == isin),
+          );
+      if (match != null) {
+        if (match.rtaAmcCode != null && match.rtaAmcCode!.isNotEmpty) {
+          rtaAmcCode = match.rtaAmcCode!;
+        }
+        if (amcName.isEmpty && match.amc?.amcName != null) {
+          amcName = match.amc!.amcName!;
+        }
+      }
+    }
 
     final purchaseAllowedVal =
         navArgs['is_purchase_allowed'] ?? getArgs['is_purchase_allowed'];

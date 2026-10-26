@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable
+﻿// ignore_for_file: unused_local_variable
 
 import 'dart:math' as math;
 
@@ -397,6 +397,7 @@ class SipProcessController extends GetxController
       final purchaseArgs = SipPurchaseArgs(
         schemeCode: code,
         fundName: name,
+        amcName: fund.amc?.amcName,
         minSip: fundAmount,
         minLumpsum: fundAmount,
         imgUrl: fund.amc?.amcLogoUrl,
