@@ -1652,12 +1652,21 @@ class _WebDashboardLayout extends StatelessWidget {
                             'scheme_code': schemeCode,
                             'scheme': schemeName,
                             'isin': fund.isin ?? '',
+                            'is_purchase_allowed': fund.isPurchaseAllowed?.toString() ?? '',
+                            'is_sip_allowed': fund.isSipAllowed?.toString() ?? '',
+                            'is_lumpsum_allowed': fund.isLumpsumAllowed?.toString() ?? '',
                           },
                           arguments: {
                             'scheme': schemeName,
                             'imgUrl': img,
                             'scheme_code': schemeCode,
                             'isin': fund.isin ?? '',
+                            'email': fund.amc?.email,
+                            'address': fund.amc?.address,
+                            'contact': fund.amc?.contact,
+                            'is_purchase_allowed': fund.isPurchaseAllowed,
+                            'is_sip_allowed': fund.isSipAllowed,
+                            'is_lumpsum_allowed': fund.isLumpsumAllowed,
                           },
                           beforeOpen: () {
                             if (Get.isRegistered<FundDetailsController>()) {
@@ -1669,6 +1678,12 @@ class _WebDashboardLayout extends StatelessWidget {
                               'imgUrl': img,
                               'scheme_code': schemeCode,
                               'isin': fund.isin ?? '',
+                              'email': fund.amc?.email,
+                              'address': fund.amc?.address,
+                              'contact': fund.amc?.contact,
+                              'is_purchase_allowed': fund.isPurchaseAllowed,
+                              'is_sip_allowed': fund.isSipAllowed,
+                              'is_lumpsum_allowed': fund.isLumpsumAllowed,
                             };
                           },
                         );
@@ -3821,6 +3836,23 @@ class _MobileLayout extends StatelessWidget {
                             child: PopularFundCardMob(
                               onTap: () {
                                 mutualController.addToLocalRecentlyViewed(fund);
+                                if (Get.isRegistered<FundDetailsController>()) {
+                                  Get.delete<FundDetailsController>();
+                                }
+
+                                FundDetailsScreen.navData = {
+                                  'scheme': name,
+                                  'imgUrl': img,
+                                  'scheme_code': schemeCode,
+                                  'isin': fund.isin ?? '',
+                                  'email': fund.amc?.email,
+                                  'address': fund.amc?.address,
+                                  'contact': fund.amc?.contact,
+                                  'is_purchase_allowed': fund.isPurchaseAllowed,
+                                  'is_sip_allowed': fund.isSipAllowed,
+                                  'is_lumpsum_allowed': fund.isLumpsumAllowed,
+                                };
+
                                 Get.toNamed(
                                   AppRoutes.funddetails,
                                   arguments: {
@@ -3828,6 +3860,12 @@ class _MobileLayout extends StatelessWidget {
                                     'imgUrl': img,
                                     'scheme_code': schemeCode,
                                     'isin': fund.isin ?? '',
+                                    'email': fund.amc?.email,
+                                    'address': fund.amc?.address,
+                                    'contact': fund.amc?.contact,
+                                    'is_purchase_allowed': fund.isPurchaseAllowed,
+                                    'is_sip_allowed': fund.isSipAllowed,
+                                    'is_lumpsum_allowed': fund.isLumpsumAllowed,
                                   },
                                 );
                               },
@@ -3894,6 +3932,23 @@ class _MobileLayout extends StatelessWidget {
                           child: PopularFundCardMob(
                             onTap: () {
                               mutualController.addToLocalRecentlyViewed(fund);
+                              if (Get.isRegistered<FundDetailsController>()) {
+                                Get.delete<FundDetailsController>();
+                              }
+
+                              FundDetailsScreen.navData = {
+                                'scheme': name,
+                                'imgUrl': img,
+                                'scheme_code': schemeCode,
+                                'isin': fund.isin ?? '',
+                                'email': fund.amc?.email,
+                                'address': fund.amc?.address,
+                                'contact': fund.amc?.contact,
+                                'is_purchase_allowed': fund.isPurchaseAllowed,
+                                'is_sip_allowed': fund.isSipAllowed,
+                                'is_lumpsum_allowed': fund.isLumpsumAllowed,
+                              };
+
                               Get.toNamed(
                                 AppRoutes.funddetails,
                                 arguments: {
@@ -3901,6 +3956,12 @@ class _MobileLayout extends StatelessWidget {
                                   'imgUrl': img,
                                   'scheme_code': schemeCode,
                                   'isin': fund.isin ?? '',
+                                  'email': fund.amc?.email,
+                                  'address': fund.amc?.address,
+                                  'contact': fund.amc?.contact,
+                                  'is_purchase_allowed': fund.isPurchaseAllowed,
+                                  'is_sip_allowed': fund.isSipAllowed,
+                                  'is_lumpsum_allowed': fund.isLumpsumAllowed,
                                 },
                               );
                             },
