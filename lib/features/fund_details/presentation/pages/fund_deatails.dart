@@ -148,6 +148,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                                 );
 
                             return FundBottomBarButton(
+                              
                               firstButton: isAlreadyInCart
                                   ? 'In Cart'
                                   : 'Add to Cart',

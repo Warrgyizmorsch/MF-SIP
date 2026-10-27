@@ -193,32 +193,51 @@ class FundBottomBarButton extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Secondary Cart Button
+          // Secondary Cart Button (50% width)
           Expanded(
-            flex: 2,
+            flex: 1,
             child: Tooltip(
               message: isInCart ? 'Go to Cart' : 'Add to Cart',
               child: UElevatedButton2(
                 onPressed: isLoading ? null : firstButtonP,
                 outlined: !isInCart,
                 color: isInCart ? Colors.green.shade50 : null,
-                // borderColor: isInCart ? Colors.green.shade600 : null,
                 width: double.infinity,
-                child: Icon(
-                  isInCart
-                      ? Icons.shopping_cart_checkout_rounded
-                      : Icons.add_shopping_cart_rounded,
-                  color: isInCart ? Colors.green.shade700 : Ucolors.primary,
-                  size: 22,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isInCart
+                          ? Icons.shopping_cart_checkout_rounded
+                          : Icons.add_shopping_cart_rounded,
+                      color: isInCart ? Colors.green.shade700 : Ucolors.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        firstButton,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: isInCart ? Colors.green.shade700 : Ucolors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
 
           const SizedBox(width: 12), // Tighter spacing for a cleaner look
-          // Primary Button (Gradient/Solid)
+          // Primary Button (50% width)
           Expanded(
-            flex: 8,
+            flex: 1,
             child: UElevatedButton2(
               color: Ucolors.primary,
               onPressed: isLoading ? null : secondButtonP,
