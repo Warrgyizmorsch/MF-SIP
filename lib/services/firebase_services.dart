@@ -66,10 +66,11 @@ class NotificationService extends GetxService {
       // 4. Listen to token refresh
       _setupTokenRefreshListener();
 
-      // 5. Fetch and log current token
+      // 5. Fetch, log, and sync current token on launch if user is logged in
       final token = await _fcm.getToken();
       if (token != null) {
         createLog('[FCM] Current Device Token: $token');
+        await syncTokenWithBackend(token);
       }
 
       _isInitialized = true;

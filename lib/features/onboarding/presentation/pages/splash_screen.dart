@@ -8,6 +8,7 @@ import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart'
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
+import 'package:my_sip/services/firebase_services.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
 
@@ -63,6 +64,10 @@ class _SplashScreenState extends State<SplashScreen> {
     final bool loggedIn = SessionManager.instance.isAuthenticated();
 
     if (loggedIn) {
+      // Sync FCM token on app launch / session restore
+      if (Get.isRegistered<NotificationService>()) {
+        Get.find<NotificationService>().syncTokenWithBackend();
+      }
       // User is logged in -> Go Home
       // Get.offAllNamed(AppRoutes.navMenuBar);
       Get.offAllNamed(kIsWeb ? AppRoutes.home : AppRoutes.navMenuBar);
