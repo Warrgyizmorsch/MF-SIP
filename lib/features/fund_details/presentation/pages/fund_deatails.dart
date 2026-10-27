@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unnecessary_to_list_in_spreads, dead_null_aware_expression, dead_code, unused_local_variable, unused_element_parameter, unnecessary_non_null_assertion
+// ignore_for_file: unnecessary_to_list_in_spreads, dead_null_aware_expression, dead_code, unused_local_variable, unused_element_parameter, unnecessary_non_null_assertion
 
 import 'dart:developer';
 import 'dart:ui';
@@ -1002,12 +1002,12 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                         _twoColumnRow(
                           leftTitle: '5Y CAGR',
                           color: Ucolors.success,
-                          leftValue: '20.23%',
-                          rightTitle: '5Y SIP Return',
-                          rightValue:
+                          leftValue:
                               fund?.schemePerformanceList.isNotEmpty == true
                               ? '${fund!.schemePerformanceList[0].fiveYearReturn.toString()} %'
-                              : '',
+                              : '--',
+                          rightTitle: '5Y SIP Return',
+                          rightValue: '--',
                           color2: Ucolors.success,
                         ),
                       ],
@@ -3519,13 +3519,15 @@ class _DesktopQuickLookCard extends StatelessWidget {
       title: 'Quick Look',
       child: Column(
         children: [
-          _buildQuickStat('5Y CAGR', '20.23%', Colors.green.shade700),
-          const Gap(20),
           _buildQuickStat(
-            '5Y SIP Return',
-            '${fund?.schemePerformanceList[0].fiveYearReturn}%',
+            '5Y CAGR',
+            (fund?.schemePerformanceList.isNotEmpty == true)
+                ? '${fund!.schemePerformanceList[0].fiveYearReturn}%'
+                : '--',
             Colors.green.shade700,
           ),
+          const Gap(20),
+          _buildQuickStat('5Y SIP Return', '--', Colors.green.shade700),
         ],
       ),
     );
@@ -3952,8 +3954,9 @@ class _DesktopComparisonSection extends StatelessWidget {
                       FundComparisonItem(
                         imgUrl: controller.imgUrl,
                         fund1: fund.schemeName,
-                        year: fund.schemePerformanceList[0].threeYearReturn
-                            .toString(),
+                        year: (fund.schemePerformanceList.isNotEmpty == true)
+                            ? fund.schemePerformanceList[0].threeYearReturn.toString()
+                            : '--',
                       ),
                       SizedBox(height: 5),
                       Row(
@@ -4775,10 +4778,11 @@ class OverviewScreen extends GetView<FundDetailsController> {
                 _twoColumnRow(
                   leftTitle: '5Y CAGR',
                   color: Ucolors.success,
-                  leftValue: '20.23%',
+                  leftValue: (fund?.schemePerformanceList.isNotEmpty == true)
+                      ? '${fund!.schemePerformanceList[0].fiveYearReturn.toString()} %'
+                      : '--',
                   rightTitle: '5Y SIP Return',
-                  rightValue:
-                      '${fund?.schemePerformanceList[0].fiveYearReturn.toString()} %',
+                  rightValue: '--',
                   color2: Ucolors.success,
                 ),
               ],
