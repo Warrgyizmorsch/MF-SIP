@@ -135,6 +135,54 @@ Widget _purchasePausedBadge({double fontSize = 10, double iconSize = 11}) {
   );
 }
 
+
+extension MutualFundListEntityPurchaseX on MutualFundListEntity {
+  SipPurchaseArgs toSipPurchaseArgs({InvType? initialInvType}) {
+    final int effectiveMinSip =
+        minSipAmount ?? nfoDetails?.minSubscriptionAmount ?? 500;
+    final int effectiveMinLumpsum =
+        minLumpsum ?? nfoDetails?.minSubscriptionAmount ?? 1000;
+    final int effectiveMinTopup = minTopUp ?? 500;
+
+    return SipPurchaseArgs(
+      schemeCode: schemeCode ?? '',
+      fundName: baseSchemeName ?? '',
+      amcName: amc?.amcName,
+      amcCode: rtaAmcCode,
+      category: schemecategory ?? 'Equity',
+      riskLabel: riskLevel ?? 'Very High Risk',
+      minSip: effectiveMinSip,
+      minLumpsum: effectiveMinLumpsum,
+      minTopup: effectiveMinTopup,
+      folio: null,
+      imgUrl: '${Appurl.baseUrl}${amc?.amcLogoUrl ?? ''}',
+      divoption: divoption,
+      initialInvType: initialInvType ??
+          ((isSipAllowed == true) ? InvType.sip : InvType.lumpsum),
+    );
+  }
+}
+
+void _redirectToPurchase(
+  MutualFundListEntity entity, {
+  InvType? invType,
+}) {
+  final bool isLump = invType == InvType.lumpsum;
+
+  GatekeeperHelper.runWithPrerequisites(
+    isLumpsum: isLump,
+    onSuccess: () {
+      final purchaseArgs = entity.toSipPurchaseArgs(initialInvType: invType);
+      SIPPurchasePage.tempData = purchaseArgs;
+      Get.toNamed(
+        AppRoutes.investNowPage,
+        id: kIsWeb ? 1 : null,
+        arguments: purchaseArgs,
+      );
+    },
+  );
+}
+
 // --- ANIMATION WRAPPER FOR WEB ROWS ---
 class WebHoverRow extends StatefulWidget {
   final Widget Function(bool isHovered) builder;
@@ -1407,32 +1455,11 @@ class WebFundListCard extends StatelessWidget {
                 );
               }
             : () {
-                GatekeeperHelper.runWithPrerequisites(
-                  isLumpsum: true,
-                  onSuccess: () {
-                    final purchaseArgs = SipPurchaseArgs(
-                      schemeCode: entity.schemeCode ?? '',
-                      fundName: entity.baseSchemeName ?? '',
-                      amcName: entity.amc?.amcName,
-                      amcCode: entity.rtaAmcCode,
-                      category: 'Unknown',
-                      riskLabel: entity.riskLevel ?? '',
-                      minSip: entity.minSipAmount ?? 1000,
-                      minLumpsum: entity.minLumpsum ?? 1000,
-                      minTopup: entity.minTopUp ?? 5000,
-                      folio: null,
-                      imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
-                      divoption: entity.divoption,
-                    );
-
-                    SIPPurchasePage.tempData = purchaseArgs;
-
-                    Get.toNamed(
-                      AppRoutes.investNowPage,
-                      id: kIsWeb ? 1 : null,
-                      arguments: purchaseArgs,
-                    );
-                  },
+                _redirectToPurchase(
+                  entity,
+                  invType: (entity.isSipAllowed == true)
+                      ? InvType.sip
+                      : InvType.lumpsum,
                 );
               },
         style: ElevatedButton.styleFrom(
@@ -2355,32 +2382,11 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
       width: 112,
       child: ElevatedButton(
         onPressed: () async {
-          GatekeeperHelper.runWithPrerequisites(
-            isLumpsum: true,
-            onSuccess: () {
-              final purchaseArgs = SipPurchaseArgs(
-                schemeCode: entity.schemeCode ?? '',
-                fundName: entity.baseSchemeName ?? '',
-                amcName: entity.amc?.amcName,
-                      amcCode: entity.rtaAmcCode,
-                category: 'Unknown',
-                riskLabel: entity.riskLevel ?? '',
-                minSip: entity.minSipAmount ?? 1000,
-                minLumpsum: entity.minLumpsum ?? 1000,
-                minTopup: entity.minTopUp ?? 5000,
-                folio: null,
-                imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
-                divoption: entity.divoption,
-              );
-
-              SIPPurchasePage.tempData = purchaseArgs;
-
-              Get.toNamed(
-                AppRoutes.investNowPage,
-                id: kIsWeb ? 1 : null,
-                arguments: purchaseArgs,
-              );
-            },
+          _redirectToPurchase(
+            entity,
+            invType: (entity.isSipAllowed == true)
+                ? InvType.sip
+                : InvType.lumpsum,
           );
         },
         style: ElevatedButton.styleFrom(
@@ -3281,36 +3287,11 @@ class MutualFundCard extends StatelessWidget {
                               break;
 
                             case FundMenuAction.buySIP:
-                              final minAmt = entity.isNfo == true
-                                  ? (entity.nfoDetails?.minSubscriptionAmount ??
-                                      entity.minSipAmount ??
-                                      5000)
-                                  : (entity.minSipAmount ?? 0);
-                              await controller.addToCart(
-                                entity.schemeCode ?? '',
-                                entity.baseSchemeName ?? '',
-                                minAmt,
-                                null,
-                              );
-                              await controller.fetchCart();
-                              Get.toNamed(AppRoutes.cart);
+                              _redirectToPurchase(entity, invType: InvType.sip);
                               break;
 
                             case FundMenuAction.buyLumpsum:
-                              final minLump = entity.isNfo == true
-                                  ? (entity.nfoDetails?.minSubscriptionAmount ??
-                                      entity.minLumpsum ??
-                                      5000)
-                                  : (entity.minLumpsum ?? 0);
-                              await controller.addToCart(
-                                entity.schemeCode ?? '',
-                                entity.baseSchemeName ?? '',
-                                minLump,
-                                null,
-                                transType: 'lumpsum',
-                              );
-                              await controller.fetchCart();
-                              Get.toNamed(AppRoutes.cart);
+                              _redirectToPurchase(entity, invType: InvType.lumpsum);
                               break;
 
                             case FundMenuAction.addToWatchlist:
