@@ -7,6 +7,11 @@ import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/nfo/domain/entity/nfo_list_entity.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
 
@@ -139,7 +144,7 @@ class NfoDetailsPage1 extends StatelessWidget {
       // 🚀 Bottom Nav mobile ke liye, Web mein card ke andar hoga
       bottomNavigationBar: isDesktop
           ? null
-          : _buildBottomBar(context, isWeb: false),
+          : _buildBottomBar(context, nfoData, isWeb: false),
     );
   }
 
@@ -224,7 +229,7 @@ class NfoDetailsPage1 extends StatelessWidget {
             const SizedBox(height: 24),
 
             // --- Action Buttons (Web) ---
-            _buildBottomBar(context, isWeb: true),
+            _buildBottomBar(context, nfoData, isWeb: true),
           ],
         ),
       ),
@@ -1008,112 +1013,85 @@ class NfoDetailsPage1 extends StatelessWidget {
   //   );
   // }
   // --- 5. Bottom Action Bar (Responsive) ---
-  Widget _buildBottomBar(BuildContext context, {required bool isWeb}) {
-    // 🚀 1. Extract the button to keep the code clean and avoid duplication
-    final Widget investButton = ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        elevation: 4,
-        shadowColor: primaryColor.withValues(alpha: 0.4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: const Text(
-        'Invest Now',
-        style: TextStyle(
-          fontFamily: FontFamily.medium,
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
+  Widget _buildBottomBar(
+    BuildContext context,
+    LaunchDataEntity nfoData, {
+    required bool isWeb,
+  }) {
+    final CartController cartController = Get.find<CartController>();
+
+    final String schemeCode = nfoData.schemeCode ?? '';
+    final String fundName = nfoData.schemeName ?? nfoData.baseSchemeName ?? '';
+    final String transType = (nfoData.isSipAllowed == true) ? 'sip' : 'lumpsum';
+    final int minAmount = (nfoData.isSipAllowed == true && nfoData.minSipAmount != null)
+        ? nfoData.minSipAmount!.toInt()
+        : (nfoData.minLumpsum?.toInt() ??
+            nfoData.minSubscriptionAmount?.toInt() ??
+            5000);
+
+    final Widget buttonWidget = Obx(() {
+      final bool isAlreadyInCart = cartController.cartItems.any(
+        (item) => item.schemeCode.toString() == schemeCode.toString(),
+      );
+
+      return FundBottomBarButton(
+        firstButton: isAlreadyInCart ? 'In Cart' : 'Add to Cart',
+        secondButton: 'Invest now',
+        isInCart: isAlreadyInCart,
+        firstButtonP: () async {
+          if (isAlreadyInCart) {
+            Get.toNamed(AppRoutes.cart);
+          } else {
+            await cartController.addToCart(
+              schemeCode,
+              fundName,
+              minAmount,
+              transType: transType,
+              null,
+            );
+          }
+        },
+        secondButtonP: () async {
+          GatekeeperHelper.runWithPrerequisites(
+            isLumpsum: true,
+            onSuccess: () {
+              final purchaseArgs = SipPurchaseArgs(
+                schemeCode: schemeCode,
+                fundName: fundName,
+                amcCode: null,
+                amcName: nfoData.nfoAmcEntity?.amcName,
+                category: nfoData.schemeCategory ?? "Equity",
+                riskLabel: nfoData.riskLevel ?? "Very High Risk",
+                minSip: nfoData.minSipAmount?.toInt() ?? minAmount,
+                minLumpsum: nfoData.minLumpsum?.toInt() ?? minAmount,
+                minTopup: nfoData.minimumTopup?.toInt() ?? minAmount,
+                folio: null,
+                imgUrl: (nfoData.nfoAmcEntity?.amcLogo != null &&
+                        nfoData.nfoAmcEntity!.amcLogo!.isNotEmpty)
+                    ? '${Appurl.baseUrl}${nfoData.nfoAmcEntity!.amcLogo}'
+                    : null,
+                divoption: nfoData.optionType,
+              );
+
+              SIPPurchasePage.tempData = purchaseArgs;
+              Get.toNamed(AppRoutes.investNowPage, arguments: purchaseArgs);
+            },
+          );
+        },
+      );
+    });
+
+    if (isWeb) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: SizedBox(
+          width: 380,
+          child: buttonWidget,
         ),
-      ),
-    );
+      );
+    }
 
-    return Container(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: isWeb ? 16 : 32,
-      ),
-      decoration: BoxDecoration(
-        color: isWeb ? Colors.transparent : Colors.white,
-        border: isWeb
-            ? null
-            : const Border(top: BorderSide(color: borderColor)),
-        boxShadow: isWeb
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -4),
-                ),
-              ],
-      ),
-      child: Row(
-        mainAxisAlignment: isWeb
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.spaceBetween,
-        children: [
-          if (isWeb) ...[
-            SizedBox(
-              width: 140,
-              child: OutlinedButton(
-                onPressed: () => Navigator.maybePop(context),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: primaryColor,
-                  side: const BorderSide(color: primaryColor, width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Back',
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-          ],
-          if (!isWeb) ...[
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => Get.back(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: primaryColor,
-                  side: const BorderSide(color: primaryColor, width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Back',
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-          ],
-
-          // 🚀 2. THE FIX: Conditionally wrap the button properly!
-          isWeb
-              ? SizedBox(width: 180, child: investButton)
-              : Expanded(child: investButton),
-        ],
-      ),
-    );
+    return buttonWidget;
   }
 
   Widget _buildTag({
