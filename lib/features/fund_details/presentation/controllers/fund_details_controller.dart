@@ -1,4 +1,4 @@
-﻿// ignore_for_file: invalid_null_aware_operator, dead_null_aware_expression, dead_code
+// ignore_for_file: invalid_null_aware_operator, dead_null_aware_expression, dead_code
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -203,6 +203,33 @@ class FundDetailsController extends GetxController
     fetchAllData(scheme: schemeName, id: schemeCode, isin: targetIsin);
   }
 
+  bool get hasNoFundInfo {
+    final fund = fundDetail.value;
+    if (fund == null) return true;
+    return (fund.schemeName.isEmpty || fund.schemeName == '--') &&
+        fund.nav <= 0 &&
+        fund.schemePerformanceList.isEmpty &&
+        fund.riskStatisticsList.isEmpty;
+  }
+
+  String get cleanErrorMessage {
+    final raw = errorMessage.value;
+    if (raw.isEmpty) {
+      return 'Information for this scheme is currently unavailable or pending from the AMC.';
+    }
+    if (raw.contains('Fund details missing')) {
+      return raw;
+    }
+    if (raw.contains('SocketException') ||
+        raw.contains('Network') ||
+        raw.contains('timed out') ||
+        raw.contains('connection') ||
+        raw.contains('Failed host lookup')) {
+      return 'Unable to connect to the server. Please check your internet connection.';
+    }
+    return 'Information for this scheme is currently unavailable or pending from the AMC.';
+  }
+
   String? _firstValid(List<dynamic> values) {
     for (final value in values) {
       if (value == null) continue;
@@ -356,12 +383,13 @@ class FundDetailsController extends GetxController
     }
   }
 
+  final portfolioHasError = false.obs; // Specific error variable for portfolio
+
   ///Portfolio analysis
   Future<void> getPortfolioAnalysis({required String scchemeName}) async {
     try {
       isPortfolioLoading.value = true;
-      hasError.value = false;
-      errorMessage.value = '';
+      portfolioHasError.value = false;
 
       final result = await fundDetailsUsecases.portfolioAnalysisUsecases
           .getPortfolioAnlysis({'isin': scchemeName});
@@ -370,20 +398,21 @@ class FundDetailsController extends GetxController
         (success) {
           portfolioAnalysis.value = success.data;
           isPortfolioLoading.value = false;
+          portfolioHasError.value = false;
           createLog(
             "Portfolio loaded successfully --------- ${portfolioAnalysis.value}",
           );
         },
         (error) {
-          hasError.value = true;
-          errorMessage.value = error.toString();
+          portfolioAnalysis.value = null;
+          portfolioHasError.value = true;
           isPortfolioLoading.value = false;
           createLog("Error loading Portfolio details: $error");
         },
       );
     } catch (e) {
-      hasError.value = true;
-      errorMessage.value = e.toString();
+      portfolioAnalysis.value = null;
+      portfolioHasError.value = true;
       isPortfolioLoading.value = false;
       createLog("Exception in Portfolio: $e");
     }

@@ -60,7 +60,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
           return _buildLoading(context, isDesktop);
         }
         if (controller.hasError.value) return _buildError(context, isDesktop);
-        if (controller.fundDetail.value?.riskStatisticsList.isEmpty ?? true) {
+        if (controller.fundDetail.value == null || controller.hasNoFundInfo) {
           return _buildEmpty(context, isDesktop);
         }
 
@@ -74,7 +74,9 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
       bottomNavigationBar: isDesktop
           ? null
           : Obx(() {
-              if (controller.isLoading.value || controller.hasError.value) {
+              if (controller.isLoading.value ||
+                  controller.hasError.value ||
+                  controller.hasNoFundInfo) {
                 return const SizedBox.shrink();
               }
               return Column(
@@ -84,11 +86,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                   SafeArea(
                     top: false,
                     child:
-                        controller
-                            .fundDetail
-                            .value!
-                            .riskStatisticsList
-                            .isNotEmpty
+                        controller.fundDetail.value != null
                         ? Obx(() {
                             if (controller.isPurchaseAllowed.value == false) {
                               return Container(
@@ -270,94 +268,135 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
     );
   }
 
-  Widget _buildError(BuildContext context, bool isDesktop) {
-    final errorWidget = Center(
+  Widget _buildEmptyState({
+    required BuildContext context,
+    required bool isDesktop,
+    String title = 'Fund Details Unavailable',
+    String? message,
+    VoidCallback? onRetry,
+  }) {
+    final effectiveMessage = message ??
+        (controller.cleanErrorMessage.isNotEmpty
+            ? controller.cleanErrorMessage
+            : 'Information for this scheme is currently unavailable or pending from the AMC.');
+
+    final content = Center(
       child: Container(
-        padding: EdgeInsets.all(isDesktop ? 40 : 24),
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop ? 40 : 28,
+          vertical: isDesktop ? 44 : 32,
+        ),
         margin: EdgeInsets.all(isDesktop ? 24 : 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.red.shade200),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: isDesktop ? 64 : 48,
-              color: Colors.red.shade400,
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Ucolors.primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: isDesktop ? 48 : 36,
+                color: Ucolors.primary,
+              ),
             ),
-            Gap(isDesktop ? 20 : 16),
+            const Gap(18),
             Text(
-              'Failed to load fund details',
+              title,
               style: TextStyle(
                 fontFamily: FontFamily.medium,
                 fontSize: isDesktop ? 20 : 18,
                 fontWeight: FontWeight.bold,
-              ),
-            ),
-            Gap(8),
-            Text(
-              controller.errorMessage.value,
-              style: TextStyle(
-                fontFamily: FontFamily.medium,
-                fontSize: isDesktop ? 16 : 14,
-                color: Colors.grey.shade700,
+                color: Ucolors.dark,
               ),
               textAlign: TextAlign.center,
             ),
-            Gap(isDesktop ? 24 : 16),
-            ElevatedButton.icon(
-              onPressed: controller.retryFetchingDetails,
-              icon: const Icon(Icons.refresh),
-              label: const Text("Retry"),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 32 : 24,
-                  vertical: isDesktop ? 16 : 12,
+            const Gap(8),
+            Text(
+              effectiveMessage,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: isDesktop ? 15 : 13,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (onRetry != null) ...[
+              const Gap(22),
+              OutlinedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text(
+                  "Retry",
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Ucolors.primary,
+                  side: BorderSide(
+                    color: Ucolors.primary.withValues(alpha: 0.4),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 32 : 24,
+                    vertical: isDesktop ? 14 : 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
     );
 
-    if (isDesktop) return errorWidget;
+    if (isDesktop) return content;
 
     return CustomScrollView(
       slivers: [
         _buildAppBar(),
-        SliverFillRemaining(child: errorWidget),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: content,
+        ),
       ],
     );
   }
 
+  Widget _buildError(BuildContext context, bool isDesktop) {
+    return _buildEmptyState(
+      context: context,
+      isDesktop: isDesktop,
+      title: 'Fund Details Unavailable',
+      message: controller.cleanErrorMessage,
+      onRetry: controller.retryFetchingDetails,
+    );
+  }
+
   Widget _buildEmpty(BuildContext context, bool isDesktop) {
-    return Center(
-      child: Container(
-        padding: EdgeInsets.all(isDesktop ? 40 : 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.inbox_outlined,
-              size: isDesktop ? 80 : 64,
-              color: Colors.grey.shade300,
-            ),
-            Gap(isDesktop ? 20 : 16),
-            Text(
-              "Data not available",
-              style: TextStyle(
-                fontFamily: FontFamily.medium,
-                fontSize: isDesktop ? 18 : 16,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return _buildEmptyState(
+      context: context,
+      isDesktop: isDesktop,
+      title: 'Fund Details Unavailable',
+      message: 'Information for this scheme is currently unavailable or pending from the AMC.',
+      onRetry: controller.retryFetchingDetails,
     );
   }
 
@@ -607,7 +646,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                 if (!isMobile) const SizedBox(width: 12),
 
                 /// ================= RIGHT CARD =================
-                if (controller.fundDetail.value!.riskStatisticsList.isNotEmpty)
+                if (controller.fundDetail.value != null)
                   Expanded(
                     flex: 3,
                     child: Card(
@@ -4947,26 +4986,27 @@ class OverviewScreen extends GetView<FundDetailsController> {
                 // Gap(15),
                 _twoColumnRow(
                   leftTitle: 'Risk-o-Meter',
-                  leftValue: fund?.riskometerValue.toString() ?? '',
+                  leftValue: (fund?.riskometerValue != null && fund!.riskometerValue.isNotEmpty)
+                      ? fund!.riskometerValue
+                      : '--',
                   // leftValue: risk.label,
                   rightTitle: 'Volatile',
-                  rightValue:
-                      fund?.riskStatisticsList[0].volatilityCm3Year
-                          .toString() ??
-                      '',
+                  rightValue: (fund?.riskStatisticsList.isNotEmpty == true)
+                      ? fund!.riskStatisticsList[0].volatilityCm3Year.toString()
+                      : '--',
 
                   color: risk.color,
                 ),
                 Gap(10),
                 _twoColumnRow(
                   leftTitle: 'Shape Ratio:',
-                  leftValue:
-                      fund?.riskStatisticsList[0].sharpeRatioCm3Year
-                          .toString() ??
-                      '',
+                  leftValue: (fund?.riskStatisticsList.isNotEmpty == true)
+                      ? fund!.riskStatisticsList[0].sharpeRatioCm3Year.toString()
+                      : '--',
                   rightTitle: 'Beta',
-                  rightValue:
-                      fund?.riskStatisticsList[0].beteCm1Y.toString() ?? '',
+                  rightValue: (fund?.riskStatisticsList.isNotEmpty == true)
+                      ? fund!.riskStatisticsList[0].beteCm1Y.toString()
+                      : '--',
                 ),
                 Gap(12),
                 DashedLine(color: Colors.grey.shade400),
@@ -5104,6 +5144,58 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         Colors.purpleAccent,
                         Colors.redAccent,
                       ];
+
+                      if (data.isEmpty || data.every((e) => e.value <= 0)) {
+                        return Container(
+                          height: 260,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.04),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.pie_chart_outline_rounded,
+                                  size: 28,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                "No $centerText Data",
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Ucolors.dark,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                "The AMC has not reported asset allocation data for this scheme yet.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
 
                       return SingleChildScrollView(
                         padding: const EdgeInsets.only(top: 20, bottom: 10),
@@ -5290,14 +5382,15 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                   );
                                 }
 
-                                if (entity == null ||
+                                if (controller.portfolioHasError.value ||
+                                    entity == null ||
                                     names.isEmpty ||
                                     values.isEmpty) {
                                   return AnimatedEmptyState(
                                     title: 'No Sector Data',
                                     message:
-                                        "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme",
-                                  ); // <-- So much cleaner!
+                                        "The AMC hasn't disclosed sector holdings for this fund yet.",
+                                  );
                                 }
 
                                 int count = names.length < values.length
@@ -5385,14 +5478,15 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 //     ),
                                 //   );
                                 // }
-                                if (entity == null ||
+                                if (controller.portfolioHasError.value ||
+                                    entity == null ||
                                     names.isEmpty ||
                                     values.isEmpty) {
                                   return AnimatedEmptyState(
-                                    title: 'No Sector Data',
+                                    title: 'No Stock Holdings',
                                     message:
-                                        "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme",
-                                  ); // <-- So much cleaner!
+                                        "The AMC hasn't disclosed portfolio stock holdings for this scheme yet.",
+                                  );
                                 }
 
                                 // 4. CLEAN, COMBINE & SORT
