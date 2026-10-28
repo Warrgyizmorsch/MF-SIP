@@ -17,6 +17,7 @@ import 'package:my_sip/features/personalization/presentation/widgets/bank_detail
 import 'package:my_sip/features/personalization/presentation/widgets/download_statement.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/help_support.dart';
 import 'package:my_sip/features/personalization/presentation/pages/amc_list_screen.dart';
+import 'package:my_sip/features/support_tickets/presentation/pages/tickets_list_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -305,6 +306,12 @@ class _WebProfileDashboard extends StatelessWidget {
         () => Get.to(() => const HelpSupportScreen()),
       ),
       _GridItem(
+        'Support Tickets',
+        null,
+        () => Get.to(() => const TicketsListPage()),
+        icon: Icons.confirmation_number_outlined,
+      ),
+      _GridItem(
         'About Us',
         UImages.msgques,
         () => Navigator.push(
@@ -553,6 +560,11 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             title: 'Applock',
             images: UImages.setting,
             onTap: () {},
+          ),
+          Listtilecustom(
+            title: 'Support & Helpdesk Tickets',
+            icon: Icons.confirmation_number_outlined,
+            onTap: () => Get.to(() => const TicketsListPage()),
           ),
           Listtilecustom(
             title: 'Help & Support',

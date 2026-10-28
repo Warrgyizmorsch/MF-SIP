@@ -579,6 +579,8 @@ import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
+import 'package:get/get.dart';
+import 'package:my_sip/features/support_tickets/presentation/pages/tickets_list_page.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
@@ -588,6 +590,13 @@ class HelpSupportScreen extends StatelessWidget {
     final bool isDesktop = MediaQuery.of(context).size.width > 600;
 
     final List<_SupportItemData> supportItems = [
+      _SupportItemData(
+        title: 'Support & Helpdesk Tickets',
+        subtitle: 'Raise and track your queries and issue requests',
+        icon: Iconsax.ticket,
+        color: const Color(0xFF0280C0),
+        onTap: () => Get.to(() => const TicketsListPage()),
+      ),
       _SupportItemData(
         title: 'Contact Support',
         subtitle: 'Get in touch with our team for assistance',
