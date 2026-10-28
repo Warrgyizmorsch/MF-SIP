@@ -56,6 +56,8 @@ class MutualFundListEntity extends Equatable {
 
   final String? schemecategory;
   final String? divoption;
+  final bool? isNfo;
+  final NfoDetailsEntity? nfoDetails;
 
   final List<VariantModelEntity> variants;
 
@@ -85,6 +87,8 @@ class MutualFundListEntity extends Equatable {
     this.variants = const [],
     required this.schemecategory,
     this.divoption,
+    this.isNfo,
+    this.nfoDetails,
   });
 
   /// Convenient alias for fund name
@@ -117,6 +121,8 @@ class MutualFundListEntity extends Equatable {
     navDate,
     navChange,
     divoption,
+    isNfo,
+    nfoDetails,
   ];
 }
 
@@ -147,6 +153,8 @@ extension MutualFundListEntityX on MutualFundListModel {
       isPurchaseAllowed: isPurchaseAllowed,
       isRedeemAllowed: isRedeemAllowed,
       divoption: divoption,
+      isNfo: isNfo,
+      nfoDetails: nfoDetails?.toEntity(),
       variants: variants.map((e) => e.toEntity()).toList(),
     );
   }
@@ -159,6 +167,7 @@ class AmcEntity extends Equatable {
   final String? email;
   final String? contact;
   final String? address;
+  final String? websiteUrl;
 
   const AmcEntity({
     required this.id,
@@ -167,10 +176,11 @@ class AmcEntity extends Equatable {
     this.email,
     this.contact,
     this.address,
+    this.websiteUrl,
   });
 
   @override
-  List<Object?> get props => [id, amcName, amcLogoUrl, email, contact, address];
+  List<Object?> get props => [id, amcName, amcLogoUrl, email, contact, address, websiteUrl];
 }
 
 extension AmcEntityX on AmcModel {
@@ -182,6 +192,7 @@ extension AmcEntityX on AmcModel {
       email: email,
       contact: contact,
       address: address,
+      websiteUrl: websiteUrl,
     );
   }
 }
@@ -283,6 +294,87 @@ extension PaginationModelEntityX on PaginationModel {
       total: total,
       lastPage: lastPage,
       hasMore: hasMore,
+    );
+  }
+}
+
+class NfoDetailsEntity extends Equatable {
+  final int? id;
+  final String? schemeName;
+  final String? nfoOpenDate;
+  final String? nfoCloseDate;
+  final String? allotmentDate;
+  final String? launchDate;
+  final double? nfoPrice;
+  final int? minSubscriptionAmount;
+  final String? fundManager;
+  final String? benchmark;
+  final String? schemeObjective;
+  final String? exitLoad;
+  final String? expenseRatio;
+  final String? status;
+  final bool? isOpen;
+  final int? daysRemaining;
+
+  const NfoDetailsEntity({
+    this.id,
+    this.schemeName,
+    this.nfoOpenDate,
+    this.nfoCloseDate,
+    this.allotmentDate,
+    this.launchDate,
+    this.nfoPrice,
+    this.minSubscriptionAmount,
+    this.fundManager,
+    this.benchmark,
+    this.schemeObjective,
+    this.exitLoad,
+    this.expenseRatio,
+    this.status,
+    this.isOpen,
+    this.daysRemaining,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    schemeName,
+    nfoOpenDate,
+    nfoCloseDate,
+    allotmentDate,
+    launchDate,
+    nfoPrice,
+    minSubscriptionAmount,
+    fundManager,
+    benchmark,
+    schemeObjective,
+    exitLoad,
+    expenseRatio,
+    status,
+    isOpen,
+    daysRemaining,
+  ];
+}
+
+extension NfoDetailsEntityX on NfoDetailsModel {
+  NfoDetailsEntity toEntity() {
+    return NfoDetailsEntity(
+      id: id,
+      schemeName: schemeName,
+      nfoOpenDate: nfoOpenDate,
+      nfoCloseDate: nfoCloseDate,
+      allotmentDate: allotmentDate,
+      launchDate: launchDate,
+      nfoPrice: nfoPrice,
+      minSubscriptionAmount: minSubscriptionAmount,
+      fundManager: fundManager,
+      benchmark: benchmark,
+      schemeObjective: schemeObjective,
+      exitLoad: exitLoad,
+      expenseRatio: expenseRatio,
+      status: status,
+      isOpen: isOpen,
+      daysRemaining: daysRemaining,
     );
   }
 }

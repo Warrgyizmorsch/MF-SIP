@@ -57,6 +57,8 @@ class MutualFundListModel {
   final List<VariantModel> variants;
 
   final String? divoption;
+  final bool? isNfo;
+  final NfoDetailsModel? nfoDetails;
 
   MutualFundListModel({
     this.fundId,
@@ -84,6 +86,8 @@ class MutualFundListModel {
     this.navDate,
     this.navChange,
     this.divoption,
+    this.isNfo,
+    this.nfoDetails,
   });
 
   factory MutualFundListModel.fromJson(Map<String, dynamic> json) {
@@ -116,6 +120,8 @@ class MutualFundListModel {
       schemecategory: json.parse<String>('scheme_category'),
       riskLevel: json.parse<String>('risk_level'),
       divoption: json.parse<String>('divoption'),
+      isNfo: json.parse<bool>('is_nfo'),
+      nfoDetails: json.parseNested('nfo_details', (e) => NfoDetailsModel.fromJson(e)),
       amc: json.parseNested('amc', (e) => AmcModel.fromJson(e)),
       returns: json.parseNested('returns', (e) => ReturnsModel.fromJson(e)),
       variants:
@@ -159,6 +165,7 @@ class AmcModel {
   final String? email;
   final String? contact;
   final String? address;
+  final String? websiteUrl;
 
   AmcModel({
     required this.id,
@@ -167,6 +174,7 @@ class AmcModel {
     this.email,
     this.contact,
     this.address,
+    this.websiteUrl,
   });
 
   factory AmcModel.fromJson(Map<String, dynamic> json) {
@@ -177,6 +185,7 @@ class AmcModel {
       email: json.parse<String>('email'),
       contact: json.parse<String>('contact'),
       address: json.parse<String>('address'),
+      websiteUrl: json.parse<String>('website_url'),
     );
   }
 }
@@ -228,6 +237,65 @@ class PaginationModel {
       total: json.parse<int>('total'),
       lastPage: json.parse<int>('last_page'),
       hasMore: json.parse<bool>('has_more'),
+    );
+  }
+}
+
+class NfoDetailsModel {
+  final int? id;
+  final String? schemeName;
+  final String? nfoOpenDate;
+  final String? nfoCloseDate;
+  final String? allotmentDate;
+  final String? launchDate;
+  final double? nfoPrice;
+  final int? minSubscriptionAmount;
+  final String? fundManager;
+  final String? benchmark;
+  final String? schemeObjective;
+  final String? exitLoad;
+  final String? expenseRatio;
+  final String? status;
+  final bool? isOpen;
+  final int? daysRemaining;
+
+  NfoDetailsModel({
+    this.id,
+    this.schemeName,
+    this.nfoOpenDate,
+    this.nfoCloseDate,
+    this.allotmentDate,
+    this.launchDate,
+    this.nfoPrice,
+    this.minSubscriptionAmount,
+    this.fundManager,
+    this.benchmark,
+    this.schemeObjective,
+    this.exitLoad,
+    this.expenseRatio,
+    this.status,
+    this.isOpen,
+    this.daysRemaining,
+  });
+
+  factory NfoDetailsModel.fromJson(Map<String, dynamic> json) {
+    return NfoDetailsModel(
+      id: json.parse<int>('id'),
+      schemeName: json.parse<String>('scheme_name'),
+      nfoOpenDate: json.parse<String>('nfo_open_date'),
+      nfoCloseDate: json.parse<String>('nfo_close_date'),
+      allotmentDate: json.parse<String>('allotment_date'),
+      launchDate: json.parse<String>('launch_date'),
+      nfoPrice: json.parse<double>('nfo_price'),
+      minSubscriptionAmount: json.parse<int>('min_subscription_amount'),
+      fundManager: json.parse<String>('fund_manager'),
+      benchmark: json.parse<String>('benchmark'),
+      schemeObjective: json.parse<String>('scheme_objective'),
+      exitLoad: json.parse<String>('exit_load'),
+      expenseRatio: json.parse<String>('expense_ratio'),
+      status: json.parse<String>('status'),
+      isOpen: json.parse<bool>('is_open'),
+      daysRemaining: json.parse<int>('days_remaining'),
     );
   }
 }
