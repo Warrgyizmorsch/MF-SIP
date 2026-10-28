@@ -34,7 +34,7 @@ class TicketStatusBadge extends StatelessWidget {
       case 'IN_PROGRESS':
         return 'In Progress';
       case 'WAITING_FOR_USER':
-        return 'Action Needed';
+        return 'Action Required';
       case 'RESOLVED':
         return 'Resolved';
       case 'CLOSED':

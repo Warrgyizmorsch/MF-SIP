@@ -60,7 +60,7 @@ class TicketDetailController extends GetxController {
   late final ScrollController chatScrollController;
 
   static const int maxAttachments = 3;
-  static const int maxFileSizeBytes = 10 * 1024 * 1024; // 10MB
+  static const int maxFileSizeBytes = 5 * 1024 * 1024; // 5MB limit per file
 
   @override
   void onInit() {
@@ -134,7 +134,7 @@ class TicketDetailController extends GetxController {
           if (size > maxFileSizeBytes) {
             Get.snackbar(
               'File Too Large',
-              '${pf.name} exceeds 10MB limit.',
+              '${pf.name} exceeds 5MB limit.',
               snackPosition: SnackPosition.BOTTOM,
             );
             continue;
@@ -169,7 +169,7 @@ class TicketDetailController extends GetxController {
         if (size > maxFileSizeBytes) {
           Get.snackbar(
             'File Too Large',
-            'Image exceeds 10MB limit.',
+            'Image exceeds 5MB limit.',
             snackPosition: SnackPosition.BOTTOM,
           );
           return;

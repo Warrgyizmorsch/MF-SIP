@@ -39,13 +39,14 @@ class CreateTicketController extends GetxController {
 
   final subjectController = TextEditingController();
   final descriptionController = TextEditingController();
+  final descriptionError = RxnString();
 
   final selectedPriority = 'MEDIUM'.obs;
   final priorities = const ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
 
   final attachments = <File>[].obs;
   static const int maxAttachments = 5;
-  static const int maxFileSizeBytes = 10 * 1024 * 1024; // 10MB
+  static const int maxFileSizeBytes = 5 * 1024 * 1024; // 5MB limit per file
 
   @override
   void onInit() {
@@ -112,7 +113,7 @@ class CreateTicketController extends GetxController {
           if (size > maxFileSizeBytes) {
             Get.snackbar(
               'File Too Large',
-              '${platformFile.name} exceeds the 10MB limit.',
+              '${platformFile.name} exceeds the 5MB limit.',
               snackPosition: SnackPosition.BOTTOM,
             );
             continue;
@@ -147,7 +148,7 @@ class CreateTicketController extends GetxController {
         if (size > maxFileSizeBytes) {
           Get.snackbar(
             'File Too Large',
-            'Image exceeds the 10MB limit.',
+            'Image exceeds the 5MB limit.',
             snackPosition: SnackPosition.BOTTOM,
           );
           return;
@@ -181,11 +182,23 @@ class CreateTicketController extends GetxController {
       return;
     }
 
-    if (description.isEmpty) {
-      Get.snackbar('Missing Field', 'Please provide a detailed description.',
+    if (subject.length > 255) {
+      Get.snackbar('Validation Error', 'Subject cannot exceed 255 characters.',
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
+
+    if (description.isEmpty) {
+      descriptionError.value = 'Please provide a detailed description.';
+      return;
+    }
+
+    if (description.length < 5) {
+      descriptionError.value = 'Description must be at least 5 characters long.';
+      return;
+    }
+
+    descriptionError.value = null;
 
     isSubmitting.value = true;
 

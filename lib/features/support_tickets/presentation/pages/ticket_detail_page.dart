@@ -60,7 +60,7 @@ class TicketDetailPage extends StatelessWidget {
                   child: Icon(Icons.file_present_rounded, color: Color(0xFF0280C0)),
                 ),
                 title: const Text('Choose Document or Image'),
-                subtitle: const Text('PDF, JPG, PNG, DOC (max 10MB)'),
+                subtitle: const Text('PDF, JPG, PNG (max 5MB)'),
                 onTap: () {
                   Navigator.pop(ctx);
                   controller.pickReplyFiles();

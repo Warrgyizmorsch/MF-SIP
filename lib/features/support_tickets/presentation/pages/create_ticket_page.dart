@@ -43,7 +43,7 @@ class CreateTicketPage extends StatelessWidget {
                   child: Icon(Icons.file_present_rounded, color: Color(0xFF0280C0)),
                 ),
                 title: const Text('Choose Document or Image'),
-                subtitle: const Text('PDF, JPG, PNG, DOC (max 10MB)'),
+                subtitle: const Text('PDF, JPG, PNG (max 5MB)'),
                 onTap: () {
                   Navigator.pop(ctx);
                   controller.pickFiles();
@@ -221,6 +221,7 @@ class CreateTicketPage extends StatelessWidget {
             const SizedBox(height: 8),
             TextField(
               controller: controller.subjectController,
+              maxLength: 255,
               decoration: InputDecoration(
                 hintText: 'e.g., SIP amount deducted but units not allocated',
                 hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
@@ -243,19 +244,27 @@ class CreateTicketPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: controller.descriptionController,
-              maxLines: 5,
-              decoration: InputDecoration(
-                hintText: 'Please describe your problem or question in detail...',
-                hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+            Obx(() {
+              return TextField(
+                controller: controller.descriptionController,
+                maxLines: 5,
+                onChanged: (val) {
+                  if (controller.descriptionError.value != null && val.trim().length >= 5) {
+                    controller.descriptionError.value = null;
+                  }
+                },
+                decoration: InputDecoration(
+                  hintText: 'Please describe your problem or question in detail...',
+                  hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  errorText: controller.descriptionError.value,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
                 ),
-              ),
-            ),
+              );
+            }),
 
             const SizedBox(height: 20),
 
@@ -279,7 +288,7 @@ class CreateTicketPage extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Supports up to 5 attachments (JPG, PNG, PDF, DOC). Max 10MB per file.',
+              'Supports up to 5 attachments (JPG, PNG, PDF). Max 5MB per file.',
               style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
             ),
             const SizedBox(height: 10),
