@@ -1,4 +1,4 @@
-﻿// ignore_for_file: dead_null_aware_expression, dead_code, unused_element_parameter, unused_local_variable
+// ignore_for_file: dead_null_aware_expression, dead_code, unused_element_parameter, unused_local_variable
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +53,51 @@ PopupMenuItem<FundMenuAction> buildFundMenuItem({
         Text(
           text,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ],
+    ),
+  );
+}
+
+String _formatNfoDate(String? dateStr) {
+  if (dateStr == null || dateStr.isEmpty) return '--';
+  try {
+    final parsed = DateTime.parse(dateStr);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${parsed.day} ${months[parsed.month - 1]}';
+  } catch (_) {
+    return dateStr;
+  }
+}
+
+Widget _nfoBadge({String? daysRemaining, double fontSize = 10, double iconSize = 11}) {
+  final label = (daysRemaining != null && daysRemaining.isNotEmpty && daysRemaining != '0')
+      ? 'NFO • ${daysRemaining}d Left'
+      : 'NFO LIVE';
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFFF7ED),
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: const Color(0xFFFDBA74)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.local_fire_department_rounded,
+          size: iconSize,
+          color: const Color(0xFFEA580C),
+        ),
+        const SizedBox(width: 3.5),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFFEA580C),
+            letterSpacing: 0.1,
+          ),
         ),
       ],
     ),
@@ -982,10 +1027,22 @@ class WebFundListCard extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (entity.isNfo == true) ...[
+              _nfoBadge(
+                daysRemaining: entity.nfoDetails?.daysRemaining?.toString(),
+                fontSize: isLaptop ? 9.5 : 10,
+              ),
+              const SizedBox(width: 6),
+            ],
             if (entity.isPurchaseAllowed == false)
               _purchasePausedBadge(fontSize: isLaptop ? 9.5 : 10)
             else
-              _riskPill(entity.riskLevel, isLaptop: isLaptop),
+              _riskPill(
+                entity.isNfo == true
+                    ? (entity.schemecategory ?? 'Equity')
+                    : entity.riskLevel,
+                isLaptop: isLaptop,
+              ),
           ],
         ),
       ],
@@ -1023,6 +1080,43 @@ class WebFundListCard extends StatelessWidget {
     required bool show10Y,
     required bool isLaptop,
   }) {
+    if (entity.isNfo == true) {
+      return Row(
+        children: [
+          Expanded(
+            child: _nfoColumn(
+              'Offer Price',
+              '₹${entity.nfoDetails?.nfoPrice?.toStringAsFixed(0) ?? '10'}',
+              isLaptop: isLaptop,
+            ),
+          ),
+          _divider(isLaptop),
+          Expanded(
+            child: _nfoColumn(
+              'Min SIP',
+              '₹${entity.minSipAmount ?? 500}',
+              isLaptop: isLaptop,
+            ),
+          ),
+          _divider(isLaptop),
+          Expanded(
+            child: _nfoColumn(
+              'Min Invest',
+              '₹${entity.nfoDetails?.minSubscriptionAmount ?? entity.minLumpsum ?? 5000}',
+              isLaptop: isLaptop,
+            ),
+          ),
+          _divider(isLaptop),
+          Expanded(
+            child: _nfoColumn(
+              'Closes On',
+              _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
+              isLaptop: isLaptop,
+            ),
+          ),
+        ],
+      );
+    }
     final items = <Widget>[
       Expanded(
         child: _returnColumn(
@@ -1068,6 +1162,35 @@ class WebFundListCard extends StatelessWidget {
     }
 
     return Row(children: items);
+  }
+
+  Widget _nfoColumn(String label, String value, {required bool isLaptop}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: isLaptop ? 10 : 11,
+            color: const Color(0xFF6B7280),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: isLaptop ? 2 : 4),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: isLaptop ? 11.5 : 12.5,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF111827),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _returnColumn(String label, dynamic value, {required bool isLaptop}) {
@@ -1660,8 +1783,23 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                     ),
 
                     const Gap(8),
-
-                    _webRiskPill(entity.riskLevel),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (entity.isNfo == true) ...[
+                          _nfoBadge(
+                            daysRemaining: entity.nfoDetails?.daysRemaining?.toString(),
+                            fontSize: 10,
+                          ),
+                          const Gap(6),
+                        ],
+                        _webRiskPill(
+                          entity.isNfo == true
+                              ? (entity.schemecategory ?? 'Equity')
+                              : entity.riskLevel,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -1699,25 +1837,58 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
           const Gap(10),
 
           /// RETURNS ROW
-          Row(
-            children: [
-              Expanded(
-                child: _webReturnItem('1Y', entity.returnsEntity?.oneYear),
-              ),
-              _verticalDivider(),
-              Expanded(
-                child: _webReturnItem('3Y', entity.returnsEntity?.threeYear),
-              ),
-              _verticalDivider(),
-              Expanded(
-                child: _webReturnItem('5Y', entity.returnsEntity?.fiveYear),
-              ),
-              _verticalDivider(),
-              Expanded(
-                child: _webReturnItem('10Y', entity.returnsEntity?.tenYear),
-              ),
-            ],
-          ),
+          if (entity.isNfo == true)
+            Row(
+              children: [
+                Expanded(
+                  child: _webNfoMetricItem(
+                    'Offer Price',
+                    '₹${entity.nfoDetails?.nfoPrice?.toStringAsFixed(0) ?? '10'}',
+                  ),
+                ),
+                _verticalDivider(),
+                Expanded(
+                  child: _webNfoMetricItem(
+                    'Min SIP',
+                    '₹${entity.minSipAmount ?? 500}',
+                  ),
+                ),
+                _verticalDivider(),
+                Expanded(
+                  child: _webNfoMetricItem(
+                    'Min Invest',
+                    '₹${entity.nfoDetails?.minSubscriptionAmount ?? entity.minLumpsum ?? 5000}',
+                  ),
+                ),
+                _verticalDivider(),
+                Expanded(
+                  child: _webNfoMetricItem(
+                    'Closes On',
+                    _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
+                  ),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: _webReturnItem('1Y', entity.returnsEntity?.oneYear),
+                ),
+                _verticalDivider(),
+                Expanded(
+                  child: _webReturnItem('3Y', entity.returnsEntity?.threeYear),
+                ),
+                _verticalDivider(),
+                Expanded(
+                  child: _webReturnItem('5Y', entity.returnsEntity?.fiveYear),
+                ),
+                _verticalDivider(),
+                Expanded(
+                  child: _webReturnItem('10Y', entity.returnsEntity?.tenYear),
+                ),
+              ],
+            ),
 
           const Gap(10),
           Divider(height: 1, color: Colors.grey.shade200),
@@ -2043,6 +2214,35 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
           color: Colors.black,
         ),
       ),
+    );
+  }
+
+  Widget _webNfoMetricItem(String label, String value) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 11,
+            color: Color(0xFF6B7280),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF111827),
+          ),
+        ),
+      ],
     );
   }
 
@@ -2975,7 +3175,38 @@ class MutualFundCard extends StatelessWidget {
                           color: const Color(0xff383838),
                         ),
                       ),
-                      if (entity.isPurchaseAllowed == false)
+                      if (entity.isNfo == true)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              _nfoBadge(
+                                daysRemaining: entity.nfoDetails?.daysRemaining?.toString(),
+                                fontSize: 10,
+                              ),
+                              if (entity.schemecategory != null && entity.schemecategory!.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    entity.schemecategory!,
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 10,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        )
+                      else if (entity.isPurchaseAllowed == false)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
                           child: _purchasePausedBadge(),
@@ -3033,36 +3264,52 @@ class MutualFundCard extends StatelessWidget {
                           switch (value) {
                             // Add to cart
                             case FundMenuAction.addToCart:
+                              final minAmt = entity.isNfo == true
+                                  ? (entity.nfoDetails?.minSubscriptionAmount ??
+                                      entity.minLumpsum ??
+                                      entity.minSipAmount ??
+                                      5000)
+                                  : (entity.minSipAmount ?? 0);
                               await controller.addToCart(
                                 entity.schemeCode ?? '',
                                 entity.baseSchemeName ?? '',
-                                entity.minSipAmount ?? 0,
+                                minAmt,
                                 null,
+                                transType: (entity.isSipAllowed == true) ? 'sip' : 'lumpsum',
                               );
                               await controller.fetchCart();
-
                               break;
 
                             case FundMenuAction.buySIP:
+                              final minAmt = entity.isNfo == true
+                                  ? (entity.nfoDetails?.minSubscriptionAmount ??
+                                      entity.minSipAmount ??
+                                      5000)
+                                  : (entity.minSipAmount ?? 0);
                               await controller.addToCart(
                                 entity.schemeCode ?? '',
                                 entity.baseSchemeName ?? '',
-                                entity.minSipAmount ?? 0,
+                                minAmt,
                                 null,
                               );
                               await controller.fetchCart();
-
                               Get.toNamed(AppRoutes.cart);
+                              break;
+
                             case FundMenuAction.buyLumpsum:
+                              final minLump = entity.isNfo == true
+                                  ? (entity.nfoDetails?.minSubscriptionAmount ??
+                                      entity.minLumpsum ??
+                                      5000)
+                                  : (entity.minLumpsum ?? 0);
                               await controller.addToCart(
                                 entity.schemeCode ?? '',
                                 entity.baseSchemeName ?? '',
-                                entity.minLumpsum ?? 0,
+                                minLump,
                                 null,
                                 transType: 'lumpsum',
                               );
                               await controller.fetchCart();
-
                               Get.toNamed(AppRoutes.cart);
                               break;
 
@@ -3143,7 +3390,9 @@ class MutualFundCard extends StatelessWidget {
             if (showTrainlings) ...[
               const SizedBox(height: 5),
               Text(
-                'Trailing Return -------------------------------------------------------------------------------------------------------',
+                entity.isNfo == true
+                    ? 'NFO Details -------------------------------------------------------------------------------------------------------'
+                    : 'Trailing Return -------------------------------------------------------------------------------------------------------',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -3154,40 +3403,66 @@ class MutualFundCard extends StatelessWidget {
               ),
               const SizedBox(height: 5),
 
-              /// Returns Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _ReturnItem(
-                    isNegative: parseIntSafe(entity.returnsEntity?.oneMonth) < 0
-                        ? true
-                        : false,
-                    title: '1M',
-                    value: _formatReturn(entity.returnsEntity?.oneMonth),
-                    // isNegative: true,
-                  ),
-                  _ReturnItem(
-                    isNegative: parseIntSafe(entity.returnsEntity?.oneYear) < 0
-                        ? true
-                        : false,
-                    title: '1Y',
-                    value: _formatReturn(entity.returnsEntity?.oneYear),
-                  ),
-                  _ReturnItem(
-                    isNegative:
-                        parseIntSafe(entity.returnsEntity?.threeYear) < 0
-                        ? true
-                        : false,
-                    title: '3Y',
-                    value: _formatReturn(entity.returnsEntity?.threeYear),
-                  ),
-                  _ReturnItem(
-                    isNegative: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
-                        ? true
-                        : false,
-                    title: '5Y',
-                    value: _formatReturn(entity.returnsEntity?.fiveYear),
-                  ),
+              /// Returns or NFO Row
+              if (entity.isNfo == true)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _ReturnItem(
+                      isNegative: false,
+                      title: 'Offer Price',
+                      value: '₹${entity.nfoDetails?.nfoPrice?.toStringAsFixed(0) ?? '10'}',
+                    ),
+                    _ReturnItem(
+                      isNegative: false,
+                      title: 'Min SIP',
+                      value: '₹${entity.minSipAmount ?? 500}',
+                    ),
+                    _ReturnItem(
+                      isNegative: false,
+                      title: 'Min Invest',
+                      value: '₹${entity.nfoDetails?.minSubscriptionAmount ?? entity.minLumpsum ?? 5000}',
+                    ),
+                    _ReturnItem(
+                      isNegative: false,
+                      title: 'Closes On',
+                      value: _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
+                    ),
+                  ],
+                )
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _ReturnItem(
+                      isNegative: parseIntSafe(entity.returnsEntity?.oneMonth) < 0
+                          ? true
+                          : false,
+                      title: '1M',
+                      value: _formatReturn(entity.returnsEntity?.oneMonth),
+                    ),
+                    _ReturnItem(
+                      isNegative: parseIntSafe(entity.returnsEntity?.oneYear) < 0
+                          ? true
+                          : false,
+                      title: '1Y',
+                      value: _formatReturn(entity.returnsEntity?.oneYear),
+                    ),
+                    _ReturnItem(
+                      isNegative:
+                          parseIntSafe(entity.returnsEntity?.threeYear) < 0
+                          ? true
+                          : false,
+                      title: '3Y',
+                      value: _formatReturn(entity.returnsEntity?.threeYear),
+                    ),
+                    _ReturnItem(
+                      isNegative: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
+                          ? true
+                          : false,
+                      title: '5Y',
+                      value: _formatReturn(entity.returnsEntity?.fiveYear),
+                    ),
                 ],
               ),
             ],

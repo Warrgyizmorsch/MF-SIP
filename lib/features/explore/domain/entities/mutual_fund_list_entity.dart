@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/explore/data/model/mutual_fund_list_model.dart';
+import 'package:my_sip/features/nfo/domain/entity/nfo_list_entity.dart';
 
 class MutualFundListResponseEntity extends Equatable {
   final bool? success;
@@ -375,6 +376,53 @@ extension NfoDetailsEntityX on NfoDetailsModel {
       status: status,
       isOpen: isOpen,
       daysRemaining: daysRemaining,
+    );
+  }
+}
+extension MutualFundListEntityNfoX on MutualFundListEntity {
+  LaunchDataEntity toLaunchDataEntity() {
+    return LaunchDataEntity(
+      id: fundId ?? nfoDetails?.id,
+      schemeName: baseSchemeName ?? nfoDetails?.schemeName,
+      amcId: amcId ?? amc?.id,
+      schemeCode: schemeCode,
+      isin: isin,
+      baseSchemeName: baseSchemeName ?? nfoDetails?.schemeName,
+      schemeObjective: nfoDetails?.schemeObjective,
+      nfoOpenDate: nfoDetails?.nfoOpenDate,
+      nfoCloseDate: nfoDetails?.nfoCloseDate,
+      allotmentDate: nfoDetails?.allotmentDate,
+      launchDate: nfoDetails?.launchDate,
+      nfoPrice: nfoDetails?.nfoPrice ?? 10.0,
+      minSubscriptionAmount: nfoDetails?.minSubscriptionAmount?.toDouble() ??
+          minLumpsum?.toDouble() ??
+          minSipAmount?.toDouble() ??
+          5000.0,
+      expenseRatio: double.tryParse(nfoDetails?.expenseRatio ?? ''),
+      benchmark: nfoDetails?.benchmark,
+      fundManager: nfoDetails?.fundManager,
+      exitLoad: nfoDetails?.exitLoad,
+      nav: nav,
+      schemeType: schemeType,
+      planType: divoption,
+      optionType: divoption,
+      schemeCategory: schemecategory,
+      riskLevel: riskLevel,
+      status: nfoDetails?.status ?? 'ACTIVE',
+      isNfo: true,
+      isSipAllowed: isSipAllowed,
+      minSipAmount: minSipAmount?.toDouble(),
+      isLumpsumAllowed: isLumpsumAllowed,
+      minLumpsum: minLumpsum?.toDouble(),
+      minimumTopup: minTopUp?.toDouble(),
+      nfoAmcEntity: NfoAmcEntity(
+        id: amc?.id,
+        amcName: amc?.amcName,
+        address: amc?.address,
+        amcLogo: amc?.amcLogoUrl,
+        contactNo: amc?.contact,
+        email: amc?.email,
+      ),
     );
   }
 }
