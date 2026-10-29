@@ -1157,8 +1157,8 @@ class WebFundListCard extends StatelessWidget {
         children: [
           Expanded(
             child: _nfoColumn(
-              'Offer Price',
-              '₹${entity.nfoDetails?.nfoPrice?.toStringAsFixed(0) ?? '10'}',
+              'Opened On',
+              _formatNfoDate(entity.nfoDetails?.nfoOpenDate),
               isLaptop: isLaptop,
             ),
           ),
@@ -1904,8 +1904,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
               children: [
                 Expanded(
                   child: _webNfoMetricItem(
-                    'Offer Price',
-                    '₹${entity.nfoDetails?.nfoPrice?.toStringAsFixed(0) ?? '10'}',
+                    'Opened On',
+                    _formatNfoDate(entity.nfoDetails?.nfoOpenDate),
                   ),
                 ),
                 _verticalDivider(),
@@ -3435,8 +3435,8 @@ class MutualFundCard extends StatelessWidget {
                   children: [
                     _ReturnItem(
                       isNegative: false,
-                      title: 'Offer Price',
-                      value: '₹${entity.nfoDetails?.nfoPrice?.toStringAsFixed(0) ?? '10'}',
+                      title: 'Opened On',
+                      value: _formatNfoDate(entity.nfoDetails?.nfoOpenDate),
                     ),
                     _ReturnItem(
                       isNegative: false,
