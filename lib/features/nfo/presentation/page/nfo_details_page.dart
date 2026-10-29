@@ -66,6 +66,19 @@ final myApiData = NfoDetailModel(
 
 class NfoDetailsPage1 extends StatelessWidget {
   const NfoDetailsPage1({super.key});
+  bool _isNfoClosed(LaunchDataEntity nfo) {
+    if (nfo.status?.toUpperCase() == 'CLOSED') return true;
+    if (nfo.nfoCloseDate != null && nfo.nfoCloseDate!.isNotEmpty) {
+      try {
+        final closeDate = DateTime.parse(nfo.nfoCloseDate!);
+        final endOfDay =
+            DateTime(closeDate.year, closeDate.month, closeDate.day, 23, 59, 59);
+        if (DateTime.now().isAfter(endOfDay)) return true;
+      } catch (_) {}
+    }
+    return false;
+  }
+
 
   // Theme Colors
   static const Color primaryColor = Color(0xFF1E40AF);
@@ -534,6 +547,20 @@ class NfoDetailsPage1 extends StatelessWidget {
                       textColor: primaryColor,
                       bgColor: Colors.blue.shade50,
                     ),
+                    if (_isNfoClosed(nfo))
+                      _buildTag(
+                        icon: Icons.block_rounded,
+                        text: 'NFO Closed',
+                        textColor: const Color(0xFFB42318),
+                        bgColor: const Color(0xFFFEF3F2),
+                      )
+                    else
+                      _buildTag(
+                        icon: Icons.local_fire_department_rounded,
+                        text: 'Active NFO',
+                        textColor: const Color(0xFFEA580C),
+                        bgColor: const Color(0xFFFFF7ED),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -1018,6 +1045,66 @@ class NfoDetailsPage1 extends StatelessWidget {
     LaunchDataEntity nfoData, {
     required bool isWeb,
   }) {
+    final bool isClosed = _isNfoClosed(nfoData);
+
+    if (isClosed) {
+      final closedWidget = Container(
+        width: double.infinity,
+        padding: EdgeInsets.fromLTRB(
+          16,
+          12,
+          16,
+          MediaQuery.of(context).padding.bottom > 0
+              ? MediaQuery.of(context).padding.bottom
+              : 16,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              offset: const Offset(0, -4),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF3F4F6),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE5E7EB)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.block_rounded, size: 18, color: Color(0xFF6B7280)),
+              SizedBox(width: 8),
+              Text(
+                'NFO Subscription Closed',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF4B5563),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (isWeb) {
+        return Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: 380,
+            child: closedWidget,
+          ),
+        );
+      }
+      return closedWidget;
+    }
     final CartController cartController = Get.find<CartController>();
 
     final String schemeCode = nfoData.schemeCode ?? '';

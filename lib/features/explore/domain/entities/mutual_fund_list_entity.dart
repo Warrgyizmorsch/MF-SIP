@@ -95,6 +95,27 @@ class MutualFundListEntity extends Equatable {
   /// Convenient alias for fund name
   String? get fundName => baseSchemeName;
 
+  /// Checks whether this fund is a closed NFO
+  bool get isNfoClosed {
+    if (isNfo != true) return false;
+    if (isPurchaseAllowed == false) return true;
+    if (nfoDetails?.isOpen == false) return true;
+    if (nfoDetails?.status?.toUpperCase() == 'CLOSED') return true;
+    if (nfoDetails?.daysRemaining != null && nfoDetails!.daysRemaining! <= 0) {
+      return true;
+    }
+    final closeStr = nfoDetails?.nfoCloseDate;
+    if (closeStr != null && closeStr.isNotEmpty) {
+      try {
+        final closeDate = DateTime.parse(closeStr);
+        final endOfDay =
+            DateTime(closeDate.year, closeDate.month, closeDate.day, 23, 59, 59);
+        if (DateTime.now().isAfter(endOfDay)) return true;
+      } catch (_) {}
+    }
+    return false;
+  }
+
   @override
   List<Object?> get props => [
     fundId,

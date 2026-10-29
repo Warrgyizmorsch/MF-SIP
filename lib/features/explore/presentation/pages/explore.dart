@@ -70,24 +70,37 @@ String _formatNfoDate(String? dateStr) {
   }
 }
 
-Widget _nfoBadge({String? daysRemaining, double fontSize = 10, double iconSize = 11}) {
-  final label = (daysRemaining != null && daysRemaining.isNotEmpty && daysRemaining != '0')
-      ? 'NFO • ${daysRemaining}d Left'
-      : 'NFO LIVE';
+Widget _nfoBadge({
+  String? daysRemaining,
+  bool isClosed = false,
+  double fontSize = 10,
+  double iconSize = 11,
+}) {
+  final bool closed = isClosed ||
+      (daysRemaining != null &&
+          int.tryParse(daysRemaining) != null &&
+          int.parse(daysRemaining) <= 0);
+  final label = closed
+      ? 'NFO CLOSED'
+      : ((daysRemaining != null && daysRemaining.isNotEmpty)
+          ? 'NFO • ${daysRemaining}d Left'
+          : 'NFO LIVE');
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
     decoration: BoxDecoration(
-      color: const Color(0xFFFFF7ED),
+      color: closed ? const Color(0xFFFEF3F2) : const Color(0xFFFFF7ED),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: const Color(0xFFFDBA74)),
+      border: Border.all(
+        color: closed ? const Color(0xFFFECDCA) : const Color(0xFFFDBA74),
+      ),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          Icons.local_fire_department_rounded,
+          closed ? Icons.block_rounded : Icons.local_fire_department_rounded,
           size: iconSize,
-          color: const Color(0xFFEA580C),
+          color: closed ? const Color(0xFFB42318) : const Color(0xFFEA580C),
         ),
         const SizedBox(width: 3.5),
         Text(
@@ -95,7 +108,7 @@ Widget _nfoBadge({String? daysRemaining, double fontSize = 10, double iconSize =
           style: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFFEA580C),
+            color: closed ? const Color(0xFFB42318) : const Color(0xFFEA580C),
             letterSpacing: 0.1,
           ),
         ),
@@ -167,6 +180,16 @@ void _redirectToPurchase(
   MutualFundListEntity entity, {
   InvType? invType,
 }) {
+  if (entity.isNfoClosed) {
+    showCustomToast(
+      title: "NFO Closed",
+      message:
+          "This fund offer has closed and is no longer accepting new investments.",
+      backgroundColor: Colors.grey.shade800,
+      icon: Icons.block_rounded,
+    );
+    return;
+  }
   final bool isLump = invType == InvType.lumpsum;
 
   GatekeeperHelper.runWithPrerequisites(
@@ -1078,6 +1101,7 @@ class WebFundListCard extends StatelessWidget {
             if (entity.isNfo == true) ...[
               _nfoBadge(
                 daysRemaining: entity.nfoDetails?.daysRemaining?.toString(),
+                isClosed: entity.isNfoClosed,
                 fontSize: isLaptop ? 9.5 : 10,
               ),
               const SizedBox(width: 6),
@@ -1157,9 +1181,10 @@ class WebFundListCard extends StatelessWidget {
           _divider(isLaptop),
           Expanded(
             child: _nfoColumn(
-              'Closes On',
-              _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
+              entity.isNfoClosed ? 'Status' : 'Closes On',
+              entity.isNfoClosed ? 'Closed' : _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
               isLaptop: isLaptop,
+              isAlert: entity.isNfoClosed,
             ),
           ),
         ],
@@ -1212,7 +1237,12 @@ class WebFundListCard extends StatelessWidget {
     return Row(children: items);
   }
 
-  Widget _nfoColumn(String label, String value, {required bool isLaptop}) {
+  Widget _nfoColumn(
+    String label,
+    String value, {
+    required bool isLaptop,
+    bool isAlert = false,
+  }) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -1234,7 +1264,7 @@ class WebFundListCard extends StatelessWidget {
             fontFamily: FontFamily.medium,
             fontSize: isLaptop ? 11.5 : 12.5,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF111827),
+            color: isAlert ? const Color(0xFFB42318) : const Color(0xFF111827),
           ),
         ),
       ],
@@ -1369,7 +1399,7 @@ class WebFundListCard extends StatelessWidget {
     RxBool isPressed, {
     required double size,
   }) {
-    if (entity.isPurchaseAllowed == false) {
+    if (entity.isPurchaseAllowed == false || entity.isNfoClosed) {
       return SizedBox(width: size, height: size);
     }
     return Obx(() {
@@ -1447,11 +1477,11 @@ class WebFundListCard extends StatelessWidget {
         onPressed: isPaused
           ? () {
                 showCustomToast(
-                  title: "Purchase Paused",
+                  title: entity.isNfoClosed ? "NFO Closed" : "Purchase Paused",
                   message:
                       "This fund is currently not accepting new investments.",
                   backgroundColor: Colors.orange.shade800,
-                  icon: Icons.pause_circle_outline,
+                  icon: entity.isNfoClosed ? Icons.block_rounded : Icons.pause_circle_outline,
                 );
               }
             : () {
@@ -1820,6 +1850,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                         if (entity.isNfo == true) ...[
                           _nfoBadge(
                             daysRemaining: entity.nfoDetails?.daysRemaining?.toString(),
+                            isClosed: entity.isNfoClosed,
                             fontSize: 10,
                           ),
                           const Gap(6),
@@ -1894,8 +1925,9 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                 _verticalDivider(),
                 Expanded(
                   child: _webNfoMetricItem(
-                    'Closes On',
-                    _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
+                    entity.isNfoClosed ? 'Status' : 'Closes On',
+                    entity.isNfoClosed ? 'Closed' : _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
+                    isAlert: entity.isNfoClosed,
                   ),
                 ),
               ],
@@ -2248,7 +2280,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
     );
   }
 
-  Widget _webNfoMetricItem(String label, String value) {
+  Widget _webNfoMetricItem(String label, String value, {bool isAlert = false}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -2266,11 +2298,11 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: FontFamily.medium,
             fontSize: 12.5,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF111827),
+            color: isAlert ? const Color(0xFFB42318) : const Color(0xFF111827),
           ),
         ),
       ],
@@ -2311,7 +2343,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
   }
 
   Widget _webCartButton(MutualFundListEntity entity, RxBool isPressed) {
-    if (entity.isPurchaseAllowed == false) {
+    if (entity.isPurchaseAllowed == false || entity.isNfoClosed) {
       return const SizedBox.shrink();
     }
     return Obx(() {
@@ -3265,14 +3297,15 @@ class MutualFundCard extends StatelessWidget {
                         ),
                         offset: const Offset(0, 40),
                         onSelected: (value) async {
-                          if (entity.isPurchaseAllowed == false &&
+                          if ((entity.isPurchaseAllowed == false || entity.isNfoClosed) &&
                               (value == FundMenuAction.addToCart ||
                                   value == FundMenuAction.buySIP ||
                                   value == FundMenuAction.buyLumpsum)) {
                             showCustomToast(
                               title: "Purchase Paused",
-                              message:
-                                  "This fund is currently not accepting new investments.",
+                              message: entity.isNfoClosed
+                                  ? "This fund offer has closed and is no longer accepting new investments."
+                                  : "This fund is currently not accepting new investments.",
                               backgroundColor: Colors.orange.shade800,
                               icon: Icons.pause_circle_outline,
                             );
@@ -3416,9 +3449,9 @@ class MutualFundCard extends StatelessWidget {
                       value: '₹${entity.nfoDetails?.minSubscriptionAmount ?? entity.minLumpsum ?? 5000}',
                     ),
                     _ReturnItem(
-                      isNegative: false,
-                      title: 'Closes On',
-                      value: _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
+                      isNegative: entity.isNfoClosed,
+                      title: entity.isNfoClosed ? 'Status' : 'Closes On',
+                      value: entity.isNfoClosed ? 'Closed' : _formatNfoDate(entity.nfoDetails?.nfoCloseDate),
                     ),
                   ],
                 )
