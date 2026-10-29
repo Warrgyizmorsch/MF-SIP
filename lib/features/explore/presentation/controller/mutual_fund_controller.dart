@@ -390,18 +390,23 @@ class MutualFundController extends GetxController {
           final newData = success.data?.data ?? [];
           final pagination = success.data?.pagination;
 
+          // Filter out purchase paused funds on default load; show all funds when searching
+          final List<MutualFundListEntity> displayData = _currentSearchQuery.isEmpty
+              ? newData.where((fund) => !fund.isPurchasePaused).toList()
+              : newData;
+
           // Update Total Count UI
           selectedFundCount.value = pagination?.total ?? 0;
 
           if (isLoadMore) {
             // Append Mode (Pagination)
-            searchFund.addAll(newData);
+            searchFund.addAll(displayData);
             searchFund.refresh();
 
             currentPage++;
           } else {
             // Replace Mode (New Search/Filter)
-            searchFund.assignAll(newData);
+            searchFund.assignAll(displayData);
             searchFund.refresh();
 
             currentPage = 1;

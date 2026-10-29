@@ -116,6 +116,9 @@ class MutualFundListEntity extends Equatable {
     return false;
   }
 
+  /// Indicates whether the fund is paused for purchase (or a closed NFO)
+  bool get isPurchasePaused => isPurchaseAllowed == false || isNfoClosed;
+
   @override
   List<Object?> get props => [
     fundId,
