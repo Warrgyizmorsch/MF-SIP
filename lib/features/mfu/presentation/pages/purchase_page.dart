@@ -980,7 +980,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
 
     final opt = (_c.sipArgs.value.divoption ?? '').trim().toUpperCase();
 
-    if (opt == 'GR' || opt == 'NA') {
+    if (opt == 'GR' || opt == 'NA' || opt == 'GROWTH' ) {
       _c.setDividendOption('N');
       _c.proceedWithInvestment();
     } else if (opt == 'PAYOUT') {
