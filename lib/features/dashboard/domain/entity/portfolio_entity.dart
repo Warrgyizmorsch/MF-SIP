@@ -229,6 +229,86 @@ class SipCancellationDetailsEntity extends Equatable {
   ];
 }
 
+class MfuFundTransactionEntity extends Equatable {
+  final int id;
+  final String date;
+  final String displayDate;
+  final String type;
+  final String investmentType;
+  final String schemeCode;
+  final String fundName;
+  final String amcName;
+  final String folioNo;
+  final double amount;
+  final double units;
+  final double nav;
+  final String status;
+  final String statusLabel;
+  final String orderStatus;
+  final String orderStatusLabel;
+  final String mfuGorn;
+  final String mfuItrn;
+  final String direction;
+  final String displayAmount;
+  final String displayUnits;
+
+  const MfuFundTransactionEntity({
+    this.id = 0,
+    this.date = '',
+    this.displayDate = '',
+    this.type = '',
+    this.investmentType = '',
+    this.schemeCode = '',
+    this.fundName = '',
+    this.amcName = '',
+    this.folioNo = '',
+    this.amount = 0.0,
+    this.units = 0.0,
+    this.nav = 0.0,
+    this.status = '',
+    this.statusLabel = '',
+    this.orderStatus = '',
+    this.orderStatusLabel = '',
+    this.mfuGorn = '',
+    this.mfuItrn = '',
+    this.direction = '',
+    this.displayAmount = '',
+    this.displayUnits = '',
+  });
+
+  bool get isCredit => direction.toLowerCase() == 'credit';
+  bool get isDebit => direction.toLowerCase() == 'debit';
+  bool get isSuccess =>
+      status.toLowerCase() == 'processed' ||
+      status.toLowerCase() == 'settled' ||
+      orderStatus.toLowerCase() == 'rp';
+
+  @override
+  List<Object?> get props => [
+    id,
+    date,
+    displayDate,
+    type,
+    investmentType,
+    schemeCode,
+    fundName,
+    amcName,
+    folioNo,
+    amount,
+    units,
+    nav,
+    status,
+    statusLabel,
+    orderStatus,
+    orderStatusLabel,
+    mfuGorn,
+    mfuItrn,
+    direction,
+    displayAmount,
+    displayUnits,
+  ];
+}
+
 class MfuPortfolioItemEntity extends Equatable {
   final String schemeCode;
   final String fundName;
@@ -277,6 +357,12 @@ class MfuPortfolioItemEntity extends Equatable {
   final String firstInvestedDate;
   final String latestInvestedDate;
   final double latestPurchaseNav;
+  final String sipFrequency;
+  final String sipFrequencyType;
+  final String sipDay;
+  final String nextSipDate;
+  final int totalInstallments;
+  final List<MfuFundTransactionEntity> transactions;
 
   const MfuPortfolioItemEntity({
     required this.schemeCode,
@@ -326,6 +412,12 @@ class MfuPortfolioItemEntity extends Equatable {
     this.firstInvestedDate = '',
     this.latestInvestedDate = '',
     this.latestPurchaseNav = 0.0,
+    this.sipFrequency = '',
+    this.sipFrequencyType = '',
+    this.sipDay = '',
+    this.nextSipDate = '',
+    this.totalInstallments = 0,
+    this.transactions = const [],
   });
 
   // Computed properties for easy UI styling
@@ -416,6 +508,12 @@ class MfuPortfolioItemEntity extends Equatable {
     firstInvestedDate,
     latestInvestedDate,
     latestPurchaseNav,
+    sipFrequency,
+    sipFrequencyType,
+    sipDay,
+    nextSipDate,
+    totalInstallments,
+    transactions,
   ];
 }
 
@@ -548,6 +646,40 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       firstInvestedDate: firstInvestedDate ?? '',
       latestInvestedDate: latestInvestedDate ?? '',
       latestPurchaseNav: latestPurchaseNav ?? 0.0,
+      sipFrequency: sipFrequency ?? '',
+      sipFrequencyType: sipFrequencyType ?? '',
+      sipDay: sipDay ?? '',
+      nextSipDate: nextSipDate ?? '',
+      totalInstallments: totalInstallments ?? 0,
+      transactions: transactions?.map((e) => e.toEntity()).toList() ?? const [],
+    );
+  }
+}
+
+extension MfuFundTransactionMapper on MfuFundTransactionModel {
+  MfuFundTransactionEntity toEntity() {
+    return MfuFundTransactionEntity(
+      id: id ?? 0,
+      date: date ?? '',
+      displayDate: displayDate ?? '',
+      type: type ?? '',
+      investmentType: investmentType ?? '',
+      schemeCode: schemeCode ?? '',
+      fundName: fundName ?? '',
+      amcName: amcName ?? '',
+      folioNo: folioNo ?? '',
+      amount: amount ?? 0.0,
+      units: units ?? 0.0,
+      nav: nav ?? 0.0,
+      status: status ?? '',
+      statusLabel: statusLabel ?? '',
+      orderStatus: orderStatus ?? '',
+      orderStatusLabel: orderStatusLabel ?? '',
+      mfuGorn: mfuGorn ?? '',
+      mfuItrn: mfuItrn ?? '',
+      direction: direction ?? '',
+      displayAmount: displayAmount ?? '',
+      displayUnits: displayUnits ?? '',
     );
   }
 }

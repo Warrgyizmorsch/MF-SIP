@@ -240,6 +240,87 @@ class SipCancellationDetailsModel {
   }
 }
 
+class MfuFundTransactionModel {
+  final int? id;
+  final String? date;
+  final String? displayDate;
+  final String? type;
+  final String? investmentType;
+  final String? schemeCode;
+  final String? fundName;
+  final String? amcName;
+  final String? folioNo;
+  final double? amount;
+  final double? units;
+  final double? nav;
+  final String? status;
+  final String? statusLabel;
+  final String? orderStatus;
+  final String? orderStatusLabel;
+  final String? mfuGorn;
+  final String? mfuItrn;
+  final String? direction;
+  final String? displayAmount;
+  final String? displayUnits;
+
+  MfuFundTransactionModel({
+    this.id,
+    this.date,
+    this.displayDate,
+    this.type,
+    this.investmentType,
+    this.schemeCode,
+    this.fundName,
+    this.amcName,
+    this.folioNo,
+    this.amount,
+    this.units,
+    this.nav,
+    this.status,
+    this.statusLabel,
+    this.orderStatus,
+    this.orderStatusLabel,
+    this.mfuGorn,
+    this.mfuItrn,
+    this.direction,
+    this.displayAmount,
+    this.displayUnits,
+  });
+
+  factory MfuFundTransactionModel.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic>? displayMap;
+    if (json['display'] is Map<String, dynamic>) {
+      displayMap = json['display'] as Map<String, dynamic>;
+    }
+
+    return MfuFundTransactionModel(
+      id: json.parse<int>('id'),
+      date: json.parse<String>('date'),
+      displayDate: json.parse<String>('display_date'),
+      type: json.parse<String>('type'),
+      investmentType: json.parse<String>('investment_type'),
+      schemeCode: json.parse<String>('scheme_code'),
+      fundName: json.parse<String>('fund_name'),
+      amcName: json.parse<String>('amc_name'),
+      folioNo: json.parse<String>('folio_no'),
+      amount: json.parse<double>('amount'),
+      units: json.parse<double>('units'),
+      nav: json.parse<double>('nav'),
+      status: json.parse<String>('status'),
+      statusLabel: json.parse<String>('status_label'),
+      orderStatus: json.parse<String>('order_status'),
+      orderStatusLabel: json.parse<String>('order_status_label'),
+      mfuGorn: json.parse<String>('mfu_gorn'),
+      mfuItrn: json.parse<String>('mfu_itrn'),
+      direction: json.parse<String>('direction'),
+      displayAmount: displayMap?.parse<String>('amount') ??
+          json.parse<String>('display_amount'),
+      displayUnits: displayMap?.parse<String>('units') ??
+          json.parse<String>('display_units'),
+    );
+  }
+}
+
 class MfuPortfolioItemModel {
   final String? schemeCode;
   final String? fundName;
@@ -291,6 +372,12 @@ class MfuPortfolioItemModel {
   final String? firstInvestedDate;
   final String? latestInvestedDate;
   final double? latestPurchaseNav;
+  final String? sipFrequency;
+  final String? sipFrequencyType;
+  final String? sipDay;
+  final String? nextSipDate;
+  final int? totalInstallments;
+  final List<MfuFundTransactionModel>? transactions;
 
   MfuPortfolioItemModel({
     this.schemeCode,
@@ -343,6 +430,12 @@ class MfuPortfolioItemModel {
     this.firstInvestedDate,
     this.latestInvestedDate,
     this.latestPurchaseNav,
+    this.sipFrequency,
+    this.sipFrequencyType,
+    this.sipDay,
+    this.nextSipDate,
+    this.totalInstallments,
+    this.transactions,
   });
 
   static MfuRedemptionDetailsModel? _parseRedemptionDetails(dynamic raw) {
@@ -477,6 +570,17 @@ class MfuPortfolioItemModel {
       firstInvestedDate: json.parse<String>('first_invested_date'),
       latestInvestedDate: json.parse<String>('latest_invested_date'),
       latestPurchaseNav: json.parse<double>('latest_purchase_nav'),
+      sipFrequency: json.parse<String>('sip_frequency') ??
+          json.parse<String>('frequency'),
+      sipFrequencyType: json.parse<String>('sip_frequency_type'),
+      sipDay: json.parse<String>('sip_day'),
+      nextSipDate: json.parse<String>('next_sip_date') ??
+          json.parse<String>('next_installment_date'),
+      totalInstallments: json.parse<int>('total_installments'),
+      transactions: (json['transactions'] as List?)
+          ?.whereType<Map<String, dynamic>>()
+          .map((e) => MfuFundTransactionModel.fromJson(e))
+          .toList(),
     );
   }
 }
