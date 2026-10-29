@@ -1747,7 +1747,11 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                 // child: widget.isMobile
                 //     ? _buildMobileLayout(controller)
                 //     : _buildDesktopLayout(controller, mutualFundController),
-                child: _buildDesktopLayout(controller, mutualFundController),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(22),
+                  onTap: () => _openFundDetails(widget.entity),
+                  child: _buildDesktopLayout(controller, mutualFundController),
+                ),
               ),
             ),
           );
@@ -3117,6 +3121,13 @@ class MutualFundCard extends StatelessWidget {
       onTap:
           onTapOverride ??
           () {
+            if (entity.isNfo == true) {
+              Get.toNamed(
+                AppRoutes.nfodetailsPage,
+                arguments: entity.toLaunchDataEntity(),
+              );
+              return;
+            }
             // mutualFundController.addToRecentlyViewed(entity);
             mutualFundController.addToLocalRecentlyViewed(entity);
             Get.toNamed(
