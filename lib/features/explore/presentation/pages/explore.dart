@@ -851,21 +851,31 @@ class WebExploreFilterPanel extends StatelessWidget {
 
           SizedBox(
             height: 46,
-            child: SearchBar(
-              focusNode: searchFocus,
-              elevation: WidgetStateProperty.all(0),
-              backgroundColor: WidgetStateProperty.all(Colors.white),
-              side: WidgetStateProperty.all(
-                BorderSide(color: Colors.grey.shade300),
-              ),
-              shape: WidgetStateProperty.all(
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              leading: const Icon(Icons.search, size: 20, color: Colors.grey),
-              hintText: 'Search funds...',
-              onChanged: mutualController.onSearchQueryChanged,
-              padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 12),
+            child: Obx(
+              () => SearchBar(
+                controller: mutualController.searchController,
+                focusNode: searchFocus,
+                elevation: WidgetStateProperty.all(0),
+                backgroundColor: WidgetStateProperty.all(Colors.white),
+                side: WidgetStateProperty.all(
+                  BorderSide(color: Colors.grey.shade300),
+                ),
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                leading: const Icon(Icons.search, size: 20, color: Colors.grey),
+                hintText: 'Search funds...',
+                onChanged: mutualController.onSearchQueryChanged,
+                trailing: [
+                  if (mutualController.hasSearchText.value)
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => mutualController.clearSearch(),
+                    ),
+                ],
+                padding: WidgetStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 12),
+                ),
               ),
             ),
           ),
@@ -1421,7 +1431,7 @@ class WebFundListCard extends StatelessWidget {
 
           try {
             if (isInCart) {
-              final itemId = cartItem?.id;
+              final itemId = cartItem.id;
 
               if (itemId != null) {
                 await cartController.deleteCartItem(
@@ -2217,7 +2227,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
   //                           try {
   //                             if (isInCart) {
-  //                               final itemId = cartItem?.id;
+  //                               final itemId = cartItem.id;
   //                               if (itemId != null) {
   //                                 await cartController.deleteCartItem(
   //                                   itemId,
@@ -2365,7 +2375,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
           try {
             if (isInCart) {
-              final itemId = cartItem?.id;
+              final itemId = cartItem.id;
               if (itemId != null) {
                 await cartController.deleteCartItem(
                   itemId,
@@ -2905,11 +2915,10 @@ class MobileExploreLayout extends StatelessWidget {
       onRefresh: () => controller.handleRefresh(),
       color: Ucolors.primary, // Use your app's primary theme color
       backgroundColor: Colors.white,
-      displacement: CircularProgressIndicator.strokeAlignCenter,
-
-      // displacement: 100,
+      displacement: 40.0,
       child: CustomScrollView(
         controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverAppBar(
             automaticallyImplyLeading: false,
@@ -3027,6 +3036,7 @@ class MobileExploreLayout extends StatelessWidget {
                             // This Expanded child will take up all available space
                             Expanded(
                               child: SearchBar(
+                                controller: controller.searchController,
                                 onTap: () => controller.setSearchFocus(true),
                                 onTapOutside: (event) {
                                   searchFocus.unfocus();
@@ -3040,6 +3050,13 @@ class MobileExploreLayout extends StatelessWidget {
                                 hintText: 'Search',
                                 onChanged: (value) =>
                                     controller.onSearchQueryChanged(value),
+                                trailing: [
+                                  if (controller.hasSearchText.value)
+                                    IconButton(
+                                      icon: const Icon(Icons.close, size: 18),
+                                      onPressed: () => controller.clearSearch(),
+                                    ),
+                                ],
                                 elevation: WidgetStateProperty.all(0),
                                 side: WidgetStateProperty.all(
                                   BorderSide(color: Colors.grey.shade300),

@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
@@ -33,6 +33,8 @@ class MutualFundController extends GetxController {
   final currentSortLabel = "1Y,3Y,5Y".obs;
 
   final hasSearchFocus = false.obs;
+  final TextEditingController searchController = TextEditingController();
+  final hasSearchText = false.obs;
 
   int currentPage = 1;
   bool canLoadMore = true;
@@ -64,6 +66,8 @@ class MutualFundController extends GetxController {
   /// Usage: onChanged: (val) => controller.onSearchQueryChanged(val)
   int _searchRequestId = 0;
   void onSearchQueryChanged(String query) {
+    hasSearchText.value = query.trim().isNotEmpty;
+
     if (_debounce?.isActive ?? false) {
       _debounce!.cancel();
     }
@@ -99,6 +103,18 @@ class MutualFundController extends GetxController {
 
       await _resetAndFetch();
     });
+  }
+
+  void clearSearch() {
+    searchController.clear();
+    _currentSearchQuery = "";
+    hasSearchFocus.value = false;
+    hasSearchText.value = false;
+    _debounce?.cancel();
+    currentPage = 1;
+    canLoadMore = true;
+    searchFund.clear();
+    _resetAndFetch();
   }
 
   // void onSearchQueryChanged(String query) {
@@ -439,6 +455,7 @@ class MutualFundController extends GetxController {
 
   void resetToDefaultStateOnly() {
     _currentSearchQuery = "";
+    hasSearchText.value = false;
     _currentFilters.clear();
     selectedReturnYear.value = 3;
     currentSortLabel.value = "1Y,3Y,5Y";
@@ -458,6 +475,10 @@ class MutualFundController extends GetxController {
   }
 
   Future<void> handleRefresh() async {
+    searchController.clear();
+    hasSearchFocus.value = false;
+    hasSearchText.value = false;
+    _debounce?.cancel();
     searchFund.clear();
     mutualfund.clear();
     currentPage = 1;
@@ -618,6 +639,7 @@ class MutualFundController extends GetxController {
     // _carouselTimer?.cancel();
     // _debounce?.cancel();
     _debounce?.cancel();
+    searchController.dispose();
     super.onClose();
   }
 }
