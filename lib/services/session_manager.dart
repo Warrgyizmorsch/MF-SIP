@@ -354,6 +354,19 @@ class SessionManager extends GetxService {
       }
     }
 
+    // Auto-restore KYC verification state from User data
+    final rawKyc = (userData?.kycStatus ?? '').trim().toLowerCase();
+    if (rawKyc == 'approved' || rawKyc == 'verified') {
+      await setKycVerified(true);
+      await setKycPending(false);
+    } else if (rawKyc == 'pending' ||
+        rawKyc == 'in progress' ||
+        rawKyc == 'submitted' ||
+        rawKyc == 'under review') {
+      await setKycPending(true);
+      await setKycVerified(false);
+    }
+
     _controller.add(jwtAccessToken);
   }
 

@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unnecessary_brace_in_string_interps, unused_element_parameter, unused_local_variable
+// ignore_for_file: unnecessary_brace_in_string_interps, unused_element_parameter, unused_local_variable
 
 import 'dart:async';
 
@@ -20,6 +20,7 @@ import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/common/widget/video/custom_inline_youtube_player.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/helper/app_open_alert_coordinator.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
@@ -124,6 +125,14 @@ class _HomeScreenState extends State<HomeScreen> {
   final mutualcontroller = Get.find<MutualFundController>();
   final navigation = Get.find<NavigationBarController>();
   final authController = Get.find<AuthController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppOpenAlertCoordinator.checkAndShowAlerts(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2682,17 +2691,40 @@ class _MobileLayout extends StatelessWidget {
                   final controller = Get.find<PersonalisationController>();
                   final size = MediaQuery.of(context).size;
 
-                  final isPending = controller.isKycPending.value;
-                  final isVerified = controller.isKycVerified.value;
+                  final String sessionKyc =
+                      (SessionManager.instance.getUserData?.kycStatus ?? '').trim().toLowerCase();
+                  final String userCtrlKyc =
+                      (controller.userData.value?.kycStatus ?? '').trim().toLowerCase();
+
+                  final isVerified = controller.isKycVerified.value ||
+                      SessionManager.instance.isKycVerified.value ||
+                      sessionKyc == 'approved' ||
+                      sessionKyc == 'verified' ||
+                      userCtrlKyc == 'approved' ||
+                      userCtrlKyc == 'verified';
+
+                  final isPending = (controller.isKycPending.value ||
+                      SessionManager.instance.isKycPending.value ||
+                      sessionKyc == 'pending' ||
+                      sessionKyc == 'in progress' ||
+                      sessionKyc == 'submitted' ||
+                      sessionKyc == 'under review' ||
+                      userCtrlKyc == 'pending' ||
+                      userCtrlKyc == 'in progress' ||
+                      userCtrlKyc == 'submitted' ||
+                      userCtrlKyc == 'under review') && !isVerified;
+
                   final noRiskProfile = !controller.hasRiskProfile.value;
                   final noNominee = !controller.hasNominee.value;
                   final noBank = !controller.hasBank.value;
                   final noPersonalDetails =
                       !controller.hasPersonalDetails.value;
 
-                  final canNumber = controller.userData.value?.canNumber ?? '';
+                  final canNumber = controller.userData.value?.canNumber ??
+                      SessionManager.instance.getUserData?.canNumber ?? '';
                   final userCanStatus =
-                      (controller.userData.value?.canStatus ?? '')
+                      (controller.userData.value?.canStatus ??
+                       SessionManager.instance.getUserData?.canStatus ?? '')
                           .trim()
                           .toLowerCase();
                   final canErrorMessage =

@@ -1,21 +1,49 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class GatekeeperHelper {
-  /// Runs the validation waterfall. If all checks pass, [onSuccess] is executed.
+  /// Runs the validation waterfall for investments.
+  /// Sequential Order:
+  /// 1. KYC Approved
+  /// 2. Personal Details (Additional Info) Complete
+  /// 3. Bank Account Linked
+  /// 4. CAN (Common Account Number) Approved
+  /// 5. Mandate (Auto Pay) Approved -- required ONLY for SIP purchases.
+  ///    Lumpsum investments bypass the mandate requirement completely.
+  /// If [onInvestAsLumpsum] is provided and user attempts SIP without a mandate,
+  /// they are given the option to switch and invest as Lumpsum directly.
   static void runWithPrerequisites({
     required Function() onSuccess,
     bool isLumpsum = false,
+    VoidCallback? onInvestAsLumpsum,
   }) {
     final userCtrl = Get.find<PersonalisationController>();
     final bool isDesktop = Get.width > 600;
 
     // 🛑 1. Check KYC Status
-    if (!userCtrl.isKycVerified.value) {
+    final String sessionKyc =
+        (SessionManager.instance.getUserData?.kycStatus ?? '').trim().toLowerCase();
+    final String userCtrlKyc =
+        (userCtrl.userData.value?.kycStatus ?? '').trim().toLowerCase();
+
+    final bool isKycDone = userCtrl.isKycVerified.value ||
+        SessionManager.instance.isKycVerified.value ||
+        sessionKyc == 'approved' ||
+        sessionKyc == 'verified' ||
+        userCtrlKyc == 'approved' ||
+        userCtrlKyc == 'verified';
+
+    if (isKycDone) {
+      userCtrl.isKycVerified.value = true;
+    }
+
+    if (!isKycDone) {
       DialogHelper.showPrerequisiteDialog(
         title: 'KYC Required',
         message:
@@ -61,8 +89,8 @@ class GatekeeperHelper {
 
     // 🛑 4. Check CAN (Common Account Number) Status & Approval
     final userData = userCtrl.userData.value;
-    final String canNumber = userData?.canNumber ?? '';
-    final String canStatus = (userData?.canStatus ?? '').trim().toLowerCase();
+    final String canNumber = (userData?.canNumber ?? SessionManager.instance.getUserData?.canNumber ?? '').trim();
+    final String canStatus = (userData?.canStatus ?? SessionManager.instance.getUserData?.canStatus ?? '').trim().toLowerCase();
     final String? canError = userData?.canErrorMessage;
 
     final bool isCanApproved =
@@ -70,6 +98,11 @@ class GatekeeperHelper {
         (canStatus == 'approved' || canStatus == 'active');
 
     if (!isCanApproved) {
+      // Auto-trigger registration only if CAN does not exist and is not cancelled/rejected
+      if (canNumber.isEmpty && canStatus.isEmpty && (canError == null || canError.isEmpty)) {
+        userCtrl.checkAndTriggerCanRegistration();
+      }
+
       if (canStatus == 'cancelled') {
         DialogHelper.showPrerequisiteDialog(
           title: 'CAN Account Cancelled',
@@ -115,13 +148,12 @@ class GatekeeperHelper {
         DialogHelper.showPrerequisiteDialog(
           title: 'Account Setup In Progress',
           message:
-              'Your profile details are complete. We are setting up your Common Account Number (CAN) with MF Utility. If this takes longer than expected, please contact our support team at +91 78508 88522.',
-          buttonText: 'Call Support',
-          onTap: () async {
+              'Your profile details are complete. We are setting up your Common Account Number (CAN) with MF Utility to enable mutual fund investing.',
+          buttonText: 'Check Status',
+          onTap: () {
             Get.back();
-            final Uri callUri = Uri(scheme: 'tel', path: '+917850888522');
-            if (await canLaunchUrl(callUri)) {
-              await launchUrl(callUri);
+            if (Get.isRegistered<MfuController>()) {
+              Get.find<MfuController>().getCanStatus();
             }
           },
         );
@@ -132,9 +164,9 @@ class GatekeeperHelper {
     // 🛑 5. Check Mandate (Auto Pay) Status - Required ONLY for SIP purchases
     if (!isLumpsum && !userCtrl.hasApprovedMandate) {
       DialogHelper.showPrerequisiteDialog(
-        title: 'Auto Pay Required',
+        title: 'Auto Pay Required for SIP',
         message:
-            'Please set up your Auto Pay mandate to continue with your SIP purchase.',
+            'Auto Pay mandate is required for automated monthly SIP investments. Would you like to set up Auto Pay, or invest as Lumpsum today without a mandate?',
         buttonText: 'Set Up Auto Pay',
         onTap: () {
           Get.back();
@@ -144,6 +176,14 @@ class GatekeeperHelper {
             id: isDesktop ? 1 : null,
           );
         },
+        secondaryButtonText:
+            onInvestAsLumpsum != null ? 'Invest as Lumpsum' : null,
+        onSecondaryTap: onInvestAsLumpsum != null
+            ? () {
+                Get.back();
+                onInvestAsLumpsum();
+              }
+            : null,
       );
       return;
     }

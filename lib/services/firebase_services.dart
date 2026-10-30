@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest_all.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:get/get.dart';
 
 import '../core/utils/helper/helpers.dart';
@@ -57,6 +59,7 @@ class NotificationService extends GetxService {
 
       // 2. Setup Local Notifications (for Android Heads-Up & Foreground alerts)
       if (!kIsWeb) {
+        tz_data.initializeTimeZones();
         await _setupLocalNotifications();
       }
 
@@ -209,7 +212,85 @@ class NotificationService extends GetxService {
   /// Notification tap callback - will be hooked up to deep linking at the end
   void _onNotificationTap(NotificationResponse response) {
     createLog('[FCM] Notification tapped with payload: ${response.payload}');
-    // Deep linking will be connected here in the final deep linking step.
+    if (response.payload == null || response.payload!.isEmpty) return;
+
+    try {
+      final dynamic decoded = jsonDecode(response.payload!);
+      if (decoded is Map<String, dynamic>) {
+        final String? route = decoded['route']?.toString();
+        final dynamic data = decoded['data'];
+
+        if (route != null && route.isNotEmpty) {
+          Get.toNamed(route, arguments: data);
+        }
+      }
+    } catch (e) {
+      createLog('[FCM] Error navigating from notification: $e');
+    }
+  }
+
+  /// Schedule a local reminder after a delay (e.g. Duration(hours: 3))
+  Future<void> scheduleReminder({
+    required int id,
+    required String title,
+    required String body,
+    required Duration delay,
+    required String targetRoute,
+    Map<String, dynamic>? extraData,
+  }) async {
+    if (kIsWeb) return;
+    try {
+      final scheduledDate = tz.TZDateTime.now(tz.local).add(delay);
+
+      final androidDetails = AndroidNotificationDetails(
+        _channel.id,
+        _channel.name,
+        channelDescription: _channel.description,
+        importance: Importance.max,
+        priority: Priority.high,
+        icon: '@drawable/ic_notification',
+      );
+
+      const darwinDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      final payload = jsonEncode({
+        'route': targetRoute,
+        if (extraData != null) 'data': extraData,
+      });
+
+      await _localNotifications.zonedSchedule(
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        notificationDetails: NotificationDetails(
+          android: androidDetails,
+          iOS: darwinDetails,
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: payload,
+      );
+      createLog(
+        '[Local Notif] Reminder scheduled for $scheduledDate (id: $id, route: $targetRoute)',
+      );
+    } catch (e) {
+      createLog('[Local Notif] Error scheduling reminder: $e');
+    }
+  }
+
+  /// Cancel scheduled notification by ID
+  Future<void> cancelReminder(int id) async {
+    if (kIsWeb) return;
+    try {
+      await _localNotifications.cancel(id: id);
+      createLog('[Local Notif] Reminder cancelled (id: $id)');
+    } catch (e) {
+      createLog('[Local Notif] Error cancelling reminder: $e');
+    }
   }
 
   /// Automatically sync token if it changes

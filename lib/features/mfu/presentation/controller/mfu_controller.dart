@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable, dead_null_aware_expression, dead_code
+// ignore_for_file: unused_local_variable, dead_null_aware_expression, dead_code
 
 import 'dart:async';
 import 'dart:developer';
@@ -698,7 +698,10 @@ class MfuController extends GetxController {
             message:
                 "Your investment account (CAN) is approved. You can now set up Auto Pay!",
           );
-        }
+        
+        } else if (rawStatus == 'cancelled' || rawStatus == 'rejected') {
+          _stopCanStatusPolling();
+          log("[MfuController] CAN status is $rawStatus - stopped polling");}
       },
       (error) {
         errorMessage.value = error.message ?? 'Something went wrong';
@@ -744,9 +747,16 @@ class MfuController extends GetxController {
 
   void resumePollingIfNeeded() {
     final canNumber = session.getUserData?.canNumber ?? '';
-    final canStatus = session.getUserData?.canStatus?.toLowerCase() ?? '';
+    final canStatus = (session.getUserData?.canStatus ?? '').trim().toLowerCase();
 
-    if (canNumber.isNotEmpty && canStatus != 'approved') {
+    if (canStatus == 'cancelled' ||
+        canStatus == 'rejected' ||
+        canStatus == 'approved') {
+      _stopCanStatusPolling();
+      return;
+    }
+
+    if (canNumber.isNotEmpty) {
       log("[MfuController] 🔄 Resuming CAN status polling on app start");
       _startCanStatusPolling();
     }

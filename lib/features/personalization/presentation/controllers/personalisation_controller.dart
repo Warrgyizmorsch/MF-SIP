@@ -764,11 +764,16 @@ class PersonalisationController extends GetxController {
 
     final existingCan = session.getUserData?.canNumber ?? '';
     final exitstingCan1 = userData.value?.canNumber ?? '';
-    final userCanStatus =
+    final String statusFromUserData =
         (userData.value?.canStatus ?? '').trim().toLowerCase();
+    final String statusFromSession =
+        (session.getUserData?.canStatus ?? '').trim().toLowerCase();
+    final String userCanStatus = statusFromUserData.isNotEmpty
+        ? statusFromUserData
+        : statusFromSession;
 
-    if (userCanStatus == 'cancelled') {
-      log("[CAN] Status is Cancelled - requires Support resolution");
+    if (userCanStatus == 'cancelled' || userCanStatus == 'rejected') {
+      log("[CAN] Status is $userCanStatus - requires Support resolution");
       if (isManualTrigger) {
         CustomSnackbar.warning(
           title: 'CAN Account Cancelled',

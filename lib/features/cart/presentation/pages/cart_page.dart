@@ -170,6 +170,11 @@ class CartPage extends GetView<CartController> {
 
     GatekeeperHelper.runWithPrerequisites(
       isLumpsum: isLumpsum,
+      onInvestAsLumpsum: isLumpsum
+          ? null
+          : () {
+              controller.checkoutLumpsum();
+            },
       onSuccess: () {
         if (isLumpsum) {
           controller.checkoutLumpsum();
