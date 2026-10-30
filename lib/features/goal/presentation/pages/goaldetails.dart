@@ -270,7 +270,15 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             )
           : (initialGoal ?? matchedGoal);
 
-      final String emoji = args?['emoji'] ?? '🎯';
+      final String effectiveType = (isCurrentGoalMatch && liveDetail.goalName.isNotEmpty)
+          ? liveDetail.goalName
+          : (goal?.goalType?.typeName ?? goal?.goalName ?? '');
+      final double liveProgress = isCurrentGoalMatch
+          ? liveDetail.progressPercent
+          : (goal?.progressPercent ?? 0.0);
+      final String emoji = (args?['emoji'] != null && args!['emoji'] != '🎯')
+          ? args['emoji']
+          : controller.getGoalEmoji(effectiveType, progressPercent: liveProgress);
       final double target = isCurrentGoalMatch && liveDetail.targetAmount > 0
           ? liveDetail.targetAmount
           : (args?['target'] ?? (goal?.targetAmount ?? 0.0));
@@ -1290,6 +1298,12 @@ class GoalOverviewCard extends StatelessWidget {
       final String effectiveGoalName = (isMatch && liveDetail.goalName.isNotEmpty)
           ? liveDetail.goalName
           : (goal?.goalName ?? '');
+      final String goalTypeKey = effectiveGoalType.isNotEmpty
+          ? effectiveGoalType
+          : effectiveGoalName;
+      final IconData dynamicGoalIcon = percentage >= 1.0
+          ? Icons.emoji_events_rounded
+          : controller.getGoalIcon(goalTypeKey);
       final Color rawColor = controller.getGoalColor(
         effectiveGoalType,
         goalName: effectiveGoalName,
@@ -1373,7 +1387,9 @@ class GoalOverviewCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              child: logo.isNotEmpty
+                              child: logo.isNotEmpty &&
+                                      (logo.startsWith('http') ||
+                                          logo.contains('/'))
                                   ? Image.network(
                                       logo.startsWith('http')
                                           ? logo
@@ -1384,13 +1400,13 @@ class GoalOverviewCard extends StatelessWidget {
                                       colorBlendMode: BlendMode.srcIn,
                                       fit: BoxFit.contain,
                                       errorBuilder: (_, __, ___) => Icon(
-                                        Icons.flag,
+                                        dynamicGoalIcon,
                                         color: progressColor,
                                         size: 26,
                                       ),
                                     )
                                   : Icon(
-                                      Icons.flag,
+                                      dynamicGoalIcon,
                                       color: progressColor,
                                       size: 26,
                                     ),

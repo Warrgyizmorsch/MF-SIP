@@ -122,7 +122,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          if (imageUrl.isNotEmpty)
+                          if (imageUrl.isNotEmpty && (imageUrl.startsWith('http') || imageUrl.contains('/')))
                             ColorFiltered(
                               colorFilter: ColorFilter.mode(
                                 Colors.grey.shade300,
@@ -134,14 +134,14 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                                   imageUrl,
                                   fit: BoxFit.contain,
                                   errorBuilder: (_, __, ___) => Icon(
-                                    Icons.flag,
+                                    controller.getGoalIcon(goalType.isNotEmpty ? goalType : goalName),
                                     size: 35,
                                     color: Colors.grey,
                                   ),
                                 ),
                               ),
                             ),
-                          if (imageUrl.isNotEmpty)
+                          if (imageUrl.isNotEmpty && (imageUrl.startsWith('http') || imageUrl.contains('/')))
                             ShaderMask(
                               blendMode: BlendMode.srcIn,
                               shaderCallback: (Rect bounds) => LinearGradient(
@@ -166,14 +166,16 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                                   imageUrl,
                                   fit: BoxFit.contain,
                                   errorBuilder: (_, __, ___) => Icon(
-                                    Icons.flag,
+                                    actualProgress >= 1.0
+                                        ? Icons.emoji_events_rounded
+                                        : controller.getGoalIcon(goalType.isNotEmpty ? goalType : goalName),
                                     size: 35,
                                     color: goalColor,
                                   ),
                                 ),
                               ),
                             ),
-                          if (imageUrl.isEmpty)
+                          if (imageUrl.isEmpty || (!imageUrl.startsWith('http') && !imageUrl.contains('/')))
                             Text(
                               emoji,
                               style: const TextStyle(

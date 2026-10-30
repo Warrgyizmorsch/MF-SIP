@@ -161,23 +161,40 @@ class GoalSipController extends GetxController {
     /// 5 - retirement
   };
   IconData getGoalIcon(String goalType) {
-    switch (goalType.toLowerCase()) {
-      case 'car':
-        return Icons.directions_car_rounded;
-      case 'house':
-      case 'home':
-        return Icons.home_rounded;
-      case 'education':
-        return Icons.school_rounded;
-      case 'marriage':
-        return Icons.favorite_rounded;
-      case 'retirement':
-        return Icons.elderly_rounded;
-      case 'vacation':
-        return Icons.flight_takeoff_rounded;
-      default:
-        return Icons.flag_rounded;
+    final lower = goalType.toLowerCase().trim();
+    if (lower.contains('car') || lower.contains('vehicle') || lower.contains('bike')) {
+      return Icons.directions_car_rounded;
+    } else if (lower.contains('house') || lower.contains('home') || lower.contains('flat') || lower.contains('property')) {
+      return Icons.home_rounded;
+    } else if (lower.contains('education') || lower.contains('school') || lower.contains('college') || lower.contains('study')) {
+      return Icons.school_rounded;
+    } else if (lower.contains('marriage') || lower.contains('wedding')) {
+      return Icons.favorite_rounded;
+    } else if (lower.contains('retirement') || lower.contains('pension') || lower.contains('elder')) {
+      return Icons.elderly_rounded;
+    } else if (lower.contains('vacation') || lower.contains('trip') || lower.contains('travel') || lower.contains('tour')) {
+      return Icons.flight_takeoff_rounded;
     }
+    return Icons.flag_rounded;
+  }
+
+  String getGoalEmoji(String goalType, {double progressPercent = 0.0}) {
+    if (progressPercent >= 100.0) return '🏆';
+    final lower = goalType.toLowerCase().trim();
+    if (lower.contains('car') || lower.contains('vehicle') || lower.contains('bike')) {
+      return '🚗';
+    } else if (lower.contains('house') || lower.contains('home') || lower.contains('flat') || lower.contains('property')) {
+      return '🏠';
+    } else if (lower.contains('education') || lower.contains('school') || lower.contains('college') || lower.contains('study')) {
+      return '🎓';
+    } else if (lower.contains('marriage') || lower.contains('wedding')) {
+      return '💍';
+    } else if (lower.contains('retirement') || lower.contains('pension') || lower.contains('elder')) {
+      return '🏖️';
+    } else if (lower.contains('vacation') || lower.contains('trip') || lower.contains('travel') || lower.contains('tour')) {
+      return '✈️';
+    }
+    return '🎯';
   }
 
   void handleHomeGoal(MasterGoalEntity goal) {
