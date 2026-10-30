@@ -131,3 +131,5 @@ docs/mfu/generated/FLUTTER_MFU_ONBOARDING_API_GUIDE.md
 docs/goal/Goal_API_Documentation.pdf
 assets/ui_ref/
 docs/FLUTTER_FIREBASE_PUSH_NOTIFICATIONS_INTEGRATION_GUIDE.md
+.wrangler/cache/pages.json
+.wrangler/cache/wrangler-account.json
