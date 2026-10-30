@@ -6,6 +6,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/app_notice_manager.dart';
 import 'package:my_sip/features/goal/presentation/bindings/goal_binding.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
+import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/firebase_services.dart';
@@ -19,6 +20,7 @@ class AppOpenAlertCoordinator {
   static const int notifIdMandate = 1005;
   static const int notifIdNominee = 1006;
   static const int notifIdGoal = 1007;
+  static const int notifIdGoalTopup = 1008;
 
   /// Evaluates the end-to-end investment prerequisite and onboarding waterfall on app open.
   /// Shows exactly ONE popup every time the app opens until that step is complete,
@@ -38,6 +40,7 @@ class AppOpenAlertCoordinator {
   /// Phase 4: Enhancements
   ///   6. Nominee Addition (Secures investor portfolio)
   ///   7. Financial Goals (Goal-based wealth creation)
+  ///   8. Goal Top-up / Accelerator (Once per day reminder to boost active goals)
   static Future<void> checkAndShowAlerts(BuildContext context) async {
     // 0. Only check for authenticated users
     final token = SessionManager.instance.getAccessToken;
@@ -350,6 +353,20 @@ class AppOpenAlertCoordinator {
 
     if (Get.isRegistered<GoalSipController>()) {
       final goalCtrl = Get.find<GoalSipController>();
+
+      // Wait for goals data to finish loading from server to prevent false "no goals" race conditions
+      if (goalCtrl.isLoadingGoals.value) {
+        try {
+          await goalCtrl.isLoadingGoals.stream
+              .firstWhere((loading) => !loading)
+              .timeout(const Duration(seconds: 4));
+        } catch (_) {}
+      } else if (goalCtrl.goalResponse.value == null) {
+        try {
+          await goalCtrl.getAllGoals().timeout(const Duration(seconds: 4));
+        } catch (_) {}
+      }
+
       final bool hasAnyCreatedGoal =
           goalCtrl.masterGoals.any((g) => g.isCreated);
       final bool hasUserGoals =
@@ -362,6 +379,9 @@ class AppOpenAlertCoordinator {
           condition: () {
             if (!Get.isRegistered<GoalSipController>()) return false;
             final gCtrl = Get.find<GoalSipController>();
+            if (gCtrl.isLoadingGoals.value || gCtrl.goalResponse.value == null) {
+              return false;
+            }
             return !gCtrl.masterGoals.any((g) => g.isCreated) &&
                 (gCtrl.goalResponse.value?.data ?? []).isEmpty;
           },
@@ -385,6 +405,89 @@ class AppOpenAlertCoordinator {
           },
         );
         if (shown) return;
+      }
+
+      // ── STEP 8: Goal Top-up / Accelerator (Once Per Day) ───────────────────
+      final activeGoals = goalCtrl.goalResponse.value?.data ?? [];
+      if (activeGoals.isNotEmpty) {
+        // Find the first goal where the user hasn't completed 100% of the target
+        final pendingGoal = activeGoals.firstWhereOrNull((g) {
+          final double target = g.targetAmount > 0
+              ? g.targetAmount
+              : ((double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ?? 0.0) > 0
+                  ? (double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ?? 0.0)
+                  : (g.monthlyInvestment > 0 ? g.monthlyInvestment * 12 : 50000.0));
+          final double invested = g.investedAmount > 0
+              ? g.investedAmount
+              : (target * (g.progressPercent / 100));
+          return target > 0 && invested < target;
+        });
+
+        debugPrint('[AppOpenAlertCoordinator] Step 8 check: activeGoals=${activeGoals.length}, pendingGoal=${pendingGoal?.goalName}');
+
+        if (pendingGoal != null) {
+          final double target = pendingGoal.targetAmount > 0
+              ? pendingGoal.targetAmount
+              : ((double.tryParse(pendingGoal.goalType?.targetAmount.toString() ?? '0') ?? 0.0) > 0
+                  ? (double.tryParse(pendingGoal.goalType?.targetAmount.toString() ?? '0') ?? 0.0)
+                  : (pendingGoal.monthlyInvestment > 0 ? pendingGoal.monthlyInvestment * 12 : 50000.0));
+          final double invested = pendingGoal.investedAmount > 0
+              ? pendingGoal.investedAmount
+              : (target * (pendingGoal.progressPercent / 100));
+          final double progress = (target > 0 ? (invested / target) : 0.0).clamp(0.0, 1.0);
+          final int progressPct = (progress * 100).toInt();
+          final String goalName = pendingGoal.goalName.isNotEmpty ? pendingGoal.goalName : 'Financial Goal';
+
+          final shown = await AppNoticeManager.showNoticeIfEligible(
+            noticeId: 'goal_topup_accelerator',
+            frequency: NoticeFrequency.oncePerDay,
+            condition: () {
+              if (!Get.isRegistered<GoalSipController>()) return false;
+              final gCtrl = Get.find<GoalSipController>();
+              final goals = gCtrl.goalResponse.value?.data ?? [];
+              return goals.any((g) {
+                final double t = g.targetAmount > 0
+                    ? g.targetAmount
+                    : ((double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ?? 0.0) > 0
+                        ? (double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ?? 0.0)
+                        : (g.monthlyInvestment > 0 ? g.monthlyInvestment * 12 : 50000.0));
+                final double inv = g.investedAmount > 0
+                    ? g.investedAmount
+                    : (t * (g.progressPercent / 100));
+                return t > 0 && inv < t;
+              });
+            },
+            title: 'Accelerate Your Goal! 🚀',
+            message:
+                'You have achieved $progressPct% of your "$goalName" (₹${invested.toInt()} of ₹${target.toInt()}). Add a top-up today to achieve your dream ahead of schedule!',
+            primaryButtonText: 'Add Investment',
+            secondaryButtonText: 'Remind Later',
+            icon: Icons.rocket_launch_rounded,
+            iconColor: Colors.deepPurpleAccent,
+            onPrimaryTap: () {
+              GoalDetailsPage.tempData = {
+                'goal': pendingGoal,
+                'target': target,
+                'invested': invested,
+                'logo': pendingGoal.goalCover.isNotEmpty
+                    ? pendingGoal.goalCover
+                    : (pendingGoal.goalType?.logo ?? ''),
+              };
+              Get.toNamed(AppRoutes.goaldetails);
+            },
+            onSecondaryTap: () {
+              notifService?.scheduleReminder(
+                id: notifIdGoalTopup,
+                title: 'Boost Your Goal: $goalName',
+                body: 'A quick top-up today brings you closer to your financial target.',
+                delay: const Duration(hours: 12),
+                targetRoute: AppRoutes.goaldetails,
+                extraData: {'goalId': pendingGoal.id.toString()},
+              );
+            },
+          );
+          if (shown) return;
+        }
       }
     }
   }

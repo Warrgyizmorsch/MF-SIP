@@ -13,6 +13,9 @@ import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart
 import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.dart';
 import 'package:flutter/material.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
+import 'package:my_sip/core/utils/helper/app_notice_manager.dart';
+import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:my_sip/services/firebase_services.dart';
 
@@ -718,6 +721,17 @@ class AuthController extends GetxController {
       Get.find<NotificationService>().deleteTokenOnLogout();
     }
     SessionManager.instance.clearSession();
+
+    // Reset popup session flags so a re-login gets a fresh alert cycle
+    AppNoticeManager.resetSession();
+
+    // Dispose cached user-specific controllers to prevent data leaks
+    if (Get.isRegistered<GoalSipController>()) {
+      Get.delete<GoalSipController>(force: true);
+    }
+    if (Get.isRegistered<PersonalisationController>()) {
+      Get.delete<PersonalisationController>(force: true);
+    }
 
     Get.offAllNamed(AppRoutes.login);
   }

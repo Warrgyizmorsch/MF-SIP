@@ -15,6 +15,22 @@ class AppNoticeManager {
   static final Set<String> _sessionHistory = {};
   static bool hasShownNoticeInCurrentSession = false;
 
+  /// Resets the in-memory session flags and clears stored notice dates (e.g. upon user logout).
+  static Future<void> resetSession() async {
+    _sessionHistory.clear();
+    hasShownNoticeInCurrentSession = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final keysToRemove = prefs
+          .getKeys()
+          .where((k) => k.startsWith('app_notice_'))
+          .toList();
+      for (final key in keysToRemove) {
+        await prefs.remove(key);
+      }
+    } catch (_) {}
+  }
+
   /// Evaluates frequency and conditions, and displays a Center Dialog Modal if eligible.
   /// Returns `true` if the dialog was presented, or `false` if skipped.
   static Future<bool> showNoticeIfEligible({
