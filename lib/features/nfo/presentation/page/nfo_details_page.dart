@@ -118,8 +118,25 @@ class NfoDetailsPage1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LaunchDataEntity nfoData =
-        Get.arguments as LaunchDataEntity? ?? const LaunchDataEntity();
+    // Get.arguments belongs to the current top route, which can be the purchase
+    // page while this page rebuilds underneath it. Read this route's data instead.
+    final arguments = ModalRoute.of(context)?.settings.arguments;
+    if (arguments is! LaunchDataEntity) {
+      return Scaffold(
+        backgroundColor: backgroundColor,
+        appBar: AppBar(title: const Text('NFO Detail')),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'NFO details are unavailable. Please open the fund again.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+    final nfoData = arguments;
 
     // 🚀 Check for Web/Desktop
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
