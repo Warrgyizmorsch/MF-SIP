@@ -339,99 +339,128 @@ class MutualFundController extends GetxController {
     try {
       if (isLoadMore) isMoreLoading.value = true;
 
-      // 2. Prepare Page Number
-      // final int pageToFetch = isLoadMore ? currentPage + 1 : 1;
+      // Minimum visible items on initial load to ensure the viewport is filled and scrollable
+      const int minInitialVisibleFunds = 12;
+      const int maxAutoFillPages = 5; // Safeguard against excessive requests
 
-      // 3. MERGE PARAMETERS (Page + Search + Filters)
-      final Map<String, dynamic> apiParams = {};
+      bool isFirstIteration = true;
+      bool keepFetching = true;
+      int autoFillCount = 0;
 
-      // apiParams['page'] = pageToFetch;
-      if (isLoadMore) {
-        apiParams['page'] = currentPage + 1;
+      while (keepFetching) {
+        autoFillCount++;
+
+        // 2. Prepare Page Number
+        final Map<String, dynamic> apiParams = {};
+
+        if (isLoadMore) {
+          apiParams['page'] = currentPage + 1;
+        } else if (!isFirstIteration) {
+          apiParams['page'] = currentPage + 1;
+        }
+
+        // Add Search if exists
+        if (_currentSearchQuery.isNotEmpty) {
+          apiParams['search'] = _currentSearchQuery;
+        }
+
+        // Add Filters if exist
+        apiParams.addAll(_currentFilters);
+
+        apiParams['sort_order'] ??= 'desc';
+
+        // 4. Search, Category & Risk Profile Logic:
+        // - If user is searching by text or selected 'All', remove scheme_category from parameters.
+        if (_currentSearchQuery.isNotEmpty ||
+            apiParams['scheme_category']?.toString().toLowerCase() == 'all') {
+          apiParams.remove('scheme_category');
+        }
+
+        // - Apply risk_type when no specific manual filters are active
+        final bool hasActiveFilters =
+            _currentSearchQuery.isNotEmpty || _currentFilters.isNotEmpty;
+        final riskType = dynamicRiskType;
+        if (riskType != null && !hasActiveFilters) {
+          apiParams['risk_type'] = riskType;
+        }
+
+        // 5. Call API
+        log("FETCH CTRL HASH: ${identityHashCode(this)} | PARAMS: $apiParams");
+        final result = await _getMutualFundListUsecases.call(apiParams);
+        log("FETCH CTRL HASH: ${identityHashCode(this)}");
+
+        if (!isLoadMore &&
+            fetchToken != null &&
+            fetchToken != _activeFetchToken) {
+          return;
+        }
+
+        bool hasError = false;
+
+        result.fold(
+          (success) {
+            final newData = success.data?.data ?? [];
+            final pagination = success.data?.pagination;
+
+            // Filter out purchase paused funds on default load; show all funds when searching
+            final List<MutualFundListEntity> displayData = _currentSearchQuery.isEmpty
+                ? newData.where((fund) => !fund.isPurchasePaused).toList()
+                : newData;
+
+            // Update Total Count UI
+            selectedFundCount.value = pagination?.total ?? 0;
+
+            if (isLoadMore || !isFirstIteration) {
+              // Append Mode (Pagination or auto-fill next pages)
+              searchFund.addAll(displayData);
+              searchFund.refresh();
+              currentPage++;
+            } else {
+              // Replace Mode (First page of New Search/Filter)
+              searchFund.assignAll(displayData);
+              searchFund.refresh();
+              currentPage = 1;
+              currentPopularIndex.value = 0;
+            }
+
+            // Update "Can Load More" flag
+            if (pagination != null) {
+              canLoadMore = pagination.hasMore ?? false;
+            } else {
+              canLoadMore = newData.isNotEmpty;
+            }
+
+            log(
+              "Fetched Page: $currentPage | Search: $_currentSearchQuery | Items: ${newData.length} | Display: ${displayData.length} | Total Shown: ${searchFund.length}",
+            );
+
+            // Determine if more pages should be fetched in default mode:
+            // In search mode (_currentSearchQuery.isNotEmpty), all funds are included, so no auto-fill is needed.
+            if (_currentSearchQuery.isEmpty && canLoadMore && autoFillCount < maxAutoFillPages) {
+              if (!isLoadMore && searchFund.length < minInitialVisibleFunds) {
+                // Initial load: keep fetching until we accumulate enough funds to fill the screen
+                keepFetching = true;
+              } else if (isLoadMore && displayData.isEmpty) {
+                // Load more: if the fetched page yielded 0 visible funds, fetch the next page
+                keepFetching = true;
+              } else {
+                keepFetching = false;
+              }
+            } else {
+              keepFetching = false;
+            }
+
+            isFirstIteration = false;
+          },
+          (error) {
+            hasError = true;
+            keepFetching = false;
+            errorMessage.value = error.message ?? "Failed to load data";
+          },
+        );
+
+        if (hasError) break;
       }
-
-      // Add Search if exists
-      if (_currentSearchQuery.isNotEmpty) {
-        apiParams['search'] = _currentSearchQuery;
-      }
-
-      // Add Filters if exist
-      apiParams.addAll(_currentFilters);
-
-      apiParams['sort_order'] ??= 'desc';
-
-      // 4. Search, Category & Risk Profile Logic:
-      // - If user is searching by text or selected 'All', remove scheme_category from parameters.
-      if (_currentSearchQuery.isNotEmpty ||
-          apiParams['scheme_category']?.toString().toLowerCase() == 'all') {
-        apiParams.remove('scheme_category');
-      }
-
-      // - Apply risk_type when no specific manual filters are active
-      final bool hasActiveFilters =
-          _currentSearchQuery.isNotEmpty || _currentFilters.isNotEmpty;
-      final riskType = dynamicRiskType;
-      if (riskType != null && !hasActiveFilters) {
-        apiParams['risk_type'] = riskType;
-      }
-
-      // 5. Call API
-      log("FETCH CTRL HASH: ${identityHashCode(this)} | PARAMS: $apiParams");
-      final result = await _getMutualFundListUsecases.call(apiParams);
-      log("FETCH CTRL HASH: ${identityHashCode(this)}");
-      if (!isLoadMore &&
-          fetchToken != null &&
-          fetchToken != _activeFetchToken) {
-        return;
-      }
-
-      result.fold(
-        (success) {
-          final newData = success.data?.data ?? [];
-          final pagination = success.data?.pagination;
-
-          // Filter out purchase paused funds on default load; show all funds when searching
-          final List<MutualFundListEntity> displayData = _currentSearchQuery.isEmpty
-              ? newData.where((fund) => !fund.isPurchasePaused).toList()
-              : newData;
-
-          // Update Total Count UI
-          selectedFundCount.value = pagination?.total ?? 0;
-
-          if (isLoadMore) {
-            // Append Mode (Pagination)
-            searchFund.addAll(displayData);
-            searchFund.refresh();
-
-            currentPage++;
-          } else {
-            // Replace Mode (New Search/Filter)
-            searchFund.assignAll(displayData);
-            searchFund.refresh();
-
-            currentPage = 1;
-            currentPopularIndex.value = 0;
-          }
-
-          // 5. Update "Can Load More" flag
-          if (pagination != null) {
-            canLoadMore = pagination.hasMore ?? false;
-          } else {
-            canLoadMore = newData.isNotEmpty;
-          }
-
-          log(
-            "Fetched Page: $currentPage | Search: $_currentSearchQuery | Items: ${newData.length}",
-          );
-          log("UI LIST COUNT: ${searchFund.length}");
-          log(
-            "FIRST FUND: ${searchFund.isNotEmpty ? searchFund.first.baseSchemeName : 'empty'}",
-          );
-        },
-        (error) {
-          errorMessage.value = error.message ?? "Failed to load data";
-        },
-      );
     } catch (e) {
       errorMessage.value = "Error: $e";
     } finally {

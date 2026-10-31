@@ -302,19 +302,31 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      body: isDesktop
-          ? WebExploreLayout(
-              scrollController: _scrollController,
-              searchFocus: _searchFocus,
-              sortController: sort,
-              sortItems: items,
-            )
-          : MobileExploreLayout(
-              scrollController: _scrollController,
-              searchFocus: _searchFocus,
-              sortController: sort,
-              sortItems: items,
-            ),
+      body: NotificationListener<ScrollMetricsNotification>(
+        onNotification: (notification) {
+          if (notification.metrics.maxScrollExtent <= 0 &&
+              controller.canLoadMore &&
+              !controller.isMoreLoading.value &&
+              !controller.isLoading.value &&
+              controller.searchFund.isNotEmpty) {
+            controller.fetchData(isLoadMore: true);
+          }
+          return false;
+        },
+        child: isDesktop
+            ? WebExploreLayout(
+                scrollController: _scrollController,
+                searchFocus: _searchFocus,
+                sortController: sort,
+                sortItems: items,
+              )
+            : MobileExploreLayout(
+                scrollController: _scrollController,
+                searchFocus: _searchFocus,
+                sortController: sort,
+                sortItems: items,
+              ),
+      ),
     );
   }
 }
@@ -461,6 +473,9 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                             }
 
                             if (controller.searchFund.isEmpty) {
+                              if (controller.canLoadMore || controller.isMoreLoading.value) {
+                                return _buildLoadingGrid(crossAxisCount);
+                              }
                               return _buildEmptyState();
                             }
 
@@ -3096,6 +3111,12 @@ class MobileExploreLayout extends StatelessWidget {
               );
             }
             if (controller.searchFund.isEmpty) {
+              if (controller.canLoadMore || controller.isMoreLoading.value) {
+                return const SliverFillRemaining(
+                  hasScrollBody: true,
+                  child: ShimmerListView(),
+                );
+              }
               return SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
