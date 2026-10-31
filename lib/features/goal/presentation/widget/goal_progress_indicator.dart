@@ -29,11 +29,13 @@ class GoalProgressIndicator extends StatelessWidget {
     this.fallbackIcon = Icons.flag_rounded,
     this.animateMarker = false,
     this.showPercentage = false,
+    this.compact = false,
     this.color = defaultColor,
     this.duration = const Duration(milliseconds: 500),
   });
 
   static const defaultColor = Color(0xFF213C73);
+  static const compactAspectRatio = 153 / 140;
   static const _startAngle = 3 * math.pi / 4;
   static const _sweepAngle = 3 * math.pi / 2;
   static const _center = Offset(88.5, 88.5);
@@ -45,6 +47,10 @@ class GoalProgressIndicator extends StatelessWidget {
   final IconData fallbackIcon;
   final bool animateMarker;
   final bool showPercentage;
+
+  /// Trim illustration margins for Home cards; labelled/moving-marker views
+  /// retain their full canvas.
+  final bool compact;
   final Color color;
   final Duration duration;
 
@@ -59,21 +65,24 @@ class GoalProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeProgress = progress.isFinite ? progress.clamp(0.0, 1.0) : 0.0;
-    final height = showPercentage ? 183.0 : 164.0;
+    final compactIllustration = compact && !showPercentage && !animateMarker;
+    final inset = compactIllustration ? 12.0 : 0.0;
+    final width = 177 - 2 * inset;
+    final height = (showPercentage ? 183.0 : 164.0) - 2 * inset;
     return Semantics(
       label: '${_percentage(safeProgress)} complete',
       child: ExcludeSemantics(
         child: AspectRatio(
-          aspectRatio: 177 / height,
+          aspectRatio: width / height,
           child: FittedBox(
             child: SizedBox(
-              width: 177,
+              width: width,
               height: height,
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: safeProgress),
                 duration: duration,
                 curve: Curves.easeOutCubic,
-                child: _buildImage(),
+                child: _buildImage(compactIllustration ? 51 : 43),
                 builder: (context, value, image) {
                   final angle = _startAngle + _sweepAngle * value;
                   final marker =
@@ -82,8 +91,8 @@ class GoalProgressIndicator extends StatelessWidget {
                   return Stack(
                     children: [
                       Positioned(
-                        left: 16,
-                        top: 16,
+                        left: 16 - inset,
+                        top: 16 - inset,
                         width: 145,
                         height: 145,
                         child: CustomPaint(
@@ -96,7 +105,9 @@ class GoalProgressIndicator extends StatelessWidget {
                                 color: Color(0xFFEDEDED),
                                 shape: BoxShape.circle,
                               ),
-                              padding: const EdgeInsets.all(14),
+                              padding: EdgeInsets.all(
+                                compactIllustration ? 10 : 14,
+                              ),
                               child: ShaderMask(
                                 blendMode: BlendMode.srcIn,
                                 shaderCallback: (bounds) => LinearGradient(
@@ -140,8 +151,8 @@ class GoalProgressIndicator extends StatelessWidget {
                         )
                       else
                         Positioned(
-                          left: 20,
-                          top: 120,
+                          left: 20 - inset,
+                          top: 120 - inset,
                           width: 34,
                           height: 29,
                           child: _buildEmoji(),
@@ -191,9 +202,9 @@ class GoalProgressIndicator extends StatelessWidget {
     ),
   );
 
-  Widget _buildImage() {
+  Widget _buildImage(double size) {
     final source = iconUrl?.trim() ?? '';
-    final fallback = Icon(fallbackIcon, size: 43, color: Colors.black);
+    final fallback = Icon(fallbackIcon, size: size, color: Colors.black);
     if (source.isEmpty) return fallback;
     final url = source.startsWith('http')
         ? source

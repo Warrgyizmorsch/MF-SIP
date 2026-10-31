@@ -37,7 +37,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
-import 'package:my_sip/features/goal/presentation/pages/goal.dart';
+import '../widgets/home_active_goals.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/sip_process/presentation/controllers/sip_process_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
@@ -234,6 +234,8 @@ class _WebDashboardLayout extends StatelessWidget {
         const SizedBox(height: 24),
         _buildExploreCategories(),
         const SizedBox(height: 24),
+        const HomeActiveGoalsSection(isDesktop: true),
+        const SizedBox(height: 24),
         _buildGoalsPanel(),
         const SizedBox(height: 24),
         _buildFinancialToolsPanel(),
@@ -271,6 +273,8 @@ class _WebDashboardLayout extends StatelessWidget {
         _buildInvestNowPanel(context),
         const SizedBox(height: 24),
         _buildRecentlyViewedPanel(),
+        const SizedBox(height: 24),
+        const HomeActiveGoalsSection(isDesktop: true),
         const SizedBox(height: 24),
         _buildGoalsPanel(),
         const SizedBox(height: 24),
@@ -3452,58 +3456,7 @@ class _MobileLayout extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. My Active Goals (shown if user has created goals)
-                  if (activeGoals.isNotEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                      child: USectionHeading(
-                        title: 'Your Active Goals',
-                        showActionButton: true,
-                        buttonTitle: 'View All',
-                        onPressed: () {
-                          if (Get.isRegistered<NavigationBarController>()) {
-                            Get.find<NavigationBarController>().changePage(3, isDesktop: false);
-                          } else {
-                            Get.toNamed(AppRoutes.goalScreen);
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      height: 222,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: activeGoals.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          final goal = activeGoals[index];
-                          final double target = goal.targetAmount > 0
-                              ? goal.targetAmount
-                              : (double.tryParse(goal.goalType?.targetAmount.toString() ?? '0') ?? 0.0);
-                          final double invested = goal.investedAmount > 0
-                              ? goal.investedAmount
-                              : (target * (goal.progressPercent / 100));
-                          final String name = goal.goalName.isNotEmpty
-                              ? goal.goalName
-                              : 'Goal ${index + 1}';
-                          return SizedBox(
-                            width: 177,
-                            child: MobileGoalCard(
-                              goalEntity: goal,
-                              goalName: name,
-                              targetAmount: target,
-                              investedAmount: invested,
-                              iconUrl: goal.goalCover.isNotEmpty
-                                  ? goal.goalCover
-                                  : (goal.goalType?.logo ?? ''),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                  const HomeActiveGoalsSection(),
 
                   // 2. Create Goal Section (Dynamic from master goals API)
                   Padding(
