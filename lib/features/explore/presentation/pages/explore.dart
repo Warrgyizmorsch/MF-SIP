@@ -20,6 +20,7 @@ import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/widget/webfilterpage.dart';
+import '../widget/explore_pagination.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
@@ -280,18 +281,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
         .toList(); // ['1Y Returns', '3Y Returns', '5Y Returns']
     _searchFocus = FocusNode();
     _scrollController = ScrollController();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
-        controller.fetchData(isLoadMore: true);
-      }
-    });
   }
 
   @override
   void dispose() {
     _searchFocus.dispose();
     _scrollController.dispose();
+    sort.dispose();
     super.dispose();
   }
 
@@ -302,17 +298,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      body: NotificationListener<ScrollMetricsNotification>(
-        onNotification: (notification) {
-          if (notification.metrics.maxScrollExtent <= 0 &&
-              controller.canLoadMore &&
-              !controller.isMoreLoading.value &&
-              !controller.isLoading.value &&
-              controller.searchFund.isNotEmpty) {
-            controller.fetchData(isLoadMore: true);
-          }
-          return false;
-        },
+      body: ExplorePaginationViewport(
+        controller: controller,
+        scrollController: _scrollController,
         child: isDesktop
             ? WebExploreLayout(
                 scrollController: _scrollController,
@@ -465,6 +453,23 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                         ),
 
                         const Gap(18),
+                        Obx(
+                          () => controller.isLoading.value || !controller.isSearchMode
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      controller.resultsCountLabel,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
 
                         Expanded(
                           child: Obx(() {
@@ -473,57 +478,69 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                             }
 
                             if (controller.searchFund.isEmpty) {
-                              if (controller.canLoadMore || controller.isMoreLoading.value) {
-                                return _buildLoadingGrid(crossAxisCount);
+                              if (controller.canLoadMore ||
+                                  controller.errorMessage.value.isNotEmpty ||
+                                  controller.isMoreLoading.value) {
+                                return Center(
+                                  child: ExplorePaginationFooter(
+                                    controller: controller,
+                                  ),
+                                );
                               }
                               return _buildEmptyState();
                             }
 
                             if (selectedView == WebFundViewType.list) {
-                              return ListView.builder(
-                                controller: widget.scrollController,
-                                padding: EdgeInsets.zero,
-                                itemCount: controller.searchFund.length,
-                                itemBuilder: (context, index) {
-                                  final fund = controller.searchFund[index];
+                              return _paginatedView(
+                                controller,
+                                ListView.builder(
+                                  controller: widget.scrollController,
+                                  padding: EdgeInsets.zero,
+                                  itemCount: controller.searchFund.length,
+                                  itemBuilder: (context, index) {
+                                    final fund = controller.searchFund[index];
 
-                                  return WebFundListCard(
-                                    entity: fund,
-                                    key: ValueKey(
-                                      '${fund.schemeCode}_${fund.baseSchemeName}',
-                                    ),
-                                  );
-                                },
+                                    return WebFundListCard(
+                                      entity: fund,
+                                      key: ValueKey(
+                                        '${fund.schemeCode}_${fund.baseSchemeName}',
+                                      ),
+                                    );
+                                  },
+                                ),
                               );
                             }
 
-                            return GridView.builder(
-                              controller: widget.scrollController,
-                              itemCount: controller.searchFund.length,
-                              padding: const EdgeInsets.only(
-                                bottom: 20,
-                                left: 8,
-                                right: 8,
-                                top: 8,
+                            return _paginatedView(
+                              controller,
+                              GridView.builder(
+                                controller: widget.scrollController,
+                                itemCount: controller.searchFund.length,
+                                padding: const EdgeInsets.only(
+                                  bottom: 20,
+                                  left: 8,
+                                  right: 8,
+                                  top: 8,
+                                ),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: crossAxisCount,
+                                      crossAxisSpacing: 16,
+                                      mainAxisSpacing: 16,
+                                      // mainAxisExtent: 170,
+                                      mainAxisExtent: 225,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final fund = controller.searchFund[index];
+                                  return ResponsiveFundCard(
+                                    key: ValueKey(
+                                      '${fund.schemeCode}_${fund.baseSchemeName}',
+                                    ),
+                                    entity: fund,
+                                    isMobile: crossAxisCount == 1,
+                                  );
+                                },
                               ),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: crossAxisCount,
-                                    crossAxisSpacing: 16,
-                                    mainAxisSpacing: 16,
-                                    // mainAxisExtent: 170,
-                                    mainAxisExtent: 225,
-                                  ),
-                              itemBuilder: (context, index) {
-                                final fund = controller.searchFund[index];
-                                return ResponsiveFundCard(
-                                  key: ValueKey(
-                                    '${fund.schemeCode}_${fund.baseSchemeName}',
-                                  ),
-                                  entity: fund,
-                                  isMobile: crossAxisCount == 1,
-                                );
-                              },
                             );
                           }),
                         ),
@@ -538,6 +555,13 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
       ],
     );
   }
+
+  Widget _paginatedView(MutualFundController controller, Widget list) => Column(
+    children: [
+      Expanded(child: list),
+      ExplorePaginationFooter(controller: controller),
+    ],
+  );
 
   Widget _listHeader() {
     return Container(
@@ -1131,7 +1155,7 @@ class WebFundListCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
             ],
-            if (entity.isPurchaseAllowed == false)
+            if (entity.isPurchasePaused)
               _purchasePausedBadge(fontSize: isLaptop ? 9.5 : 10)
             else
               _riskPill(
@@ -1493,7 +1517,7 @@ class WebFundListCard extends StatelessWidget {
     required double height,
     required bool isLaptop,
   }) {
-    final bool isPaused = entity.isPurchaseAllowed == false;
+    final bool isPaused = entity.isPurchasePaused;
 
     return SizedBox(
       width: width,
@@ -2646,7 +2670,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
     MutualFundListEntity entity,
     double Function(double) scale,
   ) {
-    final bool isPaused = entity.isPurchaseAllowed == false;
+    final bool isPaused = entity.isPurchasePaused;
 
     return SizedBox(
       height: scale(38),
@@ -2825,7 +2849,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
         Row(
           children: [
             Expanded(
-              child: entity.isPurchaseAllowed == false
+              child: entity.isPurchasePaused
                   ? _purchasePausedBadge(fontSize: 11, iconSize: 13)
                   : _riskChip(entity),
             ),
@@ -2913,9 +2937,7 @@ class MobileExploreLayout extends StatelessWidget {
   final TextEditingController sortController;
   final List<String> sortItems;
 
-  const 
-  
-  MobileExploreLayout({
+  const MobileExploreLayout({
     required this.scrollController,
     required this.searchFocus,
     required this.sortController,
@@ -3103,6 +3125,27 @@ class MobileExploreLayout extends StatelessWidget {
             ),
           ),
 
+          SliverToBoxAdapter(
+            child: Obx(
+              () => controller.isLoading.value ||
+                      !controller.isSearchMode ||
+                      controller.searchFund.isEmpty
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        controller.resultsCountLabel,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
           Obx(() {
             if (controller.isLoading.value) {
               return const SliverFillRemaining(
@@ -3111,10 +3154,14 @@ class MobileExploreLayout extends StatelessWidget {
               );
             }
             if (controller.searchFund.isEmpty) {
-              if (controller.canLoadMore || controller.isMoreLoading.value) {
-                return const SliverFillRemaining(
-                  hasScrollBody: true,
-                  child: ShimmerListView(),
+              if (controller.canLoadMore ||
+                  controller.errorMessage.value.isNotEmpty ||
+                  controller.isMoreLoading.value) {
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: ExplorePaginationFooter(controller: controller),
+                  ),
                 );
               }
               return SliverFillRemaining(
@@ -3134,26 +3181,13 @@ class MobileExploreLayout extends StatelessWidget {
               }, childCount: controller.searchFund.length),
             );
           }),
-          Obx(() {
-            if (controller.isMoreLoading.value) {
-              return const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Ucolors.primary,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
-            return const SliverToBoxAdapter(child: SizedBox.shrink());
-          }),
+          Obx(
+            () => SliverToBoxAdapter(
+              child: controller.searchFund.isEmpty
+                  ? const SizedBox.shrink()
+                  : ExplorePaginationFooter(controller: controller),
+            ),
+          ),
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ],
       ),
@@ -3293,7 +3327,7 @@ class MutualFundCard extends StatelessWidget {
                             ],
                           ),
                         )
-                      else if (entity.isPurchaseAllowed == false)
+                      else if (entity.isPurchasePaused)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
                           child: _purchasePausedBadge(),
@@ -3406,7 +3440,7 @@ class MutualFundCard extends StatelessWidget {
                         },
                         itemBuilder: (context) {
                           final bool canPurchase =
-                              entity.isPurchaseAllowed != false;
+                              entity.isPurchaseAllowed != false && !entity.isNfoClosed;
                           final bool canSip =
                               canPurchase && (entity.isSipAllowed != false);
                           final bool canLumpsum =
