@@ -9,11 +9,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
+import 'package:my_sip/features/goal/domain/entity/single_goal_detail_entity.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
 import 'package:my_sip/features/goal/presentation/widget/goal_card.dart';
+import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.dart';
+import 'package:my_sip/features/goal/presentation/widget/goal_progress_indicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 UserGoalEntity _goal(int index) => UserGoalEntity(
@@ -50,6 +53,8 @@ class _GoalController extends GetxController implements GoalSipController {
   );
   @override
   final isAddFund = true.obs;
+  @override
+  final currentGoalDetail = Rxn<SingleGoalDetailEntity>();
 
   bool resetCalled = false;
   bool masterLoaded = false;
@@ -58,6 +63,9 @@ class _GoalController extends GetxController implements GoalSipController {
   String getGoalEmoji(String goalType, {double progressPercent = 0}) => '🚗';
   @override
   IconData getGoalIcon(String goalType) => Icons.directions_car_rounded;
+  @override
+  Color getGoalColor(String goalType, {String? goalName}) =>
+      GoalCard.progressColor;
   @override
   Future<bool> getAllGoals() async => true;
   @override
@@ -246,6 +254,157 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('details indicator shows only percentage at narrow widths', (
+    tester,
+  ) async {
+    Get.put<GoalSipController>(_GoalController());
+    for (final width in [136.0, 224.0]) {
+      for (final progress in [0.0, 33.0, 100.0, 125.0]) {
+        await _pump(
+          tester,
+          Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: width,
+                child: CircularGoalIndicatorDetails(
+                  percentage: true,
+                  goalName: 'Car',
+                  goalType: 'car',
+                  targetAmount: 30000,
+                  investedAmount: 0,
+                  progressPercent: progress,
+                  emoji: '🚗',
+                  imageUrl: 'https://example.invalid/missing.png',
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(find.text('${progress.clamp(0, 100).toInt()}%'), findsOneWidget);
+        expect(find.text('Car'), findsNothing);
+        expect(find.byType(GoalCard), findsNothing);
+        expect(
+          find.byWidgetPredicate(
+            (widget) => widget is Text && (widget.data?.contains('₹') ?? false),
+          ),
+          findsNothing,
+        );
+        expect(find.byIcon(Icons.directions_car_rounded), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
+    }
+  });
+
+  testWidgets('details marker moves along the arc when progress changes', (
+    tester,
+  ) async {
+    final progress = ValueNotifier(0.0);
+    addTearDown(progress.dispose);
+    await _pump(
+      tester,
+      Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 224,
+            child: ValueListenableBuilder<double>(
+              valueListenable: progress,
+              builder: (_, value, _) => GoalProgressIndicator(
+                progress: value,
+                emoji: '🚗',
+                animateMarker: true,
+                showPercentage: true,
+                duration: const Duration(milliseconds: 1200),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final indicator = tester.getRect(find.byType(GoalProgressIndicator));
+    final start = tester.getCenter(find.text('🚗'));
+    expect(start.dx, lessThan(indicator.center.dx));
+
+    progress.value = 0.5;
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    final moving = tester.getCenter(find.text('🚗'));
+    expect(moving, isNot(start));
+    await tester.pumpAndSettle();
+    final halfway = tester.getCenter(find.text('🚗'));
+    expect(halfway.dx, closeTo(indicator.center.dx, 0.1));
+    expect(halfway.dy, lessThan(start.dy));
+    expect(find.text('50%'), findsOneWidget);
+
+    progress.value = 1;
+    await tester.pumpAndSettle();
+    final end = tester.getCenter(find.text('🚗'));
+    expect(end.dx, greaterThan(indicator.center.dx));
+    expect(end.dy, closeTo(start.dy, 0.1));
+    expect(find.text('100%'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('web details indicator follows live goal updates', (
+    tester,
+  ) async {
+    final controller = _GoalController();
+    Get.put<GoalSipController>(controller);
+    SingleGoalDetailEntity detail(double progress) => SingleGoalDetailEntity(
+      id: 1,
+      goalName: 'Car',
+      goalCover: '',
+      status: 'active',
+      progressPercent: progress,
+      savedAmount: 30000 * progress / 100,
+      remainingAmount: 30000 * (1 - progress / 100),
+      targetAmount: 30000,
+      estYear: 2030,
+      deadlineLabel: 'Deadline (Est. Year 2030)',
+      dailySavings: 10,
+      weeklySavings: 70,
+      monthlySavings: 300,
+      goalTenure: 48,
+      linkedFunds: const [],
+    );
+    controller.currentGoalDetail.value = detail(25);
+    await _pump(
+      tester,
+      Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 900,
+            child: GoalOverviewCard(
+              goal: _goal(1),
+              target: 30000,
+              invested: 0,
+              emoji: '🚗',
+              logo: '',
+              controller: controller,
+            ),
+          ),
+        ),
+      ),
+      size: const Size(1280, 900),
+    );
+    expect(
+      find.descendant(
+        of: find.byType(GoalProgressIndicator),
+        matching: find.text('25%'),
+      ),
+      findsOneWidget,
+    );
+    controller.currentGoalDetail.value = detail(75);
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(GoalProgressIndicator),
+        matching: find.text('75%'),
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   for (final width in [320.0, 390.0, 600.0]) {
     testWidgets('mobile grid and create action fit at width $width', (
       tester,
@@ -316,7 +475,9 @@ void main() {
     });
   }
 
-  testWidgets('reference preview renders all seven goals', (tester) async {
+  testWidgets('card and details previews render their progress states', (
+    tester,
+  ) async {
     final loader = FontLoader('Inter')
       ..addFont(
         rootBundle.load('assets/fonts/Inter/static/Inter_18pt-Regular.ttf'),
@@ -354,6 +515,65 @@ void main() {
         final image = await boundary.toImage(pixelRatio: 2);
         final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
         await File(output).writeAsBytes(bytes!.buffer.asUint8List());
+        image.dispose();
+      });
+    }
+
+    const detailsKey = ValueKey('details-preview');
+    await _pump(
+      tester,
+      RepaintBoundary(
+        key: detailsKey,
+        child: Scaffold(
+          backgroundColor: GoalCard.backgroundColor,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Goal Details',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  color: GoalCard.progressColor,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  for (final value in [0.0, 0.5, 1.0])
+                    SizedBox(
+                      width: 240,
+                      child: GoalProgressIndicator(
+                        progress: value,
+                        showPercentage: true,
+                        animateMarker: true,
+                        fallbackIcon: Icons.directions_car_rounded,
+                        emoji: '🚗',
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      size: const Size(1024, 440),
+    );
+    expect(find.text('0%'), findsOneWidget);
+    expect(find.text('50%'), findsOneWidget);
+    expect(find.text('100%'), findsOneWidget);
+    expect(find.byType(GoalCard), findsNothing);
+    expect(tester.takeException(), isNull);
+    const detailsOutput = String.fromEnvironment('GOAL_DETAILS_PREVIEW');
+    if (detailsOutput.isNotEmpty) {
+      final boundary = tester.renderObject<RenderRepaintBoundary>(
+        find.byKey(detailsKey),
+      );
+      await tester.runAsync(() async {
+        final image = await boundary.toImage(pixelRatio: 2);
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        await File(detailsOutput).writeAsBytes(bytes!.buffer.asUint8List());
         image.dispose();
       });
     }

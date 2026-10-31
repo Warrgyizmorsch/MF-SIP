@@ -1298,12 +1298,6 @@ class GoalOverviewCard extends StatelessWidget {
       final String effectiveGoalName = (isMatch && liveDetail.goalName.isNotEmpty)
           ? liveDetail.goalName
           : (goal?.goalName ?? '');
-      final String goalTypeKey = effectiveGoalType.isNotEmpty
-          ? effectiveGoalType
-          : effectiveGoalName;
-      final IconData dynamicGoalIcon = percentage >= 1.0
-          ? Icons.emoji_events_rounded
-          : controller.getGoalIcon(goalTypeKey);
       final Color rawColor = controller.getGoalColor(
         effectiveGoalType,
         goalName: effectiveGoalName,
@@ -1340,137 +1334,17 @@ class GoalOverviewCard extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 3,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.center,
-                        children: [
-                          TweenAnimationBuilder<double>(
-                            tween: Tween<double>(begin: 0.0, end: percentage),
-                            duration: const Duration(milliseconds: 1200),
-                            curve: Curves.fastOutSlowIn,
-                            builder: (context, animatedPercentage, child) {
-                              return Transform.rotate(
-                                angle: -math.pi * 0.75,
-                                child: SizedBox(
-                                  width: 120,
-                                  height: 120,
-                                  child: CircularProgressIndicator(
-                                    value: animatedPercentage,
-                                    strokeWidth: 8,
-                                    backgroundColor: const Color(0xFFEAEAEA),
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      progressColor,
-                                    ),
-                                    strokeCap: StrokeCap.round,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-
-                          Positioned(
-                            top: 35,
-                            child: Container(
-                              width: 55,
-                              height: 55,
-                              padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 8,
-                                    color: Colors.black12,
-                                  ),
-                                ],
-                              ),
-                              child: logo.isNotEmpty &&
-                                      (logo.startsWith('http') ||
-                                          logo.contains('/'))
-                                  ? Image.network(
-                                      logo.startsWith('http')
-                                          ? logo
-                                          : '${Appurl.baseUrl}/$logo',
-                                      width: 40,
-                                      height: 40,
-                                      color: progressColor,
-                                      colorBlendMode: BlendMode.srcIn,
-                                      fit: BoxFit.contain,
-                                      errorBuilder: (_, __, ___) => Icon(
-                                        dynamicGoalIcon,
-                                        color: progressColor,
-                                        size: 26,
-                                      ),
-                                    )
-                                  : Icon(
-                                      dynamicGoalIcon,
-                                      color: progressColor,
-                                      size: 26,
-                                    ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // 3. Bottom Label Text System
-                      Transform.translate(
-                        offset: const Offset(0, -18),
-                        child: Container(
-                          color: Ucolors.white,
-                          padding: const EdgeInsets.all(4),
-                          child: Column(
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: rawPercent <= 0
-                                          ? '0'
-                                          : (rawPercent < 1
-                                                ? rawPercent.toStringAsFixed(2)
-                                                : (rawPercent < 10
-                                                      ? rawPercent
-                                                            .toStringAsFixed(1)
-                                                      : rawPercent
-                                                            .round()
-                                                            .toString())),
-                                      style: TextStyle(
-                                        color: progressColor,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '%',
-                                      style: TextStyle(
-                                        color: progressColor,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              const Text(
-                                'of goal achieved',
-                                style: TextStyle(
-                                  color: Color(0xFF666666),
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: FontFamily.regular,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: CircularGoalIndicatorDetails(
+                    percentage: true,
+                    goalName: effectiveGoalName,
+                    goalType: effectiveGoalType,
+                    targetAmount: liveTarget,
+                    investedAmount: liveSaved,
+                    progressPercent: rawPercent,
+                    emoji: emoji,
+                    imageUrl: isMatch && liveDetail.goalCover.isNotEmpty
+                        ? liveDetail.goalCover
+                        : logo,
                   ),
                 ),
                 const SizedBox(width: 24),
