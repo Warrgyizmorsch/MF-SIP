@@ -50,8 +50,6 @@ class _Goals extends GetxController implements GoalSipController {
   final goalResponse = Rxn<GoalResponseEntity>();
   List<UserGoalEntity>? nextGoals;
   int refreshCalls = 0;
-  int masterCalls = 0;
-  bool resetCalled = false;
 
   void setGoals(List<UserGoalEntity> goals) => goalResponse.value =
       GoalResponseEntity(success: true, message: '', data: goals);
@@ -66,14 +64,6 @@ class _Goals extends GetxController implements GoalSipController {
     return true;
   }
 
-  @override
-  Future<bool> getMasterGoals() async {
-    masterCalls++;
-    return true;
-  }
-
-  @override
-  void resetStateForNewGoal() => resetCalled = true;
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -276,37 +266,46 @@ void main() {
     });
   }
 
-  testWidgets('empty state starts creation and refreshes when it returns', (
-    tester,
-  ) async {
-    final goals = _Goals([])..nextGoals = [_goal()];
-    await _pump(tester, goals, scale: 2, width: 320);
-    expect(find.text('View All'), findsNothing);
-    await tester.tap(find.text('Create your first goal'));
-    await tester.pumpAndSettle();
-    expect(goals.resetCalled, isTrue);
-    expect(goals.masterCalls, 1);
-    expect(find.text('Create goal destination'), findsOneWidget);
-    Get.back();
-    await tester.pumpAndSettle();
-    expect(find.byType(HomeActiveGoalCard), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+  for (final desktop in [false, true]) {
+    testWidgets(
+      'section collapses without goals and reacts to creation/deletion, desktop=$desktop',
+      (tester) async {
+        final goals = _Goals([]);
+        await _pump(tester, goals, desktop: desktop);
+        final section = find.byType(HomeActiveGoalsSection);
 
-  testWidgets('loading shows a placeholder instead of the empty-state action', (
-    tester,
-  ) async {
-    final semantics = tester.ensureSemantics();
-    final goals = _Goals([])..isLoadingGoals.value = true;
-    await _pump(tester, goals);
-    expect(find.bySemanticsLabel('Loading active goals'), findsOneWidget);
-    expect(find.text('Create your first goal'), findsNothing);
-    goals.setGoals([_goal()]);
-    goals.isLoadingGoals.value = false;
-    await tester.pumpAndSettle();
-    expect(find.byType(HomeActiveGoalCard), findsOneWidget);
-    semantics.dispose();
-  });
+        void expectHidden() {
+          expect(find.text('Your Active Goals'), findsNothing);
+          expect(find.text('View All'), findsNothing);
+          expect(find.text('Create your first goal'), findsNothing);
+          expect(find.byType(HomeActiveGoalCard), findsNothing);
+          expect(tester.getSize(section).height, 0);
+        }
+
+        expectHidden();
+        goals.isLoadingGoals.value = true;
+        await tester.pumpAndSettle();
+        expectHidden();
+
+        goals.setGoals([_goal()]);
+        goals.isLoadingGoals.value = false;
+        await tester.pumpAndSettle();
+        expect(find.text('Your Active Goals'), findsOneWidget);
+        expect(find.text('View All'), findsOneWidget);
+        expect(find.byType(HomeActiveGoalCard), findsOneWidget);
+
+        goals.isLoadingGoals.value = true;
+        await tester.pumpAndSettle();
+        expect(find.byType(HomeActiveGoalCard), findsOneWidget);
+
+        goals.setGoals([]);
+        goals.isLoadingGoals.value = false;
+        await tester.pumpAndSettle();
+        expectHidden();
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('desktop uses a grid of compact cards', (tester) async {
     await _pump(

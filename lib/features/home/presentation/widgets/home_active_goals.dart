@@ -46,17 +46,6 @@ class HomeActiveGoalsSection extends StatelessWidget {
     }
   }
 
-  Future<void> _createGoal(GoalSipController controller) async {
-    controller.resetStateForNewGoal();
-    await controller.getMasterGoals();
-    if (controller.isClosed) return;
-    await Get.toNamed(
-      isDesktop ? AppRoutes.webMasterGoalsPage : AppRoutes.masterGoalsPage,
-      id: isDesktop ? 1 : null,
-    );
-    if (!controller.isClosed) await controller.getAllGoals();
-  }
-
   HomeActiveGoalCard _card(GoalSipController controller, UserGoalEntity goal) {
     final type = '${goal.goalType?.typeName ?? ''} ${goal.goalName}';
     final bike = type.toLowerCase().contains('bike');
@@ -79,7 +68,7 @@ class HomeActiveGoalsSection extends StatelessWidget {
     return Obx(() {
       final goals =
           controller.goalResponse.value?.data ?? const <UserGoalEntity>[];
-      final loading = controller.isLoadingGoals.value && goals.isEmpty;
+      if (goals.isEmpty) return const SizedBox.shrink();
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -100,130 +89,77 @@ class HomeActiveGoalsSection extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (goals.isNotEmpty)
-                    TextButton(
-                      onPressed: _viewAll,
-                      child: const Text(
-                        'View All',
-                        style: TextStyle(
-                          fontFamily: FontFamily.medium,
-                          fontSize: 13,
-                          color: Ucolors.primary,
-                        ),
+                  TextButton(
+                    onPressed: _viewAll,
+                    child: const Text(
+                      'View All',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 13,
+                        color: Ucolors.primary,
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          if (loading)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: inset),
-              child: const _ActiveGoalPlaceholder(),
-            )
-          else if (goals.isEmpty)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: inset),
-              child: Material(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFFE2E8F0)),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () => _createGoal(controller),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 116),
-                    child: const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.flag_rounded,
-                            color: GoalProgressIndicator.defaultColor,
-                            size: 36,
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              'Create your first goal',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Icon(Icons.chevron_right, color: Ucolors.primary),
-                        ],
+          // const SizedBox(height: 8),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth - 2 * inset;
+              if (isDesktop) {
+                final columns = ((width + 12) / 332).floor().clamp(1, 3);
+                final cardWidth = (width - (columns - 1) * 12) / columns;
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    for (final goal in goals)
+                      SizedBox(
+                        width: cardWidth,
+                        child: _card(controller, goal),
                       ),
-                    ),
-                  ),
+                  ],
+                );
+              }
+              if (goals.length == 1) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: inset, vertical: 8),
+                  child: _card(controller, goals.single),
+                );
+              }
+              final cardWidth = math.min(400.0, width - 20);
+              final height = goals.fold<double>(
+                128,
+                (height, goal) => math.max(
+                  height,
+                  HomeActiveGoalCard.heightFor(context, goal, cardWidth),
                 ),
-              ),
-            )
-          else
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final width = constraints.maxWidth - 2 * inset;
-                if (isDesktop) {
-                  final columns = ((width + 12) / 332).floor().clamp(1, 3);
-                  final cardWidth = (width - (columns - 1) * 12) / columns;
-                  return Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
-                      for (final goal in goals)
-                        SizedBox(
-                          width: cardWidth,
-                          child: _card(controller, goal),
-                        ),
-                    ],
-                  );
-                }
-                if (goals.length == 1) {
-                  return Padding(
+              );
+              return ClipRect(
+                clipper: const _CarouselShadowClipper(),
+                child: SizedBox(
+                  height: height + 16,
+                  child: ListView.separated(
+                    clipBehavior: Clip.none,
+                    scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.symmetric(
                       horizontal: inset,
                       vertical: 8,
                     ),
-                    child: _card(controller, goals.single),
-                  );
-                }
-                final cardWidth = math.min(400.0, width - 20);
-                final height = goals.fold<double>(
-                  128,
-                  (height, goal) => math.max(
-                    height,
-                    HomeActiveGoalCard.heightFor(context, goal, cardWidth),
-                  ),
-                );
-                return ClipRect(
-                  clipper: const _CarouselShadowClipper(),
-                  child: SizedBox(
-                    height: height + 16,
-                    child: ListView.separated(
-                      clipBehavior: Clip.none,
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: inset,
-                        vertical: 8,
-                      ),
-                      itemCount: goals.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 12),
-                      itemBuilder: (_, index) => SizedBox(
-                        width: cardWidth,
-                        child: _card(controller, goals[index]),
-                      ),
+                    itemCount: goals.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 12),
+                    itemBuilder: (_, index) => SizedBox(
+                      width: cardWidth,
+                      child: _card(controller, goals[index]),
                     ),
                   ),
-                );
-              },
-            ),
-          SizedBox(height: isDesktop ? 0 : 16),
+                ),
+              );
+            },
+          ),
+          SizedBox(height: isDesktop ? 24 : 16),
         ],
       );
     });
@@ -461,48 +397,4 @@ class _GoalSummary {
   String get amounts =>
       '₹${_format.format(saved)} of ₹${_format.format(target)}';
   String get percentage => '${(progress * 100).toStringAsFixed(0)}% complete';
-}
-
-class _ActiveGoalPlaceholder extends StatelessWidget {
-  const _ActiveGoalPlaceholder();
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    label: 'Loading active goals',
-    child: Container(
-      height: 128,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(radius: 36, backgroundColor: Color(0xFFEDEDED)),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 14,
-                  width: 90,
-                  color: const Color(0xFFEDEDED),
-                ),
-                const SizedBox(height: 10),
-                Container(height: 10, color: const Color(0xFFF3F4F6)),
-                const SizedBox(height: 10),
-                Container(
-                  height: 10,
-                  width: 70,
-                  color: const Color(0xFFF3F4F6),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
 }
