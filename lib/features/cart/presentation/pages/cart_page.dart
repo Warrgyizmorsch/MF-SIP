@@ -20,6 +20,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
@@ -2353,8 +2354,12 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
               const SizedBox(width: 12),
 
               /// 2. SIP Date Dropdown
-              if (currentType != 'lumpsum')
-                Expanded(
+              if (currentType != 'lumpsum') () {
+                final allowedDates = parseAllowedSipDates(widget.itemEntity.allowedSipDates);
+                final currentDay = widget.itemEntity.sipDay ?? (allowedDates.contains(1) ? 1 : allowedDates.first);
+                final dropdownVal = allowedDates.contains(currentDay) ? '$currentDay' : '${allowedDates.first}';
+
+                return Expanded(
                   flex: 2,
                   child: _buildColumn(
                     'SIP Date',
@@ -2362,22 +2367,21 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                       menuMaxHeight: 300,
                       dropdownColor: Colors.white,
                       isDense: true,
-                      value: (widget.itemEntity.sipDay ?? 1).toString(),
+                      value: dropdownVal,
                       isExpanded: true,
                       underline: const SizedBox(),
-                      items: List.generate(
-                        28,
-                        (i) => DropdownMenuItem(
-                          value: '${i + 1}',
+                      items: allowedDates.map(
+                        (day) => DropdownMenuItem(
+                          value: '$day',
                           child: Text(
-                            '${i + 1}',
+                            '$day',
                             style: const TextStyle(
                               fontFamily: FontFamily.medium,
                               fontSize: 12,
                             ),
                           ),
                         ),
-                      ),
+                      ).toList(),
                       onChanged: (val) {
                         if (val != null) {
                           controller.updateCartItem(
@@ -2389,7 +2393,8 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                       },
                     ),
                   ),
-                ),
+                );
+              }(),
 
               const SizedBox(width: 12),
 

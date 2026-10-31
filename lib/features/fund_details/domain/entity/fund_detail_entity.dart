@@ -38,6 +38,7 @@ class FundDetailEntity extends Equatable {
   final double minimumInvestment;
   final int sipMinimumAmount;
   final double minimumTopup;
+  final String allowedSipDates;
 
   final double schemeAssets;
   final String schemeAssetDate;
@@ -87,6 +88,7 @@ class FundDetailEntity extends Equatable {
     required this.minimumInvestment,
     required this.sipMinimumAmount,
     required this.minimumTopup,
+    this.allowedSipDates = '',
     required this.schemeAssets,
     required this.schemeAssetDate,
     required this.isDividendScheme,
@@ -233,6 +235,7 @@ extension FundDetailModelX on FundDetailModel {
       minimumInvestment: minimumInvestment ?? 0.0,
       sipMinimumAmount: sipMinimumAmount ?? 0,
       minimumTopup: minimumTopup ?? 0.0,
+      allowedSipDates: allowedSipDates ?? '',
       schemeAssets: schemeAssets ?? 0.0,
       schemeAssetDate: schemeAssetDate ?? '',
       isDividendScheme: isDividendScheme ?? false,

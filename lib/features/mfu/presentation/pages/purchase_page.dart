@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -576,6 +576,7 @@ class SipPurchaseArgs {
   final SipFrequency? initialFrequency;
   final int? initialSipDay;
   final int? initialWeekDay;
+  final List<int>? allowedSipDates;
 
   const SipPurchaseArgs({
     required this.schemeCode,
@@ -594,6 +595,7 @@ class SipPurchaseArgs {
     this.initialFrequency,
     this.initialSipDay,
     this.initialWeekDay,
+    this.allowedSipDates,
   });
 }
 
@@ -1339,19 +1341,29 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
 
   Future<void> _pickSipDate() async {
     final now = DateTime.now();
+    final allowedDates = _c.sipArgs.value.allowedSipDates ??
+        List.generate(28, (i) => i + 1);
+    debugPrint("[SIPPurchasePage] Active allowed SIP dates for ${_c.sipArgs.value.schemeCode}: $allowedDates");
     final currentDay = _c.sipDay.value;
-    final initialDate = DateTime(
-      now.year,
-      now.month,
-      currentDay > 28 ? 28 : currentDay,
-    );
+    final validCurrentDay = allowedDates.contains(currentDay)
+        ? currentDay
+        : (allowedDates.isNotEmpty ? allowedDates.first : 1);
+
+    DateTime initialDate = DateTime(now.year, now.month, validCurrentDay);
+    if (initialDate.isBefore(now) || !allowedDates.contains(initialDate.day)) {
+      DateTime candidate = now;
+      while (!allowedDates.contains(candidate.day)) {
+        candidate = candidate.add(const Duration(days: 1));
+      }
+      initialDate = candidate;
+    }
 
     final picked = await showDatePicker(
       context: context,
-      initialDate: initialDate.isBefore(now) ? now : initialDate,
+      initialDate: initialDate,
       firstDate: now,
       lastDate: DateTime(now.year + 2),
-      selectableDayPredicate: (d) => d.day <= 28,
+      selectableDayPredicate: (d) => allowedDates.contains(d.day),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
           colorScheme: const ColorScheme.light(

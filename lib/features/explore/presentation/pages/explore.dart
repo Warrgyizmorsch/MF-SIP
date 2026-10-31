@@ -173,6 +173,7 @@ extension MutualFundListEntityPurchaseX on MutualFundListEntity {
       divoption: divoption,
       initialInvType: initialInvType ??
           ((isSipAllowed == true) ? InvType.sip : InvType.lumpsum),
+      allowedSipDates: parseAllowedSipDates(allowedSipDates),
     );
   }
 }
@@ -1650,6 +1651,7 @@ class WebFundListCard extends StatelessWidget {
           'is_purchase_allowed': entity.isPurchaseAllowed,
           'is_sip_allowed': entity.isSipAllowed,
           'is_lumpsum_allowed': entity.isLumpsumAllowed,
+          'allowed_sip_dates': entity.allowedSipDates,
             'rta_amc_code': entity.rtaAmcCode,
             'amc_name': entity.amc?.amcName,
         },
@@ -1669,6 +1671,7 @@ class WebFundListCard extends StatelessWidget {
             'is_purchase_allowed': entity.isPurchaseAllowed,
             'is_sip_allowed': entity.isSipAllowed,
             'is_lumpsum_allowed': entity.isLumpsumAllowed,
+            'allowed_sip_dates': entity.allowedSipDates,
             'rta_amc_code': entity.rtaAmcCode,
             'amc_name': entity.amc?.amcName,
           };
@@ -1690,6 +1693,7 @@ class WebFundListCard extends StatelessWidget {
         'is_purchase_allowed': entity.isPurchaseAllowed,
         'is_sip_allowed': entity.isSipAllowed,
         'is_lumpsum_allowed': entity.isLumpsumAllowed,
+        'allowed_sip_dates': entity.allowedSipDates,
             'rta_amc_code': entity.rtaAmcCode,
             'amc_name': entity.amc?.amcName,
       };
@@ -2714,6 +2718,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                       folio: null,
                       imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}' ?? "",
                       divoption: entity.divoption,
+                      allowedSipDates: parseAllowedSipDates(entity.allowedSipDates),
                     );
 
                     SIPPurchasePage.tempData = purchaseArgs;
@@ -3234,22 +3239,27 @@ class MutualFundCard extends StatelessWidget {
             }
             // mutualFundController.addToRecentlyViewed(entity);
             mutualFundController.addToLocalRecentlyViewed(entity);
+            if (Get.isRegistered<FundDetailsController>()) {
+              Get.delete<FundDetailsController>();
+            }
+            FundDetailsScreen.navData = {
+              'scheme': entity.baseSchemeName,
+              'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+              'scheme_code': entity.schemeCode.toString(),
+              'isin': entity.isin ?? entity.baseSchemeName ?? '',
+              'email': entity.amc?.email,
+              'address': entity.amc?.address,
+              'contact': entity.amc?.contact,
+              'is_purchase_allowed': entity.isPurchaseAllowed,
+              'is_sip_allowed': entity.isSipAllowed,
+              'is_lumpsum_allowed': entity.isLumpsumAllowed,
+              'allowed_sip_dates': entity.allowedSipDates,
+              'rta_amc_code': entity.rtaAmcCode,
+              'amc_name': entity.amc?.amcName,
+            };
             Get.toNamed(
               AppRoutes.funddetails,
-              arguments: {
-                'scheme': entity.baseSchemeName,
-                'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-                'scheme_code': entity.schemeCode.toString(),
-                'isin': entity.isin ?? entity.baseSchemeName ?? '',
-                'email': entity.amc?.email,
-                'address': entity.amc?.address,
-                'contact': entity.amc?.contact,
-                'is_purchase_allowed': entity.isPurchaseAllowed,
-                'is_sip_allowed': entity.isSipAllowed,
-                'is_lumpsum_allowed': entity.isLumpsumAllowed,
-            'rta_amc_code': entity.rtaAmcCode,
-            'amc_name': entity.amc?.amcName,
-              },
+              arguments: FundDetailsScreen.navData,
             );
           },
       child: Container(
@@ -3430,6 +3440,8 @@ class MutualFundCard extends StatelessWidget {
                                   'is_sip_allowed': entity.isSipAllowed,
                                   'is_lumpsum_allowed':
                                       entity.isLumpsumAllowed,
+                                  'allowed_sip_dates':
+                                      entity.allowedSipDates,
                                 },
                               );
                               mutualFundController.addToLocalRecentlyViewed(

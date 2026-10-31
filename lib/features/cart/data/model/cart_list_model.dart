@@ -134,6 +134,7 @@ class CartItemModel {
   final bool? isPurchaseAllowed;
   final bool? isSipAllowed;
   final bool? isLumpsumAllowed;
+  final String? allowedSipDates;
 
   //
   // Added Goal Specific Fields
@@ -171,6 +172,7 @@ class CartItemModel {
     this.isPurchaseAllowed,
     this.isSipAllowed,
     this.isLumpsumAllowed,
+    this.allowedSipDates,
 
     //this.goalName,
     this.goalId,
@@ -221,6 +223,8 @@ class CartItemModel {
               ? json['is_lumpsum_allowed'] as bool
               : json['is_lumpsum_allowed'].toString() == 'true' || json['is_lumpsum_allowed'].toString() == '1')
           : null,
+      allowedSipDates: json.parse<String>('allowed_sip_dates') ??
+          json.parse<String>('allowed_dates'),
       //
       // Added Goal Mappings
       // goalId: json.parse<int>('goal_id'), // Added mapping

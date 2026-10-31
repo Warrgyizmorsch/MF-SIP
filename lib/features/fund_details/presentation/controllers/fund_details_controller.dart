@@ -39,6 +39,7 @@ class FundDetailsController extends GetxController
   final isPurchaseAllowed = true.obs;
   final isSipAllowed = true.obs;
   final isLumpsumAllowed = true.obs;
+  final allowedSipDates = ''.obs;
 
   // Controllers
   late TabController tabController;
@@ -180,6 +181,12 @@ class FundDetailsController extends GetxController
         navArgs['is_lumpsum_allowed'] ?? getArgs['is_lumpsum_allowed'];
     if (lumpsumAllowedVal != null) {
       isLumpsumAllowed.value = lumpsumAllowedVal != false;
+    }
+
+    final allowedSipDatesVal =
+        navArgs['allowed_sip_dates'] ?? getArgs['allowed_sip_dates'];
+    if (allowedSipDatesVal != null && allowedSipDatesVal.toString().isNotEmpty) {
+      allowedSipDates.value = allowedSipDatesVal.toString();
     }
 
     FundDetailsScreen.navData = null;
@@ -344,6 +351,11 @@ class FundDetailsController extends GetxController
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments is Map ? Get.arguments as Map : FundDetailsScreen.navData ?? {};
+    final rawDates = args['allowed_sip_dates']?.toString();
+    if ((allowedSipDates.value.isEmpty) && rawDates != null && rawDates.isNotEmpty) {
+      allowedSipDates.value = rawDates;
+    }
     // Initialize Controllers
     tabController = TabController(length: 5, vsync: this);
     scrollController = ScrollController();

@@ -620,3 +620,57 @@ class ProfileUtils {
     return sqlDate;
   }
 }
+/// Parses comma-separated, space-separated, or range-based allowed SIP dates (e.g. "1,5,10,15,20,25" or "1-28")
+/// into a sorted list of unique day integers clamped to 1..28.
+List<int> parseAllowedSipDates(dynamic rawInput) {
+  if (rawInput == null) return List.generate(28, (i) => i + 1);
+
+  String raw;
+  if (rawInput is List) {
+    raw = rawInput.join(',');
+  } else {
+    raw = rawInput.toString();
+  }
+
+  raw = raw.trim();
+  if (raw.isEmpty || raw.toUpperCase() == 'ALL') {
+    return List.generate(28, (i) => i + 1);
+  }
+
+  // Strip brackets, quotes, parentheses: e.g. "[1, 2, 3, 4, 5]" -> " 1, 2, 3, 4, 5 "
+  raw = raw.replaceAll('[', ' ').replaceAll(']', ' ').replaceAll('"', ' ').replaceAll("'", ' ').replaceAll('(', ' ').replaceAll(')', ' ');
+
+  final Set<int> dates = {};
+  // Split by commas, slashes, semicolons, pipe, or whitespace (MFU uses slashes "1/2/3/4/5")
+  for (final part in raw.split(RegExp(r'[,;/|\s]+'))) {
+    final trimmed = part.trim();
+    if (trimmed.isEmpty) continue;
+
+    if (trimmed.contains('-')) {
+      final range = trimmed.split('-');
+      if (range.length == 2) {
+        final start = int.tryParse(range[0].trim());
+        final end = int.tryParse(range[1].trim());
+        if (start != null && end != null && start <= end) {
+          for (int d = start; d <= end && d <= 28; d++) {
+            if (d >= 1) dates.add(d);
+          }
+          continue;
+        }
+      }
+    }
+
+    final day = int.tryParse(trimmed);
+    if (day != null && day >= 1 && day <= 28) {
+      dates.add(day);
+    }
+  }
+
+  if (dates.isEmpty) {
+    return List.generate(28, (i) => i + 1);
+  }
+
+  final sorted = dates.toList()..sort();
+  createLog("[parseAllowedSipDates] Input: '$rawInput' => Parsed dates: $sorted");
+  return sorted;
+}

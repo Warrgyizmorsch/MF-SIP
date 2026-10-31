@@ -1,4 +1,4 @@
-﻿// ignore_for_file: curly_braces_in_flow_control_structures, dead_null_aware_expression, dead_code
+// ignore_for_file: curly_braces_in_flow_control_structures, dead_null_aware_expression, dead_code
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -198,6 +198,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                           folio: null,
                           imgUrl: '${Appurl.baseUrl}${fund1.amc?.amcLogoUrl}',
                           divoption: fund1.divoption,
+                          allowedSipDates: parseAllowedSipDates(fund1.allowedSipDates),
                         );
 
                         Get.to(
@@ -220,6 +221,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                           folio: null,
                           imgUrl: '${Appurl.baseUrl}${fund2.amc?.amcLogoUrl}',
                           divoption: fund2.divoption,
+                          allowedSipDates: parseAllowedSipDates(fund2.allowedSipDates),
                         );
 
                         Get.to(

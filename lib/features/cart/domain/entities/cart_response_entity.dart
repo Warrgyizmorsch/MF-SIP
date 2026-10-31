@@ -131,6 +131,7 @@ class CartItemEntity extends Equatable {
   final bool? isPurchaseAllowed;
   final bool? isSipAllowed;
   final bool? isLumpsumAllowed;
+  final String? allowedSipDates;
 
   //
   final int? goalId;
@@ -167,6 +168,7 @@ class CartItemEntity extends Equatable {
     this.isPurchaseAllowed,
     this.isSipAllowed,
     this.isLumpsumAllowed,
+    this.allowedSipDates,
     //
     this.goalId,
     this.goalTargetAmount,
@@ -276,6 +278,7 @@ class CartItemEntity extends Equatable {
     isPurchaseAllowed,
     isSipAllowed,
     isLumpsumAllowed,
+    allowedSipDates,
   ];
 }
 
@@ -360,6 +363,7 @@ extension CartItemModelX on CartItemModel {
       isPurchaseAllowed: isPurchaseAllowed,
       isSipAllowed: isSipAllowed,
       isLumpsumAllowed: isLumpsumAllowed,
+      allowedSipDates: allowedSipDates,
     );
   }
 }

@@ -12,6 +12,7 @@ import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
     hide showCustomToast, showCustomToast1;
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
@@ -195,7 +196,14 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                                           argVal?.isDividendScheme == true
                                           ? 'BOTH'
                                           : 'GR',
+                                      allowedSipDates: parseAllowedSipDates(
+                                        controller.allowedSipDates.value.isNotEmpty
+                                            ? controller.allowedSipDates.value
+                                            : argVal?.allowedSipDates,
+                                      ),
                                     );
+
+                                    SIPPurchasePage.tempData = purchaseArgs;
 
                                     Get.to(
                                       () => SIPPurchasePage(),
@@ -717,6 +725,11 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                                           argVal?.isDividendScheme == true
                                           ? 'BOTH'
                                           : 'GR',
+                                      allowedSipDates: parseAllowedSipDates(
+                                        controller.allowedSipDates.value.isNotEmpty
+                                            ? controller.allowedSipDates.value
+                                            : argVal?.allowedSipDates,
+                                      ),
                                     );
 
                                     SIPPurchasePage.tempData = purchaseArgs;

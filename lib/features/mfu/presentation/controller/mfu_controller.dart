@@ -349,7 +349,9 @@ class MfuController extends GetxController {
     sipCapError.value = null;
     sipInvType.value = args.initialInvType ?? InvType.sip;
     sipFreq.value = args.initialFrequency ?? SipFrequency.monthly;
-    sipDay.value = args.initialSipDay ?? 16;
+    final List<int> allowedDates = args.allowedSipDates ?? List.generate(28, (i) => i + 1);
+    final int candidateDay = args.initialSipDay ?? (allowedDates.contains(16) ? 16 : allowedDates.first);
+    sipDay.value = allowedDates.contains(candidateDay) ? candidateDay : allowedDates.first;
     sipWeekDay.value = args.initialWeekDay ?? 1;
     sipStepByPct.value = false;
     sipStepUpPct.value = 10;

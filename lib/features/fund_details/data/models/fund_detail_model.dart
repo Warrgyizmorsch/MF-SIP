@@ -38,6 +38,7 @@ class FundDetailModel {
   final double? minimumInvestment;
   final int? sipMinimumAmount;
   final double? minimumTopup;
+  final String? allowedSipDates;
 
   final double? schemeAssets;
   final String? schemeAssetDate;
@@ -87,6 +88,7 @@ class FundDetailModel {
     this.minimumInvestment,
     this.sipMinimumAmount,
     this.minimumTopup,
+    this.allowedSipDates,
     this.schemeAssets,
     this.schemeAssetDate,
     this.isDividendScheme,
@@ -143,6 +145,17 @@ class FundDetailModel {
       minimumInvestment: json.parse<double>('minimum_investment'),
       sipMinimumAmount: json.parse<int>('sip_minimum_amount'),
       minimumTopup: json.parse<double>('minimum_topup'),
+      allowedSipDates: json.parse<String>('allowed_sip_dates') ??
+          json.parse<String>('sys_dates') ??
+          json.parse<String>('Sys_Dates') ??
+          json.parse<String>('sip_dates') ??
+          json.parse<String>('allowed_dates') ??
+          (json['allowed_sip_dates'] is List
+              ? (json['allowed_sip_dates'] as List).join(',')
+              : null) ??
+          (json['sys_dates'] is List
+              ? (json['sys_dates'] as List).join(',')
+              : null),
 
       schemeAssets: json.parse<double>('scheme_assets'),
       schemeAssetDate: json.parse<String>('scheme_asset_date'),

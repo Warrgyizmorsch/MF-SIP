@@ -109,7 +109,21 @@ class MutualFundListModel {
           json.parse<int>('minimum_investment'),
       minTopUp: json.parse<int>('minimum_topup') ??
           json.parse<int>('min_topup'),
-      allowedSipDates: json.parse<String>('allowed_sip_dates'),
+      allowedSipDates: json.parse<String>('allowed_sip_dates') ??
+          json.parse<String>('sys_dates') ??
+          json.parse<String>('Sys_Dates') ??
+          json.parse<String>('sip_dates') ??
+          json.parse<String>('allowed_dates') ??
+          json.parse<String>('sip_allowed_dates') ??
+          (json['allowed_sip_dates'] is List
+              ? (json['allowed_sip_dates'] as List).join(',')
+              : null) ??
+          (json['sys_dates'] is List
+              ? (json['sys_dates'] as List).join(',')
+              : null) ??
+          (json['sip_dates'] is List
+              ? (json['sip_dates'] as List).join(',')
+              : null),
       isSipAllowed: json.parse<bool>('is_sip_allowed'),
       isLumpsumAllowed: json.parse<bool>('is_lumpsum_allowed'),
       isPurchaseAllowed: json.parse<bool>('is_purchase_allowed'),
