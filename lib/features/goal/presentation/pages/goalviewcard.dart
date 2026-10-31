@@ -1,153 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../../../../common/widget/appbar/custom_appbar_normal.dart';
+import '../../../../config/routes/app_routes.dart';
+import '../controller/goal_sip_controller.dart';
+import '../widget/goal_card.dart';
+
+/// A standalone preview of the shared card using the reference's sample goals.
 class GoalviewcardPage extends StatelessWidget {
   const GoalviewcardPage({super.key});
 
+  static const _goals = [
+    (name: 'Car', target: 30000.0, saved: 9900.0, emoji: '🚗'),
+    (name: 'Home Purchase', target: 2000000.0, saved: 500000.0, emoji: '🏠'),
+    (name: 'Marriage', target: 1000000.0, saved: 750000.0, emoji: '💍'),
+    (name: 'Vacation', target: 3000.0, saved: 1500.0, emoji: '✈️'),
+    (name: 'Education', target: 10000.0, saved: 1000.0, emoji: '🎓'),
+    (name: 'Bike', target: 10000.0, saved: 5000.0, emoji: '🏍️'),
+    (name: 'Personalize', target: 25000.0, saved: 17500.0, emoji: '🎯'),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
-      backgroundColor: Color(0xffF3F4F6),
-
-      appBar: CustomAppBarNormal(title: 'Goal'),
-      body: GridView.count(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        crossAxisCount: 2,
-        childAspectRatio: size.width <= 360 ? 0.59 : 0.7,
-        children: [
-          CircularGoalIndicatorDetails(),
-          CircularGoalIndicatorDetails(),
-          CircularGoalIndicatorDetails(),
-          CircularGoalIndicatorDetails(),
-          CircularGoalIndicatorDetails(),
-        ],
+      backgroundColor: GoalCard.backgroundColor,
+      appBar: const CustomAppBarNormal(
+        title: 'Goal',
+        backgroundColor: GoalCard.backgroundColor,
+        backIcon: false,
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            16,
-            16,
-            16 + MediaQuery.of(context).viewPadding.bottom,
-          ),
-          child: UElevatedBUtton(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Add new goal', style: UTextStyles.buttonText),
-                const Gap(5),
-                const Icon(Icons.add, color: Ucolors.light),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CircularGoalIndicatorDetails extends StatelessWidget {
-  const CircularGoalIndicatorDetails({super.key, this.percentage = false});
-
-  final bool percentage;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.goaldetails),
-      child: Container(
-        // padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: percentage ? Colors.transparent : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                /// Outer Circular Arc
-                CircularPercentIndicator(
-                  radius: size.width <= 320 ? 60 : 80,
-                  lineWidth: 15,
-                  percent: 0.77, // 75%
-                  startAngle: 220,
-                  circularStrokeCap: CircularStrokeCap.round,
-                  backgroundColor: Colors.transparent,
-                  progressColor: Colors.grey.shade200,
-                ),
-                CircularPercentIndicator(
-                  center: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      shape: BoxShape.circle,
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: Icon(Icons.image),
+      body: LayoutBuilder(
+        builder: (context, constraints) => CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverGrid.builder(
+                itemCount: _goals.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: (constraints.maxWidth / 200).floor().clamp(
+                    2,
+                    4,
                   ),
-                  // radius: 80,
-                  radius: size.width <= 350 ? 60 : 80,
-                  lineWidth: 15,
-                  percent: 0.1, // 75%
-                  startAngle: 220,
-                  circularStrokeCap: CircularStrokeCap.round,
-                  backgroundColor: Colors.transparent,
-                  progressColor: Ucolors.blue,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: GoalCard.aspectRatio,
                 ),
-                if (!percentage) ...[
-                  Positioned(
-                    left: 0,
-                    bottom: 0,
-                    child: Text('₹ 5,000', style: UTextStyles.small),
-                  ),
-                  Positioned(
-                    right: 15,
-                    bottom: 0,
-                    child: Text('70%', style: UTextStyles.small),
-                  ),
-                ],
-                Positioned(
-                  left: 10,
-                  bottom: 10,
-                  child: Text('🚗', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 30)),
-                ),
-                percentage
-                    ? Positioned(
-                        // right: 0,
-                        bottom: 0,
-                        child: Text(
-                          '33%',
-                          style: TextStyle(fontFamily: FontFamily.medium,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      )
-                    : SizedBox.shrink(),
-              ],
-            ),
-            if (!percentage) ...[
-              Text('Car', style: UTextStyles.large),
-              Text(
-                '₹ 5,00,000',
-                style: UTextStyles.medium.copyWith(color: Colors.black),
+                itemBuilder: (context, index) {
+                  final goal = _goals[index];
+                  return GoalCard(
+                    goalName: goal.name,
+                    targetAmount: goal.target,
+                    investedAmount: goal.saved,
+                    emoji: goal.emoji,
+                    fallbackIcon: Icons.image_rounded,
+                  );
+                },
               ),
-            ],
+            ),
+            SliverToBoxAdapter(
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                  child: AddNewGoalButton(
+                    onPressed: () async {
+                      if (Get.isRegistered<GoalSipController>()) {
+                        final controller = Get.find<GoalSipController>();
+                        controller.resetStateForNewGoal();
+                        await controller.getMasterGoals();
+                      }
+                      Get.toNamed(AppRoutes.masterGoalsPage);
+                    },
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

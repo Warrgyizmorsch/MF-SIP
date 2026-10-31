@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../common/widget/appbar/custom_appbar_normal.dart';
-import '../../../../common/widget/appbar/widget/compact_icon.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../common/widget/shimmer/shimmer.dart';
 import '../../../../config/routes/app_routes.dart';
-import '../../../../core/utils/constant/appUrl.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../../domain/entity/goal_entity.dart';
 import '../controller/goal_sip_controller.dart';
+import '../widget/goal_card.dart';
 import 'goaldetails.dart';
 
 class GoalScreen extends GetView<GoalSipController> {
@@ -43,13 +41,11 @@ class GoalScreenMobile extends GetView<GoalSipController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Ucolors.light,
+      backgroundColor: GoalCard.backgroundColor,
       appBar: CustomAppBarNormal(
-        backgroundColor: Ucolors.light,
-        title: 'Goals',
+        backgroundColor: GoalCard.backgroundColor,
+        title: 'Goal',
         backIcon: false,
-        actionsPadding: 10,
-        action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -57,19 +53,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
               ? constraints.maxWidth
               : 400;
 
-          int crossAxisCount;
-          double aspectRatio;
-          double titleFontSize;
-
-          if (availableWidth < 500) {
-            crossAxisCount = 2;
-            aspectRatio = 0.82;
-            titleFontSize = 12.0;
-          } else {
-            crossAxisCount = 3;
-            aspectRatio = 0.85;
-            titleFontSize = 14.0;
-          }
+          final crossAxisCount = availableWidth < 500 ? 2 : 3;
 
           return Obx(() {
             if (controller.isLoadingGoals.value) {
@@ -87,22 +71,10 @@ class GoalScreenMobile extends GetView<GoalSipController> {
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 12.0,
-                      ),
-                      child: Text(
-                        '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
-                        style: UTextStyles.bodySmall.copyWith(fontSize: 14),
-                      ),
-                    ),
-                  ),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16.0,
-                      vertical: 8.0,
+                      vertical: 16.0,
                     ),
                     sliver: SliverGrid(
                       delegate: SliverChildBuilderDelegate((context, index) {
@@ -130,14 +102,13 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                           targetAmount: target,
                           investedAmount: invested,
                           iconUrl: logo,
-                          titleFontSize: titleFontSize,
                         );
                       }, childCount: goals.length),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
                         mainAxisSpacing: 16,
                         crossAxisSpacing: 16,
-                        childAspectRatio: aspectRatio,
+                        childAspectRatio: GoalCard.aspectRatio,
                       ),
                     ),
                   ),
@@ -154,6 +125,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
           return const SizedBox.shrink();
         }
         return FloatingActionButton(
+          tooltip: 'Add new goal',
           onPressed: () async {
             controller.resetStateForNewGoal();
             await controller.getMasterGoals();
@@ -234,13 +206,13 @@ class GoalScreenMobile extends GetView<GoalSipController> {
   }
 }
 
+/// Adapts live goals and existing navigation to the shared reference card.
 class MobileGoalCard extends StatelessWidget {
   final UserGoalEntity? goalEntity;
   final String goalName;
   final double targetAmount;
   final double investedAmount;
   final String? iconUrl;
-  final double titleFontSize;
 
   const MobileGoalCard({
     super.key,
@@ -249,31 +221,23 @@ class MobileGoalCard extends StatelessWidget {
     required this.investedAmount,
     this.iconUrl,
     this.goalEntity,
-    required this.titleFontSize,
   });
 
   @override
   Widget build(BuildContext context) {
-    final GoalSipController controller = Get.find<GoalSipController>();
-
-    final double safeTarget = targetAmount > 0 ? targetAmount : 1;
-    final double percentage =
-        (goalEntity != null && goalEntity!.progressPercent > 0)
-        ? (goalEntity!.progressPercent / 100).clamp(0.0, 1.0)
-        : (investedAmount / safeTarget).clamp(0.0, 1.0);
-    final String percentString =
-        (goalEntity != null && goalEntity!.progressPercent > 0)
-        ? "${goalEntity!.progressPercent.toStringAsFixed(1)}%"
-        : "${(percentage * 100).toStringAsFixed(0)}%";
-
-    final Color rawColor = controller.getGoalColor(
-      goalEntity?.goalType?.typeName ?? '',
+    final controller = Get.find<GoalSipController>();
+    final type = '${goalEntity?.goalType?.typeName ?? ''} $goalName';
+    final bike = type.toLowerCase().contains('bike');
+    return GoalCard(
       goalName: goalName,
-    );
-    final Color goalColor =
-        (rawColor == Colors.grey) ? const Color(0xFF213C73) : rawColor;
-
-    return GestureDetector(
+      targetAmount: targetAmount,
+      investedAmount: investedAmount,
+      progressPercent: goalEntity?.progressPercent,
+      iconUrl: iconUrl,
+      emoji: bike ? '🏍️' : controller.getGoalEmoji(type),
+      fallbackIcon: bike
+          ? Icons.two_wheeler_rounded
+          : controller.getGoalIcon(type),
       onTap: () {
         GoalDetailsPage.tempData = {
           'goal': goalEntity,
@@ -283,154 +247,6 @@ class MobileGoalCard extends StatelessWidget {
         };
         Get.toNamed(AppRoutes.goaldetails);
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double rawSize = constraints.maxHeight * 0.45;
-            final double circleSize = rawSize.clamp(20.0, 300.0);
-
-            final imageWidget = (iconUrl != null && iconUrl!.isNotEmpty)
-                ? Image.network(
-                    iconUrl!.startsWith('http')
-                        ? iconUrl!
-                        : '${Appurl.baseUrl}/$iconUrl',
-                    width: circleSize * 0.55,
-                    height: circleSize * 0.55,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Icon(
-                      Icons.flag,
-                      size: circleSize * 0.25,
-                      color: Colors.grey,
-                    ),
-                  )
-                : Icon(Icons.flag, size: circleSize * 0.25, color: Colors.grey);
-
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularPercentIndicator(
-                      radius: circleSize / 1.3,
-                      lineWidth: 8,
-                      percent: 1,
-                      backgroundColor: Colors.transparent,
-                      progressColor: Colors.grey.shade200,
-                    ),
-                    CircularPercentIndicator(
-                      radius: circleSize / 1.3,
-                      lineWidth: 8,
-                      percent: percentage,
-                      animation: true,
-                      circularStrokeCap: CircularStrokeCap.round,
-                      backgroundColor: Colors.transparent,
-                      progressColor: goalColor,
-                      center: Container(
-                        width: circleSize * 0.9,
-                        height: circleSize * 0.9,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: ColorFiltered(
-                                colorFilter: ColorFilter.mode(
-                                  Colors.grey.shade300,
-                                  BlendMode.modulate,
-                                ),
-                                child: imageWidget,
-                              ),
-                            ),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: ShaderMask(
-                                blendMode: BlendMode.srcIn,
-                                shaderCallback: (Rect bounds) => LinearGradient(
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                  stops: [0.0, percentage, percentage, 1.0],
-                                  colors: [
-                                    goalColor,
-                                    goalColor,
-                                    Colors.transparent,
-                                    Colors.transparent,
-                                  ],
-                                ).createShader(bounds),
-                                child: imageWidget,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black12, blurRadius: 4),
-                          ],
-                        ),
-                        child: Text(
-                          percentString,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: FontFamily.medium,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(4),
-                FittedBox(
-                  child: Text(
-                    goalName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: UTextStyles.large.copyWith(fontSize: titleFontSize),
-                  ),
-                ),
-                FittedBox(
-                  child: Text(
-                    '₹ ${targetAmount.toStringAsFixed(0)}',
-                    style: UTextStyles.medium.copyWith(
-                      color: Colors.grey.shade600,
-                      fontSize: titleFontSize - 2,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
     );
   }
 }
@@ -444,7 +260,7 @@ class GoalScreenWeb extends GetView<GoalSipController> {
     final double safeHeight = size.height - kToolbarHeight;
 
     return Scaffold(
-      backgroundColor: Ucolors.white,
+      backgroundColor: GoalCard.backgroundColor,
       body: Center(
         child: SizedBox(
           width: size.width > 1500 ? 1500 : size.width,
@@ -531,28 +347,9 @@ class WebGoalGridContent extends GetView<GoalSipController> {
             ? constraints.maxWidth
             : 400;
 
-        int crossAxisCount;
-        double aspectRatio;
-
-        if (availableWidth > 1200) {
-          crossAxisCount = 4;
-          aspectRatio = 1.38;
-        } else if (availableWidth > 1100) {
-          crossAxisCount = 4;
-          aspectRatio = 1.18;
-        } else if (availableWidth > 1000) {
-          crossAxisCount = 3;
-          aspectRatio = 1.38;
-        } else if (availableWidth > 900) {
-          crossAxisCount = 3;
-          aspectRatio = 1.45;
-        } else if (availableWidth > 850) {
-          crossAxisCount = 3;
-          aspectRatio = 1.20;
-        } else {
-          crossAxisCount = 2;
-          aspectRatio = 1.25;
-        }
+        final crossAxisCount = (availableWidth / 260).floor().clamp(1, 4);
+        final cardWidth =
+            (availableWidth - (crossAxisCount - 1) * 24) / crossAxisCount;
 
         return Obx(() {
           if (controller.isLoadingGoals.value) {
@@ -579,7 +376,7 @@ class WebGoalGridContent extends GetView<GoalSipController> {
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: 24,
               crossAxisSpacing: 24,
-              childAspectRatio: aspectRatio,
+              mainAxisExtent: cardWidth / GoalCard.aspectRatio + 56,
             ),
             itemBuilder: (context, index) {
               final goal = goals[index];
@@ -605,7 +402,6 @@ class WebGoalGridContent extends GetView<GoalSipController> {
                 targetAmount: target,
                 investedAmount: invested,
                 iconUrl: logo,
-                showActiveBadge: index == 0,
               );
             },
           );
@@ -615,13 +411,12 @@ class WebGoalGridContent extends GetView<GoalSipController> {
   }
 }
 
-class WebGoalCard extends StatefulWidget {
+class WebGoalCard extends StatelessWidget {
   final UserGoalEntity? goalEntity;
   final String goalName;
   final double targetAmount;
   final double investedAmount;
   final String? iconUrl;
-  final bool showActiveBadge;
 
   const WebGoalCard({
     super.key,
@@ -630,314 +425,65 @@ class WebGoalCard extends StatefulWidget {
     required this.investedAmount,
     this.iconUrl,
     this.goalEntity,
-    this.showActiveBadge = false,
   });
 
-  @override
-  State<WebGoalCard> createState() => _WebGoalCardState();
-}
-
-class _WebGoalCardState extends State<WebGoalCard> {
-  bool _isHovered = false;
-
-  String _formatIndianCurrency(double amount) {
-    String str = amount.toStringAsFixed(0);
-    if (str.length <= 3) return str;
-    String lastThree = str.substring(str.length - 3);
-    String otherNumbers = str.substring(0, str.length - 3);
-    final regExp = RegExp(r'\d{1,2}(?=(\d{2})+(?!\d))');
-    otherNumbers = otherNumbers.replaceAllMapped(
-      regExp,
-      (Match m) => '${m[0]},',
-    );
-    return '$otherNumbers,$lastThree';
+  void _openDetails({bool addFund = false}) {
+    GoalDetailsPage.tempData = {
+      'goal': goalEntity,
+      'target': targetAmount,
+      'invested': investedAmount,
+      'logo': iconUrl,
+    };
+    if (addFund) Get.find<GoalSipController>().isAddFund.value = false;
+    Get.toNamed(AppRoutes.goaldetails, id: 1);
   }
 
   @override
   Widget build(BuildContext context) {
-    final GoalSipController controller = Get.find<GoalSipController>();
-
-    final double safeTarget = widget.targetAmount > 0 ? widget.targetAmount : 1;
-    final double percentage =
-        (widget.goalEntity != null && widget.goalEntity!.progressPercent > 0)
-        ? (widget.goalEntity!.progressPercent / 100).clamp(0.0, 1.0)
-        : (widget.investedAmount / safeTarget).clamp(0.0, 1.0);
-    final String percentString =
-        (widget.goalEntity != null && widget.goalEntity!.progressPercent > 0)
-        ? "${widget.goalEntity!.progressPercent.toStringAsFixed(1)}%"
-        : "${(percentage * 100).toStringAsFixed(0)}%";
-
-    final Color rawColor = controller.getGoalColor(
-      widget.goalEntity?.goalType?.typeName ?? '',
-      goalName: widget.goalName,
-    );
-    final Color goalColor =
-        (rawColor == Colors.grey) ? const Color(0xFF213C73) : rawColor;
-
-    final bool isNeedsAttention = widget.goalName.toLowerCase().contains(
-      "marriage",
-    );
-    final String statusText = isNeedsAttention ? "Needs Attention" : "On Track";
-    final Color statusTextColor = isNeedsAttention
-        ? const Color(0xFFEF4444)
-        : goalColor;
-    final Color statusBgColor = isNeedsAttention
-        ? const Color(0xFFFEE2E2)
-        : goalColor.withOpacity(0.1);
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: () {
-          GoalDetailsPage.tempData = {
-            'goal': widget.goalEntity,
-            'target': widget.targetAmount,
-            'invested': widget.investedAmount,
-            'logo': widget.iconUrl,
-          };
-          Get.toNamed(AppRoutes.goaldetails, id: 1);
-        },
-        child: AnimatedScale(
-          scale: _isHovered ? 1.01 : 1.0,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          child: Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(_isHovered ? 0.06 : 0.02),
-                      blurRadius: _isHovered ? 16 : 8,
-                      offset: Offset(0, _isHovered ? 8 : 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircularPercentIndicator(
-                          radius: 40.0,
-                          lineWidth: 4.5,
-                          percent: percentage,
-                          center: CircleAvatar(
-                            radius: 26,
-                            backgroundColor: const Color(0xFFF8FAFC),
-                            child:
-                                widget.iconUrl != null &&
-                                    widget.iconUrl!.isNotEmpty
-                                ? Image.network(
-                                    widget.iconUrl!.startsWith('http')
-                                        ? widget.iconUrl!
-                                        : '${Appurl.baseUrl}/${widget.iconUrl}',
-                                    width: 30,
-                                    height: 30,
-                                    color: goalColor,
-                                    errorBuilder: (_, __, ___) =>
-                                        Icon(Icons.flag, color: goalColor),
-                                  )
-                                : Icon(Icons.flag, color: goalColor),
-                          ),
-                          progressColor: goalColor,
-                          backgroundColor: const Color(0xFFE2E8F0),
-                        ),
-                        const Gap(12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.goalName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1E293B),
-                                  fontFamily: FontFamily.regular,
-                                ),
-                              ),
-                              const Gap(4),
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: statusBgColor,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      statusText,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: statusTextColor,
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Gap(4),
-                              Text(
-                                "$percentString completed",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: FontFamily.regular,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Gap(14),
-                    _buildDataRow(
-                      Iconsax.radar,
-                      "Target:",
-                      "₹ ${_formatIndianCurrency(widget.targetAmount)}",
-                    ),
-                    const Gap(8),
-                    _buildDataRow(
-                      Iconsax.wallet_3,
-                      "Saved:",
-                      "₹ ${_formatIndianCurrency(widget.investedAmount)}",
-                    ),
-                    const Gap(12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: percentage,
-                        minHeight: 5,
-                        backgroundColor: const Color(0xFFF1F5F9),
-                        valueColor: AlwaysStoppedAnimation<Color>(goalColor),
-                      ),
-                    ),
-                    const Gap(10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            GoalDetailsPage.tempData = {
-                              'goal': widget.goalEntity,
-                              'target': widget.targetAmount,
-                              'invested': widget.investedAmount,
-                              'logo': widget.iconUrl,
-                            };
-                            Get.toNamed(AppRoutes.goaldetails, id: 1);
-                          },
-                          style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                          child: const Text(
-                            "View Details",
-                            style: TextStyle(
-                              color: Color(0xFF2563EB),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              fontFamily: FontFamily.regular,
-                            ),
-                          ),
-                        ),
-                        OutlinedButton(
-                          onPressed: () {
-                            GoalDetailsPage.tempData = {
-                              'goal': widget.goalEntity,
-                              'target': widget.targetAmount,
-                              'invested': widget.investedAmount,
-                              'logo': widget.iconUrl,
-                            };
-                            controller.isAddFund.value = false;
-                            Get.toNamed(AppRoutes.goaldetails, id: 1);
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: Ucolors.primary,
-                              width: 1,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                          child: const Text(
-                            "Add Fund",
-                            style: TextStyle(
-                              color: Ucolors.primary,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              fontFamily: FontFamily.regular,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              if (widget.showActiveBadge)
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF2563EB),
-                      shape: BoxShape.circle,
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 12,
-                    ),
-                  ),
-                ),
-            ],
+    final controller = Get.find<GoalSipController>();
+    final type = '${goalEntity?.goalType?.typeName ?? ''} $goalName';
+    final bike = type.toLowerCase().contains('bike');
+    return Column(
+      children: [
+        Expanded(
+          child: GoalCard(
+            goalName: goalName,
+            targetAmount: targetAmount,
+            investedAmount: investedAmount,
+            progressPercent: goalEntity?.progressPercent,
+            iconUrl: iconUrl,
+            emoji: bike ? '🏍️' : controller.getGoalEmoji(type),
+            fallbackIcon: bike
+                ? Icons.two_wheeler_rounded
+                : controller.getGoalIcon(type),
+            onTap: _openDetails,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDataRow(IconData icon, String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 16, color: const Color(0xFF64748B)),
-            const Gap(8),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFF64748B),
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                fontFamily: FontFamily.regular,
+        SizedBox(
+          height: 56,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: _openDetails,
+                  child: const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text('View Details'),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Color(0xFF1E293B),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            fontFamily: FontFamily.regular,
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => _openDetails(addFund: true),
+                  child: const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text('Add Fund'),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],

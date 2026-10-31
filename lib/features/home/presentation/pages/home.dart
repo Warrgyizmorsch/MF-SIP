@@ -37,7 +37,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
-import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
+import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/sip_process/presentation/controllers/sip_process_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
@@ -3470,7 +3470,7 @@ class _MobileLayout extends StatelessWidget {
                       ),
                     ),
                     SizedBox(
-                      height: 125,
+                      height: 222,
                       child: ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         scrollDirection: Axis.horizontal,
@@ -3484,110 +3484,19 @@ class _MobileLayout extends StatelessWidget {
                           final double invested = goal.investedAmount > 0
                               ? goal.investedAmount
                               : (target * (goal.progressPercent / 100));
-                          final double progress = (target > 0 ? (invested / target) : 0.0).clamp(0.0, 1.0);
-                          final String name = goal.goalName.isNotEmpty ? goal.goalName : 'Goal ${index + 1}';
-                          final Color rawColor = goalCtrl.getGoalColor(
-                            goal.goalType?.typeName ?? '',
-                            goalName: name,
-                          );
-                          final Color color = (rawColor == Colors.grey)
-                              ? const Color(0xFF213C73)
-                              : rawColor;
-
-                          return GestureDetector(
-                            onTap: () {
-                              GoalDetailsPage.tempData = {
-                                'goal': goal,
-                                'target': target,
-                                'invested': invested,
-                                'logo': goal.goalCover.isNotEmpty ? goal.goalCover : (goal.goalType?.logo ?? ''),
-                              };
-                              Get.toNamed(AppRoutes.goaldetails);
-                            },
-                            child: Container(
-                              width: 220,
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: Ucolors.borderColor, width: 1),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.03),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(6),
-                                        decoration: BoxDecoration(
-                                          color: color.withValues(alpha: 0.12),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: Icon(
-                                          goalCtrl.getGoalIcon(goal.goalType?.typeName ?? goal.goalName),
-                                          size: 18,
-                                          color: color,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          name,
-                                          style: AppTextStyles.bodyMedium(
-                                            color: const Color(0xFF262626),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Target: ₹${target.toInt().toString()}',
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Text(
-                                            '${(progress * 100).toStringAsFixed(0)}%',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                              color: color,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: LinearProgressIndicator(
-                                          value: progress,
-                                          minHeight: 5,
-                                          backgroundColor: Colors.grey.shade200,
-                                          valueColor: AlwaysStoppedAnimation<Color>(color),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                          final String name = goal.goalName.isNotEmpty
+                              ? goal.goalName
+                              : 'Goal ${index + 1}';
+                          return SizedBox(
+                            width: 177,
+                            child: MobileGoalCard(
+                              goalEntity: goal,
+                              goalName: name,
+                              targetAmount: target,
+                              investedAmount: invested,
+                              iconUrl: goal.goalCover.isNotEmpty
+                                  ? goal.goalCover
+                                  : (goal.goalType?.logo ?? ''),
                             ),
                           );
                         },
