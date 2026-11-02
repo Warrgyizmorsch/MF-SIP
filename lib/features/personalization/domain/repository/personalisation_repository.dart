@@ -1,3 +1,4 @@
+import 'package:my_sip/features/personalization/domain/entity/user_bank_list_entity.dart';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
@@ -75,5 +76,9 @@ abstract class PersonalisationRepository {
   Future<Either<Result<DeleteBankEntity>, ApiError>> deleteBank({
     required int uid,
     required int bankId,
+  });
+
+  Future<Either<Result<UserBankListEntity>, ApiError>> getUserBankList({
+    required int uid,
   });
 }

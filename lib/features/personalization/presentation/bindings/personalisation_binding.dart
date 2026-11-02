@@ -1,3 +1,4 @@
+import 'package:my_sip/features/personalization/domain/usecases/get_user_bank_list_usecase.dart';
 import 'package:get/get.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:my_sip/features/personalization/domain/usecases/account_statement_usecases.dart';
@@ -84,6 +85,11 @@ class PersonalisationBinding extends Bindings {
       ),
     );
     Get.lazyPut(
+      () => GetUserBankListUseCase(
+        personalisationRepository: Get.find<PersonalisationRepository>(),
+      ),
+    );
+    Get.lazyPut(
       () => PersonalisationUseCases(
         Get.find(),
         Get.find(),
@@ -95,7 +101,8 @@ class PersonalisationBinding extends Bindings {
         Get.find<RequestCapitalGainStatementUseCase>(),
         Get.find<RequestAccountStatementUseCase>(),
         Get.find<AddBankUseCase>(),
-        Get.find<DeleteBankUseCase>()
+        Get.find<DeleteBankUseCase>(),
+        Get.find<GetUserBankListUseCase>(),
       ),
       fenix: true,
     );

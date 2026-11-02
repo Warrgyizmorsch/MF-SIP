@@ -13,6 +13,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart';
 
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
@@ -145,8 +146,68 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
               }
 
               // 3. DATA STATE (1, 2, or 3 Banks Exist)
+              final hasPendingBank = controller.userBankNctStatus.value.toLowerCase() == 'pending' ||
+                  controller.linkedBankAccounts.any((b) => b.isPendingValidation);
+              final activeRefNo = controller.userBankNctRefNo.value.isNotEmpty
+                  ? controller.userBankNctRefNo.value
+                  : (controller.linkedBankAccounts
+                          .firstWhereOrNull((b) => b.nctRefNo != null && b.nctRefNo!.isNotEmpty)
+                          ?.nctRefNo ??
+                      '');
+
               return Column(
                 children: [
+                  // ⏳ NCT Pending Information Banner
+                  if (hasPendingBank)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFDE68A)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.pending_actions,
+                            color: Color(0xFFD97706),
+                            size: 22,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Bank Account Verification in Progress',
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF92400E),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  activeRefNo.isNotEmpty
+                                      ? 'Your bank account addition request (Ref: $activeRefNo) is being verified by MF Utility. Once approved, it will be activated for investments.'
+                                      : 'Your bank account addition request is being verified by MF Utility. Once approved, it will be activated for investments.',
+                                  style: const TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 11,
+                                    color: Color(0xFFB45309),
+                                    height: 1.35,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                   // Render all current bank cards
                   ...controller.linkedBankAccounts
                       .where((bank) => bank != null)
@@ -159,17 +220,21 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                                 debugPrint(bank.id.toString());
                                 _confirmDelete(
                                   context,
-                                  bank.id!,
-                                  bank.bankName ?? 'Unknown',
+                                  bank,
                                 );
                               } else {
                                 Get.snackbar("Error", "Bank ID not found");
                               }
                             },
                             bankName: bank.bankName ?? 'Unknown',
-                            cardNumber: bank.accountNumberEncrypted ?? '****',
+                            cardNumber: bank.maskedAccountNumber,
                             ifsccode: bank.ifscCode ?? '',
-                            isVerified: bank.verified == 1,
+                            isVerified: bank.isFullyApproved,
+                            nctStatus: bank.nctStatus ?? (bank.isPendingValidation ? 'pending' : null),
+                            nctRefNo: bank.nctRefNo ?? controller.userBankNctRefNo.value,
+                            canCheckStatus: bank.canCheckStatus ?? controller.userBankCanCheckStatus.value,
+                            isCheckingStatus: controller.isFetchingUserBanks.value,
+                            onCheckStatus: () => controller.fetchUserBankList(isRefresh: true),
                             bankLogo: UImages.sbi,
                             color: Ucolors.deepOceanGradient,
                           ),
@@ -384,7 +449,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
     );
   }
 
-  void _confirmDelete(BuildContext context, int bankid, String bankName) {
+  void _confirmDelete(BuildContext context, BankAccountEntity bank) {
     if (controller.isCanPendingApproval) {
       ULoaders.warning(
         title: "Account Modification Locked",
@@ -394,6 +459,23 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
       return;
     }
 
+    // 1. Strict in-flight NCT pending bank guard (Option A)
+    if (bank.isPendingValidation) {
+      final ref = (bank.nctRefNo != null && bank.nctRefNo!.isNotEmpty)
+          ? bank.nctRefNo!
+          : controller.userBankNctRefNo.value;
+      DialogHelper.showPrerequisiteDialog(
+        title: "Verification In Progress",
+        message: ref.isNotEmpty
+            ? "This bank account is currently being verified by MF Utility (Ref: $ref). Bank accounts cannot be removed while MFU verification is in flight. Please wait 24–48 hours for verification to complete."
+            : "This bank account is currently being verified by MF Utility. Bank accounts cannot be removed while MFU verification is in flight. Please wait for verification to complete.",
+        buttonText: "Understood",
+        onTap: () => Get.back(),
+      );
+      return;
+    }
+
+    // 2. Minimum total bank count check
     if (controller.linkedBankAccounts.length <= 1) {
       DialogHelper.showPrerequisiteDialog(
         title: 'Bank Account Required',
@@ -408,13 +490,29 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
       return;
     }
 
+    // 3. Primary / Last Approved Bank Guard
+    final approvedBanks =
+        controller.linkedBankAccounts.where((b) => b.isFullyApproved).toList();
+    if (approvedBanks.length <= 1 && bank.isFullyApproved) {
+      DialogHelper.showPrerequisiteDialog(
+        title: "Primary Bank Required",
+        message:
+            "You cannot remove this bank account because it is your only approved bank. Your other bank account is still pending verification with MF Utility. Please wait until verification completes before removing this bank.",
+        buttonText: "Understood",
+        onTap: () => Get.back(),
+      );
+      return;
+    }
+
     DialogHelper.showPrerequisiteDialog(
       title: 'Delete Bank',
-      message: 'Are you sure you want to delete $bankName?',
+      message: 'Are you sure you want to delete ${bank.bankName ?? "this bank"}?',
       buttonText: 'Delete',
       onTap: () {
         Get.back(); // Close dialog
-        controller.deleteBank(bankid);
+        if (bank.id != null) {
+          controller.deleteBank(bank.id!);
+        }
       },
     );
   }
@@ -430,6 +528,11 @@ class BankCard extends StatelessWidget {
     required this.ifsccode,
     required this.isVerified,
     this.onDelete,
+    this.nctStatus,
+    this.nctRefNo,
+    this.canCheckStatus = false,
+    this.isCheckingStatus = false,
+    this.onCheckStatus,
   });
 
   final String bankName;
@@ -438,6 +541,11 @@ class BankCard extends StatelessWidget {
   final Gradient color;
   final String ifsccode;
   final bool isVerified;
+  final String? nctStatus;
+  final String? nctRefNo;
+  final bool canCheckStatus;
+  final bool isCheckingStatus;
+  final VoidCallback? onCheckStatus;
   final VoidCallback? onDelete;
 
   @override
@@ -490,26 +598,89 @@ class BankCard extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // Primary / Verified Status
+            // Primary / Verified / NCT Status
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(
-                  isVerified ? Icons.verified : Icons.pending_actions,
-                  color: isVerified
-                      ? Colors.lightGreenAccent
-                      : Colors.orangeAccent,
-                  size: 18,
+                Row(
+                  children: [
+                    Icon(
+                      isVerified ? Icons.verified : Icons.pending_actions,
+                      color: isVerified
+                          ? Colors.lightGreenAccent
+                          : Colors.orangeAccent,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 6),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isVerified
+                              ? "Verified Primary"
+                              : (nctStatus?.toLowerCase() == 'pending'
+                                  ? "MFU Verification Pending"
+                                  : "Pending Verification"),
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (!isVerified && nctRefNo != null && nctRefNo!.isNotEmpty)
+                          Text(
+                            "Ref: $nctRefNo",
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.white70,
+                              fontSize: 10,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  isVerified ? "Verified Primary" : "Pending Verification",
-                  style: const TextStyle(
-                    fontFamily: FontFamily.medium,
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                if (!isVerified && onCheckStatus != null)
+                  GestureDetector(
+                    onTap: isCheckingStatus ? null : onCheckStatus,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white30),
+                      ),
+                      child: isCheckingStatus
+                          ? const SizedBox(
+                              height: 12,
+                              width: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.refresh, size: 12, color: Colors.white),
+                                SizedBox(width: 4),
+                                Text(
+                                  "Check Status",
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
                   ),
-                ),
               ],
             ),
 

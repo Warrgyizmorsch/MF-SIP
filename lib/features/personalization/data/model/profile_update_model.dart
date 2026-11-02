@@ -356,8 +356,8 @@ class ProfileDataModel {
           ? parsedNominees.first
           : null,
 
-      bankAccounts: json['bank_accounts'] != null
-          ? (json['bank_accounts'] as List)
+      bankAccounts: (json['bank_accounts'] ?? json['banks']) != null
+          ? ((json['bank_accounts'] ?? json['banks']) as List)
                 .map(
                   (e) => BankAccountModel.fromJson(e as Map<String, dynamic>),
                 )
@@ -545,10 +545,23 @@ class BankAccountModel {
   final int? verified;
   final String? verifiedAt;
   final String? proof;
+  final String? proofDocId;
   final String? proofImage;
   final String? createdAt;
   final String? updatedAt;
   final List<MfuMandateModel>? approvedMandates;
+  final String? mfuBankId;
+  final String? mfuBankValidatedAt;
+  final String? mfuBankExistFlag;
+  final String? mfuBankResponse;
+  final bool? isNct;
+  final String? status;
+  final String? nctStatus;
+  final String? nctRefNo;
+  final String? nctUniqId;
+  final String? nctRemarks;
+  final String? rejectionRemarks;
+  final bool? canCheckStatus;
 
   BankAccountModel({
     this.id,
@@ -563,16 +576,29 @@ class BankAccountModel {
     this.verified,
     this.verifiedAt,
     this.proof,
+    this.proofDocId,
     this.proofImage,
     this.createdAt,
     this.updatedAt,
     this.approvedMandates,
+    this.mfuBankId,
+    this.mfuBankValidatedAt,
+    this.mfuBankExistFlag,
+    this.mfuBankResponse,
+    this.isNct,
+    this.status,
+    this.nctStatus,
+    this.nctRefNo,
+    this.nctUniqId,
+    this.nctRemarks,
+    this.rejectionRemarks,
+    this.canCheckStatus,
   });
 
   factory BankAccountModel.fromJson(Map<String, dynamic> json) {
     return BankAccountModel(
       id: json.parse<int>('id'),
-      userId: json.parse<int>('user_id'),
+      userId: json.parse<int>('user_id') ?? json.parse<int>('uid'),
       accountType: json.parse<String>('account_type'),
       accountHolderName: json.parse<String>('account_holder_name'),
       accountNumberEncrypted: json.parse<String>('account_number_encrypted'),
@@ -580,12 +606,29 @@ class BankAccountModel {
       ifscCode: json.parse<String>('ifsc_code'),
       micrCode: json.parse<String>('micr_code'),
       bankName: json.parse<String>('bank_name'),
-      verified: json.parse<int>('verified'),
+      verified: json['verified'] is bool
+          ? (json['verified'] == true ? 1 : 0)
+          : json.parse<int>('verified'),
       verifiedAt: json.parse<String>('verified_at'),
       proof: json.parse<String>('proof'),
+      proofDocId: json.parse<String>('proof_doc_id') ??
+          json.parse<String>('proofDocId'),
       proofImage: json.parse<String>('proof_image'),
       createdAt: json.parse<String>('created_at'),
       updatedAt: json.parse<String>('updated_at'),
+      mfuBankId: json.parse<String>('mfu_bank_id'),
+      mfuBankValidatedAt: json.parse<String>('mfu_bank_validated_at'),
+      mfuBankExistFlag: json.parse<String>('mfu_bank_exist_flag'),
+      mfuBankResponse: json.parse<String>('mfu_bank_response'),
+      isNct: json.parse<bool>('is_nct'),
+      status: json.parse<String>('status'),
+      nctStatus: json.parse<String>('nct_status'),
+      nctRefNo: json.parse<String>('nct_ref_no'),
+      nctUniqId: json.parse<String>('nctUniqId') ??
+          json.parse<String>('nct_uniq_id'),
+      nctRemarks: json.parse<String>('nct_remarks'),
+      rejectionRemarks: json.parse<String>('rejection_remarks'),
+      canCheckStatus: json.parse<bool>('can_check_status'),
       approvedMandates: json['approved_mandates'] != null
           ? (json['approved_mandates'] as List)
                 .map((e) => MfuMandateModel.fromJson(e as Map<String, dynamic>))

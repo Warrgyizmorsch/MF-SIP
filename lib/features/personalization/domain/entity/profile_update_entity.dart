@@ -634,10 +634,23 @@ class BankAccountEntity extends Equatable {
   final int? verified;
   final String? verifiedAt;
   final String? proof;
+  final String? proofDocId;
   final String? proofImage;
   final String? createdAt;
   final String? updatedAt;
   final List<MfuMandateEntity>? approvedMandates;
+  final String? mfuBankId;
+  final String? mfuBankValidatedAt;
+  final String? mfuBankExistFlag;
+  final String? mfuBankResponse;
+  final bool? isNct;
+  final String? status;
+  final String? nctStatus;
+  final String? nctRefNo;
+  final String? nctUniqId;
+  final String? nctRemarks;
+  final String? rejectionRemarks;
+  final bool? canCheckStatus;
 
   const BankAccountEntity({
     required this.id,
@@ -652,11 +665,55 @@ class BankAccountEntity extends Equatable {
     this.micrCode,
     this.verifiedAt,
     this.proof,
+    this.proofDocId,
     this.proofImage,
     this.createdAt,
     this.updatedAt,
     this.approvedMandates,
+    this.mfuBankId,
+    this.mfuBankValidatedAt,
+    this.mfuBankExistFlag,
+    this.mfuBankResponse,
+    this.isNct,
+    this.status,
+    this.nctStatus,
+    this.nctRefNo,
+    this.nctUniqId,
+    this.nctRemarks,
+    this.rejectionRemarks,
+    this.canCheckStatus,
   });
+
+  /// Fully verified and active in MFU
+  bool get isFullyApproved =>
+      (verified == 1) ||
+      (mfuBankExistFlag?.toUpperCase() == 'Y') ||
+      (nctStatus?.toLowerCase() == 'approved') ||
+      (status?.toLowerCase() == 'approved');
+
+  /// Verification pending with MFU
+  bool get isPendingValidation =>
+      !isFullyApproved &&
+      (mfuBankExistFlag?.toUpperCase() == 'N' ||
+       nctStatus?.toLowerCase() == 'pending' ||
+       status?.toLowerCase() == 'pending' ||
+       verified == 0);
+
+  /// Rejected by MFU or AMC
+  bool get isRejected =>
+      nctStatus?.toLowerCase() == 'rejected' ||
+      status?.toLowerCase() == 'rejected';
+
+  /// Masked account number display fallback
+  String get maskedAccountNumber {
+    if (accountNumberEncrypted != null && accountNumberEncrypted!.isNotEmpty) {
+      return accountNumberEncrypted!;
+    }
+    if (accountNumber != null && accountNumber!.length >= 4) {
+      return '•••• •••• •••• ${accountNumber!.substring(accountNumber!.length - 4)}';
+    }
+    return accountNumber ?? '****';
+  }
 
   @override
   List<Object?> get props => [
@@ -672,10 +729,23 @@ class BankAccountEntity extends Equatable {
     verified,
     verifiedAt,
     proof,
+    proofDocId,
     proofImage,
     createdAt,
     updatedAt,
     approvedMandates,
+    mfuBankId,
+    mfuBankValidatedAt,
+    mfuBankExistFlag,
+    mfuBankResponse,
+    isNct,
+    status,
+    nctStatus,
+    nctRefNo,
+    nctUniqId,
+    nctRemarks,
+    rejectionRemarks,
+    canCheckStatus,
   ];
 }
 
@@ -694,10 +764,23 @@ extension BankAccountEntityX on BankAccountModel {
       verified: verified,
       verifiedAt: verifiedAt,
       proof: proof,
+      proofDocId: proofDocId,
       proofImage: proofImage,
       createdAt: createdAt,
       updatedAt: updatedAt,
       approvedMandates: approvedMandates?.map((e) => e.toEntity()).toList(),
+      mfuBankId: mfuBankId,
+      mfuBankValidatedAt: mfuBankValidatedAt,
+      mfuBankExistFlag: mfuBankExistFlag,
+      mfuBankResponse: mfuBankResponse,
+      isNct: isNct,
+      status: status,
+      nctStatus: nctStatus,
+      nctRefNo: nctRefNo,
+      nctUniqId: nctUniqId,
+      nctRemarks: nctRemarks,
+      rejectionRemarks: rejectionRemarks,
+      canCheckStatus: canCheckStatus,
     );
   }
 }

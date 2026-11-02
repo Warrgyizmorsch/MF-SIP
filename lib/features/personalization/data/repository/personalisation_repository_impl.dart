@@ -1,3 +1,5 @@
+import 'package:my_sip/features/personalization/data/model/user_bank_list_model.dart';
+import 'package:my_sip/features/personalization/domain/entity/user_bank_list_entity.dart';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
@@ -311,6 +313,21 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
         uid: uid,
         bankId: bankId,
       );
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<UserBankListEntity>, ApiError>> getUserBankList({
+    required int uid,
+  }) async {
+    try {
+      final response = await _remoteDataSource.getUserBankList(uid: uid);
       return response.fold(
         (successResult) => Left(Result.success(successResult.data!.toEntity())),
         (error) => Right(error),

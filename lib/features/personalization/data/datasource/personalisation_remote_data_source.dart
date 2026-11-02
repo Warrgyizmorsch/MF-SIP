@@ -1,3 +1,4 @@
+import 'package:my_sip/features/personalization/data/model/user_bank_list_model.dart';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
@@ -443,6 +444,43 @@ class PersonalisationRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'deleteBank Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<UserBankListModel>, ApiError>> getUserBankList({
+    required int uid,
+  }) async {
+    try {
+      final body = {"uid": uid};
+
+      createLog(
+        "[PersonalisationRemoteDataSource] getUserBankList Request: $body",
+      );
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/bank/list",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+        data: body,
+      );
+
+      createLog(
+        "[PersonalisationRemoteDataSource] getUserBankList Response: $resp",
+      );
+
+      if (resp != null && (resp['success'] == true || resp['status'] == true)) {
+        final result = UserBankListModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(
+            message: resp?['message'] ?? 'Failed to fetch bank accounts',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'getUserBankList Exception: $e'));
     }
   }
 }

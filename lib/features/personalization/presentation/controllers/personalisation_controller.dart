@@ -50,6 +50,7 @@ class PersonalisationController extends GetxController {
     _checkPanEditPermission();
     // fetchBanks();
     fetchUserDetails();
+    fetchUserBankList();
     bankIfscController.addListener(() {
       final text = bankIfscController.text;
       if (text.length == 11) {
@@ -408,6 +409,12 @@ class PersonalisationController extends GetxController {
   final isLinkedBankLoading = false.obs;
   // final linkedBankAccount = Rxn<dynamic>();
   final linkedBankAccounts = <profileEntity.BankAccountEntity>[].obs;
+  final RxBool isFetchingUserBanks = false.obs;
+  final RxString userBankNctStatus = ''.obs;
+  final RxString userBankNctRefNo = ''.obs;
+  final RxString userBankNctUniqId = ''.obs;
+  final RxBool userBankCanCheckStatus = false.obs;
+  final RxBool canAddMoreBanksFromApi = true.obs;
 
   final RxBool isFetchingIFSC = false.obs;
   final RxString resolvedBranch = ''.obs;
@@ -543,6 +550,78 @@ class PersonalisationController extends GetxController {
       }
     } catch (e) {
       log("Error picking file: $e");
+    }
+  }
+
+  Future<void> fetchUserBankList({bool isRefresh = false}) async {
+    final uid = session.getUserData?.id;
+    if (uid == null || uid == 0) return;
+
+    if (isRefresh) {
+      isFetchingUserBanks.value = true;
+    } else {
+      isLinkedBankLoading.value = true;
+    }
+
+    try {
+      final result = await _useCases.getUserBankListUseCase.call(uid: uid);
+
+      result.fold(
+        (success) {
+          final bankListData = success.data;
+          if (bankListData != null) {
+            userBankNctStatus.value = bankListData.nctStatus;
+            userBankNctRefNo.value = bankListData.nctRefNo;
+            userBankNctUniqId.value = bankListData.nctUniqId;
+            userBankCanCheckStatus.value = bankListData.canCheckStatus;
+            canAddMoreBanksFromApi.value = bankListData.canAddMore;
+
+            if (bankListData.banks.isNotEmpty) {
+              linkedBankAccounts.assignAll(bankListData.banks);
+            } else if (userData.value?.bankAccounts?.isNotEmpty ?? false) {
+              linkedBankAccounts.assignAll(userData.value!.bankAccounts!);
+            } else {
+              linkedBankAccounts.clear();
+            }
+
+            hasBank.value = linkedBankAccounts.isNotEmpty;
+
+            if (isRefresh) {
+              final pendingBank = linkedBankAccounts.firstWhereOrNull((b) => b.isPendingValidation);
+              if (pendingBank != null) {
+                final ref = pendingBank.nctRefNo?.isNotEmpty == true
+                    ? pendingBank.nctRefNo
+                    : bankListData.nctRefNo;
+                CustomSnackbar.info(
+                  title: "Verification In Progress",
+                  message: (ref != null && ref.isNotEmpty)
+                      ? "MFU bank verification is in progress (Ref: $ref)."
+                      : "MFU bank verification is in progress.",
+                );
+              } else {
+                CustomSnackbar.success(
+                  title: "Updated",
+                  message: "Bank account status updated successfully.",
+                );
+              }
+            }
+          }
+        },
+        (error) {
+          log("[PersonalisationController] fetchUserBankList error: ${error.message}");
+          if (isRefresh) {
+            CustomSnackbar.warning(
+              title: "Notice",
+              message: error.message ?? "Could not refresh bank status right now.",
+            );
+          }
+        },
+      );
+    } catch (e) {
+      log("[PersonalisationController] fetchUserBankList exception: $e");
+    } finally {
+      isFetchingUserBanks.value = false;
+      isLinkedBankLoading.value = false;
     }
   }
 
@@ -1027,6 +1106,7 @@ class PersonalisationController extends GetxController {
       await result.fold(
         (success) async {
           log("✅ Bank added successfully: ${success.data?.message}");
+          await fetchUserBankList();
           await fetchUserDetails();
           hasBank.value = true;
           clearBankFields();
@@ -1074,11 +1154,41 @@ class PersonalisationController extends GetxController {
       return;
     }
 
+    final targetBank =
+        linkedBankAccounts.firstWhereOrNull((b) => b.id == bankId);
+
+    // Guard 1: In-flight NCT pending bank lock (Option A)
+    if (targetBank != null && targetBank.isPendingValidation) {
+      final ref = targetBank.nctRefNo?.isNotEmpty == true
+          ? targetBank.nctRefNo!
+          : userBankNctRefNo.value;
+      ULoaders.warning(
+        title: "Verification In Progress",
+        message: ref.isNotEmpty
+            ? "This bank account is currently being verified by MF Utility (Ref: $ref). It cannot be removed while verification is in flight."
+            : "This bank account is currently being verified by MF Utility. It cannot be removed while verification is in flight.",
+      );
+      return;
+    }
+
+    // Guard 2: Minimum total bank count check
     if (linkedBankAccounts.length <= 1) {
       ULoaders.warning(
         title: "Bank Account Required",
         message:
             "You must keep at least one bank account for investments. Please add a new bank account before deleting this one.",
+      );
+      return;
+    }
+
+    // Guard 3: Primary / Last approved bank check
+    final approvedBanks =
+        linkedBankAccounts.where((b) => b.isFullyApproved).toList();
+    if (approvedBanks.length <= 1 && (targetBank?.isFullyApproved ?? false)) {
+      ULoaders.warning(
+        title: "Primary Bank Required",
+        message:
+            "You cannot delete your only approved bank while another bank is still pending verification with MF Utility.",
       );
       return;
     }
@@ -1107,6 +1217,7 @@ class PersonalisationController extends GetxController {
           // 3. Update local state
           linkedBankAccounts.removeWhere((bank) => bank.id == bankId);
           hasBank.value = linkedBankAccounts.isNotEmpty;
+          fetchUserBankList();
 
           Get.back(); // Close loading dialog
           CustomSnackbar.success(
