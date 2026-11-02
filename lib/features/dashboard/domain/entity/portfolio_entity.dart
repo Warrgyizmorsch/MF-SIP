@@ -143,6 +143,13 @@ class MfuPortfolioEntity extends Equatable {
 
   int get totalFunds => portfolio.length;
 
+  MfuPortfolioEntity copyWith({List<MfuPortfolioItemEntity>? portfolio}) =>
+      MfuPortfolioEntity(
+        success: success,
+        portfolio: portfolio ?? this.portfolio,
+        summary: summary,
+      );
+
   List<MfuPortfolioItemEntity> get sipFunds =>
       portfolio.where((f) => f.investmentType.toLowerCase() == 'sip').toList();
 
@@ -420,6 +427,77 @@ class MfuPortfolioItemEntity extends Equatable {
     this.transactions = const [],
   });
 
+  /// Identifier used by the existing portfolio-to-goal link endpoint integration.
+  /// Keep the fund-ID precedence used by Dashboard, including string API values.
+  int get goalLinkId {
+    final fundId = int.tryParse(mfuOrderFundId?.toString().trim() ?? '');
+    if (fundId != null && fundId > 0) return fundId;
+    return (mfuOrderId ?? 0) > 0 ? mfuOrderId! : 0;
+  }
+
+  String get normalizedSchemeCode => schemeCode.trim().toUpperCase();
+
+  bool get hasGoalAssociation =>
+      (goalId ?? 0) > 0 || (goalName?.trim().isNotEmpty ?? false);
+
+  MfuPortfolioItemEntity copyWith({int? goalId, String? goalName}) {
+    return MfuPortfolioItemEntity(
+      schemeCode: schemeCode,
+      fundName: fundName,
+      amcName: amcName,
+      amcLogo: amcLogo,
+      investmentType: investmentType,
+      investedAmount: investedAmount,
+      totalUnits: totalUnits,
+      currentNav: currentNav,
+      currentValue: currentValue,
+      gainLoss: gainLoss,
+      gainLossPercent: gainLossPercent,
+      oneDayChange: oneDayChange,
+      oneDayChangePercent: oneDayChangePercent,
+      purchaseNav: purchaseNav,
+      purchaseDate: purchaseDate,
+      folioNo: folioNo,
+      lastTransactionDate: lastTransactionDate,
+      navDate: navDate,
+      navChange: navChange,
+      allotmentStatus: allotmentStatus,
+      unitStatus: unitStatus,
+      allotmentStatusLabel: allotmentStatusLabel,
+      allotmentMessage: allotmentMessage,
+      isUnitAllotted: isUnitAllotted,
+      mfuOrderFundId: mfuOrderFundId,
+      mfuOrderId: mfuOrderId,
+      goalId: goalId ?? this.goalId,
+      goalName: goalName ?? this.goalName,
+      hasPendingRedemption: hasPendingRedemption,
+      redemptionStatus: redemptionStatus,
+      redemptionMessage: redemptionMessage,
+      redemptionDetails: redemptionDetails,
+      redeemedAmount: redeemedAmount,
+      redeemedUnits: redeemedUnits,
+      isSipFlag: isSipFlag,
+      sipStatus: sipStatus,
+      isSipCancelled: isSipCancelled,
+      hasPendingSipCancellation: hasPendingSipCancellation,
+      sipCancellationDetails: sipCancellationDetails,
+      latestOrderStatus: latestOrderStatus,
+      latestOrderStatusLabel: latestOrderStatusLabel,
+      exitLoad: exitLoad,
+      isRedeemed: isRedeemed,
+      holdingStatus: holdingStatus,
+      firstInvestedDate: firstInvestedDate,
+      latestInvestedDate: latestInvestedDate,
+      latestPurchaseNav: latestPurchaseNav,
+      sipFrequency: sipFrequency,
+      sipFrequencyType: sipFrequencyType,
+      sipDay: sipDay,
+      nextSipDate: nextSipDate,
+      totalInstallments: totalInstallments,
+      transactions: transactions,
+    );
+  }
+
   // Computed properties for easy UI styling
   bool get isProfit => gainLoss >= 0;
   bool get isOneDayProfit => oneDayChange >= 0;
@@ -489,6 +567,9 @@ class MfuPortfolioItemEntity extends Equatable {
     allotmentMessage,
     isUnitAllotted,
     mfuOrderFundId,
+    mfuOrderId,
+    goalId,
+    goalName,
     hasPendingRedemption,
     redemptionStatus,
     redemptionMessage,

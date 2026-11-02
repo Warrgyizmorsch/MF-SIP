@@ -4985,18 +4985,6 @@ class PortfolioCard extends StatelessWidget {
     );
   }
 
-  static int _resolveOrderId(MfuPortfolioItemEntity fund) {
-    if (fund.mfuOrderFundId is int && (fund.mfuOrderFundId as int) > 0) {
-      return fund.mfuOrderFundId as int;
-    }
-    final parsed = int.tryParse(fund.mfuOrderFundId?.toString() ?? '');
-    if (parsed != null && parsed > 0) return parsed;
-    if (fund.mfuOrderId != null && fund.mfuOrderId! > 0) {
-      return fund.mfuOrderId!;
-    }
-    return 0;
-  }
-
   static void showLinkGoalBottomSheet(
     BuildContext context,
     MfuPortfolioItemEntity fund,
@@ -5011,7 +4999,7 @@ class PortfolioCard extends StatelessWidget {
       return;
     }
     final goalSipController = Get.find<GoalSipController>();
-    final int orderId = _resolveOrderId(fund);
+    final int orderId = fund.goalLinkId;
 
     if (orderId == 0) {
       showCustomToast(
@@ -5032,7 +5020,12 @@ class PortfolioCard extends StatelessWidget {
       builder: (ctx) {
         return Obx(() {
           final goals = goalSipController.goalResponse.value?.data ?? [];
-          final isLinking = goalSipController.linkingFundMap[orderId] ?? false;
+          final isLinking =
+              (goalSipController.linkingFundMap[orderId] ?? false) ||
+              goalSipController.linkingSchemeCodes.contains(
+                fund.normalizedSchemeCode,
+              );
+          final canLink = goalSipController.canLinkPortfolioFund(fund);
 
           // Check if this fund is currently linked to any goal
           final currentlyLinkedGoal = goals.firstWhereOrNull(
@@ -5044,7 +5037,11 @@ class PortfolioCard extends StatelessWidget {
                     fund.goalName!.isNotEmpty &&
                     g.goalName.toLowerCase() ==
                         fund.goalName!.toLowerCase()) ||
-                g.goalFunds.any((gf) => gf.schemeCode == fund.schemeCode),
+                g.goalFunds.any(
+                  (gf) =>
+                      gf.schemeCode.trim().toUpperCase() ==
+                      fund.normalizedSchemeCode,
+                ),
           );
 
           return Padding(
@@ -5080,7 +5077,7 @@ class PortfolioCard extends StatelessWidget {
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 16),
-                if (currentlyLinkedGoal != null) ...[
+                if (!canLink && !isLinking) ...[
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(10),
@@ -5099,7 +5096,7 @@ class PortfolioCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            "This fund is already linked to '${currentlyLinkedGoal.goalName}'. A fund can only be linked to one goal.",
+                            "This fund is already linked to '${currentlyLinkedGoal?.goalName ?? fund.goalName ?? 'another goal'}'. A fund can only be linked to one goal.",
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -5164,7 +5161,9 @@ class PortfolioCard extends StatelessWidget {
                                 goal.goalName.toLowerCase() ==
                                     fund.goalName!.toLowerCase()) ||
                             goal.goalFunds.any(
-                              (gf) => gf.schemeCode == fund.schemeCode,
+                              (gf) =>
+                                  gf.schemeCode.trim().toUpperCase() ==
+                                  fund.normalizedSchemeCode,
                             );
 
                         return ListTile(
@@ -5206,7 +5205,7 @@ class PortfolioCard extends StatelessWidget {
                                     ),
                                   ),
                                 )
-                              : currentlyLinkedGoal != null
+                              : !canLink
                                   ? Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8,
@@ -5241,13 +5240,19 @@ class PortfolioCard extends StatelessWidget {
                                         final success =
                                             await goalSipController.linkFundToGoal(
                                           goalId: goal.id,
-                                          mfuOrderId: orderId,
+                                          holding: fund,
                                           goalName: goal.goalName,
                                         );
                                         if (success &&
                                             Get.isRegistered<DashboardController>()) {
                                           await Get.find<DashboardController>()
-                                              .getPortfolio();
+                                              .getPortfolio(forceRefresh: true);
+                                          Get.find<DashboardController>()
+                                              .markHoldingLinked(
+                                            mfuOrderId: orderId,
+                                            goalId: goal.id,
+                                            goalName: goal.goalName,
+                                          );
                                         }
                                       },
                                       child: const Text(

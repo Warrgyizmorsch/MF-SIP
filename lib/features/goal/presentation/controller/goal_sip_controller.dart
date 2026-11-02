@@ -8,6 +8,8 @@ import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
+import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
@@ -1493,13 +1495,51 @@ class GoalSipController extends GetxController {
   }
 
   final RxMap<int, bool> linkingFundMap = <int, bool>{}.obs;
+  final RxSet<String> linkingSchemeCodes = <String>{}.obs;
+
+  bool canLinkPortfolioFund(MfuPortfolioItemEntity holding) {
+    final id = holding.goalLinkId;
+    final scheme = holding.normalizedSchemeCode;
+    if (id <= 0 ||
+        scheme.isEmpty ||
+        holding.hasGoalAssociation ||
+        linkingFundMap[id] == true ||
+        linkingSchemeCodes.contains(scheme)) {
+      return false;
+    }
+    if (Get.isRegistered<DashboardController>()) {
+      final portfolio = Get.find<DashboardController>().portfolioData.value;
+      final linked = portfolio?.portfolio.any(
+        (item) =>
+            (item.goalLinkId == id || item.normalizedSchemeCode == scheme) &&
+            item.hasGoalAssociation,
+      );
+      if (linked == true) return false;
+    }
+    if (goalResponse.value?.data.any(
+          (goal) => goal.goalFunds.any(
+            (fund) => fund.schemeCode.trim().toUpperCase() == scheme,
+          ),
+        ) == true) {
+      return false;
+    }
+    return !(currentGoalDetail.value?.linkedFunds.any(
+          (fund) => fund.schemeCode.trim().toUpperCase() == scheme,
+        ) ??
+        false);
+  }
 
   Future<bool> linkFundToGoal({
     required int goalId,
-    required int mfuOrderId,
+    required MfuPortfolioItemEntity holding,
     String? goalName,
+    bool refreshGoals = true,
   }) async {
+    if (goalId <= 0 || !canLinkPortfolioFund(holding)) return false;
+    final mfuOrderId = holding.goalLinkId;
+    final scheme = holding.normalizedSchemeCode;
     linkingFundMap[mfuOrderId] = true;
+    linkingSchemeCodes.add(scheme);
     try {
       final result = await goalUseCases.linkFundToGoalUseCase(
         goalId: goalId,
@@ -1508,6 +1548,13 @@ class GoalSipController extends GetxController {
 
       return await result.fold(
         (success) async {
+          if (Get.isRegistered<DashboardController>()) {
+            Get.find<DashboardController>().markHoldingLinked(
+              mfuOrderId: mfuOrderId,
+              goalId: goalId,
+              goalName: goalName,
+            );
+          }
           final msg = success.data?.message;
           showCustomToast(
             title: "Fund Linked",
@@ -1517,9 +1564,11 @@ class GoalSipController extends GetxController {
             backgroundColor: Colors.green,
             icon: Icons.check_circle_outline,
           );
-          await getAllGoals();
-          if (currentGoalDetail.value?.id == goalId) {
-            await fetchSingleGoal(goalId);
+          if (refreshGoals) {
+            await getAllGoals();
+            if (currentGoalDetail.value?.id == goalId) {
+              await fetchSingleGoal(goalId);
+            }
           }
           return true;
         },
@@ -1543,6 +1592,7 @@ class GoalSipController extends GetxController {
       return false;
     } finally {
       linkingFundMap[mfuOrderId] = false;
+      linkingSchemeCodes.remove(scheme);
     }
   }
 

@@ -4,7 +4,6 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:my_sip/features/goal/domain/entity/single_goal_detail_entity.dart';
@@ -16,6 +15,8 @@ import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
+
+import 'goal_portfolio_link_tab.dart';
 
 class AddFundBottomSheet extends StatefulWidget {
   final int goalId;
@@ -86,11 +87,6 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
       Get.find<MutualFundController>();
   final MfuController _mfuController = Get.find<MfuController>();
 
-  DashboardController? get _dashboardController =>
-      Get.isRegistered<DashboardController>()
-      ? Get.find<DashboardController>()
-      : null;
-
   @override
   void initState() {
     super.initState();
@@ -109,10 +105,6 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
 
     if (_mutualController.searchFund.isEmpty) {
       _mutualController.fetchData();
-    }
-    if (_dashboardController != null &&
-        _dashboardController!.portfolioData.value == null) {
-      _dashboardController!.getPortfolio();
     }
   }
 
@@ -658,7 +650,11 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
           Expanded(
             child: _activeTabIndex != 2
                 ? _buildInvestNewFundsTab()
-                : _buildLinkPortfolioTab(),
+                : GoalPortfolioLinkTab(
+                    goalId: widget.goalId,
+                    goal: widget.goal,
+                    liveDetail: widget.liveDetail,
+                  ),
           ),
 
           // Bottom Bar for Invest (Tab 0 & Tab 1)
@@ -1377,245 +1373,4 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
     );
   }
 
-  /// ── Tab 1: Link from Portfolio View ──
-  Widget _buildLinkPortfolioTab() {
-    if (_dashboardController == null) {
-      return const Center(
-        child: Text(
-          "Portfolio is not initialized",
-          style: TextStyle(color: Colors.grey),
-        ),
-      );
-    }
-
-    return Obx(() {
-      if (_dashboardController!.isLoadingPortfolio.value) {
-        return const Center(
-          child: CircularProgressIndicator(color: Ucolors.primary),
-        );
-      }
-
-      final portfolio =
-          _dashboardController!.portfolioData.value?.portfolio ?? [];
-      final currentGoalId = widget.goalId;
-      final allGoals = _goalController.goalResponse.value?.data ?? [];
-
-      final unlinkedFunds = portfolio.where((item) {
-        // Filter out holdings where the balance or units are 0 or negative
-        if (item.currentValue <= 0 || item.totalUnits <= 0) return false;
-
-        // 1 fund can only be linked to 1 goal.
-        // 1. If holding is already linked to any goal directly
-        if (item.goalId != null && item.goalId! > 0) return false;
-        if (item.goalName != null && item.goalName!.trim().isNotEmpty) {
-          return false;
-        }
-
-        // 2. Check if this scheme is already linked to any goal
-        final isLinkedToAnyGoal = allGoals.any(
-          (g) => g.goalFunds.any((gf) => gf.schemeCode == item.schemeCode),
-        );
-        if (isLinkedToAnyGoal) return false;
-
-        final isLinkedToLiveDetail = widget.liveDetail?.linkedFunds.any(
-              (lf) => lf.schemeCode == item.schemeCode,
-            ) ??
-            false;
-        if (isLinkedToLiveDetail) return false;
-
-        final isLinkedToGoal = widget.goal?.goalFunds.any(
-              (gf) => gf.schemeCode == item.schemeCode,
-            ) ??
-            false;
-        if (isLinkedToGoal) return false;
-
-        return true;
-      }).toList();
-
-      if (unlinkedFunds.isEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF1F5F9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Iconsax.wallet_3,
-                    size: 32,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  "No Available Holdings to Link",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  "All your portfolio holdings are already linked to goals or you have no active investments.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-
-      return ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: unlinkedFunds.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (context, index) {
-          final item = unlinkedFunds[index];
-          final bool isLinking =
-              _goalController.linkingFundMap[item.mfuOrderId] ?? false;
-
-          return Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: item.amcLogo.isNotEmpty
-                      ? CustomCachedImage(
-                          imageUrl: item.amcLogo,
-                          size: 36,
-                        )
-                      : Container(
-                          width: 36,
-                          height: 36,
-                          color: const Color(0xFFEFF6FF),
-                          child: const Icon(
-                            Icons.account_balance,
-                            color: Color(0xFF2563EB),
-                          ),
-                        ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.fundName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              item.investmentType.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF475569),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            "Val: ₹${item.currentValue.toStringAsFixed(0)}",
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  height: 32,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Ucolors.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: isLinking
-                        ? null
-                        : () async {
-                            if (item.mfuOrderId == null) {
-                              Get.snackbar(
-                                "Error",
-                                "Order ID missing for this holding",
-                              );
-                              return;
-                            }
-                            await _goalController.linkFundToGoal(
-                              goalId: currentGoalId,
-                              mfuOrderId: item.mfuOrderId!,
-                              goalName:
-                                  widget.liveDetail?.goalName ??
-                                  widget.goal?.goalName,
-                            );
-                            await _dashboardController?.getPortfolio();
-                            await _goalController.fetchSingleGoal(
-                              currentGoalId,
-                            );
-                            await _goalController.getAllGoals();
-                          },
-                    child: isLinking
-                        ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            "Link",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    });
-  }
 }

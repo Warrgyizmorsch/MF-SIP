@@ -82,13 +82,15 @@ class DashboardController extends GetxController {
         break;
       case 'Redeem':
         result = allFunds
-            .where((f) =>
-                f.isRedeemed ||
-                f.holdingStatus.toLowerCase() == 'redeemed' ||
-                f.investmentType.toLowerCase() == 'redeem' ||
-                f.isRedemptionSettled ||
-                f.redeemedAmount > 0 ||
-                f.redeemedUnits > 0)
+            .where(
+              (f) =>
+                  f.isRedeemed ||
+                  f.holdingStatus.toLowerCase() == 'redeemed' ||
+                  f.investmentType.toLowerCase() == 'redeem' ||
+                  f.isRedemptionSettled ||
+                  f.redeemedAmount > 0 ||
+                  f.redeemedUnits > 0,
+            )
             .toList();
         break;
       case 'Cancelled SIP':
@@ -182,29 +184,70 @@ class DashboardController extends GetxController {
   //   final failedTxns = txns?.failed ?? [];
   // });
 
-  Future<void> getPortfolio() async {
+  Future<void>? _portfolioRequest;
+
+  Future<void> getPortfolio({bool forceRefresh = false}) async {
+    final pending = _portfolioRequest;
+    if (pending != null) {
+      await pending;
+      if (forceRefresh) await getPortfolio();
+      return;
+    }
+    final request = _loadPortfolio();
+    _portfolioRequest = request;
+    try {
+      await request;
+    } finally {
+      if (identical(_portfolioRequest, request)) _portfolioRequest = null;
+    }
+  }
+
+  Future<void> _loadPortfolio() async {
     isLoadingPortfolio.value = true;
     errorMessagePortfolio.value = '';
+    try {
+      final uid = session.getUserData?.id ?? 0;
+      final result = await usecases.getPortfolioUseCase(uid: uid);
+      result.fold(
+        (success) {
+          if (success.data == null) {
+            errorMessagePortfolio.value = 'Failed to fetch portfolio';
+            return;
+          }
+          portfolioData.value = success.data;
+          log(
+            "[MfuController] Portfolio loaded: ${success.data?.totalFunds} funds",
+          );
+        },
+        (error) {
+          errorMessagePortfolio.value =
+              error.message ?? 'Failed to fetch portfolio';
+          Get.snackbar('Error', errorMessagePortfolio.value);
+        },
+      );
+    } catch (error) {
+      errorMessagePortfolio.value =
+          'Unable to load your portfolio. Please retry.';
+      log('[DashboardController] Portfolio load failed: $error');
+    } finally {
+      isLoadingPortfolio.value = false;
+    }
+  }
 
-    final uid = session.getUserData?.id ?? 0;
-
-    final result = await usecases.getPortfolioUseCase(uid: uid);
-
-    result.fold(
-      (success) {
-        portfolioData.value = success.data;
-        log(
-          "[MfuController] Portfolio loaded: ${success.data?.totalFunds} funds",
-        );
-      },
-      (error) {
-        errorMessagePortfolio.value =
-            error.message ?? 'Failed to fetch portfolio';
-        Get.snackbar('Error', errorMessagePortfolio.value);
-      },
+  void markHoldingLinked({
+    required int mfuOrderId,
+    required int goalId,
+    String? goalName,
+  }) {
+    final current = portfolioData.value;
+    if (current == null) return;
+    portfolioData.value = current.copyWith(
+      portfolio: current.portfolio.map((holding) {
+        return holding.goalLinkId == mfuOrderId
+            ? holding.copyWith(goalId: goalId, goalName: goalName)
+            : holding;
+      }).toList(),
     );
-
-    isLoadingPortfolio.value = false;
   }
 
   Future<void> refreshDashboard() async {
