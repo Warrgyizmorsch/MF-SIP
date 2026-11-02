@@ -458,11 +458,13 @@ class PersonalisationController extends GetxController {
 
   Future<void> pickBankProof(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
+    // High-resolution document capture: 2048px @ 85% quality preserves sharp, legible text
+    // for IFSC, account numbers, and MICR while keeping file size safely under 500 KB.
     final XFile? image = await picker.pickImage(
       source: source,
-      imageQuality: 70,
-      maxHeight: 1200,
-      maxWidth: 1200,
+      imageQuality: 85,
+      maxHeight: 2048,
+      maxWidth: 2048,
     );
     if (image != null) {
       final ext = image.name.split('.').last.toLowerCase();
@@ -483,7 +485,8 @@ class PersonalisationController extends GetxController {
       if (bytes.lengthInBytes > 500 * 1024) {
         CustomSnackbar.warning(
           title: "File Too Large",
-          message: "Image size must not exceed 500 KB.",
+          message:
+              "Bank proof size (${(bytes.lengthInBytes / 1024).round()} KB) exceeds 500 KB. Please crop closer to the document and try again.",
         );
         return;
       }

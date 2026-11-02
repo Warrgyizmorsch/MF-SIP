@@ -394,20 +394,52 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
               child: hasFile
                   ? Row(
                       children: [
-                        Icon(
-                          controller.bankProofFileName.value
-                                  .toLowerCase()
-                                  .endsWith('.pdf')
-                              ? Icons.picture_as_pdf
-                              : Icons.insert_drive_file,
-                          color:
-                              controller.bankProofFileName.value
-                                  .toLowerCase()
-                                  .endsWith('.pdf')
-                              ? Colors.red
-                              : Ucolors.primary,
-                          size: 32,
-                        ),
+                        if (!controller.bankProofFileName.value
+                                .toLowerCase()
+                                .endsWith('.pdf') &&
+                            controller.bankProofBytes.value != null)
+                          GestureDetector(
+                            onTap: () =>
+                                _showDocumentPreview(context, controller),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Stack(
+                                children: [
+                                  Image.memory(
+                                    controller.bankProofBytes.value!,
+                                    width: 44,
+                                    height: 44,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Positioned.fill(
+                                    child: Container(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.15),
+                                      child: const Icon(
+                                        Icons.zoom_in,
+                                        size: 20,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          Icon(
+                            controller.bankProofFileName.value
+                                    .toLowerCase()
+                                    .endsWith('.pdf')
+                                ? Icons.picture_as_pdf
+                                : Icons.insert_drive_file,
+                            color: controller.bankProofFileName.value
+                                    .toLowerCase()
+                                    .endsWith('.pdf')
+                                ? Colors.red
+                                : Ucolors.primary,
+                            size: 32,
+                          ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -424,17 +456,49 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 2),
-                              const Text(
-                                'Tap to change file',
-                                style: TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  fontSize: 11,
-                                  color: Colors.grey,
-                                ),
+                              Row(
+                                children: [
+                                  if (controller.bankProofBytes.value !=
+                                      null) ...[
+                                    Text(
+                                      '${(controller.bankProofBytes.value!.lengthInBytes / 1024).toStringAsFixed(1)} KB',
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    const Text(' • ',
+                                        style: TextStyle(
+                                            color: Colors.grey, fontSize: 11)),
+                                  ],
+                                  const Text(
+                                    'Tap to change file',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
+                        if (!controller.bankProofFileName.value
+                                .toLowerCase()
+                                .endsWith('.pdf') &&
+                            controller.bankProofBytes.value != null)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.visibility_outlined,
+                              color: Ucolors.primary,
+                            ),
+                            tooltip: 'Preview document quality',
+                            onPressed: () =>
+                                _showDocumentPreview(context, controller),
+                          ),
                         IconButton(
                           icon: const Icon(
                             Icons.delete_outline,
@@ -481,6 +545,25 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
             ),
           );
         }),
+        const Gap(6),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.info_outline, size: 14, color: Colors.blueGrey.shade600),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Make sure account number, IFSC code, and account holder name are clear and legible to prevent bank verification rejection.',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 11,
+                  color: Colors.blueGrey.shade600,
+                  height: 1.3,
+                ),
+              ),
+            ),
+          ],
+        ),
 
         const Gap(40),
 
@@ -536,6 +619,87 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
                 ),
         ),
       ],
+    );
+  }
+
+  void _showDocumentPreview(
+      BuildContext context, PersonalisationController controller) {
+    final bytes = controller.bankProofBytes.value;
+    final fileName = controller.bankProofFileName.value;
+    if (bytes == null) return;
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.verified_outlined,
+                        size: 18, color: Ucolors.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        fileName,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Get.back(),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: InteractiveViewer(
+                      panEnabled: true,
+                      minScale: 1.0,
+                      maxScale: 4.0,
+                      child: Image.memory(
+                        bytes,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'Pinch or scroll to zoom in and inspect quality',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
