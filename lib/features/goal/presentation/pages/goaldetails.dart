@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
+import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
@@ -2039,16 +2040,11 @@ class LinkedFundsCard extends StatelessWidget {
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     onPressed: () {
-                                      Get.defaultDialog(
-                                        title: "Remove Fund",
-                                        middleText:
-                                            "Are you sure you want to remove this fund from your goal?",
-                                        textConfirm: "Remove",
-                                        textCancel: "Cancel",
-                                        confirmTextColor: Colors.white,
-                                        buttonColor: Colors.red,
+                                      DialogHelper.showRemoveFundDialog(
+                                        fundName: fund.fundName.isNotEmpty
+                                            ? fund.fundName
+                                            : 'this fund',
                                         onConfirm: () {
-                                          Get.back();
                                           goalSipController.deleteGoalFund(
                                             id: fundId,
                                             isEdit: false,
@@ -2229,16 +2225,12 @@ class LinkedFundsCard extends StatelessWidget {
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                   onPressed: () {
-                                    Get.defaultDialog(
-                                      title: "Remove Fund",
-                                      middleText:
-                                          "Are you sure you want to remove this fund from your goal?",
-                                      textConfirm: "Remove",
-                                      textCancel: "Cancel",
-                                      confirmTextColor: Colors.white,
-                                      buttonColor: Colors.red,
+                                    final fundTitle = fund.mutualFund?.schemeName ??
+                                        fund.mutualFund?.schemeCode?.toString() ??
+                                        'this fund';
+                                    DialogHelper.showRemoveFundDialog(
+                                      fundName: fundTitle,
                                       onConfirm: () {
-                                        Get.back();
                                         goalSipController.deleteGoalFund(
                                           id: fund.id,
                                           isEdit: false,
@@ -3733,16 +3725,11 @@ class GoalDetailSection extends StatelessWidget {
                                     padding: const EdgeInsets.only(left: 6),
                                     constraints: const BoxConstraints(),
                                     onPressed: () {
-                                      Get.defaultDialog(
-                                        title: "Remove Fund",
-                                        middleText:
-                                            "Are you sure you want to remove this fund from your goal?",
-                                        textConfirm: "Remove",
-                                        textCancel: "Cancel",
-                                        confirmTextColor: Colors.white,
-                                        buttonColor: Colors.red,
+                                      DialogHelper.showRemoveFundDialog(
+                                        fundName: fund.fundName.isNotEmpty
+                                            ? fund.fundName
+                                            : 'this fund',
                                         onConfirm: () {
-                                          Get.back();
                                           goalSipController.deleteGoalFund(
                                             id: fundId,
                                             isEdit: false,
@@ -3858,16 +3845,12 @@ class GoalDetailSection extends StatelessWidget {
                                       size: 18,
                                     ),
                                     onPressed: () {
-                                      Get.defaultDialog(
-                                        title: "Remove Fund",
-                                        middleText:
-                                            "Are you sure you want to remove this fund from your goal?",
-                                        textConfirm: "Remove",
-                                        textCancel: "Cancel",
-                                        confirmTextColor: Colors.white,
-                                        buttonColor: Colors.red,
+                                      final fundTitle = fund.mutualFund?.schemeName ??
+                                          fund.mutualFund?.schemeCode?.toString() ??
+                                          'this fund';
+                                      DialogHelper.showRemoveFundDialog(
+                                        fundName: fundTitle,
                                         onConfirm: () {
-                                          Get.back();
                                           goalSipController.deleteGoalFund(
                                             id: fund.id,
                                             isEdit: true,
