@@ -454,23 +454,6 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                         ),
 
                         const Gap(18),
-                        Obx(
-                          () => controller.isLoading.value || !controller.isSearchMode
-                              ? const SizedBox.shrink()
-                              : Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      controller.resultsCountLabel,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                        ),
 
                         Expanded(
                           child: Obx(() {
@@ -3130,27 +3113,6 @@ class MobileExploreLayout extends StatelessWidget {
             ),
           ),
 
-          SliverToBoxAdapter(
-            child: Obx(
-              () => controller.isLoading.value ||
-                      !controller.isSearchMode ||
-                      controller.searchFund.isEmpty
-                  ? const SizedBox.shrink()
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        controller.resultsCountLabel,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-            ),
-          ),
           Obx(() {
             if (controller.isLoading.value) {
               return const SliverFillRemaining(
