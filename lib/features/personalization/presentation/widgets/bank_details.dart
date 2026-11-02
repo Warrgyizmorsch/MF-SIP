@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -146,101 +144,38 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
               }
 
               // 3. DATA STATE (1, 2, or 3 Banks Exist)
-              final hasPendingBank = controller.userBankNctStatus.value.toLowerCase() == 'pending' ||
-                  controller.linkedBankAccounts.any((b) => b.isPendingValidation);
-              final activeRefNo = controller.userBankNctRefNo.value.isNotEmpty
-                  ? controller.userBankNctRefNo.value
-                  : (controller.linkedBankAccounts
-                          .firstWhereOrNull((b) => b.nctRefNo != null && b.nctRefNo!.isNotEmpty)
-                          ?.nctRefNo ??
-                      '');
-
               return Column(
                 children: [
-                  // ⏳ NCT Pending Information Banner
-                  if (hasPendingBank)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFFBEB),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFFDE68A)),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(
-                            Icons.pending_actions,
-                            color: Color(0xFFD97706),
-                            size: 22,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Bank Account Verification in Progress',
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.medium,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF92400E),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  activeRefNo.isNotEmpty
-                                      ? 'Your bank account addition request (Ref: $activeRefNo) is being verified by MF Utility. Once approved, it will be activated for investments.'
-                                      : 'Your bank account addition request is being verified by MF Utility. Once approved, it will be activated for investments.',
-                                  style: const TextStyle(
-                                    fontFamily: FontFamily.medium,
-                                    fontSize: 11,
-                                    color: Color(0xFFB45309),
-                                    height: 1.35,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  // Render all current bank cards
+                  ...controller.linkedBankAccounts.map(
+                    (bank) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: BankCard(
+                        onDelete: () {
+                          if (bank.id != null) {
+                            debugPrint(bank.id.toString());
+                            _confirmDelete(
+                              context,
+                              bank,
+                            );
+                          } else {
+                            Get.snackbar("Error", "Bank ID not found");
+                          }
+                        },
+                        bankName: bank.bankName ?? 'Unknown',
+                        cardNumber: bank.maskedAccountNumber,
+                        ifsccode: bank.ifscCode ?? '',
+                        isVerified: bank.isFullyApproved,
+                        nctStatus: bank.nctStatus ?? (bank.isPendingValidation ? 'pending' : null),
+                        nctRefNo: bank.nctRefNo ?? controller.userBankNctRefNo.value,
+                        canCheckStatus: bank.canCheckStatus ?? controller.userBankCanCheckStatus.value,
+                        isCheckingStatus: controller.isFetchingUserBanks.value,
+                        onCheckStatus: () => controller.fetchUserBankList(isRefresh: true),
+                        bankLogo: UImages.sbi,
+                        color: Ucolors.deepOceanGradient,
                       ),
                     ),
-
-                  // Render all current bank cards
-                  ...controller.linkedBankAccounts
-                      .where((bank) => bank != null)
-                      .map(
-                        (bank) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: BankCard(
-                            onDelete: () {
-                              if (bank.id != null) {
-                                debugPrint(bank.id.toString());
-                                _confirmDelete(
-                                  context,
-                                  bank,
-                                );
-                              } else {
-                                Get.snackbar("Error", "Bank ID not found");
-                              }
-                            },
-                            bankName: bank.bankName ?? 'Unknown',
-                            cardNumber: bank.maskedAccountNumber,
-                            ifsccode: bank.ifscCode ?? '',
-                            isVerified: bank.isFullyApproved,
-                            nctStatus: bank.nctStatus ?? (bank.isPendingValidation ? 'pending' : null),
-                            nctRefNo: bank.nctRefNo ?? controller.userBankNctRefNo.value,
-                            canCheckStatus: bank.canCheckStatus ?? controller.userBankCanCheckStatus.value,
-                            isCheckingStatus: controller.isFetchingUserBanks.value,
-                            onCheckStatus: () => controller.fetchUserBankList(isRefresh: true),
-                            bankLogo: UImages.sbi,
-                            color: Ucolors.deepOceanGradient,
-                          ),
-                        ),
-                      )
-                      .toList(),
+                  ),
 
                   const Gap(16),
 
@@ -465,10 +400,10 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
           ? bank.nctRefNo!
           : controller.userBankNctRefNo.value;
       DialogHelper.showPrerequisiteDialog(
-        title: "Verification In Progress",
+        title: "Verification in Progress",
         message: ref.isNotEmpty
-            ? "This bank account is currently being verified by MF Utility (Ref: $ref). Bank accounts cannot be removed while MFU verification is in flight. Please wait 24–48 hours for verification to complete."
-            : "This bank account is currently being verified by MF Utility. Bank accounts cannot be removed while MFU verification is in flight. Please wait for verification to complete.",
+            ? "Your bank account is currently under verification (Ref ID: $ref). It cannot be removed while verification is underway. Please allow 24–48 working hours for verification to complete."
+            : "Your bank account is currently under verification. It cannot be removed while verification is underway. Please allow 24–48 working hours for verification to complete.",
         buttonText: "Understood",
         onTap: () => Get.back(),
       );
@@ -497,7 +432,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
       DialogHelper.showPrerequisiteDialog(
         title: "Primary Bank Required",
         message:
-            "You cannot remove this bank account because it is your only approved bank. Your other bank account is still pending verification with MF Utility. Please wait until verification completes before removing this bank.",
+            "You cannot remove your only verified bank account while your new bank account is still being verified. Please wait for verification to complete first.",
         buttonText: "Understood",
         onTap: () => Get.back(),
       );
@@ -619,7 +554,7 @@ class BankCard extends StatelessWidget {
                           isVerified
                               ? "Verified Primary"
                               : (nctStatus?.toLowerCase() == 'pending'
-                                  ? "MFU Verification Pending"
+                                  ? "Verification in Progress"
                                   : "Pending Verification"),
                           style: const TextStyle(
                             fontFamily: FontFamily.medium,
@@ -630,7 +565,7 @@ class BankCard extends StatelessWidget {
                         ),
                         if (!isVerified && nctRefNo != null && nctRefNo!.isNotEmpty)
                           Text(
-                            "Ref: $nctRefNo",
+                            "Ref ID: $nctRefNo",
                             style: const TextStyle(
                               fontFamily: FontFamily.medium,
                               color: Colors.white70,

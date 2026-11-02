@@ -593,10 +593,10 @@ class PersonalisationController extends GetxController {
                     ? pendingBank.nctRefNo
                     : bankListData.nctRefNo;
                 CustomSnackbar.info(
-                  title: "Verification In Progress",
+                  title: "Verification in Progress",
                   message: (ref != null && ref.isNotEmpty)
-                      ? "MFU bank verification is in progress (Ref: $ref)."
-                      : "MFU bank verification is in progress.",
+                      ? "Bank verification is currently in progress (Ref ID: $ref)."
+                      : "Bank verification is currently in progress. Please allow 24–48 working hours.",
                 );
               } else {
                 CustomSnackbar.success(
@@ -1163,10 +1163,10 @@ class PersonalisationController extends GetxController {
           ? targetBank.nctRefNo!
           : userBankNctRefNo.value;
       ULoaders.warning(
-        title: "Verification In Progress",
+        title: "Verification in Progress",
         message: ref.isNotEmpty
-            ? "This bank account is currently being verified by MF Utility (Ref: $ref). It cannot be removed while verification is in flight."
-            : "This bank account is currently being verified by MF Utility. It cannot be removed while verification is in flight.",
+            ? "Your bank account is currently under verification (Ref ID: $ref). It cannot be removed while verification is in progress."
+            : "Your bank account is currently under verification. It cannot be removed while verification is in progress.",
       );
       return;
     }
@@ -1188,7 +1188,7 @@ class PersonalisationController extends GetxController {
       ULoaders.warning(
         title: "Primary Bank Required",
         message:
-            "You cannot delete your only approved bank while another bank is still pending verification with MF Utility.",
+            "You cannot remove your only verified bank account while your new bank account is still being verified.",
       );
       return;
     }
