@@ -20,6 +20,7 @@ import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.da
 import 'package:responsive_framework/responsive_framework.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
 import '../widget/add_fund_bottom_sheet.dart';
+import '../widget/goal_linked_funds_shimmer.dart';
 
 import '../../domain/entity/goal_entity.dart';
 import '../../domain/entity/single_goal_detail_entity.dart';
@@ -1604,6 +1605,8 @@ class LinkedFundsCard extends StatelessWidget {
           final int count = hasLiveFunds
               ? liveDetail.linkedFunds.length
               : (freshGoal?.goalFunds.length ?? 0);
+          final showCount =
+              count > 0 || !goalSipController.isLoadingSingleGoal.value;
 
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1619,27 +1622,29 @@ class LinkedFundsCard extends StatelessWidget {
                       color: Color(0xFF0F172A),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFBFDBFE)),
-                    ),
-                    child: Text(
-                      "$count",
-                      style: const TextStyle(
-                        color: Color(0xFF2563EB),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                        fontFamily: FontFamily.regular,
+                  if (showCount) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFBFDBFE)),
+                      ),
+                      child: Text(
+                        "$count",
+                        style: const TextStyle(
+                          color: Color(0xFF2563EB),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                          fontFamily: FontFamily.regular,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               if (onAddFunds != null)
@@ -1690,12 +1695,7 @@ class LinkedFundsCard extends StatelessWidget {
 
           if (!hasLiveFunds && linkedFunds.isEmpty) {
             if (goalSipController.isLoadingSingleGoal.value) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40.0),
-                  child: CircularProgressIndicator(),
-                ),
-              );
+              return const GoalLinkedFundsShimmer(isDesktop: true);
             }
             return Container(
               width: double.infinity,
@@ -3288,6 +3288,10 @@ class GoalDetailSection extends StatelessWidget {
           ) ??
           goal;
       final linkedFunds = freshGoal?.goalFunds ?? [];
+      final loadingFunds =
+          !hasLiveFunds &&
+          linkedFunds.isEmpty &&
+          goalSipController.isLoadingSingleGoal.value;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3367,25 +3371,27 @@ class GoalDetailSection extends StatelessWidget {
               Row(
                 children: [
                   const SmallHeading(smallheading: 'Linked Mutual Funds'),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      "${hasLiveFunds ? liveDetail.linkedFunds.length : linkedFunds.length}",
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF2563EB),
+                  if (!loadingFunds) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        "${hasLiveFunds ? liveDetail.linkedFunds.length : linkedFunds.length}",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF2563EB),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               if (onAddFunds != null)
@@ -3416,7 +3422,9 @@ class GoalDetailSection extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!hasLiveFunds && linkedFunds.isEmpty)
+              if (loadingFunds)
+                const GoalLinkedFundsShimmer()
+              else if (!hasLiveFunds && linkedFunds.isEmpty)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -3428,67 +3436,61 @@ class GoalDetailSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
-                  child: goalSipController.isLoadingSingleGoal.value
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFEFF6FF),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.account_balance_wallet_outlined,
-                                size: 26,
-                                color: Color(0xFF2563EB),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'No mutual funds linked yet',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              'Link a fund to start building towards this goal.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            if (onAddFunds != null) ...[
-                              const SizedBox(height: 14),
-                              ElevatedButton.icon(
-                                onPressed: onAddFunds,
-                                icon: const Icon(Icons.add, size: 16),
-                                label: const Text("Link Fund"),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Ucolors.primary,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEFF6FF),
+                          shape: BoxShape.circle,
                         ),
+                        child: const Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 26,
+                          color: Color(0xFF2563EB),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'No mutual funds linked yet',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Link a fund to start building towards this goal.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                      if (onAddFunds != null) ...[
+                        const SizedBox(height: 14),
+                        ElevatedButton.icon(
+                          onPressed: onAddFunds,
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text("Link Fund"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Ucolors.primary,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               if (hasLiveFunds)
                 ...liveDetail.linkedFunds.map((fund) {
