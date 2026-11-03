@@ -21,10 +21,18 @@ class MutualFundListResponseEntity extends Equatable {
 
 extension MutualFundListResponseEntityX on MutualFundListResponseModel {
   MutualFundListResponseEntity toEntity() {
+    final filteredData = data.where((item) {
+      final category = (item.schemecategory ?? '')
+          .toLowerCase()
+          .replaceAll("'", '')
+          .replaceAll('’', '');
+      return !category.contains('childrens fund');
+    }).map((e) => e.toEntity()).toList();
+
     return MutualFundListResponseEntity(
       success: success ?? false,
-      count: count,
-      data: data.map((e) => e.toEntity()).toList(),
+      count: count != null ? filteredData.length : null,
+      data: filteredData,
       pagination: pagination?.toEntity(),
     );
   }

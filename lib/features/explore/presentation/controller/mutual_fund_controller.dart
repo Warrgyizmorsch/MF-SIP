@@ -372,11 +372,17 @@ class MutualFundController extends GetxController {
                   'Unable to load the next funds. Please retry.';
               return;
             }
-            final visible = raw.where(
-              (fund) =>
-                  searching ||
-                  (fund.isPurchaseAllowed == true && !fund.isPurchasePaused),
-            );
+            final visible = raw.where((fund) {
+              final category = (fund.schemecategory ?? '')
+                  .toLowerCase()
+                  .replaceAll("'", '')
+                  .replaceAll('’', '');
+              if (category.contains('childrens fund')) {
+                return false;
+              }
+              return searching ||
+                  (fund.isPurchaseAllowed == true && !fund.isPurchasePaused);
+            });
             final unique = <MutualFundListEntity>[];
             for (final fund in visible) {
               final key = _fundKey(fund);
