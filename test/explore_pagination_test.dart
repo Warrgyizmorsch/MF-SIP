@@ -46,6 +46,7 @@ MutualFundListEntity _fund(
   int id, {
   bool? allowed = true,
   bool closed = false,
+  NfoDetailsEntity? nfoDetails,
   bool missingId = false,
 }) => MutualFundListEntity(
   fundId: missingId ? 0 : id,
@@ -62,8 +63,9 @@ MutualFundListEntity _fund(
   minTopUp: 500,
   schemecategory: 'Equity',
   isPurchaseAllowed: allowed,
-  isNfo: closed,
-  nfoDetails: closed ? const NfoDetailsEntity(isOpen: false) : null,
+  isNfo: closed || nfoDetails != null,
+  nfoDetails:
+      nfoDetails ?? (closed ? const NfoDetailsEntity(isOpen: false) : null),
 );
 
 _Reply _page(
@@ -178,6 +180,43 @@ Widget _results(
 void main() {
   setUp(() => Get.testMode = true);
   tearDown(Get.reset);
+
+  testWidgets('browse restores launched NFOs and excludes upcoming offers', (
+    tester,
+  ) async {
+    final repo = _Repository(
+      (_) => _page(1, [
+        _fund(
+          1,
+          nfoDetails: const NfoDetailsEntity(
+            nfoCloseDate: '2000-01-02',
+            launchDate: '2000-01-03',
+            isOpen: false,
+            status: 'CLOSED',
+            daysRemaining: 0,
+          ),
+        ),
+        _fund(
+          2,
+          nfoDetails: const NfoDetailsEntity(
+            nfoOpenDate: '2999-01-01',
+            nfoCloseDate: '2999-01-02',
+            launchDate: '2999-01-03',
+          ),
+        ),
+        _fund(
+          3,
+          allowed: false,
+          nfoDetails: const NfoDetailsEntity(launchDate: '2000-01-03'),
+        ),
+      ]),
+    );
+    final controller = _register(repo);
+    await controller.fetchData();
+    expect(controller.searchFund.map((fund) => fund.fundId), [1]);
+    await _search(tester, controller, 'Fund');
+    expect(controller.searchFund.map((fund) => fund.fundId), [1, 2, 3]);
+  });
 
   testWidgets('browse requires explicit eligibility and excludes closed NFOs', (
     tester,

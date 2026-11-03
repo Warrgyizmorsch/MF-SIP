@@ -77,6 +77,32 @@ void main() {
   setUp(() => Get.testMode = true);
   tearDown(() => Get.reset());
 
+  for (final nfo in [
+    const LaunchDataEntity(
+      schemeName: 'Upcoming fund',
+      nfoOpenDate: '2999-01-01',
+      nfoCloseDate: '2999-01-02',
+    ),
+    const LaunchDataEntity(
+      schemeName: 'Closed fund',
+      nfoCloseDate: '2000-01-02',
+      launchDate: '2999-01-03',
+    ),
+    const LaunchDataEntity(schemeName: 'Paused fund', isPurchaseAllowed: false),
+  ]) {
+    testWidgets('${nfo.schemeName} details do not offer purchase or cart', (
+      tester,
+    ) async {
+      await _mount(tester, nested: false);
+      Get.toNamed(AppRoutes.nfodetailsPage, arguments: nfo);
+      await tester.pumpAndSettle();
+      expect(find.text(nfo.schemeName!), findsOneWidget);
+      expect(find.text('Invest now'), findsNothing);
+      expect(find.text('Add to Cart'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final nested in [false, true]) {
     testWidgets('NFO keeps its data beneath purchase, nested=$nested', (
       tester,

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/core/utils/helper/nfo_lifecycle.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/nfo/domain/entity/nfo_list_entity.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -66,19 +67,8 @@ final myApiData = NfoDetailModel(
 
 class NfoDetailsPage1 extends StatelessWidget {
   const NfoDetailsPage1({super.key});
-  bool _isNfoClosed(LaunchDataEntity nfo) {
-    if (nfo.status?.toUpperCase() == 'CLOSED') return true;
-    if (nfo.nfoCloseDate != null && nfo.nfoCloseDate!.isNotEmpty) {
-      try {
-        final closeDate = DateTime.parse(nfo.nfoCloseDate!);
-        final endOfDay =
-            DateTime(closeDate.year, closeDate.month, closeDate.day, 23, 59, 59);
-        if (DateTime.now().isAfter(endOfDay)) return true;
-      } catch (_) {}
-    }
-    return false;
-  }
-
+  bool _isNfoClosed(LaunchDataEntity nfo) =>
+      nfo.lifecycle == NfoLifecycle.closed;
 
   // Theme Colors
   static const Color primaryColor = Color(0xFF1E40AF);
@@ -571,10 +561,19 @@ class NfoDetailsPage1 extends StatelessWidget {
                         textColor: const Color(0xFFB42318),
                         bgColor: const Color(0xFFFEF3F2),
                       )
+                    else if (nfo.lifecycle == NfoLifecycle.upcoming)
+                      _buildTag(
+                        icon: Icons.schedule_rounded,
+                        text: 'Upcoming NFO',
+                        textColor: primaryColor,
+                        bgColor: Colors.blue.shade50,
+                      )
                     else
                       _buildTag(
                         icon: Icons.local_fire_department_rounded,
-                        text: 'Active NFO',
+                        text: nfo.lifecycle == NfoLifecycle.regular
+                            ? 'Launched'
+                            : 'Active NFO',
                         textColor: const Color(0xFFEA580C),
                         bgColor: const Color(0xFFFFF7ED),
                       ),
@@ -1063,8 +1062,9 @@ class NfoDetailsPage1 extends StatelessWidget {
     required bool isWeb,
   }) {
     final bool isClosed = _isNfoClosed(nfoData);
+    final bool isUpcoming = nfoData.lifecycle == NfoLifecycle.upcoming;
 
-    if (isClosed) {
+    if (nfoData.isPurchasePaused) {
       final closedWidget = Container(
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(
@@ -1094,16 +1094,27 @@ class NfoDetailsPage1 extends StatelessWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.block_rounded, size: 18, color: Color(0xFF6B7280)),
-              SizedBox(width: 8),
-              Text(
-                'NFO Subscription Closed',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF4B5563),
+            children: [
+              const Icon(
+                Icons.block_rounded,
+                size: 18,
+                color: Color(0xFF6B7280),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  isUpcoming
+                      ? 'NFO opens on ${_parseDate(nfoData.nfoOpenDate).join(' ')}'
+                      : isClosed
+                      ? 'NFO Subscription Closed'
+                      : 'Purchase Paused',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF4B5563),
+                  ),
                 ),
               ),
             ],
@@ -1114,10 +1125,7 @@ class NfoDetailsPage1 extends StatelessWidget {
       if (isWeb) {
         return Align(
           alignment: Alignment.centerRight,
-          child: SizedBox(
-            width: 380,
-            child: closedWidget,
-          ),
+          child: SizedBox(width: 380, child: closedWidget),
         );
       }
       return closedWidget;
@@ -1126,12 +1134,14 @@ class NfoDetailsPage1 extends StatelessWidget {
 
     final String schemeCode = nfoData.schemeCode ?? '';
     final String fundName = nfoData.schemeName ?? nfoData.baseSchemeName ?? '';
-    final String transType = (nfoData.isSipAllowed == true) ? 'sip' : 'lumpsum';
-    final int minAmount = (nfoData.isSipAllowed == true && nfoData.minSipAmount != null)
+    final bool useSip =
+        nfoData.isSipAllowed == true || nfoData.isLumpsumAllowed == false;
+    final String transType = useSip ? 'sip' : 'lumpsum';
+    final int minAmount = (useSip && nfoData.minSipAmount != null)
         ? nfoData.minSipAmount!.toInt()
         : (nfoData.minLumpsum?.toInt() ??
-            nfoData.minSubscriptionAmount?.toInt() ??
-            5000);
+              nfoData.minSubscriptionAmount?.toInt() ??
+              5000);
 
     final Widget buttonWidget = Obx(() {
       final bool isAlreadyInCart = cartController.cartItems.any(
@@ -1143,6 +1153,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         secondButton: 'Invest now',
         isInCart: isAlreadyInCart,
         firstButtonP: () async {
+          if (nfoData.isPurchasePaused) return;
           if (isAlreadyInCart) {
             Get.toNamed(AppRoutes.cart);
           } else {
@@ -1156,9 +1167,11 @@ class NfoDetailsPage1 extends StatelessWidget {
           }
         },
         secondButtonP: () async {
+          if (nfoData.isPurchasePaused) return;
           GatekeeperHelper.runWithPrerequisites(
-            isLumpsum: true,
+            isLumpsum: !useSip,
             onSuccess: () {
+              if (nfoData.isPurchasePaused) return;
               final purchaseArgs = SipPurchaseArgs(
                 schemeCode: schemeCode,
                 fundName: fundName,
@@ -1170,11 +1183,13 @@ class NfoDetailsPage1 extends StatelessWidget {
                 minLumpsum: nfoData.minLumpsum?.toInt() ?? minAmount,
                 minTopup: nfoData.minimumTopup?.toInt() ?? minAmount,
                 folio: null,
-                imgUrl: (nfoData.nfoAmcEntity?.amcLogo != null &&
+                imgUrl:
+                    (nfoData.nfoAmcEntity?.amcLogo != null &&
                         nfoData.nfoAmcEntity!.amcLogo!.isNotEmpty)
                     ? '${Appurl.baseUrl}${nfoData.nfoAmcEntity!.amcLogo}'
                     : null,
                 divoption: nfoData.optionType,
+                initialInvType: useSip ? InvType.sip : InvType.lumpsum,
               );
 
               SIPPurchasePage.tempData = purchaseArgs;
@@ -1188,10 +1203,7 @@ class NfoDetailsPage1 extends StatelessWidget {
     if (isWeb) {
       return Align(
         alignment: Alignment.centerRight,
-        child: SizedBox(
-          width: 380,
-          child: buttonWidget,
-        ),
+        child: SizedBox(width: 380, child: buttonWidget),
       );
     }
 

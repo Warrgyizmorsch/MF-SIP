@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:my_sip/core/utils/helper/nfo_lifecycle.dart';
 import 'package:my_sip/features/nfo/data/model/nfo_model.dart';
 
 class NfoListEntity extends Equatable {
@@ -52,6 +53,9 @@ class LaunchDataEntity extends Equatable {
   final String? riskLevel;
   final String? status;
   final bool? isNfo;
+  final bool? isPurchaseAllowed;
+  final bool? isOpen;
+  final int? daysRemaining;
   final bool? isSipAllowed;
   final double? minSipAmount;
   final bool? isLumpsumAllowed;
@@ -90,6 +94,9 @@ class LaunchDataEntity extends Equatable {
     this.riskLevel,
     this.status,
     this.isNfo,
+    this.isPurchaseAllowed,
+    this.isOpen,
+    this.daysRemaining,
     this.isSipAllowed,
     this.minSipAmount,
     this.isLumpsumAllowed,
@@ -99,6 +106,22 @@ class LaunchDataEntity extends Equatable {
     this.updatedAt,
     this.nfoAmcEntity,
   });
+
+  NfoLifecycle get lifecycle => resolveNfoLifecycle(
+    isNfo: isNfo != false,
+    openDate: nfoOpenDate,
+    closeDate: nfoCloseDate,
+    launchDate: launchDate,
+    status: status,
+    isOpen: isOpen,
+    daysRemaining: daysRemaining,
+  );
+
+  bool get isPurchasePaused =>
+      isPurchaseAllowed == false ||
+      lifecycle == NfoLifecycle.upcoming ||
+      lifecycle == NfoLifecycle.closed ||
+      (isSipAllowed == false && isLumpsumAllowed == false);
 
   @override
   List<Object?> get props => [
@@ -130,6 +153,9 @@ class LaunchDataEntity extends Equatable {
     riskLevel,
     status,
     isNfo,
+    isPurchaseAllowed,
+    isOpen,
+    daysRemaining,
     isSipAllowed,
     minSipAmount,
     isLumpsumAllowed,

@@ -375,7 +375,7 @@ class MutualFundController extends GetxController {
             final visible = raw.where(
               (fund) =>
                   searching ||
-                  (fund.isPurchaseAllowed == true && !fund.isNfoClosed),
+                  (fund.isPurchaseAllowed == true && !fund.isPurchasePaused),
             );
             final unique = <MutualFundListEntity>[];
             for (final fund in visible) {

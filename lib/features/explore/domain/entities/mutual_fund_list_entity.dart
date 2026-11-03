@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:my_sip/core/utils/helper/nfo_lifecycle.dart';
 import 'package:my_sip/features/explore/data/model/mutual_fund_list_model.dart';
 import 'package:my_sip/features/nfo/domain/entity/nfo_list_entity.dart';
 
@@ -95,29 +96,31 @@ class MutualFundListEntity extends Equatable {
   /// Convenient alias for fund name
   String? get fundName => baseSchemeName;
 
-  /// Checks whether this fund is a closed NFO
-  bool get isNfoClosed {
-    if (isNfo != true) return false;
-    if (isPurchaseAllowed == false) return true;
-    if (nfoDetails?.isOpen == false) return true;
-    if (nfoDetails?.status?.toUpperCase() == 'CLOSED') return true;
-    if (nfoDetails?.daysRemaining != null && nfoDetails!.daysRemaining! <= 0) {
-      return true;
-    }
-    final closeStr = nfoDetails?.nfoCloseDate;
-    if (closeStr != null && closeStr.isNotEmpty) {
-      try {
-        final closeDate = DateTime.parse(closeStr);
-        final endOfDay =
-            DateTime(closeDate.year, closeDate.month, closeDate.day, 23, 59, 59);
-        if (DateTime.now().isAfter(endOfDay)) return true;
-      } catch (_) {}
-    }
-    return false;
-  }
+  NfoLifecycle lifecycleAt(DateTime now) => resolveNfoLifecycle(
+    isNfo: isNfo == true,
+    openDate: nfoDetails?.nfoOpenDate,
+    closeDate: nfoDetails?.nfoCloseDate,
+    launchDate: nfoDetails?.launchDate,
+    status: nfoDetails?.status,
+    isOpen: nfoDetails?.isOpen,
+    daysRemaining: nfoDetails?.daysRemaining,
+    now: now,
+  );
 
-  /// Indicates whether the fund is paused for purchase (or a closed NFO)
-  bool get isPurchasePaused => isPurchaseAllowed == false || isNfoClosed;
+  NfoLifecycle get lifecycle => lifecycleAt(DateTime.now());
+  bool get isNfoOffer => lifecycle != NfoLifecycle.regular;
+  bool get isNfoUpcoming => lifecycle == NfoLifecycle.upcoming;
+  bool get isNfoClosed => lifecycle == NfoLifecycle.closed;
+
+  /// Lifecycle and transaction permissions are independent: launch never grants
+  /// a purchase permission that the API explicitly denies.
+  bool get isPurchasePaused =>
+      isPurchaseAllowed == false ||
+      isNfoUpcoming ||
+      isNfoClosed ||
+      (isSipAllowed == false && isLumpsumAllowed == false);
+  bool get canBuySip => !isPurchasePaused && isSipAllowed != false;
+  bool get canBuyLumpsum => !isPurchasePaused && isLumpsumAllowed != false;
 
   @override
   List<Object?> get props => [
@@ -205,7 +208,15 @@ class AmcEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, amcName, amcLogoUrl, email, contact, address, websiteUrl];
+  List<Object?> get props => [
+    id,
+    amcName,
+    amcLogoUrl,
+    email,
+    contact,
+    address,
+    websiteUrl,
+  ];
 }
 
 extension AmcEntityX on AmcModel {
@@ -403,6 +414,7 @@ extension NfoDetailsEntityX on NfoDetailsModel {
     );
   }
 }
+
 extension MutualFundListEntityNfoX on MutualFundListEntity {
   LaunchDataEntity toLaunchDataEntity() {
     return LaunchDataEntity(
@@ -418,7 +430,8 @@ extension MutualFundListEntityNfoX on MutualFundListEntity {
       allotmentDate: nfoDetails?.allotmentDate,
       launchDate: nfoDetails?.launchDate,
       nfoPrice: nfoDetails?.nfoPrice ?? 10.0,
-      minSubscriptionAmount: nfoDetails?.minSubscriptionAmount?.toDouble() ??
+      minSubscriptionAmount:
+          nfoDetails?.minSubscriptionAmount?.toDouble() ??
           minLumpsum?.toDouble() ??
           minSipAmount?.toDouble() ??
           5000.0,
@@ -434,6 +447,9 @@ extension MutualFundListEntityNfoX on MutualFundListEntity {
       riskLevel: riskLevel,
       status: nfoDetails?.status ?? 'ACTIVE',
       isNfo: true,
+      isPurchaseAllowed: isPurchaseAllowed,
+      isOpen: nfoDetails?.isOpen,
+      daysRemaining: nfoDetails?.daysRemaining,
       isSipAllowed: isSipAllowed,
       minSipAmount: minSipAmount?.toDouble(),
       isLumpsumAllowed: isLumpsumAllowed,
