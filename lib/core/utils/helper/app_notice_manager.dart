@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -85,113 +86,189 @@ class AppNoticeManager {
       await prefs.setBool(dismissedKey, true);
     }
 
-    // 4. Present Center Dialog Modal
+    // 4. Present Responsive Center Dialog Modal
     final Color effectiveColor = iconColor ?? Ucolors.primary;
 
     Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        backgroundColor: Colors.white,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Circular Icon Header
-              Container(
-                height: 56,
-                width: 56,
-                decoration: BoxDecoration(
-                  color: effectiveColor.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: effectiveColor, size: 28),
-              ),
-              const SizedBox(height: 18),
+      BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final double screenWidth = MediaQuery.of(context).size.width;
+              final bool isDesktop = screenWidth > 640;
 
-              // Title
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Message Body
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: FontFamily.regular,
-                  fontSize: 13.5,
-                  height: 1.45,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Action Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(color: Colors.grey.shade300),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: () {
-                        Get.back();
-                        onSecondaryTap?.call();
-                      },
-                      child: Text(
-                        secondaryButtonText,
-                        style: TextStyle(
-                          fontFamily: FontFamily.medium,
-                          color: Colors.grey.shade800,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
+              return TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack,
+                tween: Tween<double>(begin: 0.88, end: 1.0),
+                builder: (context, scale, child) {
+                  return Transform.scale(scale: scale, child: child);
+                },
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 430,
+                    minWidth: 280,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: effectiveColor,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          isDesktop ? 28 : 22,
+                          26,
+                          isDesktop ? 28 : 22,
+                          22,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Circular Icon Header
+                            Container(
+                              height: isDesktop ? 62 : 56,
+                              width: isDesktop ? 62 : 56,
+                              decoration: BoxDecoration(
+                                color: effectiveColor.withValues(alpha: 0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                icon,
+                                color: effectiveColor,
+                                size: isDesktop ? 30 : 28,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+
+                            // Title
+                            Text(
+                              title,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: isDesktop ? 19 : 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+
+                            // Message Body
+                            Text(
+                              message,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: FontFamily.regular,
+                                fontSize: isDesktop ? 14 : 13.5,
+                                height: 1.5,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Action Buttons
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: isDesktop ? 14 : 12,
+                                      ),
+                                      side: BorderSide(
+                                        color: Colors.grey.shade300,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Get.back();
+                                      onSecondaryTap?.call();
+                                    },
+                                    child: Text(
+                                      secondaryButtonText,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
+                                        color: Colors.grey.shade800,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: isDesktop ? 13.5 : 13,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: effectiveColor,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: isDesktop ? 14 : 12,
+                                      ),
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Get.back();
+                                      onPrimaryTap();
+                                    },
+                                    child: Text(
+                                      primaryButtonText,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: isDesktop ? 13.5 : 13,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      onPressed: () {
-                        Get.back();
-                        onPrimaryTap();
-                      },
-                      child: Text(
-                        primaryButtonText,
-                        style: const TextStyle(
-                          fontFamily: FontFamily.medium,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
+
+                      // Desktop / Web Close (X) Button
+                      if (isDesktop && barrierDismissible)
+                        Positioned(
+                          top: 12,
+                          right: 12,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: () {
+                              Get.back();
+                              onSecondaryTap?.call();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 16,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+              );
+            },
           ),
         ),
       ),
