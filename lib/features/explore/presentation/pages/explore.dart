@@ -2971,69 +2971,58 @@ class MobileExploreLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final MutualFundController controller = Get.find();
     final CartController cartController = Get.find();
-    return RefreshIndicator(
-      onRefresh: () => controller.handleRefresh(),
-      color: Ucolors.primary, // Use your app's primary theme color
-      backgroundColor: Colors.white,
-      displacement: 40.0,
-      child: CustomScrollView(
-        controller: scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            pinned: true,
-            flexibleSpace: CustomAppBarNormal(
-              backIcon: false,
-              title: 'All Mutual Funds',
-              backgroundColor: Ucolors.light,
-              actionsPadding: 15,
-              action: [
-                Obx(
-                  () => Stack(
-                    children: [
-                      CompactIcon(
-                        icon: Iconsax.shopping_cart,
-                        onPressed: () {
-                          Get.find<CartController>().filterGoalId.value = null;
-                          Get.toNamed(AppRoutes.cart);
-                        },
-                        iconColor: Ucolors.dark,
-                      ),
-                      if (cartController.generalItemsCount > 0)
-                        Positioned(
-                          right: 0,
-                          top: -5,
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                              color: Ucolors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              cartController.generalItemsCount.toString(),
-                              style: UTextStyles.buttonText.copyWith(
-                                fontSize: 10,
-                              ),
-                            ),
+    return Column(
+      children: [
+        CustomAppBarNormal(
+          backIcon: false,
+          title: 'All Mutual Funds',
+          backgroundColor: Ucolors.light,
+          actionsPadding: 15,
+          action: [
+            Obx(
+              () => Stack(
+                children: [
+                  CompactIcon(
+                    icon: Iconsax.shopping_cart,
+                    onPressed: () {
+                      Get.find<CartController>().filterGoalId.value = null;
+                      Get.toNamed(AppRoutes.cart);
+                    },
+                    iconColor: Ucolors.dark,
+                  ),
+                  if (cartController.generalItemsCount > 0)
+                    Positioned(
+                      right: 0,
+                      top: -5,
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: const BoxDecoration(
+                          color: Ucolors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          cartController.generalItemsCount.toString(),
+                          style: UTextStyles.buttonText.copyWith(
+                            fontSize: 10,
                           ),
                         ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 5),
-                CompactIcon(
-                  icon: Iconsax.archive_tick,
-                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                  iconColor: Ucolors.dark,
-                ),
-              ],
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-              child: Row(
+            const SizedBox(width: 5),
+            CompactIcon(
+              icon: Iconsax.archive_tick,
+              onPressed: () => Get.toNamed(AppRoutes.watchlist),
+              iconColor: Ucolors.dark,
+            ),
+          ],
+        ),
+        Container(
+          color: Ucolors.light,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Row(
                 children: [
                   Obx(() {
                     final fundController = Get.find<FundhouseController>();
@@ -3145,9 +3134,20 @@ class MobileExploreLayout extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
-
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () => controller.handleRefresh(),
+            color: Ucolors.primary, // Use your app's primary theme color
+            backgroundColor: Colors.white,
+            displacement: 40.0,
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: CustomScrollView(
+                controller: scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
           Obx(() {
             if (controller.isLoading.value) {
               return const SliverFillRemaining(
@@ -3190,9 +3190,13 @@ class MobileExploreLayout extends StatelessWidget {
                   : ExplorePaginationFooter(controller: controller),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        ],
-      ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
