@@ -105,6 +105,8 @@ flutter:
     - assets/images/onboarding/
     - assets/logo/
     - assets/icon/
+    - assets/home/icon/
+    - assets/home/figma/
     - assets/fonts/Roboto/static/
   #   - images/a_dot_ham.jpeg
 
@@ -121,6 +123,13 @@ flutter:
   # example:
 
   fonts:
+    # Additional reference fonts. Variable weights are set by UTextStyles.homeText.
+    - family: Geist
+      fonts:
+        - asset: assets/fonts/Geist/Geist-Variable.ttf
+    - family: Plus Jakarta Sans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-Variable.ttf
     # Roboto
     - family: Roboto
       fonts:
@@ -172,4 +181,3 @@ flutter:
   # #       - asset: fonts/TrajanPro_Bold.ttf
   # #         weight: 700
   # #
-  

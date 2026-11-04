@@ -2607,7 +2607,9 @@ class _MobileBottomNavBar extends StatelessWidget {
   const _MobileBottomNavBar();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => _buildLegacyBar();
+
+  Widget _buildLegacyBar() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

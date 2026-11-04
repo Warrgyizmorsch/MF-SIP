@@ -24,6 +24,92 @@ class Ucolors {
   static const Color black = Color(0xff000000);
   static const Color white = Color(0xffFFFFFF);
 
+  // Home colors, available to any screen without changing the app theme.
+  static const homeBackground = Color(0xFFF5F5F5);
+  static const homeInk = Color(0xFF090E53);
+  static const homeTextSecondary = Color(0xFF64748B);
+  static const homeTextMuted = Color(0xFF8A8990);
+  static const homeTile = Color(0xFFF5F5F7);
+  static const homeTileBorder = Color(0xFFE2E8F0);
+  static const homeCardBorder = Color(0xFFE5E7EB);
+  static const homePanelBorder = Color(0x1A1B263B);
+  static const homePanel = Color(0x4DFFFFFF);
+  static const homePositive = Color(0xFF10B981);
+  static const homeProgress = Color(0xFF22C474);
+  static const homeProgressInk = Color(0xFF062A16);
+  static const homeOnboardingText = Color(0xFFE9EAF2);
+  static const homeOnboardingBadgeText = Color(0xFF2A2C3A);
+  static const homeGoalHeading = Color(0xFF213C73);
+  static const homeGoalBorder = Color(0xFFEEEEEE);
+  static const homeTag = Color(0xFFF7F7FB);
+  static const homeMoreFundBorder = Color(0xFFD1D1D1);
+  static const homeNavigation = Color(0xFAF8F9FA);
+  static const homeSelectedNavigation = Color(0xFF3129A2);
+  static const homeNavigationText = Color(0xFF45556C);
+  static const homeSelectedNavigationFill = Color(0xFFEEEDF9);
+  static const homeSelectedNavigationStart = Color(0x144361EE);
+  static const homeSelectedNavigationEnd = Color(0x0A4361EE);
+  static const homeHeaderStart = Color(0xFF5B3FDF);
+  static const homeHeaderEnd = Color(0xFF0E176F);
+  static const homeOnboardingEnd = Color(0xFF5B3FDE);
+  static const homeKycStart = Color(0xFFF2F1FB);
+  static const homeKycEnd = Color(0xFF9E94EB);
+  static const homeVideoBackground = Color(0xFF7BD2FF);
+  static const homeVideoBorder = Color(0xFFEDE8FD);
+  static const homeVideoOverlay = Color(0x66222222);
+  static const homeSupportDescription = Color(0x66000000);
+  static const homeSupportBackdropStart = Color(0xFFF3F7FF);
+  static const homeSupportBackdropEnd = Color(0x00EDF3FF);
+  static const homeSupportBackdropBorder = Color(0xFFEDEDED);
+  static const homeTrustText = Color(0xFF7C7C7C);
+  static const homeTrustTransparent = Color(0x00F5F5F5);
+  static const homeTrustTint = Color(0x66F5F5F5);
+  static const homePanelShadowNearColor = Color(0x05000000);
+  static const homePanelShadowFarColor = Color(0x08000000);
+  static const homeCardShadowColor = Color(0x1A000000);
+  static const homeFeaturedFundShadowColor = Color(0x0A000000);
+  static const homeGoalShadowColor = Color(0x0F000000);
+  static const homeSearchShadowColor = Color(0x1A441D9E);
+  static const homeSupportShadowColor = Color(0x40000000);
+  static const homeSelectedNavigationShadowColor = Color(0x1F4361EE);
+
+  static const homeHeaderGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [homeHeaderStart, homeHeaderEnd],
+  );
+  static const homeOnboardingGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [homeHeaderEnd, homeOnboardingEnd],
+  );
+  static const homeKycGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [homeKycStart, homeKycEnd],
+  );
+  static const homeSelectedNavigationGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [homeSelectedNavigationStart, homeSelectedNavigationEnd],
+  );
+  static const homeSupportBackdropGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [homeSupportBackdropStart, homeSupportBackdropEnd],
+  );
+  static const homeTrustHorizontalGradient = LinearGradient(
+    begin: Alignment.centerRight,
+    end: Alignment.centerLeft,
+    colors: [homeBackground, homeTrustTint],
+  );
+  static const homeTrustVerticalGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [homeBackground, homeTrustTransparent, homeBackground],
+    stops: [0, 0.5, 1],
+  );
+
   static const primary3 = Color(0xFF000B3C);
   static const primaryContainer = Color(0xFF0A1F63);
   static const onPrimary = Color(0xFFFFFFFF);

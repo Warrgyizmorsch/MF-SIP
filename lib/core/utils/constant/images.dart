@@ -106,4 +106,58 @@ class UImages {
   static const String amazon = "assets/icon/amazon.png";
   static const String appLogo = "assets/logo/app_logo.svg";
   static const String messageLogo = "assets/icon/logo_message.svg";
+
+  // Home reference assets. File paths are unchanged.
+  static const _homeIcons = 'assets/home/icon';
+  static const _homeFigma = 'assets/home/figma';
+  static const String homeMutualFunds = '$_homeIcons/mutualfund.svg';
+  static const String homeLumpsum = '$_homeIcons/lumpsum.svg';
+  static const String homeSip = '$_homeIcons/sip.svg';
+  static const String homeIndexFundsAction = '$_homeIcons/indexfundhome.svg';
+  static const String homeNfo = '$_homeIcons/nfoHome.svg';
+  static const String homeCompareFundsAction = '$_homeIcons/Group.svg';
+  static const String homeBestSip = '$_homeIcons/bestsip.svg';
+  static const String homeHighReturns = '$_homeIcons/highreturns.svg';
+  static const String homeInternationalFunds =
+      '$_homeIcons/internationalfund.svg';
+  static const String homeIndexFunds = '$_homeIcons/indexfund.svg';
+  static const String homeCommodities = '$_homeIcons/commodities.svg';
+  static const String homeEquity = '$_homeIcons/equity.svg';
+  static const String homeSipCalculator = '$_homeIcons/sipcalcli.svg';
+  static const String homeStpCalculator = '$_homeIcons/stpcalci.svg';
+  static const String homeTopUpCalculator = '$_homeIcons/step-up.svg';
+  static const String homeCompareFunds = '$_homeIcons/comparefund.svg';
+  static const String homeCarGoal = '$_homeIcons/car_goal.svg';
+  static const String homeBrandMark = '$_homeIcons/Group (1).svg';
+  static const String homeMenu = '$_homeFigma/menu.svg';
+  static const String homeNotifications = '$_homeFigma/notifications.svg';
+  static const String homeSearch = '$_homeFigma/search.svg';
+  static const String homeTrendUp = '$_homeFigma/trend_up.svg';
+  static const String homeFundDivider = '$_homeFigma/fund_divider.svg';
+  static const String homeFundChevron = '$_homeFigma/fund_chevron.svg';
+  static const String homeSectionChevron = '$_homeFigma/section_chevron.svg';
+  static const String homeGoalChevron = '$_homeFigma/goal_chevron.svg';
+  static const String homeHeaderChevron = '$_homeFigma/header_chevron.svg';
+  static const String homeSwpCalculator = '$_homeFigma/swp_calculator.svg';
+  static const String homeCompareAnalysis = '$_homeFigma/compare_analysis.svg';
+  static const String homeMarriageGoal = '$_homeFigma/marriage_goal.svg';
+  static const String homeGoal = '$_homeFigma/home_goal.svg';
+  static const String homeVacationGoal = '$_homeFigma/vacation_goal.svg';
+  static const String homeEducationGoal = '$_homeFigma/education_goal.svg';
+  static const String homeBikeGoal = '$_homeFigma/bike_goal.svg';
+  static const String homeKycCurve = '$_homeFigma/kyc_curve.svg';
+  static const String homeKycClock = '$_homeFigma/kyc_clock.png';
+  static const String homeKycArrow = '$_homeFigma/kyc_arrow.svg';
+  static const String homeKycUnderline = '$_homeFigma/kyc_underline.svg';
+  static const String homeRelationshipManager =
+      '$_homeFigma/relationship_manager.png';
+  static const String homeTrustBackground = '$_homeFigma/trust_background.png';
+  static const String homeSipVideo = '$_homeFigma/video_sip.png';
+  static const String homeTopFundsVideo = '$_homeFigma/video_top_funds.png';
+  static const String homeYoutubePlay = '$_homeFigma/youtube_play.svg';
+  static const String homeNavHome = '$_homeFigma/nav_home.svg';
+  static const String homeNavExplore = '$_homeFigma/nav_explore.svg';
+  static const String homeNavDashboard = '$_homeFigma/nav_dashboard.svg';
+  static const String homeNavGoals = '$_homeFigma/nav_goals.svg';
+  static const String homeNavProfile = '$_homeFigma/nav_profile.svg';
 }

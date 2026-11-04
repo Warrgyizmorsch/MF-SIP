@@ -41,6 +41,14 @@ class USizes {
   static const double borderRadiusMd = 8.0;
   static const double borderRadiusLg = 12.0;
 
+  // Shared Home panel and card geometry.
+  static const double homePanelPadding = 28.0;
+  static const double homePanelRadius = 22.0;
+  static const double homeCardRadius = 14.0;
+  static const double homeTileRadius = homeCardRadius;
+  static const double homeHeaderBottomRadius = 30.0;
+  static const double homeQuickActionRadius = 18.0;
+
   // Product item dimensions
   static const double productImageRadius = 16.0;
 

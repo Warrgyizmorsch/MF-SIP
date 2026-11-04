@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'colors.dart';
+
 class FontFamily {
   FontFamily._();
+
+  static const String geist = 'Geist';
+  static const String plusJakartaSans = 'Plus Jakarta Sans';
 
   // Inter Font Family Individual Weights
   static const String thin = 'Inter-Thin';
@@ -18,6 +22,7 @@ class FontFamily {
   static const String extraBold = 'Inter-ExtraBold';
   static const String black = 'Inter-Black';
 }
+
 // class FontFamily {
 //   FontFamily._();
 //
@@ -31,6 +36,28 @@ class FontFamily {
 // }
 class UTextStyles {
   UTextStyles._(); // private constructor
+
+  /// Uses the existing Inter family by default, preserving Home's logical sizes.
+  static TextStyle homeText({
+    double size = 14,
+    FontWeight weight = FontWeight.w500,
+    Color color = Ucolors.black,
+    String family = FontFamily.regular,
+    double? height,
+    double? letterSpacing,
+  }) => TextStyle(
+    fontFamily: family,
+    fontSize: size,
+    fontWeight: weight,
+    fontVariations:
+        family == FontFamily.geist || family == FontFamily.plusJakartaSans
+        ? [FontVariation('wght', (weight.index + 1) * 100.0)]
+        : null,
+    height: height,
+    letterSpacing: letterSpacing,
+    color: color,
+  );
+
   static const double _h1 = 28;
   static const double _h2 = 24;
   static const double _body2 = 12;
@@ -52,7 +79,7 @@ class UTextStyles {
   );
 
   static TextStyle heading2 = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _h2,
     fontWeight: FontWeight.w600,
     height: 1.5,
@@ -61,35 +88,35 @@ class UTextStyles {
   );
 
   static TextStyle sectionHeading = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _caption,
     fontWeight: FontWeight.w500,
     color: Ucolors.dark,
   );
 
   static TextStyle bodyLarge = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: 16.sp.clamp(14, 18),
     fontWeight: FontWeight.w400,
     color: Ucolors.dark,
   );
 
   static TextStyle bodyLargeW500 = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: 16.sp.clamp(14, 18),
     fontWeight: FontWeight.w500,
     color: Ucolors.dark,
   );
 
   static TextStyle bodyLargeSemiBold = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: 16.sp.clamp(14, 18),
     fontWeight: FontWeight.w600,
     color: Ucolors.dark,
   );
 
   static TextStyle bodyLargeBold = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: 16.sp.clamp(14, 18),
     fontWeight: FontWeight.w600,
     color: Ucolors.dark,
@@ -99,28 +126,28 @@ class UTextStyles {
   // BODY MEDIUM  (14sp)
   // ─────────────────────────────────────────
   static TextStyle bodyMedium = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _body2,
     fontWeight: FontWeight.w400,
     color: Ucolors.darkgrey,
   );
 
   static TextStyle bodyMediumW500 = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _body2,
     fontWeight: FontWeight.w500,
     color: Ucolors.darkgrey,
   );
 
   static TextStyle bodyMediumSemiBold = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _body2,
     fontWeight: FontWeight.w600,
     color: Ucolors.dark,
   );
 
   static TextStyle bodyMediumBold = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _body2,
     fontWeight: FontWeight.w600,
     color: Ucolors.dark,
@@ -130,28 +157,28 @@ class UTextStyles {
   // BODY SMALL  (12sp)
   // ─────────────────────────────────────────
   static TextStyle bodySmall = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _small,
     fontWeight: FontWeight.w400,
     color: Ucolors.darkgrey,
   );
 
   static TextStyle bodySmallW500 = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _small,
     fontWeight: FontWeight.w500,
     color: Ucolors.darkgrey,
   );
 
   static TextStyle bodySmallSemiBold = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _small,
     fontWeight: FontWeight.w600,
     color: Ucolors.dark,
   );
 
   static TextStyle bodySmallBold = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _small,
     fontWeight: FontWeight.w600,
     color: Ucolors.dark,
@@ -161,14 +188,14 @@ class UTextStyles {
   // CAPTION / LABEL  (10sp)
   // ─────────────────────────────────────────
   static TextStyle caption = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _caption,
     fontWeight: FontWeight.w400,
     color: Ucolors.darkgrey,
   );
 
   static TextStyle captionW500 = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _caption,
     fontWeight: FontWeight.w500,
     color: Ucolors.darkgrey,
@@ -178,7 +205,7 @@ class UTextStyles {
   // BUTTON
   // ─────────────────────────────────────────
   static TextStyle button = TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _body2,
     fontWeight: FontWeight.w600,
     color: Ucolors.light,
@@ -212,7 +239,7 @@ class AppTextStyles {
     Color color = Colors.black,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -228,7 +255,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w600,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -241,7 +268,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w600,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -254,7 +281,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w600,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -270,7 +297,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w400,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -282,7 +309,7 @@ class AppTextStyles {
     double size = 12.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w500,
     color: color,
@@ -294,7 +321,7 @@ class AppTextStyles {
     double size = 12.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w600,
     color: color,
@@ -306,7 +333,7 @@ class AppTextStyles {
     double size = 12.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w600,
     color: color,
@@ -322,7 +349,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w400,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -334,7 +361,7 @@ class AppTextStyles {
     double size = 14.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w500,
     color: color,
@@ -346,7 +373,7 @@ class AppTextStyles {
     double size = 14.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w600,
     color: color,
@@ -358,7 +385,7 @@ class AppTextStyles {
     double size = 14.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w600,
     color: color,
@@ -374,7 +401,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w400,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -386,7 +413,7 @@ class AppTextStyles {
     double size = 16.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w500,
     color: color,
@@ -398,7 +425,7 @@ class AppTextStyles {
     double size = 16.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w600,
     color: color,
@@ -410,7 +437,7 @@ class AppTextStyles {
     double size = 16.0,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: FontWeight.w600,
     color: color,
@@ -426,7 +453,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w500,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -442,7 +469,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w600,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -458,7 +485,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w400,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
@@ -471,7 +498,7 @@ class AppTextStyles {
     FontWeight weight = FontWeight.w400,
     TextDecoration? decoration,
   }) => TextStyle(
-  fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.medium,
     fontSize: _s(size),
     fontWeight: weight,
     color: color,
