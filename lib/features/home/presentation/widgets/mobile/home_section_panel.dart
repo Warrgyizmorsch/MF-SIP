@@ -25,7 +25,7 @@ class HomeSectionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
-      color: Ucolors.homePanel,
+      color: Ucolors.white,
       borderRadius: BorderRadius.circular(USizes.homePanelRadius * scale),
       border: Border.all(color: Ucolors.homePanelBorder, width: 0.636),
       boxShadow: UShadows.homePanel,

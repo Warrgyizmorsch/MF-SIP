@@ -118,7 +118,7 @@ class MobileHomeMiddleSection extends StatelessWidget {
               );
             }),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30 * scale),
+            padding: EdgeInsets.symmetric(horizontal: inset),
             child: HomeGoalShortcuts(scale: scale),
           ),
           Padding(

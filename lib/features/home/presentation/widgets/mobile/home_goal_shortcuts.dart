@@ -4,13 +4,13 @@ import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/shadows.dart';
 import 'package:my_sip/core/utils/constant/sizes.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 
 import 'home_adaptive_grid.dart';
 import 'home_design.dart';
+import 'home_section_panel.dart';
 
 class HomeGoalShortcuts extends StatelessWidget {
   const HomeGoalShortcuts({super.key, required this.scale});
@@ -44,112 +44,90 @@ class HomeGoalShortcuts extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Text(
-        'Create Goal',
-        textAlign: TextAlign.center,
-        style: UTextStyles.homeText(
-          size: (22 * scale).clamp(18.0, 25.0).toDouble(),
-          weight: FontWeight.w600,
-          color: Ucolors.homeGoalHeading,
-          height: 24 / 22,
-        ),
-      ),
-      SizedBox(height: 19 * scale),
-      HomeAdaptiveGrid(
-        maximumColumns: 2,
-        minimumTileWidth:
-            HomeTextLayout.widestWord(
-              context,
-              _goals.map((goal) => goal.$2),
-              style: UTextStyles.homeText(
-                size: (11 * scale).clamp(9.0, 13.0).toDouble(),
-                height: 15 / 11,
+  Widget build(BuildContext context) => HomeSectionPanel(
+    title: 'Create Goal',
+    scale: scale,
+    child: HomeAdaptiveGrid(
+      maximumColumns: 2,
+      minimumTileWidth:
+          HomeTextLayout.widestWord(
+            context,
+            _goals.map((goal) => goal.$2),
+            style: UTextStyles.homeText(
+              size: (11 * scale).clamp(9.0, 13.0).toDouble(),
+              height: 15 / 11,
+            ),
+          ) +
+          86.5 * scale +
+          1.272,
+      columnGap: 12 * scale,
+      rowGap: 10 * scale,
+      children: [
+        for (final goal in _goals)
+          Material(
+            color: Ucolors.homeTile,
+            borderRadius: BorderRadius.circular(USizes.homeTileRadius * scale),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => _open(goal.$1),
+              borderRadius: BorderRadius.circular(
+                USizes.homeTileRadius * scale,
               ),
-            ) +
-            86.5 * scale +
-            1.272,
-        columnGap: 12 * scale,
-        rowGap: 10 * scale,
-        children: [
-          for (final goal in _goals)
-            DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(
-                  USizes.homeTileRadius * scale,
+              child: Container(
+                constraints: BoxConstraints(
+                  minHeight: (HomeMetrics.goalTileHeight * scale)
+                      .clamp(44.0, 60.0)
+                      .toDouble(),
                 ),
-                boxShadow: UShadows.homeGoal,
-              ),
-              child: Material(
-                color: Ucolors.white,
-                borderRadius: BorderRadius.circular(
-                  USizes.homeTileRadius * scale,
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () => _open(goal.$1),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Ucolors.homeTileBorder,
+                    width: 0.636,
+                  ),
                   borderRadius: BorderRadius.circular(
                     USizes.homeTileRadius * scale,
                   ),
-                  child: Container(
-                    constraints: BoxConstraints(
-                      minHeight: (HomeMetrics.goalTileHeight * scale)
-                          .clamp(44.0, 60.0)
-                          .toDouble(),
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Ucolors.homeGoalBorder,
-                        width: 0.636,
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16 * scale,
+                  vertical: 7 * scale,
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 32 * scale,
+                      child: Center(
+                        child: SvgPicture.asset(
+                          goal.$3,
+                          width: goal.$4.width * scale,
+                          height: goal.$4.height * scale,
+                          fit: BoxFit.contain,
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(
-                        USizes.homeTileRadius * scale,
+                    ),
+                    SizedBox(width: 10 * scale),
+                    Expanded(
+                      child: Text(
+                        goal.$2,
+                        style: UTextStyles.homeText(
+                          size: (11 * scale).clamp(9.0, 13.0).toDouble(),
+                          color: Ucolors.homeInk,
+                          height: 15 / 11,
+                        ),
                       ),
                     ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16 * scale,
-                      vertical: 7 * scale,
+                    SizedBox(width: 6 * scale),
+                    SvgPicture.asset(
+                      UImages.homeGoalChevron,
+                      width: 6.5 * scale,
+                      height: 11.5 * scale,
                     ),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 32 * scale,
-                          child: Center(
-                            child: SvgPicture.asset(
-                              goal.$3,
-                              width: goal.$4.width * scale,
-                              height: goal.$4.height * scale,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10 * scale),
-                        Expanded(
-                          child: Text(
-                            goal.$2,
-                            style: UTextStyles.homeText(
-                              size: (11 * scale).clamp(9.0, 13.0).toDouble(),
-                              color: Ucolors.homeTextSecondary,
-                              height: 15 / 11,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 6 * scale),
-                        SvgPicture.asset(
-                          UImages.homeGoalChevron,
-                          width: 6.5 * scale,
-                          height: 11.5 * scale,
-                        ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
               ),
             ),
-        ],
-      ),
-    ],
+          ),
+      ],
+    ),
   );
 }
