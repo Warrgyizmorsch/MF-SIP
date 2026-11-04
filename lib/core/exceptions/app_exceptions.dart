@@ -44,3 +44,15 @@ class AuthenticationFailedException extends AppException {
     String? message = 'Session expired. Please login again.',
   ]) : super(message, 'Authentication Failed: ');
 }
+
+class AppUpgradeRequiredException extends AppException {
+  AppUpgradeRequiredException([
+    String? message = 'Please update MFSIP to continue.',
+  ]) : super(message, 'Update Required: ');
+}
+
+class FeatureUnavailableException extends AppException {
+  FeatureUnavailableException([
+    String? message = 'This feature is temporarily unavailable.',
+  ]) : super(message, 'Feature Unavailable: ');
+}

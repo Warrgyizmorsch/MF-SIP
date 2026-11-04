@@ -59,6 +59,8 @@ class AppRoutes {
   static const paymentSuccess = '/paymentSuccess';
   static const redeemPage = '/redeem';
   static const amcList = '/amcList';
+  static const maintenance = '/maintenance';
+  static const updateRequired = '/updateRequired';
 
   static String webShell(String innerRoute) {
     return innerRoute;

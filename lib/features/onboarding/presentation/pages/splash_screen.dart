@@ -10,6 +10,7 @@ import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:my_sip/services/firebase_services.dart';
 
+import '../../../../core/app_config/service/app_config_service.dart';
 import '../../../../core/utils/constant/text_style.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -54,9 +55,26 @@ class _SplashScreenState extends State<SplashScreen> {
     // 1. Initialize Session
     await SessionManager.instance.initialize();
 
-    // 2. Only delay on Mobile
+    // 2. Evaluate App Config & Runtime Gating
+    await AppConfigService.instance.checkConfig();
+
+    if (!mounted) return;
+
+    // Maintenance Mode Guard
+    if (AppConfigService.instance.isMaintenanceActive) {
+      Get.offAllNamed(AppRoutes.maintenance);
+      return;
+    }
+
+    // Mandatory Force Update Guard
+    if (AppConfigService.instance.isForceUpdateRequired) {
+      Get.offAllNamed(AppRoutes.updateRequired);
+      return;
+    }
+
+    // 3. Only delay on Mobile
     if (!kIsWeb) {
-      await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 2));
     }
 
     if (!mounted) return;

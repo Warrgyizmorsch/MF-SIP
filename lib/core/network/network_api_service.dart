@@ -392,9 +392,19 @@ class NetworkServicesApi implements BaseApiServices {
         return ForbiddenException(message ?? 'Forbidden');
       case 404:
         return NotFoundException(message ?? 'Resource not found');
+      case 426:
+        return AppUpgradeRequiredException(
+          message ?? 'Please update MFSIP to continue.',
+        );
       case 500:
       case 502:
       case 503:
+        final code = response.data is Map ? response.data['code'] : null;
+        if (code == 'FEATURE_UNAVAILABLE') {
+          return FeatureUnavailableException(
+            message ?? 'This feature is temporarily unavailable.',
+          );
+        }
         return ServerException(message ?? 'Server error');
       default:
         return FetchDataException(
@@ -426,16 +436,12 @@ class _HeadersInterceptor extends Interceptor {
       createLog("[API] Request: ${options.method} ${options.uri}");
       return super.onRequest(options, handler);
     }
-    // ignore: unused_local_variable
     final version = await _getAppVersion();
-    // ignore: unused_local_variable
     final platform = _getPlatformHeader();
 
-    // options.headers.addAll({
-    //   'app': 'true',
-    //   'platform': platform,
-    //   'version': version,
-    // });
+    options.headers['X-App-Platform'] = platform;
+    options.headers['X-App-Version'] = version;
+    options.headers['Accept'] = 'application/json';
 
     createLog("[API] Request: ${options.method} ${options.uri}");
     createLog("[API] Headers: ${options.headers}");
@@ -444,30 +450,30 @@ class _HeadersInterceptor extends Interceptor {
   }
 
   Future<String> _getAppVersion() async {
-    if (kIsWeb) return "web";
+    if (kIsWeb) return "1.0.0";
     try {
       final info = await PackageInfo.fromPlatform();
-      return "${info.version}+${info.buildNumber}";
+      return info.version.isNotEmpty ? info.version : "1.0.0";
     } catch (_) {
-      return "unknown";
+      return "1.0.0";
     }
   }
 
   String _getPlatformHeader() {
-    if (kIsWeb) return "Web App";
+    if (kIsWeb) return "web";
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return "Android App";
+        return "android";
       case TargetPlatform.iOS:
-        return "iOS App";
+        return "ios";
       case TargetPlatform.macOS:
-        return "macOS App";
+        return "macos";
       case TargetPlatform.windows:
-        return "Windows App";
+        return "windows";
       case TargetPlatform.linux:
-        return "Linux App";
+        return "linux";
       default:
-        return "Unknown";
+        return "android";
     }
   }
 }
@@ -712,4 +718,23 @@ class FetchDataException extends AppException {
 class InvalidInputException extends AppException {
   InvalidInputException([String? message])
     : super(message: message ?? 'Invalid input', prefix: 'Invalid Input');
+}
+/// Exception for required app upgrades (426)
+class AppUpgradeRequiredException extends AppException {
+  AppUpgradeRequiredException([String? message])
+    : super(
+        message: message ?? 'Please update MFSIP to continue.',
+        prefix: 'Update Required',
+        statusCode: 426,
+      );
+}
+
+/// Exception for features temporarily disabled by maintenance / kill-switch (503)
+class FeatureUnavailableException extends AppException {
+  FeatureUnavailableException([String? message])
+    : super(
+        message: message ?? 'This feature is temporarily unavailable.',
+        prefix: 'Feature Unavailable',
+        statusCode: 503,
+      );
 }

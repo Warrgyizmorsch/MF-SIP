@@ -136,3 +136,6 @@ docs/FLUTTER_FIREBASE_PUSH_NOTIFICATIONS_INTEGRATION_GUIDE.md
 /test/*
 !/test/nfo_lifecycle_test.dart
 !/test/explore_nfo_test.dart
+!/test/app_config_test.dart
+/assets/collection
+test/app_config_test.dart

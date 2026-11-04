@@ -11,6 +11,8 @@ import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart'
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/firebase_services.dart';
 import 'package:my_sip/services/session_manager.dart';
+import '../../app_config/presentation/optional_update_dialog.dart';
+import '../../app_config/service/app_config_service.dart';
 
 class AppOpenAlertCoordinator {
   static const int notifIdKyc = 1001;
@@ -45,6 +47,39 @@ class AppOpenAlertCoordinator {
     // 0. Only check for authenticated users
     final token = SessionManager.instance.getAccessToken;
     if (token == null || token.isEmpty) return;
+
+    // 0a. Optional App Update Prompt (if a newer version is released)
+    if (AppConfigService.instance.isOptionalUpdateAvailable) {
+      OptionalUpdateDialog.show(context);
+      return;
+    }
+
+    // 0b. Global Server Announcement (if active from backend admin)
+    final appConfig = AppConfigService.instance.currentConfig.value;
+    if (appConfig != null && appConfig.isAnnouncementActive) {
+      final announcement = appConfig.announcement;
+      final noticeId = 'server_announcement_${announcement.id ?? announcement.message.hashCode}';
+      final shown = await AppNoticeManager.showNoticeIfEligible(
+        noticeId: noticeId,
+        frequency: NoticeFrequency.oncePerDay,
+        condition: () => appConfig.isAnnouncementActive,
+        title: announcement.title.isNotEmpty ? announcement.title : 'Announcement',
+        message: announcement.message,
+        primaryButtonText: announcement.actionText?.isNotEmpty == true ? announcement.actionText! : 'Got It',
+        icon: Icons.campaign_rounded,
+        iconColor: Ucolors.primary,
+        onPrimaryTap: () {
+          if (announcement.actionUrl != null && announcement.actionUrl!.isNotEmpty) {
+            final uri = Uri.tryParse(announcement.actionUrl!);
+            if (uri != null) {
+              launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          }
+        },
+        secondaryButtonText: 'Dismiss',
+      );
+      if (shown) return;
+    }
 
     final userCtrl = Get.isRegistered<PersonalisationController>()
         ? Get.find<PersonalisationController>()

@@ -71,6 +71,8 @@ import '../../features/sip_process/presentation/bindings/sip_process_binding.dar
 import '../../features/sip_process/presentation/pages/investing_approach_screen.dart';
 import '../../features/sip_process/presentation/pages/monthly_sip_screen.dart';
 import '../../features/sip_process/presentation/pages/select_funds_screen.dart';
+import '../../core/app_config/presentation/maintenance_screen.dart';
+import '../../core/app_config/presentation/update_required_screen.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -81,6 +83,16 @@ class AppPages {
       page: () => const SplashScreen(),
       transition: Transition.fadeIn,
       transitionDuration: const Duration(milliseconds: 350),
+    ),
+    GetPage(
+      name: AppRoutes.maintenance,
+      page: () => const MaintenanceScreen(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: AppRoutes.updateRequired,
+      page: () => const UpdateRequiredScreen(),
+      transition: Transition.fadeIn,
     ),
 
     GetPage(
