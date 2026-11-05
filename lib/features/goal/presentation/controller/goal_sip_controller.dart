@@ -679,6 +679,7 @@ class GoalSipController extends GetxController {
         "user_id": SessionManager.instance.getUserData?.id,
         "goal_name": goalNameTextEditingController.text.trim(),
         "goal_id": goalId.value,
+        if (coverImage.value != null) "goal_cover": coverImage.value,
 
         "target_amount": investmentMode.value == 'sip'
             ? targetAmount.value.toDouble()
