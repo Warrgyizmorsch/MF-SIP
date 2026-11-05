@@ -45,6 +45,28 @@ class Ucolors {
   static const infoBanner = Color(0xFFEAF3FF);
   static const infoBannerBorder = Color(0xFFD5E6FF);
 
+  // Goal Planning Theme (Figma palette: #0E176F to #5B3FE0)
+  static const Color goalDark = Color(0xFF0E176F);
+  static const Color goalPrimary = Color(0xFF5B3FE0);
+
+  static const LinearGradient goalGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF0E176F),
+      Color(0xFF5B3FE0),
+    ],
+  );
+
+  static const LinearGradient goalButtonGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [
+      Color(0xFF0E176F),
+      Color(0xFF5B3FE0),
+    ],
+  );
+
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.centerRight,
     end: Alignment.centerLeft,
