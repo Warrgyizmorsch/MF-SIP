@@ -47,7 +47,10 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
                 child: Obx(() {
                   final config = configService.currentConfig.value;
                   final installed = configService.installedVersion.value;
@@ -61,12 +64,9 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                         width: 100,
                         height: 100,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFF6FF),
+                          color: Ucolors.skyblue1,
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFFBFDBFE),
-                            width: 2,
-                          ),
+                          border: Border.all(color: Ucolors.skyblue, width: 2),
                         ),
                         child: const Center(
                           child: Icon(
@@ -163,7 +163,7 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                                     fontFamily: FontFamily.medium,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF2563EB),
+                                    color: Ucolors.primary,
                                   ),
                                 ),
                               ],

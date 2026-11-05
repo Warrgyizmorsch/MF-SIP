@@ -2978,7 +2978,7 @@ class MutualFundCard1 extends StatelessWidget {
                   height: 40,
                   width: 40,
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: Ucolors.skyblue1,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: IconButton(

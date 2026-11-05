@@ -243,7 +243,7 @@ class _MethodTab extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withValues(alpha: 0.28),
+                    color: Ucolors.primary.withValues(alpha: 0.28),
                     blurRadius: 14,
                     offset: const Offset(0, 5),
                   ),
@@ -310,12 +310,12 @@ class _UpiPanel extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
+                  color: Ucolors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.credit_card_rounded,
-                  color: Color(0xFF4F46E5),
+                  color: Ucolors.primary,
                   size: 22,
                 ),
               ),
@@ -512,12 +512,12 @@ class _NetBankingPanel extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
+              color: Ucolors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.account_balance_rounded,
-              color: Color(0xFF4F46E5),
+              color: Ucolors.primary,
               size: 22,
             ),
           ),
@@ -750,7 +750,7 @@ void _showMandateSheet(BuildContext context, String amount) {
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withValues(alpha: 0.30),
+                    color: Ucolors.primary.withValues(alpha: 0.30),
                     blurRadius: 18,
                     offset: const Offset(0, 6),
                   ),

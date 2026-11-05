@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/nfo_lifecycle.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/nfo/domain/entity/nfo_list_entity.dart';
@@ -71,7 +72,7 @@ class NfoDetailsPage1 extends StatelessWidget {
       nfo.lifecycle == NfoLifecycle.closed;
 
   // Theme Colors
-  static const Color primaryColor = Color(0xFF1E40AF);
+  static const Color primaryColor = Ucolors.primary;
   static const Color backgroundColor = Color(0xFFF9FAFB);
   static const Color cardColor = Colors.white;
   static const Color textDark = Color(0xFF1F2937);
@@ -478,7 +479,7 @@ class NfoDetailsPage1 extends StatelessWidget {
               height: 192,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.blue.shade500.withValues(alpha: 0.1),
+                color: Ucolors.primary.withValues(alpha: 0.1),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
@@ -552,7 +553,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                       icon: Icons.currency_rupee_rounded,
                       text: 'NAV: ₹${nfo.nav ?? nfo.nfoPrice ?? ""}',
                       textColor: primaryColor,
-                      bgColor: Colors.blue.shade50,
+                      bgColor: Ucolors.skyblue1,
                     ),
                     if (_isNfoClosed(nfo))
                       _buildTag(
@@ -565,7 +566,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                       _buildTag(
                         icon: Icons.schedule_rounded,
                         text: 'Upcoming NFO',
-                        textColor: primaryColor,
+                        textColor: const Color(0xFF1E40AF),
                         bgColor: Colors.blue.shade50,
                       )
                     else
@@ -893,7 +894,7 @@ class NfoDetailsPage1 extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.logout_rounded,
             iconColor: primaryColor,
-            iconBg: Colors.blue.shade50,
+            iconBg: Ucolors.skyblue1,
             title: 'Exit Load',
             description: nfo.exitLoad ?? 'Nil',
           ),
@@ -2134,7 +2135,7 @@ class NfoDetailsPage extends StatelessWidget {
   const NfoDetailsPage({super.key});
 
   // Theme Colors
-  static const Color primaryColor = Color(0xFF1E40AF);
+  static const Color primaryColor = Ucolors.primary;
   static const Color backgroundColor = Color(0xFFF9FAFB);
   static const Color cardColor = Colors.white;
   static const Color textDark = Color(0xFF1F2937);
@@ -2262,7 +2263,7 @@ class NfoDetailsPage extends StatelessWidget {
                 icon: Icons.currency_rupee_rounded,
                 text: 'NAV: ₹${nfo.nav ?? nfo.nfoPrice ?? "10"}',
                 textColor: primaryColor,
-                bgColor: Colors.blue.shade50,
+                bgColor: Ucolors.skyblue1,
               ),
             ],
           ),
@@ -2496,7 +2497,7 @@ class NfoDetailsPage extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.logout_rounded,
             iconColor: primaryColor,
-            iconBg: Colors.blue.shade50,
+            iconBg: Ucolors.skyblue1,
             title: 'Exit Load',
             description: nfo.exitLoad ?? 'Nil',
           ),
@@ -2676,7 +2677,7 @@ class NfoDetailScreen extends StatelessWidget {
   const NfoDetailScreen({super.key, required this.nfoData});
 
   // Theme Colors
-  static const Color primaryColor = Color(0xFF1E40AF);
+  static const Color primaryColor = Ucolors.primary;
   static const Color backgroundColor = Color(0xFFF9FAFB);
   static const Color cardColor = Colors.white;
   static const Color textDark = Color(0xFF1F2937);
@@ -2816,7 +2817,7 @@ class NfoDetailScreen extends StatelessWidget {
                 icon: Icons.currency_rupee_rounded,
                 text: nfoData.navPrice,
                 textColor: primaryColor,
-                bgColor: Colors.blue.shade50,
+                bgColor: Ucolors.skyblue1,
               ),
               _buildTag(
                 icon: Icons.timer_rounded,
@@ -3055,7 +3056,7 @@ class NfoDetailScreen extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.logout_rounded,
             iconColor: primaryColor,
-            iconBg: Colors.blue.shade50,
+            iconBg: Ucolors.skyblue1,
             title: 'Exit Load',
             description: nfoData.exitLoad,
           ),

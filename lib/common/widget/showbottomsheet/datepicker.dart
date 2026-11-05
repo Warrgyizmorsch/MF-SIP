@@ -77,6 +77,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 
 Future<void> showDOBPickerBottomSheet({
@@ -101,8 +102,8 @@ Future<void> showDOBPickerBottomSheet({
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF07315C),
-              onPrimary: Colors.white,
+              primary: Ucolors.primary,
+              onPrimary: Ucolors.onPrimary,
               onSurface: Colors.black,
             ),
           ),
@@ -114,7 +115,7 @@ Future<void> showDOBPickerBottomSheet({
     if (picked != null) {
       controller.text = DateFormat('dd/MM/yyyy').format(picked);
     }
-  } 
+  }
   // =========================================
   // 📱 MOBILE: Show Bottom Sheet
   // =========================================
@@ -148,7 +149,11 @@ Future<void> showDOBPickerBottomSheet({
 
               const Text(
                 'Select Date Of Birth',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, fontFamily: FontFamily.medium,),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: FontFamily.medium,
+                ),
               ),
 
               Expanded(
@@ -163,14 +168,19 @@ Future<void> showDOBPickerBottomSheet({
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 15,
+                ),
                 child: UElevatedBUtton(
                   onPressed: () {
-                    controller.text = DateFormat('dd/MM/yyyy').format(selectedDate);
+                    controller.text = DateFormat(
+                      'dd/MM/yyyy',
+                    ).format(selectedDate);
                     Navigator.pop(context);
                   },
                   child: Center(
-                    child: Text('Select Date', style: UTextStyles.buttonText,),
+                    child: Text('Select Date', style: UTextStyles.buttonText),
                   ),
                 ),
               ),

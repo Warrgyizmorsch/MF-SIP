@@ -1,3 +1,4 @@
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,7 +10,10 @@ import '../widgets/ticket_priority_badge.dart';
 class CreateTicketPage extends StatelessWidget {
   const CreateTicketPage({super.key});
 
-  void _showAttachmentSourceSheet(BuildContext context, CreateTicketController controller) {
+  void _showAttachmentSourceSheet(
+    BuildContext context,
+    CreateTicketController controller,
+  ) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -28,8 +32,8 @@ class CreateTicketPage extends StatelessWidget {
               const SizedBox(height: 16),
               ListTile(
                 leading: const CircleAvatar(
-                  backgroundColor: Color(0xFFE0F2FE),
-                  child: Icon(Icons.camera_alt_rounded, color: Color(0xFF0280C0)),
+                  backgroundColor: Ucolors.skyblue1,
+                  child: Icon(Icons.camera_alt_rounded, color: Ucolors.primary),
                 ),
                 title: const Text('Take Photo with Camera'),
                 onTap: () {
@@ -39,8 +43,11 @@ class CreateTicketPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const CircleAvatar(
-                  backgroundColor: Color(0xFFE0F2FE),
-                  child: Icon(Icons.file_present_rounded, color: Color(0xFF0280C0)),
+                  backgroundColor: Ucolors.skyblue1,
+                  child: Icon(
+                    Icons.file_present_rounded,
+                    color: Ucolors.primary,
+                  ),
                 ),
                 title: const Text('Choose Document or Image'),
                 subtitle: const Text('PDF, JPG, PNG (max 5MB)'),
@@ -63,9 +70,7 @@ class CreateTicketPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF11141C) : Colors.white,
-      appBar: const CustomAppBarNormal(
-        title: 'Raise Support Ticket',
-      ),
+      appBar: const CustomAppBarNormal(title: 'Raise Support Ticket'),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -85,7 +90,7 @@ class CreateTicketPage extends StatelessWidget {
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0280C0),
+                  backgroundColor: Ucolors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -99,7 +104,9 @@ class CreateTicketPage extends StatelessWidget {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : const Text(
@@ -123,10 +130,7 @@ class CreateTicketPage extends StatelessWidget {
             // Category Selector
             const Text(
               'Select Issue Category *',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Obx(() {
@@ -174,10 +178,7 @@ class CreateTicketPage extends StatelessWidget {
             // Priority Selector
             const Text(
               'Priority',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Obx(() {
@@ -192,7 +193,9 @@ class CreateTicketPage extends StatelessWidget {
                       TicketPriorityBadge.getPriorityLabel(p),
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: isSelected ? Colors.white : pColor,
                       ),
                     ),
@@ -200,7 +203,9 @@ class CreateTicketPage extends StatelessWidget {
                     selectedColor: pColor,
                     backgroundColor: pColor.withValues(alpha: 0.08),
                     side: BorderSide(
-                      color: isSelected ? pColor : pColor.withValues(alpha: 0.3),
+                      color: isSelected
+                          ? pColor
+                          : pColor.withValues(alpha: 0.3),
                     ),
                     onSelected: (_) => controller.setPriority(p),
                   );
@@ -213,10 +218,7 @@ class CreateTicketPage extends StatelessWidget {
             // Subject Field
             const Text(
               'Subject *',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -225,7 +227,10 @@ class CreateTicketPage extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'e.g., SIP amount deducted but units not allocated',
                 hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: Colors.grey.shade300),
@@ -238,10 +243,7 @@ class CreateTicketPage extends StatelessWidget {
             // Description Field
             const Text(
               'Description *',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Obx(() {
@@ -249,14 +251,22 @@ class CreateTicketPage extends StatelessWidget {
                 controller: controller.descriptionController,
                 maxLines: 5,
                 onChanged: (val) {
-                  if (controller.descriptionError.value != null && val.trim().length >= 5) {
+                  if (controller.descriptionError.value != null &&
+                      val.trim().length >= 5) {
                     controller.descriptionError.value = null;
                   }
                 },
                 decoration: InputDecoration(
-                  hintText: 'Please describe your problem or question in detail...',
-                  hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  hintText:
+                      'Please describe your problem or question in detail...',
+                  hintStyle: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade400,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   errorText: controller.descriptionError.value,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -274,13 +284,11 @@ class CreateTicketPage extends StatelessWidget {
               children: [
                 const Text(
                   'Attachments (Optional)',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 TextButton.icon(
-                  onPressed: () => _showAttachmentSourceSheet(context, controller),
+                  onPressed: () =>
+                      _showAttachmentSourceSheet(context, controller),
                   icon: const Icon(Icons.attach_file_rounded, size: 18),
                   label: const Text('Add File', style: TextStyle(fontSize: 13)),
                 ),
@@ -303,12 +311,17 @@ class CreateTicketPage extends StatelessWidget {
                 children: List.generate(controller.attachments.length, (index) {
                   final File file = controller.attachments[index];
                   final name = file.path.split(Platform.pathSeparator).last;
-                  final ext = name.contains('.') ? name.split('.').last.toLowerCase() : '';
+                  final ext = name.contains('.')
+                      ? name.split('.').last.toLowerCase()
+                      : '';
                   final isImg = ['jpg', 'jpeg', 'png', 'webp'].contains(ext);
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(10),
@@ -317,9 +330,11 @@ class CreateTicketPage extends StatelessWidget {
                     child: Row(
                       children: [
                         Icon(
-                          isImg ? Icons.image_rounded : Icons.insert_drive_file_rounded,
+                          isImg
+                              ? Icons.image_rounded
+                              : Icons.insert_drive_file_rounded,
                           size: 22,
-                          color: const Color(0xFF0280C0),
+                          color: Ucolors.primary,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -327,11 +342,18 @@ class CreateTicketPage extends StatelessWidget {
                             name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
                           onPressed: () => controller.removeAttachment(index),
                         ),
                       ],

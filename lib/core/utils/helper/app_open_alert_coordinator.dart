@@ -168,7 +168,7 @@ class AppOpenAlertCoordinator {
         primaryButtonText: 'Add Details',
         secondaryButtonText: 'Remind Later',
         icon: Icons.person_outline,
-        iconColor: Colors.blue.shade700,
+        iconColor: Ucolors.primary,
         onPrimaryTap: () => Get.toNamed(AppRoutes.additionalInfo),
         onSecondaryTap: () {
           notifService?.scheduleReminder(
@@ -196,7 +196,7 @@ class AppOpenAlertCoordinator {
         primaryButtonText: 'Add Bank',
         secondaryButtonText: 'Remind Later',
         icon: Icons.account_balance_outlined,
-        iconColor: Colors.indigo,
+        iconColor: Ucolors.indigo,
         onPrimaryTap: () => Get.toNamed(AppRoutes.addanotherbank),
         onSecondaryTap: () {
           notifService?.scheduleReminder(

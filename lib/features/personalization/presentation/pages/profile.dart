@@ -73,10 +73,11 @@ class _MobileProfileLayout extends StatelessWidget {
               // ),
               Obx(() {
                 final reactiveUser = SessionManager.instance.userObs.value;
-                final canNumber = (controller.userData.value?.canNumber ??
-                        reactiveUser?.canNumber ??
-                        '')
-                    .trim();
+                final canNumber =
+                    (controller.userData.value?.canNumber ??
+                            reactiveUser?.canNumber ??
+                            '')
+                        .trim();
 
                 String displayImage = controller.imagePath.isNotEmpty
                     ? controller.imagePath.value
@@ -86,7 +87,8 @@ class _MobileProfileLayout extends StatelessWidget {
                   onTap: () => Get.toNamed(AppRoutes.personaldetails),
                   img: displayImage,
                   name: reactiveUser?.name,
-                  subtitle: reactiveUser?.email ??
+                  subtitle:
+                      reactiveUser?.email ??
                       reactiveUser?.mobile?.toString() ??
                       '',
                   canNumber: canNumber,
@@ -153,18 +155,20 @@ class _WebProfileDashboard extends StatelessWidget {
                             SessionManager.instance.userObs.value;
                         final controller =
                             Get.find<PersonalisationController>();
-                        final canNumber = (controller.userData.value?.canNumber ??
-                                reactiveUser?.canNumber ??
-                                '')
-                            .trim();
+                        final canNumber =
+                            (controller.userData.value?.canNumber ??
+                                    reactiveUser?.canNumber ??
+                                    '')
+                                .trim();
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               reactiveUser?.name ?? user?.name ?? 'User Name',
-                              style:
-                                  UTextStyles.heading1.copyWith(fontSize: 24),
+                              style: UTextStyles.heading1.copyWith(
+                                fontSize: 24,
+                              ),
                             ),
                             Text(
                               reactiveUser?.email ??
@@ -511,7 +515,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
           //   title: 'Documents',
           //   images: UImages.cardtick,
           // ),
-           Divider(thickness: 5, color: Colors.grey.shade200),
+          Divider(thickness: 5, color: Colors.grey.shade200),
 
           const Row(
             children: [
@@ -554,7 +558,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
               ),
             ],
           ),
-         
+
           Listtilecustom(
             isLock: true,
             title: 'Applock',
@@ -589,13 +593,11 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             title: 'Rate Us',
             images: UImages.likedislike,
           ),
-           Listtilecustom(
+          Listtilecustom(
             title: 'AMCs, SEBI & AMFI',
             icon: Icons.account_balance_outlined,
             onTap: () => Get.to(() => const AmcListScreen()),
           ),
-          
-         
         ],
       ),
     );
@@ -644,7 +646,7 @@ class Listtilecustom extends StatelessWidget {
             )
           : Obx(
               () => Switch(
-                activeThumbColor: Colors.blue,
+                activeThumbColor: Ucolors.primary,
                 // value: controller.applock.value,
                 value: SessionManager.instance.isAppLockEnabled.value,
                 onChanged: (bool value) async {

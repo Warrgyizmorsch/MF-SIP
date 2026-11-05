@@ -1,3 +1,4 @@
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
@@ -281,7 +282,7 @@ class SipSetupScreenStatic extends StatelessWidget {
                 children: const [
                   Icon(
                     Icons.calendar_today,
-                    color: Colors.blueAccent,
+                    color: Ucolors.textLight,
                     size: 20,
                   ),
                   SizedBox(width: 12),
@@ -338,11 +339,11 @@ class SipSetupScreenStatic extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.blueAccent.withValues(alpha: 0.15)
+              ? Ucolors.primary.withValues(alpha: 0.15)
               : const Color(0xFF1A1A1E),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? Colors.blueAccent : Colors.transparent,
+            color: isSelected ? Ucolors.primary : Colors.transparent,
           ),
         ),
         child: Center(
@@ -350,7 +351,7 @@ class SipSetupScreenStatic extends StatelessWidget {
             label,
             style: TextStyle(
               fontFamily: FontFamily.medium,
-              color: isSelected ? Colors.blueAccent : Colors.grey,
+              color: isSelected ? Ucolors.textLight : Colors.grey,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               fontSize: 13,
             ),
@@ -402,7 +403,7 @@ class SipSetupScreenStatic extends StatelessWidget {
           value,
           style: TextStyle(
             fontFamily: FontFamily.medium,
-            color: isTotal ? Colors.blueAccent : Colors.white,
+            color: isTotal ? Ucolors.textLight : Colors.white,
             fontSize: isTotal ? 16 : 14,
             fontWeight: isTotal ? FontWeight.w600 : FontWeight.w500,
           ),
@@ -418,7 +419,7 @@ class SipSetupScreenStatic extends StatelessWidget {
       height: 54,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Ucolors.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),

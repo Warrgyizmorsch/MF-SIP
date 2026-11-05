@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 
 class StockAllocationItem extends StatelessWidget {
@@ -38,9 +39,12 @@ class StockAllocationItem extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style:  TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: isDesktop ? 15 : 14,
-                        fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: isDesktop
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                         color: Colors.grey.shade900,
                       ),
                     ),
@@ -54,18 +58,19 @@ class StockAllocationItem extends StatelessWidget {
                             vertical: isDesktop ? 4 : 3,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
+                            color: Ucolors.skyblue1,
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
-                              color: Colors.blue.shade200,
+                              color: Ucolors.skyblue,
                               width: 0.5,
                             ),
                           ),
                           child: Text(
                             category,
-                            style:  TextStyle(fontFamily: FontFamily.medium,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: isDesktop ? 12 : 11,
-                              color: Colors.blue.shade700,
+                              color: Ucolors.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -85,7 +90,8 @@ class StockAllocationItem extends StatelessWidget {
                         Expanded(
                           child: Text(
                             sector,
-                            style:  TextStyle(fontFamily: FontFamily.medium,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: isDesktop ? 13 : 12,
                               color: Colors.grey.shade600,
                               fontWeight: FontWeight.w500,
@@ -121,7 +127,8 @@ class StockAllocationItem extends StatelessWidget {
                 ),
                 child: Text(
                   '${percentage.toStringAsFixed(2)}%',
-                  style:  TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: isDesktop ? 15 : 14,
                     fontWeight: FontWeight.w700,
                     color: percentage >= 5

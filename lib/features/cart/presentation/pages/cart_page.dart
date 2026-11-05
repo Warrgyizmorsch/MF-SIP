@@ -64,7 +64,9 @@ class CartPage extends GetView<CartController> {
     if (paused.isNotEmpty) {
       Get.dialog(
         AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Row(
             children: [
               Icon(
@@ -227,7 +229,7 @@ class CartPage extends GetView<CartController> {
               buttonText,
               style: const TextStyle(
                 fontFamily: FontFamily.medium,
-                color: Colors.blue, // Or use Ucolors.primary
+                color: Ucolors.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -335,7 +337,8 @@ class CartPage extends GetView<CartController> {
                             isValid: controller.isListValid(targetItems),
                             isLoading: isSubmitting,
                             amount: isLoading ? '0' : targetAmount.toString(),
-                            ontap: () => _handlePurchase(isLumpsum: isLumpsumTab),
+                            ontap: () =>
+                                _handlePurchase(isLumpsum: isLumpsumTab),
                           ),
                         ],
                       );
@@ -1035,10 +1038,16 @@ class CartPage extends GetView<CartController> {
             const Gap(18),
             const TermAndPolicy(term: 'By Proceeding I accept the '),
             const Gap(18),
-            if (controller.hasPausedItems(targetItems, isLumpsum: isLumpsumTab)) ...[
+            if (controller.hasPausedItems(
+              targetItems,
+              isLumpsum: isLumpsumTab,
+            )) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 12,
+                ),
                 margin: const EdgeInsets.only(bottom: 14),
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
@@ -1764,7 +1773,7 @@ class CartBottomBar extends StatelessWidget {
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: const BoxDecoration(color: Color(0xffE8F4FF)),
+        decoration: const BoxDecoration(color: Ucolors.skyblue1),
         child: Row(
           children: [
             Expanded(
@@ -1848,7 +1857,7 @@ class CartBottomBarWeb extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xffE8F4FF),
+        color: Ucolors.skyblue1,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -1982,8 +1991,8 @@ class CartItemCard extends StatelessWidget {
                       itemEntity.isPurchaseAllowed == false
                           ? "Investment paused by AMC"
                           : (itemEntity.transType?.toLowerCase() == 'lumpsum'
-                              ? "Lumpsum paused for this scheme"
-                              : "SIP paused for this scheme"),
+                                ? "Lumpsum paused for this scheme"
+                                : "SIP paused for this scheme"),
                       style: const TextStyle(
                         fontFamily: FontFamily.medium,
                         fontSize: 12,
@@ -2354,47 +2363,56 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
               const SizedBox(width: 12),
 
               /// 2. SIP Date Dropdown
-              if (currentType != 'lumpsum') () {
-                final allowedDates = parseAllowedSipDates(widget.itemEntity.allowedSipDates);
-                final currentDay = widget.itemEntity.sipDay ?? (allowedDates.contains(1) ? 1 : allowedDates.first);
-                final dropdownVal = allowedDates.contains(currentDay) ? '$currentDay' : '${allowedDates.first}';
+              if (currentType != 'lumpsum')
+                () {
+                  final allowedDates = parseAllowedSipDates(
+                    widget.itemEntity.allowedSipDates,
+                  );
+                  final currentDay =
+                      widget.itemEntity.sipDay ??
+                      (allowedDates.contains(1) ? 1 : allowedDates.first);
+                  final dropdownVal = allowedDates.contains(currentDay)
+                      ? '$currentDay'
+                      : '${allowedDates.first}';
 
-                return Expanded(
-                  flex: 2,
-                  child: _buildColumn(
-                    'SIP Date',
-                    DropdownButton<String>(
-                      menuMaxHeight: 300,
-                      dropdownColor: Colors.white,
-                      isDense: true,
-                      value: dropdownVal,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      items: allowedDates.map(
-                        (day) => DropdownMenuItem(
-                          value: '$day',
-                          child: Text(
-                            '$day',
-                            style: const TextStyle(
-                              fontFamily: FontFamily.medium,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          controller.updateCartItem(
-                            itemId: widget.itemEntity.id!,
-                            sipDay: int.parse(val),
-                            frequency: null,
-                          );
-                        }
-                      },
+                  return Expanded(
+                    flex: 2,
+                    child: _buildColumn(
+                      'SIP Date',
+                      DropdownButton<String>(
+                        menuMaxHeight: 300,
+                        dropdownColor: Colors.white,
+                        isDense: true,
+                        value: dropdownVal,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        items: allowedDates
+                            .map(
+                              (day) => DropdownMenuItem(
+                                value: '$day',
+                                child: Text(
+                                  '$day',
+                                  style: const TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            controller.updateCartItem(
+                              itemId: widget.itemEntity.id!,
+                              sipDay: int.parse(val),
+                              frequency: null,
+                            );
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                );
-              }(),
+                  );
+                }(),
 
               const SizedBox(width: 12),
 
@@ -2517,7 +2535,7 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xffEAF5FF),
+        color: Ucolors.skyblue1,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(

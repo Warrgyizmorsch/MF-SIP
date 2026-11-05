@@ -1,3 +1,4 @@
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/ticket_entity.dart';
 import 'ticket_priority_badge.dart';
@@ -7,11 +8,7 @@ class TicketCard extends StatelessWidget {
   final TicketEntity ticket;
   final VoidCallback onTap;
 
-  const TicketCard({
-    super.key,
-    required this.ticket,
-    required this.onTap,
-  });
+  const TicketCard({super.key, required this.ticket, required this.onTap});
 
   String _formatTimestamp(String dateStr) {
     if (dateStr.isEmpty) return '';
@@ -81,7 +78,7 @@ class TicketCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: Colors.blue.shade700,
+                              color: Ucolors.primary,
                               letterSpacing: 0.3,
                             ),
                           ),
@@ -114,10 +111,7 @@ class TicketCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    TicketStatusBadge(
-                      status: ticket.status,
-                      isCompact: true,
-                    ),
+                    TicketStatusBadge(status: ticket.status, isCompact: true),
                   ],
                 ),
 
@@ -144,7 +138,9 @@ class TicketCard extends StatelessWidget {
                     ticket.latestMessage!.message,
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : Colors.grey.shade600,
                       height: 1.35,
                     ),
                     maxLines: 2,
@@ -193,7 +189,9 @@ class TicketCard extends StatelessWidget {
                       _formatTimestamp(ticket.updatedAt),
                       style: TextStyle(
                         fontSize: 11,
-                        color: isDark ? Colors.grey.shade500 : Colors.grey.shade500,
+                        color: isDark
+                            ? Colors.grey.shade500
+                            : Colors.grey.shade500,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

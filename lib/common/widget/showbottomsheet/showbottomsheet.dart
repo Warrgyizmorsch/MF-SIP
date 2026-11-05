@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/constant/colors.dart';
 import '../../../core/utils/constant/text_style.dart';
 
 Future<String?> showSelectionBottomSheet({
@@ -143,7 +144,7 @@ Future<String?> showSelectionBottomSheet({
                                 trailing: selected == bankName
                                     ? const Icon(
                                         Icons.check_circle,
-                                        color: Color(0xFF07315C),
+                                        color: Ucolors.primary,
                                       ) // Clean checkmark for web
                                     : null,
                                 onTap: () {

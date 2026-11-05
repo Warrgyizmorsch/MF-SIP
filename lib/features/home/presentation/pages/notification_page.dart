@@ -9,32 +9,29 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import '../controllers/home_controller.dart';
 
-
 class NotificationPage extends GetView<HomeController> {
   const NotificationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop =
-    ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
       appBar: isDesktop
           ? null
           : CustomAppBarNormal(
-        actionsPadding: 15,
-        title: 'Notification',
-        action: [
-          GestureDetector(
-            onTap: controller.markAllRead,
-            child: Text(
-              'Mark all read',
-              style:
-              UTextStyles.medium.copyWith(color: Ucolors.blue),
+              actionsPadding: 15,
+              title: 'Notification',
+              action: [
+                GestureDetector(
+                  onTap: controller.markAllRead,
+                  child: Text(
+                    'Mark all read',
+                    style: UTextStyles.medium.copyWith(color: Ucolors.blue),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
 
       body: Obx(() {
         final list = controller.notifications;
@@ -45,13 +42,11 @@ class NotificationPage extends GetView<HomeController> {
             Container(
               height: 40,
               width: double.infinity,
-              color: const Color(0xffCBE5FD),
+              color: Ucolors.skyblue,
               child: Center(
                 child: Text(
                   '${list.where((e) => !e.isRead).length} new notifications',
-                  style: UTextStyles.medium.copyWith(
-                    color: const Color(0xff07315C),
-                  ),
+                  style: UTextStyles.medium.copyWith(color: Ucolors.blue),
                 ),
               ),
             ),
@@ -61,21 +56,21 @@ class NotificationPage extends GetView<HomeController> {
               child: list.isEmpty
                   ? const Center(child: Text("No notifications"))
                   : ListView.builder(
-                itemCount: list.length,
-                itemBuilder: (context, index) {
-                  final n = list[index];
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        final n = list[index];
 
-                  return NotificationMessage(
-                    isRead: n.isRead,
-                    title: n.title,
-                    body: n.body,
-                    time: n.time,
-                    onTap: () {
-                      controller.markSingleRead(n.id);
-                    },
-                  );
-                },
-              ),
+                        return NotificationMessage(
+                          isRead: n.isRead,
+                          title: n.title,
+                          body: n.body,
+                          time: n.time,
+                          onTap: () {
+                            controller.markSingleRead(n.id);
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         );
@@ -83,6 +78,7 @@ class NotificationPage extends GetView<HomeController> {
     );
   }
 }
+
 class NotificationMessage extends StatelessWidget {
   final bool isRead;
   final String title;
@@ -116,12 +112,12 @@ class NotificationMessage extends StatelessWidget {
     return ListTile(
       onTap: onTap,
 
-      tileColor:
-      isRead ? const Color(0xffE8F4FF) : Colors.grey.shade100,
+      tileColor: isRead ? const Color(0xffE8F4FF) : Colors.grey.shade100,
 
       leading: CircleAvatar(
-        backgroundColor:
-        isRead ? const Color(0xffCBE5FD) : Colors.grey.shade300,
+        backgroundColor: isRead
+            ? const Color(0xffCBE5FD)
+            : Colors.grey.shade300,
         child: Icon(
           Iconsax.card_edit,
           color: isRead ? Ucolors.blue : Colors.grey.shade400,
@@ -153,11 +149,7 @@ class NotificationMessage extends StatelessWidget {
         ],
       ),
 
-      trailing: Icon(
-        Icons.arrow_forward_ios,
-        size: 14,
-        color: Colors.grey,
-      ),
+      trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
     );
   }
 }

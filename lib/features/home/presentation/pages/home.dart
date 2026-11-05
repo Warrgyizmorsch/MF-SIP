@@ -37,7 +37,6 @@ import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-
 class WebHoverScale extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -300,7 +299,7 @@ class _WebDashboardLayout extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFFE3F5FF), Color(0xFFF2F9FF), Color(0xFFFFFFFF)],
+            colors: [Ucolors.skyblue, Ucolors.skyblue1, Ucolors.white],
           ),
           boxShadow: [
             BoxShadow(
@@ -335,7 +334,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   Expanded(
                     child: _heroMetric(
                       icon: Icons.account_balance_wallet_rounded,
-                      iconBgColor: const Color(0xFF3B82F6),
+                      iconBgColor: Ucolors.primary,
                       title: 'Portfolio Value',
                       value: _formatHeroAmount(currentValue),
                       subtitle:
@@ -347,7 +346,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   Expanded(
                     child: _heroMetric(
                       icon: Icons.calendar_today_rounded,
-                      iconBgColor: const Color(0xFF0EA5E9),
+                      iconBgColor: Ucolors.indigo,
                       title: 'Active SIPs',
                       value: '$activeSipCount SIPs',
                       subtitle: activeSipCount > 0
@@ -360,7 +359,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   Expanded(
                     child: _heroMetric(
                       icon: Icons.track_changes_rounded,
-                      iconBgColor: const Color(0xFF6366F1),
+                      iconBgColor: Ucolors.blue,
                       title: 'Total Holdings',
                       value: '$totalHoldings Funds',
                       subtitle: totalHoldings > 0
@@ -554,7 +553,7 @@ class _WebDashboardLayout extends StatelessWidget {
         'icon': Icons.track_changes_rounded,
         'title': 'Plan your goals',
         'sub': 'Set clear financial targets',
-        'color': const Color(0xFF1677FF),
+        'color': Ucolors.primary,
         'onTap': () {
           if (kIsWeb) {
             navController.openNestedRoute(
@@ -961,7 +960,7 @@ class _WebDashboardLayout extends StatelessWidget {
             fontFamily: FontFamily.medium,
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF005DFF),
+            color: Ucolors.primary,
           ),
         ),
       ),
@@ -1073,7 +1072,7 @@ class _WebDashboardLayout extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
-            color: hover ? const Color(0xFFF2F7FF) : const Color(0xFFFBFCFF),
+            color: hover ? Ucolors.skyblue1 : const Color(0xFFFBFCFF),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: hover
@@ -1083,7 +1082,7 @@ class _WebDashboardLayout extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: hover
-                    ? Color(0xFFF2F7FF).withOpacity(0.15)
+                    ? Ucolors.skyblue1.withValues(alpha: 0.15)
                     : Colors.black.withOpacity(0.1),
                 blurRadius: hover ? 24 : 16,
                 offset: hover ? const Offset(0, 10) : const Offset(0, 4),
@@ -1256,8 +1255,8 @@ class _WebDashboardLayout extends StatelessWidget {
                               'imgUrl': img,
                               'scheme_code': schemeCode,
                               'isin': fund.isin ?? '',
-                                  'rta_amc_code': fund.rtaAmcCode,
-                                  'amc_name': fund.amc?.amcName,
+                              'rta_amc_code': fund.rtaAmcCode,
+                              'amc_name': fund.amc?.amcName,
                             };
 
                             Get.toNamed(AppRoutes.funddetails);
@@ -1403,14 +1402,9 @@ class _WebDashboardLayout extends StatelessWidget {
                     onPressed:
                         onTap, // Hooks the action up directly to the tile's tap behavior
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF1D4ED8), // Text color
-                      backgroundColor: const Color(
-                        0xFFEFF6FF,
-                      ), // Soft blue fill background
-                      side: const BorderSide(
-                        color: const Color(0xFFDBEAFE),
-                        width: 1,
-                      ), // Blue accent outline
+                      foregroundColor: Ucolors.primary,
+                      backgroundColor: Ucolors.skyblue1,
+                      side: const BorderSide(color: Ucolors.skyblue, width: 1),
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       minimumSize: const Size(
                         0,
@@ -1529,7 +1523,7 @@ class _WebDashboardLayout extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
           decoration: BoxDecoration(
-            color: hover ? const Color(0xFFF5FAFF) : Colors.white,
+            color: hover ? Ucolors.skyblue1 : Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: hover
@@ -1606,7 +1600,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF005DFF),
+                  color: Ucolors.primary,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -1664,17 +1658,20 @@ class _WebDashboardLayout extends StatelessWidget {
                             'isin': fund.isin ?? '',
                             'rta_amc_code': fund.rtaAmcCode ?? '',
                             'amc_name': fund.amc?.amcName ?? '',
-                            'is_purchase_allowed': fund.isPurchaseAllowed?.toString() ?? '',
-                            'is_sip_allowed': fund.isSipAllowed?.toString() ?? '',
-                            'is_lumpsum_allowed': fund.isLumpsumAllowed?.toString() ?? '',
+                            'is_purchase_allowed':
+                                fund.isPurchaseAllowed?.toString() ?? '',
+                            'is_sip_allowed':
+                                fund.isSipAllowed?.toString() ?? '',
+                            'is_lumpsum_allowed':
+                                fund.isLumpsumAllowed?.toString() ?? '',
                           },
                           arguments: {
                             'scheme': schemeName,
                             'imgUrl': img,
                             'scheme_code': schemeCode,
                             'isin': fund.isin ?? '',
-                                  'rta_amc_code': fund.rtaAmcCode,
-                                  'amc_name': fund.amc?.amcName,
+                            'rta_amc_code': fund.rtaAmcCode,
+                            'amc_name': fund.amc?.amcName,
                             'email': fund.amc?.email,
                             'address': fund.amc?.address,
                             'contact': fund.amc?.contact,
@@ -1692,8 +1689,8 @@ class _WebDashboardLayout extends StatelessWidget {
                               'imgUrl': img,
                               'scheme_code': schemeCode,
                               'isin': fund.isin ?? '',
-                                  'rta_amc_code': fund.rtaAmcCode,
-                                  'amc_name': fund.amc?.amcName,
+                              'rta_amc_code': fund.rtaAmcCode,
+                              'amc_name': fund.amc?.amcName,
                               'email': fund.amc?.email,
                               'address': fund.amc?.address,
                               'contact': fund.amc?.contact,
@@ -1725,7 +1722,7 @@ class _WebDashboardLayout extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: hover ? const Color(0xFFF5FAFF) : const Color(0xFFFBFCFF),
+            color: hover ? Ucolors.skyblue1 : const Color(0xFFFBFCFF),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: hover
@@ -1901,7 +1898,7 @@ class _WebDashboardLayout extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
           decoration: BoxDecoration(
-            color: hover ? const Color(0xFFF5FAFF) : const Color(0xFFFBFCFF),
+            color: hover ? Ucolors.skyblue1 : const Color(0xFFFBFCFF),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: hover
@@ -2026,7 +2023,7 @@ class _WebDashboardLayout extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
           decoration: BoxDecoration(
-            color: hover ? const Color(0xFFF5FAFF) : const Color(0xFFFBFCFF),
+            color: hover ? Ucolors.skyblue1 : const Color(0xFFFBFCFF),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: hover
@@ -2182,7 +2179,7 @@ class _WebDashboardLayout extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF005DFF),
+                        backgroundColor: Ucolors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -3471,7 +3468,7 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
           gradient: isPressed
               ? RadialGradient(
                   colors: [
-                    Colors.blue.withValues(alpha: 0.15),
+                    Ucolors.primary.withValues(alpha: 0.15),
                     Colors.transparent,
                   ],
                   radius: 0.8,
@@ -3480,7 +3477,7 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
           boxShadow: isPressed
               ? [
                   BoxShadow(
-                    color: Colors.blue.withValues(alpha: 0.25),
+                    color: Ucolors.primary.withValues(alpha: 0.25),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -3491,7 +3488,7 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
-            splashColor: Colors.blue.withValues(alpha: 0.2),
+            splashColor: Ucolors.primary.withValues(alpha: 0.2),
             highlightColor: Colors
                 .transparent, // Hide default highlight to see your custom animation
             // Trigger animation on press
@@ -3527,7 +3524,7 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
                       height: 1.1,
                       fontFamily: FontFamily.medium,
                       // fontWeight: FontWeight.w500,
-                      color: Color(0xff2A7BBF),
+                      color: Ucolors.primary,
                     ),
                   ),
                 ],
@@ -3923,9 +3920,7 @@ class _CollectionItemState extends State<CollectionItem> {
                             height: 1.4,
                             fontWeight: FontWeight.normal,
                             fontFamily: FontFamily.bold,
-                            color: isHovered
-                                ? const Color(0xff2A7BBF)
-                                : Ucolors.black,
+                            color: isHovered ? Ucolors.primary : Ucolors.black,
                           ),
                         ),
                       ],
@@ -4099,7 +4094,7 @@ class _AnimatedWelcomeTextState extends State<AnimatedWelcomeText> {
                     TextSpan(
                       text: '${widget.name}!',
                       style: const TextStyle(
-                        color: Color(0xFF0066FF),
+                        color: Ucolors.primary,
                         fontWeight: FontWeight.w700,
                         fontFamily: FontFamily.medium,
                       ),
@@ -4122,7 +4117,7 @@ class _AnimatedWelcomeTextState extends State<AnimatedWelcomeText> {
                     TextSpan(
                       text: "It's a pleasure to have you here",
                       style: TextStyle(
-                        color: Color(0xFF0066FF),
+                        color: Ucolors.primary,
                         fontWeight: FontWeight.w700,
                         fontFamily: FontFamily.medium,
                       ),

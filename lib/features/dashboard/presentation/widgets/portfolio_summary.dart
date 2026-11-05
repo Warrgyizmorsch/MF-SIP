@@ -24,7 +24,7 @@ class PortfolioSummary extends StatelessWidget {
 
                 foreground: Paint()
                   ..shader = const LinearGradient(
-                    colors: [Color(0xFF0280C0), Color(0xFF013C5A)],
+                    colors: [Ucolors.primary, Ucolors.blue],
                   ).createShader(const Rect.fromLTWH(0, 0, 200, 0)),
               ),
             ),

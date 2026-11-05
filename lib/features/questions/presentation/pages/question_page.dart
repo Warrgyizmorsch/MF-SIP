@@ -31,13 +31,17 @@ class _QuestionPageState extends State<QuestionPage> {
             children: [
               Text(
                 "STEP 1 OF 4",
-                style: TextStyle(fontFamily: FontFamily.medium,fontSize: 10, color: Colors.grey),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 10,
+                  color: Colors.grey,
+                ),
               ),
 
               Stack(
                 children: [
                   Container(
-                    decoration: BoxDecoration(color: Color(0xffEBF4FF)),
+                    decoration: BoxDecoration(color: Ucolors.skyblue1),
                     width: width / 2,
                     height: 10,
                   ),
@@ -53,7 +57,8 @@ class _QuestionPageState extends State<QuestionPage> {
               ),
               Text(
                 "Select Age Group",
-                style: TextStyle(fontFamily: FontFamily.medium,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 25,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -61,7 +66,8 @@ class _QuestionPageState extends State<QuestionPage> {
               ),
               Text(
                 "This helps us personalize your investment horizon.",
-                style: TextStyle(fontFamily: FontFamily.medium,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 20,
                   color: Colors.grey,
                   fontWeight: FontWeight.bold,
@@ -83,7 +89,8 @@ class _QuestionPageState extends State<QuestionPage> {
                             children: [
                               Text(
                                 "20-35 Years",
-                                style: TextStyle(fontFamily: FontFamily.medium,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   fontSize: 15,
                                   color: Colors.grey,
                                 ),
@@ -105,7 +112,8 @@ class _QuestionPageState extends State<QuestionPage> {
                             children: [
                               Text(
                                 "36-50 Years",
-                                style: TextStyle(fontFamily: FontFamily.medium,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   fontSize: 15,
                                   color: Colors.grey,
                                 ),
@@ -127,7 +135,8 @@ class _QuestionPageState extends State<QuestionPage> {
                             children: [
                               Text(
                                 "51+ Years",
-                                style: TextStyle(fontFamily: FontFamily.medium,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   fontSize: 15,
                                   color: Colors.grey,
                                 ),
@@ -143,10 +152,14 @@ class _QuestionPageState extends State<QuestionPage> {
               ),
               UElevatedBUtton(
                 // onPressed: () => Get.to(() => OnboardingFlow()),
-                onPressed: () {
-                  
-                },
-                child: Text('Continue', style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white)),
+                onPressed: () {},
+                child: Text(
+                  'Continue',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.white,
+                  ),
+                ),
               ),
               Center(
                 child: SubtitleText(

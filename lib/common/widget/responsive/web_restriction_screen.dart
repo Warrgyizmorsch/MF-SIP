@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/constant/colors.dart';
+
 class WebRestrictionScreen extends StatelessWidget {
   final double currentWidth;
 
@@ -35,13 +37,13 @@ class WebRestrictionScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.15),
+                      color: Ucolors.primary.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.desktop_windows_rounded,
                       size: 56,
-                      color: Colors.blueAccent,
+                      color: Ucolors.textLight,
                     ),
                   ),
                   const SizedBox(height: 24),

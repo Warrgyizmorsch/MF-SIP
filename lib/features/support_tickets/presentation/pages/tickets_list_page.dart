@@ -1,3 +1,4 @@
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
@@ -16,7 +17,9 @@ class TicketsListPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF11141C) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF11141C)
+          : const Color(0xFFF8FAFC),
       appBar: CustomAppBarNormal(
         title: 'Support Tickets',
         action: [
@@ -28,14 +31,11 @@ class TicketsListPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF0280C0),
+        backgroundColor: Ucolors.primary,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
           'Raise Ticket',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
         onPressed: () => Get.to(() => const CreateTicketPage()),
       ),
@@ -63,7 +63,8 @@ class TicketsListPage extends StatelessWidget {
                       count: controller.resolvedCount.value,
                       color: const Color(0xFF059669),
                       icon: Icons.check_circle_outline_rounded,
-                      isSelected: controller.selectedTab.value == 'RESOLVED_ONLY',
+                      isSelected:
+                          controller.selectedTab.value == 'RESOLVED_ONLY',
                       onTap: () => controller.changeTab('RESOLVED_ONLY'),
                     ),
                     const SizedBox(width: 10),
@@ -81,7 +82,10 @@ class TicketsListPage extends StatelessWidget {
 
               // Filter Tabs Row
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
                 child: Row(
                   children: [
                     _buildFilterChip(
@@ -108,9 +112,7 @@ class TicketsListPage extends StatelessWidget {
               const SizedBox(height: 4),
 
               // Tickets List / States
-              Expanded(
-                child: _buildTicketsList(context, controller),
-              ),
+              Expanded(child: _buildTicketsList(context, controller)),
             ],
           ),
         );
@@ -188,10 +190,10 @@ class TicketsListPage extends StatelessWidget {
         fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
         color: selected ? Colors.white : Colors.grey.shade700,
       ),
-      selectedColor: const Color(0xFF0280C0),
+      selectedColor: Ucolors.primary,
       backgroundColor: Colors.white,
       side: BorderSide(
-        color: selected ? const Color(0xFF0280C0) : Colors.grey.shade300,
+        color: selected ? Ucolors.primary : Colors.grey.shade300,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     );
@@ -199,9 +201,7 @@ class TicketsListPage extends StatelessWidget {
 
   Widget _buildTicketsList(BuildContext context, TicketsController controller) {
     if (controller.isLoading.value) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (controller.errorMessage.value.isNotEmpty) {
@@ -211,7 +211,11 @@ class TicketsListPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline_rounded, size: 48, color: Colors.red.shade400),
+              Icon(
+                Icons.error_outline_rounded,
+                size: 48,
+                color: Colors.red.shade400,
+              ),
               const SizedBox(height: 12),
               Text(
                 controller.errorMessage.value,
@@ -240,37 +244,34 @@ class TicketsListPage extends StatelessWidget {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0280C0).withValues(alpha: 0.1),
+                  color: Ucolors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.support_agent_rounded,
                   size: 38,
-                  color: Color(0xFF0280C0),
+                  color: Ucolors.primary,
                 ),
               ),
               const SizedBox(height: 16),
               const Text(
                 'No Tickets Found',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Text(
                 'Have a question or facing an issue? Raise a ticket and our support team will help you promptly.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0280C0),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  backgroundColor: Ucolors.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -278,7 +279,10 @@ class TicketsListPage extends StatelessWidget {
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text(
                   'Raise New Ticket',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onPressed: () => Get.to(() => const CreateTicketPage()),
               ),
@@ -291,7 +295,8 @@ class TicketsListPage extends StatelessWidget {
     return ListView.builder(
       controller: controller.scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: controller.tickets.length + (controller.isLoadingMore.value ? 1 : 0),
+      itemCount:
+          controller.tickets.length + (controller.isLoadingMore.value ? 1 : 0),
       itemBuilder: (context, index) {
         if (index >= controller.tickets.length) {
           return const Padding(

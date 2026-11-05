@@ -210,7 +210,7 @@ class _FilterDropdownButton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(5),
               decoration: const BoxDecoration(
-                color: Colors.blue,
+                color: Ucolors.primary,
                 shape: BoxShape.circle,
               ),
               child: const Text(

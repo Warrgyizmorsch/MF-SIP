@@ -385,12 +385,12 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFF6FF),
+                          color: Ucolors.skyblue1,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
                           Icons.flag_rounded,
-                          color: Color(0xFF2563EB),
+                          color: Ucolors.primary,
                           size: 20,
                         ),
                       ),
@@ -444,7 +444,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2563EB),
+                        color: Ucolors.primary,
                       ),
                     ),
                     Text(
@@ -1340,10 +1340,10 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                       vertical: 3,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFEFF6FF),
+                                      color: Ucolors.skyblue1,
                                       borderRadius: BorderRadius.circular(6),
                                       border: Border.all(
-                                        color: const Color(0xFFBFDBFE),
+                                        color: Ucolors.skyblue,
                                       ),
                                     ),
                                     child: Text(
@@ -1351,7 +1351,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                       style: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF1D4ED8),
+                                        color: Ucolors.primary,
                                       ),
                                     ),
                                   ),

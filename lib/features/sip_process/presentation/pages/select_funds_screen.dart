@@ -100,7 +100,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   // --- LEFT PANEL: PROFILE SYSTEM ---
   Widget _buildLeftProfilePanel() {
     return Container(
-      color: const Color(0xFF0061A0),
+      color: Ucolors.blue,
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

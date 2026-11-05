@@ -1,3 +1,4 @@
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/ticket_detail_entity.dart';
@@ -5,10 +6,7 @@ import '../../domain/entities/ticket_detail_entity.dart';
 class TicketChatBubble extends StatelessWidget {
   final TicketMessageEntity message;
 
-  const TicketChatBubble({
-    super.key,
-    required this.message,
-  });
+  const TicketChatBubble({super.key, required this.message});
 
   bool get isUser => message.senderType.toLowerCase() == 'user';
   bool get isSystem => message.senderType.toLowerCase() == 'system';
@@ -65,8 +63,9 @@ class TicketChatBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
       child: Column(
-        crossAxisAlignment:
-            isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isUser
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           // Sender Name
           Padding(
@@ -78,25 +77,27 @@ class TicketChatBubble extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0280C0).withValues(alpha: 0.15),
+                      color: Ucolors.primary.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.support_agent_rounded,
                       size: 13,
-                      color: Color(0xFF0280C0),
+                      color: Ucolors.primary,
                     ),
                   ),
                   const SizedBox(width: 4),
                 ],
                 Text(
-                  isUser ? 'You' : (message.senderName.isNotEmpty ? message.senderName : 'Support Agent'),
+                  isUser
+                      ? 'You'
+                      : (message.senderName.isNotEmpty
+                            ? message.senderName
+                            : 'Support Agent'),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: isUser
-                        ? Colors.grey.shade600
-                        : const Color(0xFF0280C0),
+                    color: isUser ? Colors.grey.shade600 : Ucolors.primary,
                   ),
                 ),
               ],
@@ -112,8 +113,10 @@ class TicketChatBubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isUser
-                    ? const Color(0xFF0280C0)
-                    : (isDark ? const Color(0xFF232733) : const Color(0xFFF1F5F9)),
+                    ? Ucolors.primary
+                    : (isDark
+                          ? const Color(0xFF232733)
+                          : const Color(0xFFF1F5F9)),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -163,7 +166,9 @@ class TicketChatBubble extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: isUser
                                   ? Colors.white.withValues(alpha: 0.2)
-                                  : (isDark ? Colors.white12 : Colors.grey.shade200),
+                                  : (isDark
+                                        ? Colors.white12
+                                        : Colors.grey.shade200),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: isUser
@@ -184,7 +189,9 @@ class TicketChatBubble extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 ConstrainedBox(
-                                  constraints: const BoxConstraints(maxWidth: 130),
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 130,
+                                  ),
                                   child: Text(
                                     att.name,
                                     maxLines: 1,

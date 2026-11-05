@@ -1877,7 +1877,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                     end: Alignment.bottomRight,
 
                     colors: isHover
-                        ? [const Color(0xFFF5F9FF), const Color(0xFFEAF3FF)]
+                        ? [Ucolors.skyblue1, Ucolors.skyblue]
                         : [Colors.white, Colors.white],
                   ),
 
@@ -3002,9 +3002,7 @@ class MobileExploreLayout extends StatelessWidget {
                         ),
                         child: Text(
                           cartController.generalItemsCount.toString(),
-                          style: UTextStyles.buttonText.copyWith(
-                            fontSize: 10,
-                          ),
+                          style: UTextStyles.buttonText.copyWith(fontSize: 10),
                         ),
                       ),
                     ),
@@ -3023,117 +3021,113 @@ class MobileExploreLayout extends StatelessWidget {
           color: Ucolors.light,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: Row(
-                children: [
-                  Obx(() {
-                    final fundController = Get.find<FundhouseController>();
-                    final int filterCount = fundController.activeFilterCount;
+            children: [
+              Obx(() {
+                final fundController = Get.find<FundhouseController>();
+                final int filterCount = fundController.activeFilterCount;
 
-                    return Badge(
-                      // Only show the badge if count > 0
-                      isLabelVisible: filterCount > 0,
-                      backgroundColor: Ucolors.primary, // Or Colors.redAccent
-                      label: Text(
-                        '$filterCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      alignment: const Alignment(
-                        0.7,
-                        -0.7,
-                      ), // Adjusts position for text
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Ucolors.borderColor),
-                          shape: BoxShape.circle,
-                        ),
-                        child: CompactIcon(
-                          icon: Icons.tune,
-                          onPressed: () async {
-                            final result = await Get.toNamed(
-                              AppRoutes.filterpage,
-                            );
-                            if (result != null &&
-                                result is Map<String, dynamic>) {
-                              controller.applyFilters(result);
-                            }
-                          },
-                        ),
-                      ),
-                    );
-                  }),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 5),
-                    height: 30,
-                    width: 1,
-                    color: Ucolors.borderside,
-                  ),
-
-                  Expanded(
-                    child: SizedBox(
-                      height: 40,
-                      child: Obx(() {
-                        final bool isSearching =
-                            controller.hasSearchFocus.value;
-
-                        return Row(
-                          children: [
-                            // This Expanded child will take up all available space
-                            Expanded(
-                              child: SearchBar(
-                                controller: controller.searchController,
-                                onTap: () => controller.setSearchFocus(true),
-                                onTapOutside: (event) {
-                                  searchFocus.unfocus();
-                                  controller.setSearchFocus(false);
-                                },
-                                focusNode: searchFocus,
-                                backgroundColor: WidgetStateProperty.all(
-                                  Colors.white,
-                                ),
-                                leading: const Icon(Icons.search),
-                                hintText: 'Search',
-                                onChanged: (value) =>
-                                    controller.onSearchQueryChanged(value),
-                                trailing: [
-                                  if (controller.hasSearchText.value)
-                                    IconButton(
-                                      icon: const Icon(Icons.close, size: 18),
-                                      onPressed: () => controller.clearSearch(),
-                                    ),
-                                ],
-                                elevation: WidgetStateProperty.all(0),
-                                side: WidgetStateProperty.all(
-                                  BorderSide(color: Colors.grey.shade300),
-                                ),
-                              ),
-                            ),
-
-                            // The Sort Chip and its Gap only exist when NOT searching
-                            if (!isSearching) ...[
-                              const Gap(8),
-                              InkWell(
-                                onTap: () => controller.cycleGlobalSort(),
-                                child: _FilterChip(
-                                  label: controller.currentSortLabel.value,
-                                  icon: Icons.sort,
-                                  isSelected:
-                                      controller.currentSortLabel.value !=
-                                      "1Y,3Y,5Y",
-                                ),
-                              ),
-                            ],
-                          ],
-                        );
-                      }),
+                return Badge(
+                  // Only show the badge if count > 0
+                  isLabelVisible: filterCount > 0,
+                  backgroundColor: Ucolors.primary, // Or Colors.redAccent
+                  label: Text(
+                    '$filterCount',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  alignment: const Alignment(
+                    0.7,
+                    -0.7,
+                  ), // Adjusts position for text
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Ucolors.borderColor),
+                      shape: BoxShape.circle,
+                    ),
+                    child: CompactIcon(
+                      icon: Icons.tune,
+                      onPressed: () async {
+                        final result = await Get.toNamed(AppRoutes.filterpage);
+                        if (result != null && result is Map<String, dynamic>) {
+                          controller.applyFilters(result);
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                height: 30,
+                width: 1,
+                color: Ucolors.borderside,
               ),
+
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: Obx(() {
+                    final bool isSearching = controller.hasSearchFocus.value;
+
+                    return Row(
+                      children: [
+                        // This Expanded child will take up all available space
+                        Expanded(
+                          child: SearchBar(
+                            controller: controller.searchController,
+                            onTap: () => controller.setSearchFocus(true),
+                            onTapOutside: (event) {
+                              searchFocus.unfocus();
+                              controller.setSearchFocus(false);
+                            },
+                            focusNode: searchFocus,
+                            backgroundColor: WidgetStateProperty.all(
+                              Colors.white,
+                            ),
+                            leading: const Icon(Icons.search),
+                            hintText: 'Search',
+                            onChanged: (value) =>
+                                controller.onSearchQueryChanged(value),
+                            trailing: [
+                              if (controller.hasSearchText.value)
+                                IconButton(
+                                  icon: const Icon(Icons.close, size: 18),
+                                  onPressed: () => controller.clearSearch(),
+                                ),
+                            ],
+                            elevation: WidgetStateProperty.all(0),
+                            side: WidgetStateProperty.all(
+                              BorderSide(color: Colors.grey.shade300),
+                            ),
+                          ),
+                        ),
+
+                        // The Sort Chip and its Gap only exist when NOT searching
+                        if (!isSearching) ...[
+                          const Gap(8),
+                          InkWell(
+                            onTap: () => controller.cycleGlobalSort(),
+                            child: _FilterChip(
+                              label: controller.currentSortLabel.value,
+                              icon: Icons.sort,
+                              isSelected:
+                                  controller.currentSortLabel.value !=
+                                  "1Y,3Y,5Y",
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+                  }),
+                ),
+              ),
+            ],
+          ),
         ),
         Expanded(
           child: RefreshIndicator(
@@ -3148,48 +3142,50 @@ class MobileExploreLayout extends StatelessWidget {
                 controller: scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-          Obx(() {
-            if (controller.isLoading.value) {
-              return const SliverFillRemaining(
-                hasScrollBody: true,
-                child: ShimmerListView(),
-              );
-            }
-            if (controller.searchFund.isEmpty) {
-              if (controller.canLoadMore ||
-                  controller.errorMessage.value.isNotEmpty ||
-                  controller.isMoreLoading.value) {
-                return SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: ExplorePaginationFooter(controller: controller),
+                  Obx(() {
+                    if (controller.isLoading.value) {
+                      return const SliverFillRemaining(
+                        hasScrollBody: true,
+                        child: ShimmerListView(),
+                      );
+                    }
+                    if (controller.searchFund.isEmpty) {
+                      if (controller.canLoadMore ||
+                          controller.errorMessage.value.isNotEmpty ||
+                          controller.isMoreLoading.value) {
+                        return SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Center(
+                            child: ExplorePaginationFooter(
+                              controller: controller,
+                            ),
+                          ),
+                        );
+                      }
+                      return SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: AnimatedEmptyState(
+                            title: 'NO fund',
+                            message: 'No mutual funds found',
+                          ),
+                        ),
+                      );
+                    }
+                    return SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final fund = controller.searchFund[index];
+                        return MutualFundCard(entity: fund);
+                      }, childCount: controller.searchFund.length),
+                    );
+                  }),
+                  Obx(
+                    () => SliverToBoxAdapter(
+                      child: controller.searchFund.isEmpty
+                          ? const SizedBox.shrink()
+                          : ExplorePaginationFooter(controller: controller),
+                    ),
                   ),
-                );
-              }
-              return SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: AnimatedEmptyState(
-                    title: 'NO fund',
-                    message: 'No mutual funds found',
-                  ),
-                ),
-              );
-            }
-            return SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final fund = controller.searchFund[index];
-                return MutualFundCard(entity: fund);
-              }, childCount: controller.searchFund.length),
-            );
-          }),
-          Obx(
-            () => SliverToBoxAdapter(
-              child: controller.searchFund.isEmpty
-                  ? const SizedBox.shrink()
-                  : ExplorePaginationFooter(controller: controller),
-            ),
-          ),
                   const SliverToBoxAdapter(child: SizedBox(height: 20)),
                 ],
               ),

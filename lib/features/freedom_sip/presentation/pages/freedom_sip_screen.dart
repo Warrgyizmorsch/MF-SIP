@@ -19,7 +19,6 @@ class FreedomSipScreen extends StatefulWidget {
 class _FreedomSipScreenState extends State<FreedomSipScreen> {
   @override
   Widget build(BuildContext context) {
-
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
@@ -28,7 +27,6 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
         top: true,
         child: Column(
           children: [
-
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Row(
@@ -39,17 +37,14 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
                   Text(
                     UText.freedomSipTitle,
                     style: AppTextStyles.bodyLarge(color: Colors.white),
-                  )
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 10.0),
 
-
-
             Expanded(
               child: Padding(
-
                 padding: EdgeInsets.symmetric(
                   horizontal: isDesktop ? 40.0 : 0.0,
                   vertical: isDesktop ? 20.0 : 0.0,
@@ -57,13 +52,12 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-
                     Expanded(
                       flex: 3,
                       child: Container(
-
-                        margin: isDesktop ? const EdgeInsets.only(right: 20) : EdgeInsets.zero,
+                        margin: isDesktop
+                            ? const EdgeInsets.only(right: 20)
+                            : EdgeInsets.zero,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(25.0),
@@ -92,13 +86,12 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
                                 title: UText.freedomSipStep2Title,
                                 desc: UText.freedomSipStep2desc,
                                 buttonText: UText.freedomSipStep2button,
-                              )
+                              ),
                             ],
                           ),
                         ),
                       ),
                     ),
-
 
                     if (isDesktop)
                       SizedBox(
@@ -113,7 +106,7 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha:0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     blurRadius: 10,
                                     offset: const Offset(0, 5),
                                   ),
@@ -162,61 +155,59 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
         ),
       ),
 
-
       bottomNavigationBar: isDesktop
           ? null
           : Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha:0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: UElevatedBUtton(
+                        onPressed: () => Navigator.pop(context),
+                        outlined: true,
+                        child: Center(
+                          child: Text(
+                            'Back',
+                            style: AppTextStyles.bodyMedium(
+                              color: Ucolors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: UElevatedBUtton(
+                        onPressed: () {
+                          Get.toNamed(AppRoutes.sipTenureScreen);
+                        },
+                        child: Center(
+                          child: Text(
+                            'Select SIP Fund',
+                            style: AppTextStyles.bodyMedium(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                child: UElevatedBUtton(
-                  onPressed: () => Navigator.pop(context),
-                  outlined: true,
-                  child: Center(
-                    child: Text(
-                      'Back',
-                      style: AppTextStyles.bodyMedium(
-                        color: Ucolors.primary,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: UElevatedBUtton(
-                  onPressed: () {
-                    Get.toNamed(AppRoutes.sipTenureScreen);
-                  },
-                  child: Center(
-                    child: Text(
-                      'Select SIP Fund',
-                      style: AppTextStyles.bodyMedium(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
-
 
   Widget buildFreedomSipCard({
     required BuildContext context,
@@ -233,11 +224,7 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xff07315C),
-            Color(0xff07315C),
-            Color(0xff0280C0),
-          ],
+          colors: [Ucolors.blue, Ucolors.blue, Ucolors.primary],
         ),
       ),
       child: Padding(
@@ -256,10 +243,7 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
             Expanded(
               child: Text(
                 desc,
-                style: AppTextStyles.bodySmall(
-                  color: Colors.white,
-                  size: 13.0,
-                ),
+                style: AppTextStyles.bodySmall(color: Colors.white, size: 13.0),
               ),
             ),
             Align(

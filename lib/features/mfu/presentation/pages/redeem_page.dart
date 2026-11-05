@@ -27,7 +27,7 @@ class _T {
   static const success = Color(0xFF059669);
   static const danger = Color(0xFFDC2626);
   static const dangerBg = Color(0xFFFEF2F2);
-  static const activeRowBg = Color(0xFFEFF6FF); // selected radio row bg
+  static const activeRowBg = Ucolors.skyblue1; // selected radio row bg
 }
 
 class RedeemArgs {
@@ -592,16 +592,16 @@ class _RedeemPageState extends State<RedeemPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF), // soft blue / indigo
+        color: Ucolors.skyblue1,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        border: Border.all(color: Ucolors.skyblue),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(
             Icons.track_changes_rounded,
-            color: Color(0xFF2563EB),
+            color: Ucolors.primary,
             size: 22,
           ),
           const SizedBox(width: 12),
@@ -612,7 +612,7 @@ class _RedeemPageState extends State<RedeemPage> {
                 Text(
                   'Goal-Linked Investment',
                   style: UTextStyles.bodyMediumBold.copyWith(
-                    color: const Color(0xFF1E40AF),
+                    color: Ucolors.blue,
                     fontSize: 14,
                   ),
                 ),
@@ -620,7 +620,7 @@ class _RedeemPageState extends State<RedeemPage> {
                 Text(
                   'This fund is linked to your "$_resolvedGoalName" goal. Redeeming these units will reduce your goal progress and target savings.',
                   style: UTextStyles.bodyMedium.copyWith(
-                    color: const Color(0xFF1E3A8A),
+                    color: Ucolors.blue,
                     fontSize: 12,
                     height: 1.4,
                   ),
@@ -688,7 +688,7 @@ class _RedeemPageState extends State<RedeemPage> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFEFF6FF),
+                      color: Ucolors.skyblue1,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -1295,7 +1295,7 @@ class _RedeemPageState extends State<RedeemPage> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
+                    color: Ucolors.skyblue1,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(

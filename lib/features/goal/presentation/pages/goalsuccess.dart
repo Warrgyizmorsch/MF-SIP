@@ -19,7 +19,7 @@ class GoalsuccessPage extends StatelessWidget {
     final String? nextRoute = args?['nextroute'];
 
     return Scaffold(
-      backgroundColor: Color(0xffB0E3FD),
+      backgroundColor: Ucolors.skyblue1,
       body: Padding(
         padding: UPadding.screenPadding,
         child: Center(
@@ -52,7 +52,7 @@ class GoalsuccessPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: UElevatedBUtton(
           color: Ucolors.blue,
-          onPressed: () => Get.toNamed( nextRoute ?? AppRoutes.comparefund),
+          onPressed: () => Get.toNamed(nextRoute ?? AppRoutes.comparefund),
           child: Center(
             child: Text(
               textButton ?? 'See Detail',

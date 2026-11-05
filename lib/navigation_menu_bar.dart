@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
@@ -2105,7 +2105,7 @@ class _DesktopSideNav extends StatelessWidget {
             Expanded(
               child: ScrollbarTheme(
                 data: ScrollbarThemeData(
-                  thumbColor: WidgetStateProperty.all(const Color(0xFF0B3C5D)),
+                  thumbColor: WidgetStateProperty.all(Ucolors.blue),
                   trackColor: WidgetStateProperty.all(const Color(0xFFEAF2F8)),
                   trackBorderColor: WidgetStateProperty.all(Colors.transparent),
                   radius: const Radius.circular(20),
@@ -2524,7 +2524,7 @@ class _DesktopNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const selectedColor = Color(0xFF0B3C5D);
+    const selectedColor = Ucolors.primary;
     const normalIconColor = Color(0xFF6B7280);
     const normalTextColor = Color(0xFF4B5563);
 
@@ -2544,9 +2544,7 @@ class _DesktopNavItem extends StatelessWidget {
                   horizontal: horizontalPadding,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? const Color(0xFFEAF6FC)
-                      : Colors.transparent,
+                  color: isSelected ? Ucolors.skyblue : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -3085,7 +3083,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
     NavigationBarController controller,
   ) {
     final isSelected = index == selectedIndex;
-    final activeColor = const Color(0xFF0066FF);
+    final activeColor = Ucolors.primary;
     final baseColor = const Color(0xFF5F6670);
 
     return InkWell(

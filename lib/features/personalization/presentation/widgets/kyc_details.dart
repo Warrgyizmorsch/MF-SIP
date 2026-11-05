@@ -279,9 +279,9 @@ class KycDetailsScreen extends StatelessWidget {
                   onPressed: () => _openKycUpdateDialog(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF0066FF),
+                    foregroundColor: Ucolors.primary,
                     elevation: 0,
-                    side: const BorderSide(color: Color(0xFFDBEAFE)),
+                    side: const BorderSide(color: Ucolors.skyblue),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   ),
@@ -313,13 +313,13 @@ class KycDetailsScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFEFF6FF), // Light matching blue ring highlight
+                    color: Ucolors.skyblue1,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.assignment_ind_outlined,
                     size: 32,
-                    color: Color(0xFF0066FF),
+                    color: Ucolors.primary,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -370,7 +370,7 @@ class KycDetailsScreen extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => Get.back(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0066FF),
+                        backgroundColor: Ucolors.primary,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

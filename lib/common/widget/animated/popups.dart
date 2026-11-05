@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../core/utils/constant/colors.dart';
 import '../../../core/utils/constant/text_style.dart';
 
 class ULoaders {
@@ -182,11 +183,9 @@ class ULoaders {
                     child: CircularProgressIndicator(
                       strokeWidth: 4,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.blue,
-                      ), // Your primary brand color
-                      backgroundColor: Color(
-                        0xFFE3F2FD,
-                      ), // A soft track background
+                        Ucolors.primary,
+                      ),
+                      backgroundColor: Ucolors.skyblue,
                       strokeCap: StrokeCap.round, // Modern rounded edges
                     ),
                   ),

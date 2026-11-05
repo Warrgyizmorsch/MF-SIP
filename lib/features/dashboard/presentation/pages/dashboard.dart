@@ -602,7 +602,7 @@ class WebDashboardLayout extends StatelessWidget {
                     "View All",
                     style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF007AFF),
+                      color: Ucolors.primary,
                       fontWeight: FontWeight.w600,
                       fontFamily: FontFamily.regular,
                     ),
@@ -901,7 +901,7 @@ class WebDashboardLayout extends StatelessWidget {
           child: Text(
             date,
             style: const TextStyle(
-              color: Color(0xFF0284C7),
+              color: Ucolors.primary,
               fontWeight: FontWeight.w600,
               fontSize: 12,
               fontFamily: FontFamily.regular,
@@ -1470,7 +1470,7 @@ Widget _buildSipRowItem(String date, String title, String value) {
         child: Text(
           date,
           style: const TextStyle(
-            color: Color(0xFF0284C7),
+            color: Ucolors.primary,
             fontWeight: FontWeight.w600,
             fontSize: 12,
             fontFamily: FontFamily.regular,
@@ -1649,16 +1649,12 @@ Widget _buildPortfolioAllocationCard() {
                   "View Full Allocation",
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF007AFF),
+                    color: Ucolors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Gap(6),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 11,
-                  color: Color(0xFF007AFF),
-                ),
+                Icon(Icons.arrow_forward_ios, size: 11, color: Ucolors.primary),
               ],
             ),
           ),
@@ -2075,7 +2071,7 @@ class TopPerformingFundCard extends StatelessWidget {
                     "View Fund Details",
                     style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF007AFF),
+                      color: Ucolors.primary,
                       fontWeight: FontWeight.w600,
                       fontFamily: FontFamily.regular,
                     ),
@@ -2084,7 +2080,7 @@ class TopPerformingFundCard extends StatelessWidget {
                 const Icon(
                   Icons.arrow_forward_rounded,
                   size: 16,
-                  color: Color(0xFF007AFF),
+                  color: Ucolors.primary,
                 ),
               ],
             ),
@@ -2099,7 +2095,7 @@ class TopPerformingFundCard extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: const BoxDecoration(
-        color: Color(0xFFEFF6FF),
+        color: Ucolors.skyblue1,
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -2108,7 +2104,7 @@ class TopPerformingFundCard extends StatelessWidget {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1D4ED8),
+            color: Ucolors.primary,
           ),
         ),
       ),
@@ -2141,7 +2137,7 @@ class GoalProgressCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF007AFF),
+              color: Ucolors.primary,
               fontFamily: FontFamily.regular,
             ), // Blue text
           ),
@@ -2152,12 +2148,12 @@ class GoalProgressCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFEFF6FF),
+                  color: Ucolors.skyblue1,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Iconsax.radar_2,
-                  color: Color(0xFF007AFF),
+                  color: Ucolors.primary,
                   size: 22,
                 ),
               ),
@@ -2192,7 +2188,7 @@ class GoalProgressCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF007AFF),
+                  color: Ucolors.primary,
                   fontFamily: FontFamily.regular,
                 ),
               ),
@@ -2234,7 +2230,7 @@ class GoalProgressCard extends StatelessWidget {
               value: 0.62,
               minHeight: 8,
               backgroundColor: Color(0xFFF1F5F9),
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF007AFF)),
+              valueColor: AlwaysStoppedAnimation<Color>(Ucolors.primary),
             ),
           ),
           const Spacer(),
@@ -2249,7 +2245,7 @@ class GoalProgressCard extends StatelessWidget {
                   "View All Goals",
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF007AFF),
+                    color: Ucolors.primary,
                     fontWeight: FontWeight.w600,
                     fontFamily: FontFamily.regular,
                   ),
@@ -2258,7 +2254,7 @@ class GoalProgressCard extends StatelessWidget {
               const Icon(
                 Icons.arrow_forward_rounded,
                 size: 16,
-                color: Color(0xFF007AFF),
+                color: Ucolors.primary,
               ),
             ],
           ),
@@ -2826,7 +2822,7 @@ class DashboardWidget extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 52),
               side: const BorderSide(
-                color: Color(0xFF0284C7),
+                color: Ucolors.primary,
                 style: BorderStyle.solid,
               ), // For pure dotted, use dotted_border package
               shape: RoundedRectangleBorder(
@@ -2836,12 +2832,12 @@ class DashboardWidget extends StatelessWidget {
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add, color: Color(0xFF0284C7), size: 20),
+                Icon(Icons.add, color: Ucolors.primary, size: 20),
                 SizedBox(width: 8),
                 Text(
                   'Add New Goal',
                   style: TextStyle(
-                    color: Color(0xFF0284C7),
+                    color: Ucolors.primary,
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                   ),
@@ -2904,7 +2900,7 @@ class DashboardWidget extends StatelessWidget {
             value: progress,
             minHeight: 10,
             backgroundColor: Colors.grey.shade100,
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0284C7)),
+            valueColor: const AlwaysStoppedAnimation<Color>(Ucolors.primary),
           ),
         ),
         const SizedBox(height: 6),
@@ -3480,7 +3476,7 @@ class _MobileDashboardLayout extends StatelessWidget {
             pinned: true,
             flexibleSpace: CustomProfileAppbar(
               onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),
-              backgroundColor: const Color(0xffE8F5FF),
+              backgroundColor: Ucolors.skyblue1,
               greetingName: 'Pratik',
               role: 'Developer',
               avatar: AssetImage(UImages.avatar),
@@ -3544,7 +3540,7 @@ class _MobileDashboardLayout extends StatelessWidget {
               clipper: BottomWaveClipper(),
               child: Container(
                 width: double.infinity,
-                color: const Color(0xffE8F5FF),
+                color: Ucolors.skyblue1,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
                   child: ClipPath(
@@ -3565,7 +3561,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xff0B3C5D), Color(0xff072A40)],
+                            colors: [Ucolors.blue, Ucolors.homeInk],
                           ),
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -4002,7 +3998,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                         Icons.sort_rounded,
                         size: 16,
                         color: controller.isSortByGain.value
-                            ? const Color(0xFF2563EB)
+                            ? Ucolors.primary
                             : const Color(0xFF64748B),
                       ),
                       const SizedBox(width: 4),
@@ -4014,7 +4010,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                           color: controller.isSortByGain.value
-                              ? const Color(0xFF2563EB)
+                              ? Ucolors.primary
                               : const Color(0xFF1E293B),
                         ),
                       ),
@@ -4032,23 +4028,27 @@ class _MobileDashboardLayout extends StatelessWidget {
                 onSelected: (value) {
                   if (value == 'statement') {
                     if (Get.isRegistered<PersonalisationController>()) {
-                      Get.find<PersonalisationController>()
-                          .setStatementMode(isCapital: false);
+                      Get.find<PersonalisationController>().setStatementMode(
+                        isCapital: false,
+                      );
                     }
                     DownloadStatementsScreen.forcedIsCapitalMode = false;
                     Get.to(() => DownloadStatementsScreen());
                   } else if (value == 'elss') {
                     if (Get.isRegistered<PersonalisationController>()) {
-                      Get.find<PersonalisationController>()
-                          .setStatementMode(isCapital: true);
+                      Get.find<PersonalisationController>().setStatementMode(
+                        isCapital: true,
+                      );
                     }
                     DownloadStatementsScreen.forcedIsCapitalMode = true;
                     Get.to(() => DownloadStatementsScreen());
                   }
                 },
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
@@ -4088,13 +4088,13 @@ class _MobileDashboardLayout extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEFF6FF),
+                            color: Ucolors.skyblue1,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Icon(
                             Icons.description_outlined,
                             size: 16,
-                            color: Color(0xFF2563EB),
+                            color: Ucolors.primary,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -4582,7 +4582,7 @@ class PortfolioCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                      ] 
+                      ]
                       // else if (fund.isRedemptionSettled) ...[
                       //   const SizedBox(height: 4),
                       //   Container(
@@ -4619,7 +4619,7 @@ class PortfolioCard extends StatelessWidget {
                       //       ],
                       //     ),
                       //   ),
-                      // ] 
+                      // ]
                       else if (fund.isRedemptionPending) ...[
                         const SizedBox(height: 4),
                         GestureDetector(
@@ -4817,8 +4817,11 @@ class PortfolioCard extends StatelessWidget {
                               createLog('tap for redeem');
                               if (fund.totalUnits > 0 &&
                                   !fund.isFullyRedeemed) {
-                                final shouldProceed = await PortfolioFundDetailsModal
-                                    .confirmGoalLinkedRedeemIfNeeded(context, fund);
+                                final shouldProceed =
+                                    await PortfolioFundDetailsModal.confirmGoalLinkedRedeemIfNeeded(
+                                      context,
+                                      fund,
+                                    );
                                 if (!shouldProceed) break;
 
                                 Get.to(
@@ -5035,8 +5038,7 @@ class PortfolioCard extends StatelessWidget {
                     g.id == fund.goalId) ||
                 (fund.goalName != null &&
                     fund.goalName!.isNotEmpty &&
-                    g.goalName.toLowerCase() ==
-                        fund.goalName!.toLowerCase()) ||
+                    g.goalName.toLowerCase() == fund.goalName!.toLowerCase()) ||
                 g.goalFunds.any(
                   (gf) =>
                       gf.schemeCode.trim().toUpperCase() ==
@@ -5169,7 +5171,7 @@ class PortfolioCard extends StatelessWidget {
                         return ListTile(
                           leading: const CircleAvatar(
                             radius: 18,
-                            backgroundColor: Color(0xFFEFF6FF),
+                            backgroundColor: Ucolors.skyblue1,
                             child: Text("🎯", style: TextStyle(fontSize: 16)),
                           ),
                           title: Text(
@@ -5206,63 +5208,65 @@ class PortfolioCard extends StatelessWidget {
                                   ),
                                 )
                               : !canLink
-                                  ? Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 3,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF1F5F9),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: const Text(
-                                        "Unavailable",
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF94A3B8),
-                                        ),
-                                      ),
-                                    )
-                                  : ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF007AFF),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 6,
-                                        ),
-                                        minimumSize: Size.zero,
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                      ),
-                                      onPressed: () async {
-                                        Navigator.pop(ctx);
-                                        final success =
-                                            await goalSipController.linkFundToGoal(
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Text(
+                                    "Unavailable",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Ucolors.primary,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 6,
+                                    ),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  onPressed: () async {
+                                    Navigator.pop(ctx);
+                                    final success = await goalSipController
+                                        .linkFundToGoal(
                                           goalId: goal.id,
                                           holding: fund,
                                           goalName: goal.goalName,
                                         );
-                                        if (success &&
-                                            Get.isRegistered<DashboardController>()) {
-                                          await Get.find<DashboardController>()
-                                              .getPortfolio(forceRefresh: true);
-                                          Get.find<DashboardController>()
-                                              .markHoldingLinked(
+                                    if (success &&
+                                        Get.isRegistered<
+                                          DashboardController
+                                        >()) {
+                                      await Get.find<DashboardController>()
+                                          .getPortfolio(forceRefresh: true);
+                                      Get.find<DashboardController>()
+                                          .markHoldingLinked(
                                             mfuOrderId: orderId,
                                             goalId: goal.id,
                                             goalName: goal.goalName,
                                           );
-                                        }
-                                      },
-                                      child: const Text(
-                                        "Link",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
+                                    }
+                                  },
+                                  child: const Text(
+                                    "Link",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
                                     ),
+                                  ),
+                                ),
                         );
                       },
                     ),

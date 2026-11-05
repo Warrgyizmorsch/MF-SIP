@@ -110,7 +110,7 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                                     years = value;
                                   });
                                 },
-                                activeColor: const Color(0xff07315C),
+                                activeColor: Ucolors.primary,
                               ),
 
                               const SizedBox(height: 25),
@@ -148,7 +148,7 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha:0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     blurRadius: 10,
                                     offset: const Offset(0, 5),
                                   ),
@@ -206,7 +206,7 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),

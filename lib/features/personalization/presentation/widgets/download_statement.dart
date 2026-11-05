@@ -1053,9 +1053,9 @@ class _WebStatementHeader extends StatelessWidget {
             height: 46,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F7FF),
+              color: Ucolors.skyblue1,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFDCE8FF)),
+              border: Border.all(color: Ucolors.skyblue),
             ),
             child: Row(
               children: [
@@ -1063,7 +1063,7 @@ class _WebStatementHeader extends StatelessWidget {
                   width: 26,
                   height: 26,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE8F0FF),
+                    color: Ucolors.skyblue,
                     borderRadius: BorderRadius.circular(9),
                   ),
                   child: const Icon(
@@ -1164,7 +1164,7 @@ class _WebStatementFormCard extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
                             backgroundColor: Ucolors.primary,
-                            disabledBackgroundColor: const Color(0xFFBFD0FF),
+                            disabledBackgroundColor: Ucolors.skyblue,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -1176,7 +1176,7 @@ class _WebStatementFormCard extends StatelessWidget {
                                   height: 22,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.4,
-                                    color: Colors.white,
+                                    color: Ucolors.blue,
                                   ),
                                 )
                               : Row(
@@ -1657,7 +1657,7 @@ class _WebDurationTile extends StatelessWidget {
             Icon(
               Icons.calendar_month_outlined,
               size: 22,
-              color: active ? Colors.white : const Color(0xFF243B6B),
+              color: active ? Colors.white : Ucolors.blue,
             ),
             const SizedBox(height: 9),
             Text(
@@ -1915,7 +1915,7 @@ class _WebStatementPreviewCard extends StatelessWidget {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF4FF),
+                      color: Ucolors.skyblue1,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Icon(

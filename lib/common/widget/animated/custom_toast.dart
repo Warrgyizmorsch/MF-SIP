@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/utils/constant/colors.dart';
 import '../../../core/utils/constant/text_style.dart';
 
 void showCustomToast({
@@ -86,7 +87,7 @@ class CustomSnackbar {
       case SnackbarType.info:
         backgroundColor = const Color(0xFF0288D1);
         icon = Icons.info_outline_rounded;
-        
+
         break;
     }
 
@@ -321,7 +322,7 @@ class CustomLoadingDialog {
             mainAxisSize: MainAxisSize.min,
             children: [
               const CircularProgressIndicator(
-                color: Color(0xFF4F46E5), // Your brand color
+                color: Ucolors.primary,
                 strokeWidth: 3.5,
               ),
               const SizedBox(height: 24),

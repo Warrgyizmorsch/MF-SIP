@@ -6,6 +6,7 @@ import 'package:my_sip/common/widget/showbottomsheet/datepicker.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
@@ -99,7 +100,6 @@ class AdditionalInfoScreen extends StatelessWidget {
                     height: 60,
                   ),
                   const SizedBox(height: 16),
-                  
                 ],
               ),
               const SizedBox(height: 28),
@@ -246,7 +246,7 @@ class AdditionalInfoScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12.0, left: 4.0),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: const Color(0xFF3B82F6)), // Modern Blue
+          Icon(icon, size: 20, color: Ucolors.primary),
           const SizedBox(width: 8),
           Text(
             title,

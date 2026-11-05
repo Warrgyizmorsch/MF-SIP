@@ -252,7 +252,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = widget.activeColor ?? Colors.blue;
+    final effectiveColor = widget.activeColor ?? Ucolors.primary;
 
     // Thumb icon logic
     final WidgetStateProperty<Icon?> thumbIcon =

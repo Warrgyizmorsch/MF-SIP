@@ -1,3 +1,4 @@
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -328,7 +329,7 @@ class TicketDetailController extends GetxController {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0280C0)),
+            style: ElevatedButton.styleFrom(backgroundColor: Ucolors.primary),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Reopen Ticket', style: TextStyle(color: Colors.white)),
           ),

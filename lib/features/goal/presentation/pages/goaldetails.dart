@@ -639,12 +639,12 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: Ucolors.skyblue1,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
                       Icons.edit_note_rounded,
-                      color: Color(0xFF2563EB),
+                      color: Ucolors.primary,
                       size: 24,
                     ),
                   ),
@@ -723,7 +723,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFF2563EB),
+                  color: Ucolors.primary,
                   width: 1.5,
                 ),
               ),
@@ -747,7 +747,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: Ucolors.skyblue1,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -755,7 +755,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF2563EB),
+                    color: Ucolors.primary,
                   ),
                 ),
               ),
@@ -766,7 +766,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
             min: 10000.0,
             max: 10000000.0,
             divisions: 200,
-            activeColor: const Color(0xFF2563EB),
+            activeColor: Ucolors.primary,
             inactiveColor: const Color(0xFFE2E8F0),
             onChanged: (val) {
               setState(() {
@@ -811,7 +811,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
             min: 1.0,
             max: 30.0,
             divisions: 29,
-            activeColor: const Color(0xFF2563EB),
+            activeColor: Ucolors.primary,
             inactiveColor: const Color(0xFFE2E8F0),
             onChanged: (val) {
               setState(() {
@@ -856,7 +856,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
             min: 5.0,
             max: 25.0,
             divisions: 40,
-            activeColor: const Color(0xFF2563EB),
+            activeColor: Ucolors.primary,
             inactiveColor: const Color(0xFFE2E8F0),
             onChanged: (val) {
               setState(() {
@@ -933,7 +933,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _handleSave,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: Ucolors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1540,7 +1540,7 @@ class GoalOverviewCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: const Color(0xFF0066FF)),
+              Icon(icon, size: 20, color: Ucolors.primary),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -1631,14 +1631,14 @@ class LinkedFundsCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
+                        color: Ucolors.skyblue1,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFBFDBFE)),
+                        border: Border.all(color: Ucolors.skyblue),
                       ),
                       child: Text(
                         "$count",
                         style: const TextStyle(
-                          color: Color(0xFF2563EB),
+                          color: Ucolors.primary,
                           fontWeight: FontWeight.w700,
                           fontSize: 12,
                           fontFamily: FontFamily.regular,
@@ -1715,13 +1715,13 @@ class LinkedFundsCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFEFF6FF),
+                      color: Ucolors.skyblue1,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.account_balance_wallet_outlined,
                       size: 32,
-                      color: Color(0xFF2563EB),
+                      color: Ucolors.primary,
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -1751,8 +1751,8 @@ class LinkedFundsCard extends StatelessWidget {
                       icon: const Icon(Icons.add, size: 16),
                       label: const Text("Link Your First Fund"),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF2563EB),
-                        side: const BorderSide(color: Color(0xFF2563EB)),
+                        foregroundColor: Ucolors.primary,
+                        side: const BorderSide(color: Ucolors.primary),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -2305,7 +2305,7 @@ class RecentContributionsCard extends StatelessWidget {
                     child: const Text(
                       "View All",
                       style: TextStyle(
-                        color: Color(0xFF0066FF),
+                        color: Ucolors.primary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         fontFamily: FontFamily.regular,
@@ -2364,7 +2364,7 @@ class RecentContributionsCard extends StatelessWidget {
                           ),
                           child: const Icon(
                             Iconsax.calendar_2,
-                            color: Color(0xFF0066FF),
+                            color: Ucolors.primary,
                             size: 20,
                           ),
                         ),
@@ -3371,7 +3371,7 @@ class GoalDetailSection extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
+                        color: Ucolors.skyblue1,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -3379,7 +3379,7 @@ class GoalDetailSection extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF2563EB),
+                          color: Ucolors.primary,
                         ),
                       ),
                     ),
@@ -3392,12 +3392,12 @@ class GoalDetailSection extends StatelessWidget {
                   icon: const Icon(
                     Icons.add_circle_outline,
                     size: 16,
-                    color: Color(0xFF0066FF),
+                    color: Ucolors.primary,
                   ),
                   label: const Text(
                     "Add",
                     style: TextStyle(
-                      color: Color(0xFF0066FF),
+                      color: Ucolors.primary,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
                     ),
@@ -3433,13 +3433,13 @@ class GoalDetailSection extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: const BoxDecoration(
-                          color: Color(0xFFEFF6FF),
+                          color: Ucolors.skyblue1,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.account_balance_wallet_outlined,
                           size: 26,
-                          color: Color(0xFF2563EB),
+                          color: Ucolors.primary,
                         ),
                       ),
                       const SizedBox(height: 10),

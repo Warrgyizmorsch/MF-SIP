@@ -52,12 +52,12 @@ class WebPortfolioScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(26),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xff0B3C5D), Color(0xff072A40)],
+                    colors: [Ucolors.blue, Ucolors.homeInk],
                   ),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xff0B3C5D).withValues(alpha: 0.18),
+                      color: Ucolors.blue.withValues(alpha: 0.18),
                       blurRadius: 26,
                       offset: const Offset(0, 10),
                     ),
@@ -147,7 +147,7 @@ class WebPortfolioScreen extends StatelessWidget {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF0F5FF),
+                                color: Ucolors.skyblue1,
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
@@ -172,12 +172,12 @@ class WebPortfolioScreen extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: controller.isSortByGain.value
-                                  ? const Color(0xFFEFF6FF)
+                                  ? Ucolors.skyblue1
                                   : const Color(0xFFF8FAFC),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color: controller.isSortByGain.value
-                                    ? const Color(0xFF93C5FD)
+                                    ? Ucolors.skyblue
                                     : const Color(0xFFE2E8F0),
                               ),
                             ),
@@ -188,7 +188,7 @@ class WebPortfolioScreen extends StatelessWidget {
                                   Icons.sort_rounded,
                                   size: 16,
                                   color: controller.isSortByGain.value
-                                      ? const Color(0xFF2563EB)
+                                      ? Ucolors.primary
                                       : const Color(0xFF64748B),
                                 ),
                                 const SizedBox(width: 6),
@@ -200,7 +200,7 @@ class WebPortfolioScreen extends StatelessWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: controller.isSortByGain.value
-                                        ? const Color(0xFF2563EB)
+                                        ? Ucolors.primary
                                         : const Color(0xFF64748B),
                                   ),
                                 ),
@@ -1024,8 +1024,11 @@ class _PortfolioTableRow extends StatelessWidget {
                       case PortfolioMenuAction.redemption:
                         log('redeem');
                         if (fund.totalUnits > 0 && !fund.isFullyRedeemed) {
-                          final shouldProceed = await PortfolioFundDetailsModal
-                              .confirmGoalLinkedRedeemIfNeeded(context, fund);
+                          final shouldProceed =
+                              await PortfolioFundDetailsModal.confirmGoalLinkedRedeemIfNeeded(
+                                context,
+                                fund,
+                              );
                           if (!shouldProceed) break;
 
                           final redeemArgs = RedeemArgs(
@@ -1271,7 +1274,7 @@ class _EmptyState extends StatelessWidget {
               width: 70,
               height: 70,
               decoration: BoxDecoration(
-                color: const Color(0xFFF0F5FF),
+                color: Ucolors.skyblue1,
                 borderRadius: BorderRadius.circular(22),
               ),
               child: Icon(icon, color: Ucolors.primary, size: 30),

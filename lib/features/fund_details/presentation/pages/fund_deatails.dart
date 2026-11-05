@@ -86,8 +86,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                   CustomFooter(),
                   SafeArea(
                     top: false,
-                    child:
-                        controller.fundDetail.value != null
+                    child: controller.fundDetail.value != null
                         ? Obx(() {
                             if (controller.isPurchaseAllowed.value == false) {
                               return Container(
@@ -147,7 +146,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                                 );
 
                             return FundBottomBarButton(
-                              
                               firstButton: isAlreadyInCart
                                   ? 'In Cart'
                                   : 'Add to Cart',
@@ -180,8 +178,12 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                                     final purchaseArgs = SipPurchaseArgs(
                                       schemeCode: controller.schemeCode,
                                       fundName: controller.schemeName,
-                                      amcCode: controller.rtaAmcCode.isNotEmpty ? controller.rtaAmcCode : null,
-                                      amcName: controller.amcName.isNotEmpty ? controller.amcName : argVal?.schemeCompany,
+                                      amcCode: controller.rtaAmcCode.isNotEmpty
+                                          ? controller.rtaAmcCode
+                                          : null,
+                                      amcName: controller.amcName.isNotEmpty
+                                          ? controller.amcName
+                                          : argVal?.schemeCompany,
                                       category: argVal?.schemeCategory ?? "",
                                       riskLabel: argVal?.riskometerValue ?? "",
                                       minSip: argVal?.sipMinimumAmount ?? 1000,
@@ -197,7 +199,10 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                                           ? 'BOTH'
                                           : 'GR',
                                       allowedSipDates: parseAllowedSipDates(
-                                        controller.allowedSipDates.value.isNotEmpty
+                                        controller
+                                                .allowedSipDates
+                                                .value
+                                                .isNotEmpty
                                             ? controller.allowedSipDates.value
                                             : argVal?.allowedSipDates,
                                       ),
@@ -283,7 +288,8 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
     String? message,
     VoidCallback? onRetry,
   }) {
-    final effectiveMessage = message ??
+    final effectiveMessage =
+        message ??
         (controller.cleanErrorMessage.isNotEmpty
             ? controller.cleanErrorMessage
             : 'Information for this scheme is currently unavailable or pending from the AMC.');
@@ -380,10 +386,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
     return CustomScrollView(
       slivers: [
         _buildAppBar(),
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: content,
-        ),
+        SliverFillRemaining(hasScrollBody: false, child: content),
       ],
     );
   }
@@ -403,7 +406,8 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
       context: context,
       isDesktop: isDesktop,
       title: 'Fund Details Unavailable',
-      message: 'Information for this scheme is currently unavailable or pending from the AMC.',
+      message:
+          'Information for this scheme is currently unavailable or pending from the AMC.',
       onRetry: controller.retryFetchingDetails,
     );
   }
@@ -709,8 +713,12 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                                     final purchaseArgs = SipPurchaseArgs(
                                       schemeCode: controller.schemeCode,
                                       fundName: controller.schemeName,
-                                      amcCode: controller.rtaAmcCode.isNotEmpty ? controller.rtaAmcCode : null,
-                                      amcName: controller.amcName.isNotEmpty ? controller.amcName : argVal?.schemeCompany,
+                                      amcCode: controller.rtaAmcCode.isNotEmpty
+                                          ? controller.rtaAmcCode
+                                          : null,
+                                      amcName: controller.amcName.isNotEmpty
+                                          ? controller.amcName
+                                          : argVal?.schemeCompany,
                                       category: argVal?.schemeCategory ?? "",
                                       riskLabel: argVal?.riskometerValue ?? "",
                                       minSip: argVal?.sipMinimumAmount ?? 1000,
@@ -726,7 +734,10 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                                           ? 'BOTH'
                                           : 'GR',
                                       allowedSipDates: parseAllowedSipDates(
-                                        controller.allowedSipDates.value.isNotEmpty
+                                        controller
+                                                .allowedSipDates
+                                                .value
+                                                .isNotEmpty
                                             ? controller.allowedSipDates.value
                                             : argVal?.allowedSipDates,
                                       ),
@@ -1406,7 +1417,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: Colors.blue,
+                                              color: Ucolors.primary,
                                               width: 1.2,
                                             ),
                                           ),
@@ -1840,7 +1851,11 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         ),
         color: Ucolors.light,
         child: Theme(
-          data: ThemeData().copyWith(dividerColor: Colors.transparent),
+          data: ThemeData().copyWith(
+            primaryColor: Ucolors.primary,
+            colorScheme: Theme.of(context).colorScheme,
+            dividerColor: Colors.transparent,
+          ),
           child: ExpansionTile(
             // Web/Desktop me default open
             initiallyExpanded: isDesktop ? true : isActive,
@@ -2211,22 +2226,18 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                 period: controller.selectedPeriod.value,
               );
             },
-            icon: Icon(
-              Icons.refresh_rounded,
-              size: 16,
-              color: Colors.blue.shade700,
-            ),
+            icon: Icon(Icons.refresh_rounded, size: 16, color: Ucolors.primary),
             label: Text(
               'Retry',
               style: TextStyle(
                 fontFamily: FontFamily.medium,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.blue.shade700,
+                color: Ucolors.primary,
               ),
             ),
             style: TextButton.styleFrom(
-              backgroundColor: Colors.blue.shade50,
+              backgroundColor: Ucolors.skyblue1,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -2331,7 +2342,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.blue.shade800, size: 16),
+          Icon(icon, color: Ucolors.primary, size: 16),
           const SizedBox(width: 10),
           Expanded(
             flex: 2,
@@ -2707,8 +2718,9 @@ class _DesktopPerformanceSection extends StatelessWidget {
             Obx(() {
               final period = controller.selectedPeriod.value;
               final fundReturn = controller.getFundReturnForPeriod(period);
-              final benchmarkReturn =
-                  controller.getBenchmarkReturnForPeriod(period);
+              final benchmarkReturn = controller.getBenchmarkReturnForPeriod(
+                period,
+              );
               final fundReturnColor = controller.getReturnColor(
                 fundReturn,
                 defaultColor: Colors.green.shade700,
@@ -2722,12 +2734,12 @@ class _DesktopPerformanceSection extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.blue.shade50, Colors.white],
+                    colors: [Ucolors.skyblue1, Colors.white],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.blue.shade100),
+                  border: Border.all(color: Ucolors.skyblue),
                 ),
                 child: Row(
                   children: [
@@ -2736,10 +2748,14 @@ class _DesktopPerformanceSection extends StatelessWidget {
                         'NAV',
                         '₹${fund?.nav.toStringAsFixed(2) ?? '--'}',
                         '',
-                        Colors.blue.shade700,
+                        Ucolors.primary,
                       ),
                     ),
-                    Container(width: 1, height: 60, color: Colors.grey.shade200),
+                    Container(
+                      width: 1,
+                      height: 60,
+                      color: Colors.grey.shade200,
+                    ),
                     Expanded(
                       child: _buildStatCard(
                         'Returns ($period)',
@@ -2748,7 +2764,11 @@ class _DesktopPerformanceSection extends StatelessWidget {
                         fundReturnColor,
                       ),
                     ),
-                    Container(width: 1, height: 60, color: Colors.grey.shade200),
+                    Container(
+                      width: 1,
+                      height: 60,
+                      color: Colors.grey.shade200,
+                    ),
                     Expanded(
                       child: _buildStatCard(
                         'Benchmark ($period)',
@@ -2842,7 +2862,7 @@ class _DesktopPerformanceSection extends StatelessWidget {
                         icon: Icon(
                           Icons.refresh_rounded,
                           size: 16,
-                          color: Colors.blue.shade700,
+                          color: Ucolors.primary,
                         ),
                         label: Text(
                           'Retry',
@@ -2850,14 +2870,11 @@ class _DesktopPerformanceSection extends StatelessWidget {
                             fontFamily: FontFamily.medium,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: Colors
-                                .blue
-                                .shade700, // Change this to Ucolors.primary if you prefer
+                            color: Ucolors.primary,
                           ),
                         ),
                         style: TextButton.styleFrom(
-                          backgroundColor:
-                              Colors.blue.shade50, // Subtle button background
+                          backgroundColor: Ucolors.skyblue1,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 8,
@@ -3484,10 +3501,12 @@ class _DesktopActionCard extends StatelessWidget {
                           }
                         : () => fdc.handleAddToCart(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          sipPaused ? const Color(0xFFE4E7EC) : Colors.white,
-                      foregroundColor:
-                          sipPaused ? const Color(0xFF667085) : Ucolors.primary,
+                      backgroundColor: sipPaused
+                          ? const Color(0xFFE4E7EC)
+                          : Colors.white,
+                      foregroundColor: sipPaused
+                          ? const Color(0xFF667085)
+                          : Ucolors.primary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -3925,14 +3944,14 @@ class _DesktopAboutCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: Ucolors.skyblue1,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: Ucolors.skyblue),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.person, size: 18, color: Colors.blue.shade700),
+          Icon(Icons.person, size: 18, color: Ucolors.primary),
           const Gap(8),
           Text(
             name,
@@ -3940,7 +3959,7 @@ class _DesktopAboutCard extends StatelessWidget {
               fontFamily: FontFamily.medium,
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.blue.shade700,
+              color: Ucolors.primary,
             ),
           ),
         ],
@@ -4007,7 +4026,8 @@ class _DesktopComparisonSection extends StatelessWidget {
                         imgUrl: controller.imgUrl,
                         fund1: fund.schemeName,
                         year: (fund.schemePerformanceList.isNotEmpty == true)
-                            ? fund.schemePerformanceList[0].threeYearReturn.toString()
+                            ? fund.schemePerformanceList[0].threeYearReturn
+                                  .toString()
                             : '--',
                       ),
                       SizedBox(height: 5),
@@ -4025,7 +4045,7 @@ class _DesktopComparisonSection extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.blue,
+                                color: Ucolors.primary,
                                 width: 1.5,
                               ),
                             ),
@@ -4707,7 +4727,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                             icon: Icon(
                               Icons.refresh_rounded,
                               size: 16,
-                              color: Colors.blue.shade700,
+                              color: Ucolors.primary,
                             ),
                             label: Text(
                               'Retry',
@@ -4715,15 +4735,11 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 fontFamily: FontFamily.medium,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: Colors
-                                    .blue
-                                    .shade700, // Change this to Ucolors.primary if you prefer
+                                color: Ucolors.primary,
                               ),
                             ),
                             style: TextButton.styleFrom(
-                              backgroundColor: Colors
-                                  .blue
-                                  .shade50, // Subtle button background
+                              backgroundColor: Ucolors.skyblue1,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 8,
@@ -4999,7 +5015,9 @@ class OverviewScreen extends GetView<FundDetailsController> {
                 // Gap(15),
                 _twoColumnRow(
                   leftTitle: 'Risk-o-Meter',
-                  leftValue: (fund?.riskometerValue != null && fund!.riskometerValue.isNotEmpty)
+                  leftValue:
+                      (fund?.riskometerValue != null &&
+                          fund!.riskometerValue.isNotEmpty)
                       ? fund!.riskometerValue
                       : '--',
                   // leftValue: risk.label,
@@ -5014,7 +5032,8 @@ class OverviewScreen extends GetView<FundDetailsController> {
                 _twoColumnRow(
                   leftTitle: 'Shape Ratio:',
                   leftValue: (fund?.riskStatisticsList.isNotEmpty == true)
-                      ? fund!.riskStatisticsList[0].sharpeRatioCm3Year.toString()
+                      ? fund!.riskStatisticsList[0].sharpeRatioCm3Year
+                            .toString()
                       : '--',
                   rightTitle: 'Beta',
                   rightValue: (fund?.riskStatisticsList.isNotEmpty == true)
@@ -5173,7 +5192,9 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.04),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.04,
+                                      ),
                                       blurRadius: 8,
                                       spreadRadius: 2,
                                     ),
@@ -6332,7 +6353,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.blue.shade800, size: 16),
+          Icon(icon, color: Ucolors.primary, size: 16),
           const SizedBox(width: 10),
 
           /// LEFT TITLE
@@ -6398,7 +6419,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 class DashedLine extends StatelessWidget {
   const DashedLine({
     super.key,
-    this.color = Colors.blue,
+    this.color = Ucolors.primary,
     this.height = 1,
     this.dashWidth = 6,
     this.dashSpace = 4,
@@ -7563,7 +7584,7 @@ class _AnimatedPortfolioAllocationState
       ),
       child: TabBar(
         indicator: BoxDecoration(
-          color: const Color(0xff0280C0),
+          color: Ucolors.primary,
           borderRadius: BorderRadius.circular(25),
         ),
         labelColor: Colors.white,

@@ -1876,7 +1876,7 @@ import '../../../../core/utils/helper/helpers.dart';
 import '../widgets/tax_status_slider_widget.dart';
 
 // --- WEB DESIGN CONSTANTS (Only used for Web Layout) ---
-const Color kWebPrimary = Color(0xFF185FA5);
+const Color kWebPrimary = Ucolors.primary;
 const Color kWebSuccess = Color(0xFF1D9E75);
 const Color kWebBgTertiary = Color(0xFFF3F4F6);
 const Color kWebBgSecondary = Color(0xFFF9FAFB);
@@ -3458,7 +3458,7 @@ class KycScreen extends GetView<KycController> {
                 ),
               ),
               child: controller.isLoading.value
-                  ? const CircularProgressIndicator(color: Colors.blue)
+                  ? const CircularProgressIndicator(color: Ucolors.primary)
                   : const Icon(
                       Icons.edit_document,
                       size: 80,
@@ -3800,7 +3800,7 @@ class KycScreen extends GetView<KycController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFE6F1FB),
+        color: Ucolors.skyblue1,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: kWebPrimary.withOpacity(0.15)),
       ),
@@ -3862,7 +3862,7 @@ class KycScreen extends GetView<KycController> {
                 height: 42,
                 margin: EdgeInsets.only(right: option == options.last ? 0 : 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFFE6F1FB) : Colors.white,
+                  color: isSelected ? Ucolors.skyblue1 : Colors.white,
                   border: Border.all(
                     color: isSelected ? kWebPrimary : kWebBorder,
                     width: 1,

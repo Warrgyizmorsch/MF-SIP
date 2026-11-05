@@ -6,7 +6,8 @@ import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
-import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart' show FolioItemEntity;
+import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart'
+    show FolioItemEntity;
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -510,22 +511,22 @@ class _FieldWrap extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Colors (unchanged)
+// Shared brand aliases; semantic and neutral roles retain their existing colors.
 // ─────────────────────────────────────────────────────────────────────────────
 class _C {
-  static const bg = Color(0xFFEEF2FF);
+  static const bg = Ucolors.skyblue1;
   static const surface = Color(0xFFFFFFFF);
-  static const pLight = Color(0xFFEFF4FF);
-  static const pMid = Color(0xFFBFD4FF);
-  static const primary = Color(0xFF2563EB);
+  static const pLight = Ucolors.skyblue1;
+  static const pMid = Ucolors.skyblue;
+  static const primary = Ucolors.primary;
   static const success = Color(0xFF10B981);
   static const danger = Color(0xFFEF4444);
   static const textPrimary = Color(0xFF0F172A);
   static const textSec = Color(0xFF64748B);
   static const textMuted = Color(0xFFADB8CC);
   static const border = Color(0xFFE2E9F6);
-  static const shadow = Color(0x1A2563EB);
-  static const stepBg = Color(0xFFEAF5FF);
+  static final shadow = Ucolors.primary.withAlpha(0x1A);
+  static const stepBg = Ucolors.skyblue1;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -697,7 +698,11 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                   color: Colors.blue.shade50,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.info_outline, size: 36, color: Colors.blue.shade700),
+                child: Icon(
+                  Icons.info_outline,
+                  size: 36,
+                  color: Colors.blue.shade700,
+                ),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -731,7 +736,13 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                     ),
                   ),
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Got It', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Got It',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -741,8 +752,12 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     );
   }
 
-  void _showFolioSelectionSheet(BuildContext context, List<FolioItemEntity> folios) {
-    final amcDisplayName = _c.sipArgs.value.amcName ?? _c.sipArgs.value.fundName;
+  void _showFolioSelectionSheet(
+    BuildContext context,
+    List<FolioItemEntity> folios,
+  ) {
+    final amcDisplayName =
+        _c.sipArgs.value.amcName ?? _c.sipArgs.value.fundName;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -819,8 +834,9 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                     final folioNum = item.folioNumber ?? item.folio ?? '';
                     final isSelected =
                         item == _c.selectedExistingFolio.value ||
-                        folioNum == (_c.selectedExistingFolio.value?.folioNumber ??
-                            _c.selectedExistingFolio.value?.folio);
+                        folioNum ==
+                            (_c.selectedExistingFolio.value?.folioNumber ??
+                                _c.selectedExistingFolio.value?.folio);
 
                     String? logoUrl = item.amcLogo;
                     if (logoUrl != null &&
@@ -902,8 +918,12 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                                             vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Ucolors.primary.withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(4),
+                                            color: Ucolors.primary.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
                                           ),
                                           child: const Text(
                                             'Selected',
@@ -970,6 +990,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
       ),
     );
   }
+
   @override
   void dispose() {
     _entryCtrl.dispose();
@@ -982,7 +1003,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
 
     final opt = (_c.sipArgs.value.divoption ?? '').trim().toUpperCase();
 
-    if (opt == 'GR' || opt == 'NA' || opt == 'GROWTH' ) {
+    if (opt == 'GR' || opt == 'NA' || opt == 'GROWTH') {
       _c.setDividendOption('N');
       _c.proceedWithInvestment();
     } else if (opt == 'PAYOUT') {
@@ -1078,7 +1099,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: selected == 'P'
-                              ? const Color(0xFFEFF6FF)
+                              ? Ucolors.skyblue1
                               : Colors.white,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
@@ -1138,7 +1159,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: selected == 'R'
-                              ? const Color(0xFFEFF6FF)
+                              ? Ucolors.skyblue1
                               : Colors.white,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
@@ -1341,9 +1362,11 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
 
   Future<void> _pickSipDate() async {
     final now = DateTime.now();
-    final allowedDates = _c.sipArgs.value.allowedSipDates ??
-        List.generate(28, (i) => i + 1);
-    debugPrint("[SIPPurchasePage] Active allowed SIP dates for ${_c.sipArgs.value.schemeCode}: $allowedDates");
+    final allowedDates =
+        _c.sipArgs.value.allowedSipDates ?? List.generate(28, (i) => i + 1);
+    debugPrint(
+      "[SIPPurchasePage] Active allowed SIP dates for ${_c.sipArgs.value.schemeCode}: $allowedDates",
+    );
     final currentDay = _c.sipDay.value;
     final validCurrentDay = allowedDates.contains(currentDay)
         ? currentDay
@@ -1695,14 +1718,19 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                   borderRadius: BorderRadius.circular(12),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: mode == 'NEW'
                           ? Ucolors.primary.withValues(alpha: 0.08)
                           : Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: mode == 'NEW' ? Ucolors.primary : Colors.grey.shade200,
+                        color: mode == 'NEW'
+                            ? Ucolors.primary
+                            : Colors.grey.shade200,
                         width: mode == 'NEW' ? 1.5 : 1,
                       ),
                     ),
@@ -1713,7 +1741,9 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                               ? Icons.radio_button_checked
                               : Icons.radio_button_off,
                           size: 20,
-                          color: mode == 'NEW' ? Ucolors.primary : Colors.grey.shade500,
+                          color: mode == 'NEW'
+                              ? Ucolors.primary
+                              : Colors.grey.shade500,
                         ),
                         const SizedBox(width: 12),
                         const Expanded(
@@ -1763,7 +1793,10 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                   borderRadius: BorderRadius.circular(12),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: mode == 'EXISTING'
                           ? Ucolors.primary.withValues(alpha: 0.08)
@@ -1807,8 +1840,8 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                               Text(
                                 availableFolios.isNotEmpty
                                     ? (selectedItem != null
-                                        ? 'Selected: ${selectedItem.folioNumber ?? selectedItem.folio ?? ""}'
-                                        : 'Select from ${availableFolios.length} existing folios')
+                                          ? 'Selected: ${selectedItem.folioNumber ?? selectedItem.folio ?? ""}'
+                                          : 'Select from ${availableFolios.length} existing folios')
                                     : 'No existing folios found for this AMC',
                                 style: TextStyle(
                                   fontFamily: FontFamily.medium,
@@ -1834,7 +1867,10 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            onPressed: () => _showFolioSelectionSheet(context, availableFolios),
+                            onPressed: () => _showFolioSelectionSheet(
+                              context,
+                              availableFolios,
+                            ),
                             child: Text(
                               availableFolios.length > 1 ? 'Change' : 'Select',
                               style: const TextStyle(
@@ -1894,29 +1930,31 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                                     color: Colors.grey.shade600,
                                   ),
                                 ),
-                              Builder(builder: (_) {
-                                final held = _c.getSchemesForFolio(
-                                  selectedItem.folioNumber ??
-                                      selectedItem.folio ??
-                                      '',
-                                );
-                                if (held.isEmpty) {
-                                  return const SizedBox.shrink();
-                                }
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Text(
-                                    'Holding: ${held.join(" â€¢ ")}',
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontFamily: FontFamily.medium,
-                                      fontSize: 11,
-                                      color: const Color(0xFF475569),
+                              Builder(
+                                builder: (_) {
+                                  final held = _c.getSchemesForFolio(
+                                    selectedItem.folioNumber ??
+                                        selectedItem.folio ??
+                                        '',
+                                  );
+                                  if (held.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      'Holding: ${held.join(" â€¢ ")}',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
+                                        fontSize: 11,
+                                        color: const Color(0xFF475569),
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }),
+                                  );
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -2259,8 +2297,12 @@ class _InvTypeSelector extends StatelessWidget {
         color: _C.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _C.border),
-        boxShadow: const [
-          BoxShadow(color: _C.shadow, blurRadius: 12, offset: Offset(0, 4)),
+        boxShadow: [
+          BoxShadow(
+            color: _C.shadow,
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
@@ -2350,8 +2392,7 @@ class _AmountCardState extends State<_AmountCard> {
       } else {
         _ctrl.text = _fmt(widget.amount);
       }
-    }); 
-    
+    });
   }
 
   @override
@@ -2834,11 +2875,11 @@ class _TopBar extends StatelessWidget {
                 color: _C.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: _C.border),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
                     color: _C.shadow,
                     blurRadius: 8,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -2880,8 +2921,12 @@ class _FundCard extends StatelessWidget {
         color: _C.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _C.border),
-        boxShadow: const [
-          BoxShadow(color: _C.shadow, blurRadius: 20, offset: Offset(0, 6)),
+        boxShadow: [
+          BoxShadow(
+            color: _C.shadow,
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
         ],
       ),
       child: Row(

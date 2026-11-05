@@ -1,3 +1,4 @@
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,10 +12,7 @@ import '../widgets/ticket_status_badge.dart';
 class TicketDetailPage extends StatelessWidget {
   final int ticketId;
 
-  const TicketDetailPage({
-    super.key,
-    required this.ticketId,
-  });
+  const TicketDetailPage({super.key, required this.ticketId});
 
   String _formatDateTime(String raw) {
     if (raw.isEmpty) return '';
@@ -26,7 +24,10 @@ class TicketDetailPage extends StatelessWidget {
     }
   }
 
-  void _showAttachmentOptions(BuildContext context, TicketDetailController controller) {
+  void _showAttachmentOptions(
+    BuildContext context,
+    TicketDetailController controller,
+  ) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -45,8 +46,8 @@ class TicketDetailPage extends StatelessWidget {
               const SizedBox(height: 16),
               ListTile(
                 leading: const CircleAvatar(
-                  backgroundColor: Color(0xFFE0F2FE),
-                  child: Icon(Icons.camera_alt_rounded, color: Color(0xFF0280C0)),
+                  backgroundColor: Ucolors.skyblue1,
+                  child: Icon(Icons.camera_alt_rounded, color: Ucolors.primary),
                 ),
                 title: const Text('Take Photo with Camera'),
                 onTap: () {
@@ -56,8 +57,11 @@ class TicketDetailPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const CircleAvatar(
-                  backgroundColor: Color(0xFFE0F2FE),
-                  child: Icon(Icons.file_present_rounded, color: Color(0xFF0280C0)),
+                  backgroundColor: Ucolors.skyblue1,
+                  child: Icon(
+                    Icons.file_present_rounded,
+                    color: Ucolors.primary,
+                  ),
                 ),
                 title: const Text('Choose Document or Image'),
                 subtitle: const Text('PDF, JPG, PNG (max 5MB)'),
@@ -83,7 +87,9 @@ class TicketDetailPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF11141C) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF11141C)
+          : const Color(0xFFF8FAFC),
       appBar: CustomAppBarNormal(
         title: 'Ticket #$ticketId',
         action: [
@@ -115,7 +121,11 @@ class TicketDetailPage extends StatelessWidget {
                       value: 'reopen',
                       child: Row(
                         children: [
-                          Icon(Icons.refresh_rounded, color: Color(0xFF0280C0), size: 18),
+                          Icon(
+                            Icons.refresh_rounded,
+                            color: Ucolors.primary,
+                            size: 18,
+                          ),
                           SizedBox(width: 8),
                           Text('Reopen Ticket'),
                         ],
@@ -128,7 +138,11 @@ class TicketDetailPage extends StatelessWidget {
                       value: 'close',
                       child: Row(
                         children: [
-                          Icon(Icons.check_circle_outline, color: Colors.red, size: 18),
+                          Icon(
+                            Icons.check_circle_outline,
+                            color: Colors.red,
+                            size: 18,
+                          ),
                           SizedBox(width: 8),
                           Text('Close Ticket'),
                         ],
@@ -153,7 +167,11 @@ class TicketDetailPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline_rounded, size: 48, color: Colors.red.shade400),
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 48,
+                    color: Colors.red.shade400,
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     controller.errorMessage.value,
@@ -235,12 +253,15 @@ class TicketDetailPage extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF0280C0),
+                  color: Ucolors.primary,
                 ),
               ),
               Row(
                 children: [
-                  TicketPriorityBadge(priority: ticket.priority, isCompact: true),
+                  TicketPriorityBadge(
+                    priority: ticket.priority,
+                    isCompact: true,
+                  ),
                   const SizedBox(width: 8),
                   TicketStatusBadge(status: ticket.status, isCompact: true),
                 ],
@@ -250,10 +271,7 @@ class TicketDetailPage extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             ticket.subject,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Row(
@@ -267,17 +285,11 @@ class TicketDetailPage extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Text(
-                  ' • ',
-                  style: TextStyle(color: Colors.grey.shade400),
-                ),
+                Text(' • ', style: TextStyle(color: Colors.grey.shade400)),
               ],
               Text(
                 _formatDateTime(ticket.createdAt),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
               ),
             ],
           ),
@@ -319,10 +331,17 @@ class TicketDetailPage extends StatelessWidget {
               ),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0280C0),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  backgroundColor: Ucolors.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                 ),
-                icon: const Icon(Icons.refresh_rounded, size: 16, color: Colors.white),
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                  size: 16,
+                  color: Colors.white,
+                ),
                 label: const Text(
                   'Reopen',
                   style: TextStyle(color: Colors.white, fontSize: 13),
@@ -356,7 +375,10 @@ class TicketDetailPage extends StatelessWidget {
               }
 
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -364,10 +386,15 @@ class TicketDetailPage extends StatelessWidget {
                       controller.replyAttachments.length,
                       (idx) {
                         final file = controller.replyAttachments[idx];
-                        final name = file.path.split(Platform.pathSeparator).last;
+                        final name = file.path
+                            .split(Platform.pathSeparator)
+                            .last;
                         return Container(
                           margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(8),
@@ -379,7 +406,9 @@ class TicketDetailPage extends StatelessWidget {
                               const Icon(Icons.attachment_rounded, size: 14),
                               const SizedBox(width: 4),
                               ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 100),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 100,
+                                ),
                                 child: Text(
                                   name,
                                   maxLines: 1,
@@ -389,8 +418,13 @@ class TicketDetailPage extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               InkWell(
-                                onTap: () => controller.removeReplyAttachment(idx),
-                                child: const Icon(Icons.close_rounded, size: 14, color: Colors.grey),
+                                onTap: () =>
+                                    controller.removeReplyAttachment(idx),
+                                child: const Icon(
+                                  Icons.close_rounded,
+                                  size: 14,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ],
                           ),
@@ -408,9 +442,13 @@ class TicketDetailPage extends StatelessWidget {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.attach_file_rounded, color: Color(0xFF0280C0)),
+                    icon: const Icon(
+                      Icons.attach_file_rounded,
+                      color: Ucolors.primary,
+                    ),
                     tooltip: 'Attach file',
-                    onPressed: () => _showAttachmentOptions(context, controller),
+                    onPressed: () =>
+                        _showAttachmentOptions(context, controller),
                   ),
                   Expanded(
                     child: TextField(
@@ -419,23 +457,32 @@ class TicketDetailPage extends StatelessWidget {
                       maxLines: 4,
                       decoration: InputDecoration(
                         hintText: 'Write a reply...',
-                        hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade400,
+                        ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 10,
                         ),
                         filled: true,
-                        fillColor: isDark ? const Color(0xFF161922) : Colors.grey.shade50,
+                        fillColor: isDark
+                            ? const Color(0xFF161922)
+                            : Colors.grey.shade50,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(22),
                           borderSide: BorderSide(
-                            color: isDark ? Colors.white12 : Colors.grey.shade300,
+                            color: isDark
+                                ? Colors.white12
+                                : Colors.grey.shade300,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(22),
                           borderSide: BorderSide(
-                            color: isDark ? Colors.white12 : Colors.grey.shade300,
+                            color: isDark
+                                ? Colors.white12
+                                : Colors.grey.shade300,
                           ),
                         ),
                       ),
@@ -445,7 +492,7 @@ class TicketDetailPage extends StatelessWidget {
                   Obx(() {
                     return IconButton.filled(
                       style: IconButton.styleFrom(
-                        backgroundColor: const Color(0xFF0280C0),
+                        backgroundColor: Ucolors.primary,
                         shape: const CircleBorder(),
                       ),
                       onPressed: controller.isSendingReply.value
@@ -457,10 +504,16 @@ class TicketDetailPage extends StatelessWidget {
                               height: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
-                          : const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                          : const Icon(
+                              Icons.send_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                     );
                   }),
                 ],

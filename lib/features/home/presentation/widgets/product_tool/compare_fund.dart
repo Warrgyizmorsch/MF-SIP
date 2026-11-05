@@ -198,7 +198,9 @@ class CompareFundsPage extends GetView<CompareFundController> {
                           folio: null,
                           imgUrl: '${Appurl.baseUrl}${fund1.amc?.amcLogoUrl}',
                           divoption: fund1.divoption,
-                          allowedSipDates: parseAllowedSipDates(fund1.allowedSipDates),
+                          allowedSipDates: parseAllowedSipDates(
+                            fund1.allowedSipDates,
+                          ),
                         );
 
                         Get.to(
@@ -221,7 +223,9 @@ class CompareFundsPage extends GetView<CompareFundController> {
                           folio: null,
                           imgUrl: '${Appurl.baseUrl}${fund2.amc?.amcLogoUrl}',
                           divoption: fund2.divoption,
-                          allowedSipDates: parseAllowedSipDates(fund2.allowedSipDates),
+                          allowedSipDates: parseAllowedSipDates(
+                            fund2.allowedSipDates,
+                          ),
                         );
 
                         Get.to(
@@ -349,7 +353,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                     decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.blue),
+                        borderSide: BorderSide(color: Ucolors.primary),
                       ),
                       hintText: "Search fund",
                       prefixIcon: const Icon(Icons.search),
@@ -531,7 +535,11 @@ class CompareCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(Icons.add_circle_outline, color: Colors.blue, size: 30),
+                Icon(
+                  Icons.add_circle_outline,
+                  color: Ucolors.primary,
+                  size: 30,
+                ),
                 SizedBox(height: 8),
                 Text(
                   "Add a fund",

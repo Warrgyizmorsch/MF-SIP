@@ -90,6 +90,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../core/utils/constant/colors.dart';
 import '../../../core/utils/constant/text_style.dart';
 
 class UImagePicker {
@@ -109,7 +110,9 @@ class UImagePicker {
       showDialog(
         context: context,
         builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: Colors.white,
           child: Container(
             width: 400,
@@ -122,12 +125,16 @@ class UImagePicker {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: FontFamily.medium,
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Get.back(),
-                    )
+                    ),
                   ],
                 ),
                 const SizedBox(height: 32),
@@ -137,7 +144,7 @@ class UImagePicker {
                     _buildOption(
                       icon: Iconsax.camera,
                       label: "Camera",
-                      color: Colors.blue,
+                      color: Ucolors.primary,
                       onTap: () {
                         Get.back();
                         onImageSelected(ImageSource.camera);
@@ -146,7 +153,7 @@ class UImagePicker {
                     _buildOption(
                       icon: Iconsax.gallery,
                       label: "Gallery",
-                      color: Colors.purple,
+                      color: Ucolors.indigo,
                       onTap: () {
                         Get.back();
                         onImageSelected(ImageSource.gallery);
@@ -187,7 +194,11 @@ class UImagePicker {
               ),
               Text(
                 title,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: FontFamily.medium,
+                ),
               ),
               const SizedBox(height: 32),
               Row(
@@ -196,7 +207,7 @@ class UImagePicker {
                   _buildOption(
                     icon: Iconsax.camera,
                     label: "Camera",
-                    color: Colors.blue,
+                    color: Ucolors.primary,
                     onTap: () {
                       Get.back();
                       onImageSelected(ImageSource.camera);
@@ -206,7 +217,7 @@ class UImagePicker {
                   _buildOption(
                     icon: Iconsax.gallery,
                     label: "Gallery",
-                    color: Colors.purple,
+                    color: Ucolors.indigo,
                     onTap: () {
                       Get.back();
                       onImageSelected(ImageSource.gallery);
@@ -238,13 +249,19 @@ class UImagePicker {
               height: 60,
               width: 60,
               decoration: BoxDecoration(
-                color: color.withValues(alpha:0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 28),
             ),
             const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontFamily: FontFamily.medium,)),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontFamily: FontFamily.medium,
+              ),
+            ),
           ],
         ),
       ),

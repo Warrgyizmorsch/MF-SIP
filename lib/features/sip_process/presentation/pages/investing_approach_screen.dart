@@ -79,7 +79,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
 
   Widget _buildLeftProfilePanel(SessionManager session) {
     return Container(
-      color: const Color(0xFF0061A0),
+      color: Ucolors.blue,
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +150,9 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
           Obx(
             () => _buildProfileDetailCard(
               icon: Icons.money,
-              title: controller.isLumpsum.value ? "Lumpsum Amount" : "Monthly SIP",
+              title: controller.isLumpsum.value
+                  ? "Lumpsum Amount"
+                  : "Monthly SIP",
               value: controller.formatCurrency(controller.amount.value),
             ),
           ),
@@ -324,7 +326,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFFF3F8FB) : Colors.white,
           border: Border.all(
-            color: isSelected ? const Color(0xFF0B598F) : Colors.grey.shade300,
+            color: isSelected ? Ucolors.primary : Colors.grey.shade300,
             width: isSelected ? 1.5 : 1.0,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -340,13 +342,13 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFF0B598F)
+                        ? Ucolors.primary
                         : const Color(0xFFF0F4F8),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon,
-                    color: isSelected ? Colors.white : const Color(0xFF0B598F),
+                    color: isSelected ? Colors.white : Ucolors.primary,
                     size: 24,
                   ),
                 ),
@@ -354,9 +356,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                   isSelected
                       ? Icons.radio_button_checked
                       : Icons.radio_button_unchecked,
-                  color: isSelected
-                      ? const Color(0xFF0B598F)
-                      : Colors.grey.shade300,
+                  color: isSelected ? Ucolors.primary : Colors.grey.shade300,
                 ),
               ],
             ),
@@ -666,7 +666,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
           color: isSelected ? null : Colors.white,
           gradient: isSelected
               ? const LinearGradient(
-                  colors: [Color(0xFFD7EFFF), Color(0xFFFFFFFF)],
+                  colors: [Ucolors.skyblue1, Color(0xFFFFFFFF)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 )
@@ -741,7 +741,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 12.0),
           decoration: BoxDecoration(
-            color: const Color(0xff07609e),
+            color: Ucolors.blue,
             borderRadius: BorderRadius.circular(7.0),
           ),
           child: Row(

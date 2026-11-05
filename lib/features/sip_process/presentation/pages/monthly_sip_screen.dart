@@ -93,7 +93,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
 
   Widget _buildLeftBluePanelWeb(BuildContext context) {
     return Container(
-      color: const Color(0xFF0061A0), // Dark blue background from the design
+      color: Ucolors.blue, // Shared dark brand panel
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,8 +458,9 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                             freq.label,
                             style: TextStyle(
                               fontFamily: FontFamily.medium,
-                              fontWeight:
-                                  isSelected ? FontWeight.w700 : FontWeight.w500,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
                               fontSize: 14,
                               color: isSelected
                                   ? Colors.white
@@ -479,8 +480,10 @@ class MonthlySipScreen extends GetView<SipProcessController> {
             switch (controller.selectedFrequency.value) {
               case SipFrequency.daily:
                 return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF0F7FF),
                     borderRadius: BorderRadius.circular(12),
@@ -521,10 +524,9 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                   children: [
                     Text(
                       "SIP Day of Week",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonHideUnderline(
@@ -591,10 +593,9 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                   children: [
                     Text(
                       "SIP Date",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonHideUnderline(
@@ -709,7 +710,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               child: Container(
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
-                  color: const Color(0xff044973),
+                  color: Ucolors.blue,
                   borderRadius: BorderRadius.circular(5.0),
                 ),
                 child: Column(
@@ -771,27 +772,25 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                   () => RichText(
                     text: TextSpan(
                       text: "Your wealth will grow to",
-                      style: AppTextStyles.bodySmall(
-                        color: const Color(0xffC9EAFB),
-                      ),
+                      style: AppTextStyles.bodySmall(color: Ucolors.textLight),
                       children: [
                         TextSpan(
                           text:
                               ' ${controller.formatCurrency(controller.totalProjected.value)}',
                           style: AppTextStyles.bodySmallBold(
-                            color: const Color(0xffC9EAFB),
+                            color: Ucolors.textLight,
                           ),
                         ),
                         TextSpan(
                           text: ' by ',
                           style: AppTextStyles.bodySmall(
-                            color: const Color(0xffC9EAFB),
+                            color: Ucolors.textLight,
                           ),
                         ),
                         TextSpan(
                           text: '${DateTime.now().year + 5}',
                           style: AppTextStyles.bodySmallBold(
-                            color: const Color(0xffC9EAFB),
+                            color: Ucolors.textLight,
                           ),
                         ),
                       ],
@@ -803,21 +802,19 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 RichText(
                   text: TextSpan(
                     text: "assuming",
-                    style: AppTextStyles.bodySmall(
-                      color: const Color(0xffC9EAFB),
-                    ),
+                    style: AppTextStyles.bodySmall(color: Ucolors.textLight),
                     children: [
                       TextSpan(
                         text:
                             ' ${controller.expectedReturnRate.toStringAsFixed(0)}% ',
                         style: AppTextStyles.bodySmallBold(
-                          color: const Color(0xffC9EAFB),
+                          color: Ucolors.textLight,
                         ),
                       ),
                       TextSpan(
                         text: 'returns (p.a.) ',
                         style: AppTextStyles.bodySmall(
-                          color: const Color(0xffC9EAFB),
+                          color: Ucolors.textLight,
                         ),
                       ),
                     ],

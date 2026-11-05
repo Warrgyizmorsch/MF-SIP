@@ -230,7 +230,7 @@ class DialogHelper {
               buttonText,
               style: const TextStyle(
                 fontFamily: FontFamily.medium,
-                color: Colors.blue, // Or use Ucolors.primary
+                color: Ucolors.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -259,9 +259,14 @@ class DialogHelper {
       BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: Colors.white,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
+          ),
           child: TweenAnimationBuilder<double>(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOutBack,

@@ -438,7 +438,7 @@ class QuestionScreen extends GetView<QuestionController> {
                       height: 10,
                       width: Get.width / 2,
                       decoration: BoxDecoration(
-                        color: Color(0xffEBF4FF),
+                        color: Ucolors.skyblue1,
 
                         borderRadius: BorderRadius.circular(2),
                       ),
@@ -451,7 +451,7 @@ class QuestionScreen extends GetView<QuestionController> {
                           width: Get.width / 2 * controller.queInidcator.value,
                           decoration: BoxDecoration(
                             gradient: Ucolors.backgroundGradient,
-                            color: Color(0xffEBF4FF),
+                            color: Ucolors.skyblue1,
 
                             borderRadius: BorderRadius.circular(2),
                           ),
@@ -497,13 +497,14 @@ class QuestionScreen extends GetView<QuestionController> {
                           children: [
                             Text(
                               opt.label,
-                              style: TextStyle(fontFamily: FontFamily.medium,
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
                                 fontSize: 14,
                                 fontWeight: isSelected
                                     ? FontWeight.w400
                                     : FontWeight.w500,
                                 color: isSelected
-                                    ? const Color(0xFF1976D2)
+                                    ? Ucolors.primary
                                     : Ucolors.darkgrey,
                               ),
                             ),
@@ -536,7 +537,11 @@ class QuestionScreen extends GetView<QuestionController> {
                 const Center(
                   child: Text(
                     'Your data 100% safe & secure',
-                    style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.dark, fontSize: 13),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Ucolors.dark,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
 
