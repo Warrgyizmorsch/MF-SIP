@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../common/widget/appbar/custom_appbar_normal.dart';
-import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../common/widget/shimmer/shimmer.dart';
 import '../../../../config/routes/app_routes.dart';
 import '../../../../core/utils/constant/colors.dart';
@@ -13,6 +11,7 @@ import '../../../../core/utils/constant/text_style.dart';
 import '../../domain/entity/goal_entity.dart';
 import '../controller/goal_sip_controller.dart';
 import '../widget/goal_card.dart';
+import '../widget/goal_beyond_saving_view.dart';
 import 'goaldetails.dart';
 
 class GoalScreen extends GetView<GoalSipController> {
@@ -40,30 +39,33 @@ class GoalScreenMobile extends GetView<GoalSipController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: GoalCard.backgroundColor,
-      appBar: CustomAppBarNormal(
+    return Obx(() {
+      final goals = controller.goalResponse.value?.data ?? [];
+
+      if (!controller.isLoadingGoals.value && goals.isEmpty) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF7F7F8),
+          body: _buildMobileEmptyState(),
+        );
+      }
+
+      return Scaffold(
         backgroundColor: GoalCard.backgroundColor,
-        title: 'Goal',
-        backIcon: false,
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final double availableWidth = constraints.maxWidth > 0
-              ? constraints.maxWidth
-              : 400;
+        appBar: CustomAppBarNormal(
+          backgroundColor: GoalCard.backgroundColor,
+          title: 'Goal',
+          backIcon: false,
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final double availableWidth = constraints.maxWidth > 0
+                ? constraints.maxWidth
+                : 400;
 
-          final crossAxisCount = availableWidth < 500 ? 2 : 3;
+            final crossAxisCount = availableWidth < 500 ? 2 : 3;
 
-          return Obx(() {
             if (controller.isLoadingGoals.value) {
               return const GoalShimmerGrid();
-            }
-
-            final goals = controller.goalResponse.value?.data ?? [];
-
-            if (goals.isEmpty) {
-              return _buildMobileEmptyState();
             }
 
             return RefreshIndicator(
@@ -71,10 +73,22 @@ class GoalScreenMobile extends GetView<GoalSipController> {
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ),
+                      child: Text(
+                        '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
+                        style: UTextStyles.bodySmall.copyWith(fontSize: 14),
+                      ),
+                    ),
+                  ),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16.0,
-                      vertical: 16.0,
+                      vertical: 8.0,
                     ),
                     sliver: SliverGrid(
                       delegate: SliverChildBuilderDelegate((context, index) {
@@ -116,92 +130,37 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                 ],
               ),
             );
-          });
-        },
-      ),
-      floatingActionButton: Obx(() {
-        final hasGoals = (controller.goalResponse.value?.data ?? []).isNotEmpty;
-        if (!hasGoals || controller.isLoadingGoals.value) {
-          return const SizedBox.shrink();
-        }
-        return FloatingActionButton(
-          tooltip: 'Add new goal',
-          onPressed: () async {
-            controller.resetStateForNewGoal();
-            await controller.getMasterGoals();
-            Get.toNamed(AppRoutes.masterGoalsPage);
           },
-          backgroundColor: Ucolors.primary,
-          child: const Icon(Icons.add, color: Colors.white),
-        );
-      }),
-    );
+        ),
+        floatingActionButton: controller.isLoadingGoals.value
+            ? const SizedBox.shrink()
+            : FloatingActionButton(
+                tooltip: 'Add new goal',
+                onPressed: () async {
+                  controller.resetStateForNewGoal();
+                  await controller.getMasterGoals();
+                  Get.toNamed(AppRoutes.masterGoalsPage);
+                },
+                backgroundColor: Ucolors.primary,
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
+      );
+    });
   }
 
   Widget _buildMobileEmptyState() {
-    return RefreshIndicator(
+    return GoalBeyondSavingView(
       onRefresh: () => controller.getAllGoals(),
-      child: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Ucolors.skyblue1,
-                        child: Icon(
-                          Iconsax.note_remove5,
-                          color: Ucolors.blue,
-                          size: 45,
-                        ),
-                      ),
-                      const Gap(24),
-                      Text(
-                        'Ready to start saving?',
-                        style: UTextStyles.large.copyWith(fontSize: 22),
-                        textAlign: TextAlign.center,
-                      ),
-                      const Gap(8),
-                      Text(
-                        'You haven\'t set any savings goals yet. Start small and watch your wealth grow.',
-                        style: UTextStyles.bodySmall.copyWith(fontSize: 14),
-                        textAlign: TextAlign.center,
-                      ),
-                      const Gap(32),
-                      UElevatedBUtton(
-                        color: Ucolors.primary,
-                        onPressed: () {
-                          controller.resetStateForNewGoal();
-                          Get.toNamed(AppRoutes.masterGoalsPage);
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Create Your First Goal',
-                              style: UTextStyles.buttonText,
-                            ),
-                            const Gap(10),
-                            const Icon(Icons.add, color: Ucolors.light),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      onNext: () async {
+        controller.resetStateForNewGoal();
+        await controller.getMasterGoals();
+        Get.toNamed(AppRoutes.masterGoalsPage);
+      },
+      onSkip: () async {
+        controller.resetStateForNewGoal();
+        await controller.getMasterGoals();
+        Get.toNamed(AppRoutes.masterGoalsPage);
+      },
     );
   }
 }

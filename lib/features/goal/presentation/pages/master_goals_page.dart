@@ -2351,6 +2351,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
       case 'car':
         return Icons.directions_car_rounded;
       case 'house':
+      case 'home':
         return Icons.home_rounded;
       case 'education':
         return Icons.school_rounded;
@@ -2365,6 +2366,75 @@ class GoalsGridScreen extends GetView<GoalSipController> {
     }
   }
 
+  String getGoalTitle(String goalType) {
+    switch (goalType.toLowerCase()) {
+      case 'car':
+        return 'Dream Car';
+      case 'house':
+      case 'home':
+        return 'Own Home';
+      case 'education':
+        return 'Child Education';
+      case 'marriage':
+        return 'Marriage';
+      case 'retirement':
+        return 'Retirement';
+      case 'vacation':
+        return 'Dream Vacation';
+      default:
+        return goalType.capitalizeFirst ?? 'Custom Goal';
+    }
+  }
+
+  String getGoalSubtitle(String goalType, String backendDescription) {
+    if (backendDescription.trim().isNotEmpty) {
+      return backendDescription;
+    }
+    switch (goalType.toLowerCase()) {
+      case 'car':
+        return 'Plan your dream car purchase';
+      case 'house':
+      case 'home':
+        return 'Down payment or full cost';
+      case 'education':
+        return 'Fund higher education for your children';
+      case 'marriage':
+        return 'Plan for marriage expences';
+      case 'retirement':
+        return 'Build a stress-free retirement corpus';
+      case 'vacation':
+        return 'Travel the world without debt';
+      default:
+        return 'Personalized financial milestone';
+    }
+  }
+
+  void _proceedWithGoal(GoalSipController controller, dynamic goal) async {
+    controller.goalId.value = goal.id;
+    controller.selectedGoalType.value = goal.goalType;
+    final goalType = goal.goalType.toLowerCase();
+
+    if (!['custom', 'other'].contains(goalType)) {
+      controller.goalNameTextEditingController.text = goal.goalType;
+    }
+    controller.setTarget(goal.targetAmount);
+
+    controller.setYears(goal.goalTenure.toDouble());
+    controller.setRate(goal.expectedReturnRate);
+
+    // ── Lumpsum
+    final double r = goal.expectedReturnRate / 100;
+    final int n = goal.goalTenure.toInt();
+    final double pv = goal.targetAmount / pow(1 + r, n); // PV calculate
+
+    controller.lumpsumAmount.value = controller.smartRoundOff(pv);
+    controller.lumpsumFutureValue.value = goal.targetAmount;
+    controller.lumpsumTotalReturn.value = goal.targetAmount - pv;
+    controller.update();
+
+    Get.to(() => GoalDetailsScreen());
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<GoalSipController>(
@@ -2372,7 +2442,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
         if (controller.isMasterGoalLoading.value) {
           return const Scaffold(
             body: Center(
-              child: CircularProgressIndicator(color: Ucolors.primary),
+              child: CircularProgressIndicator(color: Ucolors.goalPrimary),
             ),
           );
         }
@@ -2381,342 +2451,552 @@ class GoalsGridScreen extends GetView<GoalSipController> {
           return const Scaffold(body: Center(child: Text("No Goals Found")));
         }
 
+        // Auto-select first goal if none selected
+        if (controller.selectedGoalIndex.value < 0 &&
+            controller.masterGoals.isNotEmpty) {
+          controller.selectedGoalIndex.value = 0;
+        }
+
         final bool isDesktop = ResponsiveBreakpoints.of(
           context,
         ).largerThan(TABLET);
 
+        if (isDesktop) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF5F7FA),
+            appBar: CustomAppBarNormal(
+              backgroundColor: const Color(0xFFF5F7FA),
+              title: 'Goals',
+              backIcon: true,
+              actionsPadding: 10,
+            ),
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth;
+                int crossAxisCount = 3;
+                double childAspectRatio = 0.95;
+                if (width > 1400) {
+                  crossAxisCount = 4;
+                  childAspectRatio = 1.15;
+                } else if (width > 1000) {
+                  crossAxisCount = 3;
+                  childAspectRatio = .95;
+                }
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: controller.masterGoals.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: childAspectRatio,
+                  ),
+                  itemBuilder: (context, index) {
+                    final goal = controller.masterGoals[index];
+                    final isSelected =
+                        controller.selectedGoalIndex.value == index;
+
+                    return _buildGoalCard(
+                      context: context,
+                      goal: goal,
+                      isSelected: isSelected,
+                      onTap: () {
+                        controller.selectedGoalIndex.value = index;
+                        controller.update();
+                        _proceedWithGoal(controller, goal);
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        }
+
+        // Mobile Layout (1:1 with Figma Color Palette & Design)
+        final selectedIndex = controller.selectedGoalIndex.value;
+        final selectedGoal = (selectedIndex >= 0 &&
+                selectedIndex < controller.masterGoals.length)
+            ? controller.masterGoals[selectedIndex]
+            : null;
+
+        final selectedTitle = selectedGoal != null
+            ? getGoalTitle(selectedGoal.goalType).toLowerCase()
+            : '';
+        final continueButtonText = selectedTitle.isNotEmpty
+            ? 'Continue with $selectedTitle'
+            : 'Continue';
+
         return Scaffold(
-          backgroundColor: isDesktop
-              ? const Color(0xFFF5F7FA)
-              : Colors.grey[50],
-          appBar: CustomAppBarNormal(
-            backgroundColor: isDesktop
-                ? const Color(0xFFF5F7FA)
-                : const Color(0xffF3F4F6),
-            title: 'Goals',
-            backIcon: true,
-            actionsPadding: 10,
-          ),
-          bottomNavigationBar: isDesktop ? null : CustomFooter(),
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-              int crossAxisCount = 2;
-              double childAspectRatio = 0.80;
-
-              if (width > 1400) {
-                crossAxisCount = 4;
-                childAspectRatio = 1.15;
-              } else if (width > 1000) {
-                crossAxisCount = 3;
-                childAspectRatio = .95;
-              } else if (width > 600) {
-                crossAxisCount = 2;
-                childAspectRatio = .82;
-              }
-
-              return GridView.builder(
-                padding: const EdgeInsets.all(10),
-                itemCount: controller.masterGoals.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: childAspectRatio,
-                ),
-                itemBuilder: (context, index) {
-                  final goal = controller.masterGoals[index];
-
-                  final isSelected =
-                      controller.selectedGoalIndex.value == index;
-
-                  return AnimatedScale(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeOutBack,
-                    scale: isSelected ? 1.05 : 1,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: isSelected
-                              ? [
-                                  controller.getGoalColor(goal.goalType),
-                                  controller
-                                      .getGoalColor(goal.goalType)
-                                      .withValues(alpha: .75),
-                                ]
-                              : [Colors.white, Colors.white],
-                        ),
-                        border: Border.all(
-                          color: isSelected
-                              ? controller.getGoalColor(goal.goalType)
-                              : Colors.grey.shade200,
-                          width: 1.2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isSelected
-                                ? controller
-                                      .getGoalColor(goal.goalType)
-                                      .withValues(alpha: .20)
-                                : Colors.black.withValues(alpha: .04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+          backgroundColor: const Color(0xFFF9FAFB),
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Row: Back button, "New Goal", "1/5" Badge
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () => Get.back(),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                        ],
+                          child: const Center(
+                            child: Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              size: 15,
+                              color: Color(0xFF111827),
+                            ),
+                          ),
+                        ),
                       ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(18),
-                        onTap: () async {
+                      const Text(
+                        'New Goal',
+                        style: TextStyle(
+                          fontFamily: FontFamily.bold,
+                          fontSize: 16.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111827),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Ucolors.goalPrimary.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          '1/5',
+                          style: TextStyle(
+                            fontFamily: FontFamily.bold,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Ucolors.goalPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 5-Step Segmented Indicator
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 6.0,
+                  ),
+                  child: Row(
+                    children: List.generate(5, (stepIndex) {
+                      final isStepActive = stepIndex == 0;
+                      return Expanded(
+                        child: Container(
+                          margin:
+                              EdgeInsets.only(right: stepIndex < 4 ? 6.0 : 0.0),
+                          height: 3.5,
+                          decoration: BoxDecoration(
+                            color: isStepActive
+                                ? Ucolors.goalPrimary
+                                : const Color(0xFFE5E7EB),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+
+                // Header Title & Subtitle
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 20.0,
+                    right: 20.0,
+                    top: 14.0,
+                    bottom: 8.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'What are you dreaming\nof?',
+                        style: TextStyle(
+                          fontFamily: FontFamily.bold,
+                          fontSize: 26,
+                          height: 1.18,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF111827),
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const Gap(6),
+                      Text(
+                        'Pick one. We set a smart timeline and price rise for you — change anything later.',
+                        style: TextStyle(
+                          fontFamily: FontFamily.regular,
+                          fontSize: 13.5,
+                          height: 1.4,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Grid of Goal Cards
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    itemCount: controller.masterGoals.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 14,
+                      mainAxisSpacing: 14,
+                      childAspectRatio: 0.69,
+                    ),
+                    itemBuilder: (context, index) {
+                      final goal = controller.masterGoals[index];
+                      final isSelected =
+                          controller.selectedGoalIndex.value == index;
+
+                      return _buildGoalCard(
+                        context: context,
+                        goal: goal,
+                        isSelected: isSelected,
+                        onTap: () {
                           controller.selectedGoalIndex.value = index;
                           controller.isGoalSaved.value = false;
                           controller.savedDatabaseId.value = null;
                           controller.isEdit.value = false;
                           controller.isAddFund.value = false;
                           controller.update();
-
-                          await Future.delayed(
-                            const Duration(milliseconds: 200),
-                          );
-
-                          controller.goalId.value = goal.id;
-                          controller.selectedGoalType.value = goal.goalType;
-                          final goalType = goal.goalType.toLowerCase() ?? '';
-
-                          if (!['custom', 'other'].contains(goalType)) {
-                            controller.goalNameTextEditingController.text =
-                                goal.goalType;
-                          }
-                          controller.setTarget(goal.targetAmount);
-
-                          controller.setYears(goal.goalTenure.toDouble());
-                          controller.setRate(goal.expectedReturnRate);
-                          // ── Lumpsum
-                          final double r = goal.expectedReturnRate / 100;
-                          final int n = goal.goalTenure.toInt();
-                          final double pv =
-                              goal.targetAmount / pow(1 + r, n); // PV calculate
-
-                          controller.lumpsumAmount.value = controller
-                              .smartRoundOff(pv);
-                          // invest amount
-                          controller.lumpsumFutureValue.value =
-                              goal.targetAmount; // fixed FV
-                          controller.lumpsumTotalReturn.value =
-                              goal.targetAmount - pv;
-                          controller.update();
-
-                          await Future.delayed(
-                            const Duration(milliseconds: 200),
-                          );
-
-                          Get.to(() => GoalDetailsScreen());
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    height: width < 500 ? 42 : 52,
-                                    width: width < 500 ? 42 : 52,
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? Colors.white.withValues(alpha: .18)
-                                          : controller
-                                                .getGoalColor(goal.goalType)
-                                                .withValues(alpha: .10),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      getGoalIcon(goal.goalType),
-                                      color: isSelected
-                                          ? Colors.white
-                                          : controller.getGoalColor(
-                                              goal.goalType,
-                                            ),
-                                      size: width < 500 ? 22 : 28,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 250),
-                                    height: 22,
-                                    width: 22,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.transparent,
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.grey.shade400,
-                                        width: 1.8,
-                                      ),
-                                    ),
-                                    child: isSelected
-                                        ? Icon(
-                                            Icons.check,
-                                            size: 14,
-                                            color: controller.getGoalColor(
-                                              goal.goalType,
-                                            ),
-                                          )
-                                        : null,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: width < 500 ? 6 : 14),
-                              Text(
-                                goal.goalType.capitalizeFirst ?? '',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                      );
+                    },
+                  ),
+                ),
+
+                // Bottom Floating CTA Bar
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 12.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, -3),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Takes about a minute · Nothing is debited until you confirm',
+                          style: TextStyle(
+                            fontFamily: FontFamily.regular,
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Gap(10),
+                        InkWell(
+                          onTap: () {
+                            final idx =
+                                controller.selectedGoalIndex.value >= 0
+                                    ? controller.selectedGoalIndex.value
+                                    : 0;
+                            if (idx < controller.masterGoals.length) {
+                              final g = controller.masterGoals[idx];
+                              _proceedWithGoal(controller, g);
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(30),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            decoration: BoxDecoration(
+                              gradient: Ucolors.goalButtonGradient,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Ucolors.goalPrimary
+                                      .withValues(alpha: 0.35),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                continueButtonText,
+                                style: const TextStyle(
                                   fontFamily: FontFamily.medium,
-                                  fontSize: width < 500 ? 15 : 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : Colors.black,
+                                  fontSize: 15.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                goal.goalDescription,
-                                maxLines: width < 500 ? 2 : 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  fontSize: width < 500 ? 11 : 13,
-                                  color: isSelected
-                                      ? Colors.white.withValues(alpha: .9)
-                                      : Colors.grey.shade600,
-                                  height: 1.4,
-                                ),
-                              ),
-                              SizedBox(height: width < 500 ? 4 : 10),
-                              Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.all(width < 500 ? 8 : 20),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? Colors.white.withValues(alpha: .15)
-                                      : Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Target Amount",
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.medium,
-                                        fontSize: 10,
-                                        color: isSelected
-                                            ? Colors.white70
-                                            : Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      formatCurrency(goal.targetAmount),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.medium,
-                                        fontSize: width < 500 ? 13 : 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                    ),
-                                    SizedBox(height: width < 500 ? 4 : 10),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.schedule_rounded,
-                                          size: 14,
-                                          color: isSelected
-                                              ? Colors.white70
-                                              : Colors.grey.shade600,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            "${goal.goalTenure} Years",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontFamily: FontFamily.medium,
-                                              fontSize: width < 500 ? 11 : 13,
-                                              fontWeight: FontWeight.w600,
-                                              color: isSelected
-                                                  ? Colors.white
-                                                  : Colors.black87,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: width < 500 ? 4 : 10),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.trending_up_rounded,
-                                          size: 14,
-                                          color: isSelected
-                                              ? Colors.white70
-                                              : Colors.grey.shade600,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            "${goal.expectedReturnRate} %",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontFamily: FontFamily.medium,
-                                              fontSize: width < 500 ? 11 : 13,
-                                              fontWeight: FontWeight.w600,
-                                              color: isSelected
-                                                  ? Colors.white
-                                                  : Colors.black87,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  );
-                },
-              );
-            },
+                  ),
+                ),
+              ],
+            ),
           ),
-          // Edit mode FAB
-          floatingActionButton: controller.isEdit.value
-              ? FloatingActionButton(
-                  onPressed: () => Get.to(() => GoalDetailsScreen()),
-                  backgroundColor: Ucolors.primary,
-                  child: const Icon(Icons.check, color: Colors.white),
-                )
-              : null,
         );
       },
+    );
+  }
+
+  Widget _buildGoalCard({
+    required BuildContext context,
+    required dynamic goal,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: isSelected ? Ucolors.goalGradient : null,
+        color: isSelected ? null : Colors.white,
+        border: isSelected
+            ? null
+            : Border.all(
+                color: const Color(0xFFE5E7EB),
+                width: 1.2,
+              ),
+        boxShadow: [
+          BoxShadow(
+            color: isSelected
+                ? Ucolors.goalDark.withValues(alpha: 0.28)
+                : Colors.black.withValues(alpha: 0.03),
+            blurRadius: isSelected ? 16 : 8,
+            offset: Offset(0, isSelected ? 6 : 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top row with Icon and Radio/Checkmark
+              Row(
+                children: [
+                  Container(
+                    height: 38,
+                    width: 38,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.18)
+                          : Ucolors.goalPrimary.withValues(alpha: 0.08),
+                    ),
+                    child: Icon(
+                      getGoalIcon(goal.goalType),
+                      color: isSelected ? Colors.white : Ucolors.goalPrimary,
+                      size: 20,
+                    ),
+                  ),
+                  const Spacer(),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 22,
+                    width: 22,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected ? Colors.white : Colors.transparent,
+                      border: isSelected
+                          ? null
+                          : Border.all(
+                              color: const Color(0xFFD1D5DB),
+                              width: 1.8,
+                            ),
+                    ),
+                    child: isSelected
+                        ? const Icon(
+                            Icons.check,
+                            size: 14,
+                            color: Ucolors.goalDark,
+                          )
+                        : null,
+                  ),
+                ],
+              ),
+
+              const Gap(10),
+
+              // Title
+              Text(
+                getGoalTitle(goal.goalType),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: FontFamily.bold,
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? Colors.white : const Color(0xFF111827),
+                ),
+              ),
+              const Gap(3),
+
+              // Subtitle
+              Text(
+                getGoalSubtitle(goal.goalType, goal.goalDescription),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: FontFamily.regular,
+                  fontSize: 11,
+                  height: 1.3,
+                  color: isSelected
+                      ? Colors.white.withValues(alpha: 0.85)
+                      : const Color(0xFF6B7280),
+                ),
+              ),
+
+              const Spacer(),
+
+              // Target Box
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.white.withValues(alpha: 0.16)
+                      : const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Target Amount",
+                      style: TextStyle(
+                        fontFamily: FontFamily.regular,
+                        fontSize: 10,
+                        color: isSelected
+                            ? Colors.white70
+                            : const Color(0xFF6B7280),
+                      ),
+                    ),
+                    const Gap(2),
+                    Text(
+                      formatCurrency(goal.targetAmount),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: FontFamily.bold,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w700,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF111827),
+                      ),
+                    ),
+                    const Gap(6),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 12,
+                          color: isSelected
+                              ? Colors.white70
+                              : const Color(0xFF6B7280),
+                        ),
+                        const Gap(4),
+                        Expanded(
+                          child: Text(
+                            "${goal.goalTenure} Years",
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF374151),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.trending_up_rounded,
+                          size: 12,
+                          color: isSelected
+                              ? Colors.white70
+                              : const Color(0xFF6B7280),
+                        ),
+                        const Gap(4),
+                        Expanded(
+                          child: Text(
+                            "${goal.expectedReturnRate}%",
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF374151),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
