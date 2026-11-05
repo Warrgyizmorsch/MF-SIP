@@ -13,37 +13,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
-      <change afterPath="$PROJECT_DIR$/assets/images/3D art (1).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/3D art.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/Isometric slabs (1).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/Isometric slabs (2).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/Isometric slabs.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/Vector (1).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/Vector (2).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/Vector.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/devtools_options.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/goal_step1_3d.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/goal_step2_3d.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/goal_step3_3d.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/isometric_slab_bottom.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/isometric_slab_middle.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/isometric_slab_top.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/features/goal/presentation/widget/goal_beyond_saving_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Flutter/AppFrameworkInfo.plist" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Flutter/AppFrameworkInfo.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Podfile" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Podfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/AppDelegate.swift" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/AppDelegate.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/Info.plist" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/colors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/colors.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/data/datasource/goal_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/data/datasource/goal_remote_data_source.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goaldetails.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goaldetails.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/master_goals_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/master_goals_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,7 +128,7 @@
     "com.google.services.firebase.aqiPopupShown": "true",
     "copilot.chat.legacySessionMetadata.migrated": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "imam__04__nov",
+    "git-widget-placeholder": "hk__05__nov",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
@@ -257,7 +233,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart</url>
-          <line>165</line>
+          <line>230</line>
           <option name="timeStamp" value="59" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
@@ -267,7 +243,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart</url>
-          <line>1065</line>
+          <line>1066</line>
           <option name="timeStamp" value="65" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
@@ -287,7 +263,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/presentation/pages/master_goals_page.dart</url>
-          <line>515</line>
+          <line>570</line>
           <option name="timeStamp" value="75" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
@@ -297,7 +273,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart</url>
-          <line>5095</line>
+          <line>3717</line>
           <option name="timeStamp" value="81" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
@@ -312,7 +288,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/common/widget/text_form/text_field_component.dart</url>
-          <line>16</line>
+          <line>15</line>
           <option name="timeStamp" value="93" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
@@ -327,7 +303,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart</url>
-          <line>29</line>
+          <line>32</line>
           <option name="timeStamp" value="98" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">

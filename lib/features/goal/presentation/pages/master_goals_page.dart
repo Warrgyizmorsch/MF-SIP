@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
@@ -40,6 +41,9 @@ import '../../../home/presentation/widgets/product_tool/widget/sipslidertile.dar
 import '../../../sip_process/presentation/widgets/sip_projection_chart.dart';
 import '../../domain/entity/goal_entity.dart';
 import '../controller/goal_sip_controller.dart';
+import '../widget/goal_creation_flow.dart';
+import '../widget/goal_basket_flow.dart';
+import '../widget/goal_flow_app_bar.dart';
 
 class MasterGoalsPage extends GetView<GoalSipController> {
   const MasterGoalsPage({super.key});
@@ -194,6 +198,8 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
   final CartController cartController = Get.find<CartController>();
   final GlobalKey popularFundsKey = GlobalKey();
+  late final _creationKey = GlobalObjectKey<GoalCreationFlowState>(controller);
+  late final _basketKey = GlobalObjectKey<GoalBasketFlowState>(controller);
   final session = SessionManager.instance;
 
   @override
@@ -204,6 +210,8 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
+        if (_basketKey.currentState?.backToBasket() ?? false) return;
+        if (_creationKey.currentState?.backToCost() ?? false) return;
 
         final currentGoal = controller.goalResponse.value?.data
             .firstWhereOrNull(
@@ -257,304 +265,343 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
         controller.selectedGoalIndex.value = -1;
         Get.back();
       },
-      child: Scaffold(
-        backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.grey[50],
-        appBar: CustomAppBarNormal(
-          backgroundColor: Ucolors.light,
-          title: controller.selectedGoalType.value.capitalizeFirst ?? '',
-          backIcon: true,
-          actionsPadding: 10,
-          action: [
-            Obx(() {
-              if (!controller.isGoalSaved.value) return const SizedBox.shrink();
-              return TextButton(
-                onPressed: () {
-                  controller.resetStateForNewGoal();
-                  Get.offAllNamed(AppRoutes.navMenuBar);
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    if (Get.isRegistered<NavigationBarController>()) {
-                      Get.find<NavigationBarController>().selectedIndex.value =
-                          3;
-                    }
-                  });
-                },
-                child: Text(
-                  "View All Goals",
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
-                    color: Ucolors.primary,
-                  ),
+      child: Obx(() {
+        final editing = controller.isEdit.value;
+        final addingFunds = controller.isAddFund.value;
+        final saved = controller.isGoalSaved.value;
+        final savedId = controller.savedDatabaseId.value;
+        if (!isDesktop &&
+            !editing &&
+            !addingFunds &&
+            !(saved && (savedId ?? 0) > 0)) {
+          return GoalCreationFlow(
+            key: _creationKey,
+            controller: controller,
+            onBack: () => Navigator.of(context).maybePop(),
+            onSaved: () async {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final fundContext = popularFundsKey.currentContext;
+                if (fundContext != null) {
+                  Scrollable.ensureVisible(
+                    fundContext,
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeInOutCubic,
+                    alignment: 0.1,
+                  );
+                }
+              });
+              await Get.find<MutualFundController>().fetchData();
+            },
+          );
+        }
+        if (!isDesktop &&
+            !editing &&
+            !addingFunds &&
+            saved &&
+            (savedId ?? 0) > 0) {
+          return GoalBasketFlow(
+            key: _basketKey,
+            controller: controller,
+            onAdd: () => _showExploreMoreBottomSheet(context),
+            onCheckout: _checkout,
+            onBack: () => Navigator.of(context).maybePop(),
+          );
+        }
+        return _buildExistingDetails(context, isDesktop);
+      }),
+    );
+  }
+
+  Widget _buildExistingDetails(BuildContext context, bool isDesktop) {
+    return Scaffold(
+      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.grey[50],
+      appBar: CustomAppBarNormal(
+        backgroundColor: Ucolors.light,
+        title: controller.selectedGoalType.value.capitalizeFirst ?? '',
+        backIcon: true,
+        actionsPadding: 10,
+        action: [
+          Obx(() {
+            if (!controller.isGoalSaved.value) return const SizedBox.shrink();
+            return TextButton(
+              onPressed: () {
+                controller.resetStateForNewGoal();
+                Get.offAllNamed(AppRoutes.navMenuBar);
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (Get.isRegistered<NavigationBarController>()) {
+                    Get.find<NavigationBarController>().selectedIndex.value =
+                        3;
+                  }
+                });
+              },
+              child: Text(
+                "View All Goals",
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Ucolors.primary,
                 ),
-              );
-            }),
-          ],
-        ),
-        body: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SIPSectionGoal(),
-                    const Gap(4),
-                    Obx(() {
-                      final bool isEdit = controller.isEdit.value;
-                      final bool hasChanges = controller.hasChanges.value;
-                      final bool isGoalSaved = controller.isGoalSaved.value;
+              ),
+            );
+          }),
+        ],
+      ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SIPSectionGoal(),
+                  const Gap(4),
+                  Obx(() {
+                    final bool isEdit = controller.isEdit.value;
+                    final bool hasChanges = controller.hasChanges.value;
+                    final bool isGoalSaved = controller.isGoalSaved.value;
 
-                      // ─────────────────────────────────────────────────────
-                      // CASE 1: Edit mode, nothing changed yet
-                      //   → Show projection + funds, no save button
-                      // ─────────────────────────────────────────────────────
-                      if (isEdit && !hasChanges) {
-                        return _buildProjectionAndFunds(context);
-                      }
+                    // ─────────────────────────────────────────────────────
+                    // CASE 1: Edit mode, nothing changed yet
+                    //   → Show projection + funds, no save button
+                    // ─────────────────────────────────────────────────────
+                    if (isEdit && !hasChanges) {
+                      return _buildProjectionAndFunds(context);
+                    }
 
-                      // ─────────────────────────────────────────────────────
-                      // CASE 2: New goal not saved yet  OR  edit with changes
-                      //   → Show save / update button only
-                      // ─────────────────────────────────────────────────────
-                      if (!isGoalSaved || (isEdit && hasChanges)) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          child: Obx(
-                            () => controller.isSavingGoal.value
-                                ? const Center(
-                                    child: CircularProgressIndicator(
-                                      color: Ucolors.primary,
-                                    ),
-                                  )
-                                : UElevatedBUtton(
-                                    onPressed: () async {
-                                      if (isEdit) {
-                                        // await controller.updateGoal();
-                                      } else {
-                                        await controller.saveGoalToDb();
+                    // ─────────────────────────────────────────────────────
+                    // CASE 2: New goal not saved yet  OR  edit with changes
+                    //   → Show save / update button only
+                    // ─────────────────────────────────────────────────────
+                    if (!isGoalSaved || (isEdit && hasChanges)) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 10,
+                        ),
+                        child: Obx(
+                          () => controller.isSavingGoal.value
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Ucolors.primary,
+                                  ),
+                                )
+                              : UElevatedBUtton(
+                                  onPressed: () async {
+                                    if (isEdit) {
+                                      // await controller.updateGoal();
+                                    } else {
+                                      await controller.saveGoalToDb();
 
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                              if (popularFundsKey
-                                                      .currentContext !=
-                                                  null) {
-                                                Scrollable.ensureVisible(
-                                                  popularFundsKey
-                                                      .currentContext!,
-                                                  duration: const Duration(
-                                                    milliseconds: 800,
-                                                  ),
-                                                  curve: Curves.easeInOutCubic,
-                                                  alignment: 0.1,
-                                                );
-                                              }
-                                            });
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                            if (popularFundsKey
+                                                    .currentContext !=
+                                                null) {
+                                              Scrollable.ensureVisible(
+                                                popularFundsKey
+                                                    .currentContext!,
+                                                duration: const Duration(
+                                                  milliseconds: 800,
+                                                ),
+                                                curve: Curves.easeInOutCubic,
+                                                alignment: 0.1,
+                                              );
+                                            }
+                                          });
 
-                                        await Get.find<MutualFundController>()
-                                            .fetchData();
-                                      }
-                                    },
-                                    child: Center(
-                                      child: Text(
-                                        isEdit ? "Update Goal" : "Save Goal",
-                                        style: AppTextStyles.bodyMedium(
-                                          color: Colors.white,
-                                        ),
+                                      await Get.find<MutualFundController>()
+                                          .fetchData();
+                                    }
+                                  },
+                                  child: Center(
+                                    child: Text(
+                                      isEdit ? "Update Goal" : "Save Goal",
+                                      style: AppTextStyles.bodyMedium(
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
-                          ),
-                        );
-                      }
+                                ),
+                        ),
+                      );
+                    }
 
-                      // ─────────────────────────────────────────────────────
-                      // CASE 3: Goal saved successfully
-                      //   → Show projection + funds
-                      // ─────────────────────────────────────────────────────
-                      return _buildProjectionAndFunds(context);
-                    }),
-                  ],
-                ),
+                    // ─────────────────────────────────────────────────────
+                    // CASE 3: Goal saved successfully
+                    //   → Show projection + funds
+                    // ─────────────────────────────────────────────────────
+                    return _buildProjectionAndFunds(context);
+                  }),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: Obx(() {
+        if (!controller.isGoalSaved.value) {
+          return const CustomFooter();
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CustomFooter(),
+            SafeArea(
+              top: false,
+              child: CartBottomBar(
+                isValid: controller.selectedPopularFund.isNotEmpty,
+                ontap: _checkout,
+                amount: controller.savedInvestmentType.value == 'lumpsum'
+                    ? ((controller.lumpsumAmount.value / 100).ceil() * 100)
+                        .toString()
+                    : ((controller.monthlySip.value / 100).ceil() * 100)
+                        .toString(),
+                amountColor: Ucolors.blue,
               ),
             ),
           ],
-        ),
-        bottomNavigationBar: Obx(() {
-          if (!controller.isGoalSaved.value) {
-            return const CustomFooter();
+        );
+      }),
+    );
+  }
+
+  Future<void> _checkout() async {
+    if (controller.selectedPopularFund.isEmpty ||
+        controller.amountControllers.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please select funds and enter amount to start SIP",
+      );
+      return;
+    }
+
+    final mutualController = Get.find<MutualFundController>();
+    final mfuController = Get.find<MfuController>();
+
+    final selectedFunds = _basketKey.currentState?.selectedFunds ?? mutualController.searchFund
+        .where(
+          (fund) =>
+              controller.selectedPopularFund.contains(fund.baseSchemeName),
+        )
+        .toList();
+
+    final String goalIdString = controller.savedDatabaseId.value.toString();
+    final int? parsedGoalId = int.tryParse(goalIdString);
+    final int? finalGoalId = (parsedGoalId != null && parsedGoalId > 0)
+        ? parsedGoalId
+        : null;
+
+    final bool isLumpsum = controller.savedInvestmentType.value == 'lumpsum';
+
+    GatekeeperHelper.runWithPrerequisites(
+      isLumpsum: isLumpsum,
+      onSuccess: () async {
+        controller.isLoading.value = true;
+
+        try {
+          // Note: Funds are now directly associated with the goal via the goal_id parameter in postLumpsum/postSip.
+          // controller.saveGoalFund(...) is kept in the codebase for reference/backward compatibility.
+
+          /// Lumpsum Transaction (Latest postLumpsum API)
+          if (isLumpsum) {
+            final List<LumpsumFundItemModel> lumpsumFunds = [];
+
+            for (final fund in selectedFunds) {
+              final schemeCode = fund.schemeCode?.toString() ?? '';
+              final amountText = controller
+                  .getAmountController(schemeCode)
+                  .text;
+              final amount = double.tryParse(amountText) ?? 0.0;
+
+              // Only add if scheme code exists and amount is valid
+              if (schemeCode.isNotEmpty && amount > 0) {
+                lumpsumFunds.add(
+                  LumpsumFundItemModel(
+                    schemeCode: schemeCode,
+                    amount: amount,
+                    folio: "NEW",
+                  ),
+                );
+              }
+            }
+
+            if (lumpsumFunds.isEmpty) {
+              Get.snackbar(
+                "Error",
+                "Please enter valid amounts for selected funds.",
+              );
+              return;
+            }
+
+            // 🚀 Fire the Multi-Lumpsum API (Latest postLumpsum API with goal_id)!
+            await mfuController.postLumpsum(
+              goalId: finalGoalId,
+              funds: lumpsumFunds,
+              onSuccess: (res) {
+                Get.snackbar(
+                  "Success",
+                  "Lumpsum investment initiated successfully!",
+                );
+              },
+            );
           }
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CustomFooter(),
-              SafeArea(
-                top: false,
-                child: CartBottomBar(
-                  isValid: controller.selectedPopularFund.isNotEmpty,
-                  ontap: () async {
-                    if (controller.selectedPopularFund.isEmpty ||
-                        controller.amountControllers.isEmpty) {
-                      Get.snackbar(
-                        "Error",
-                        "Please select funds and enter amount to start SIP",
-                      );
-                      return;
-                    }
+          /// SIP Transaction (Latest postSip API)
+          else if (controller.savedInvestmentType.value == "sip") {
+            final List<SipFundItemModel> sipFunds = [];
+            final String selectedDay = controller.selectedSipDay.value
+                .toString();
 
-                    final mutualController = Get.find<MutualFundController>();
-                    final mfuController = Get.find<MfuController>();
+            for (final fund in selectedFunds) {
+              final schemeCode = fund.schemeCode?.toString() ?? '';
+              final amountText = controller
+                  .getAmountController(schemeCode)
+                  .text;
+              final amount = double.tryParse(amountText) ?? 0.0;
 
-                    final selectedFunds = mutualController.searchFund
-                        .where(
-                          (fund) => controller.selectedPopularFund.contains(
-                            fund.baseSchemeName,
-                          ),
-                        )
-                        .toList();
+              if (schemeCode.isNotEmpty && amount > 0) {
+                sipFunds.add(
+                  SipFundItemModel(
+                    schemeCode: schemeCode,
+                    amount: amount,
+                    folio: "NEW",
+                    frequency: "M",
+                    day: selectedDay,
+                  ),
+                );
+              }
+            }
 
-                    final String goalIdString = controller.savedDatabaseId.value
-                        .toString();
-                    final int? parsedGoalId = int.tryParse(goalIdString);
-                    final int? finalGoalId =
-                        (parsedGoalId != null && parsedGoalId > 0)
-                        ? parsedGoalId
-                        : null;
+            if (sipFunds.isEmpty) {
+              Get.snackbar(
+                "Error",
+                "Please enter valid amounts for selected funds.",
+              );
+              return;
+            }
 
-                    final bool isLumpsum =
-                        controller.savedInvestmentType.value == 'lumpsum';
-
-                    GatekeeperHelper.runWithPrerequisites(
-                      isLumpsum: isLumpsum,
-                      onSuccess: () async {
-                        controller.isLoading.value = true;
-
-                        try {
-                          // Note: Funds are now directly associated with the goal via the goal_id parameter in postLumpsum/postSip.
-                          // controller.saveGoalFund(...) is kept in the codebase for reference/backward compatibility.
-
-                          /// Lumpsum Transaction (Latest postLumpsum API)
-                          if (isLumpsum) {
-                            final List<LumpsumFundItemModel> lumpsumFunds = [];
-
-                            for (final fund in selectedFunds) {
-                              final schemeCode =
-                                  fund.schemeCode?.toString() ?? '';
-                              final amountText = controller
-                                  .getAmountController(schemeCode)
-                                  .text;
-                              final amount = double.tryParse(amountText) ?? 0.0;
-
-                              // Only add if scheme code exists and amount is valid
-                              if (schemeCode.isNotEmpty && amount > 0) {
-                                lumpsumFunds.add(
-                                  LumpsumFundItemModel(
-                                    schemeCode: schemeCode,
-                                    amount: amount,
-                                    folio: "NEW",
-                                  ),
-                                );
-                              }
-                            }
-
-                            if (lumpsumFunds.isEmpty) {
-                              Get.snackbar(
-                                "Error",
-                                "Please enter valid amounts for selected funds.",
-                              );
-                              return;
-                            }
-
-                            // 🚀 Fire the Multi-Lumpsum API (Latest postLumpsum API with goal_id)!
-                            await mfuController.postLumpsum(
-                              goalId: finalGoalId,
-                              funds: lumpsumFunds,
-                              onSuccess: (res) {
-                                Get.snackbar(
-                                  "Success",
-                                  "Lumpsum investment initiated successfully!",
-                                );
-                              },
-                            );
-                          }
-                          /// SIP Transaction (Latest postSip API)
-                          else if (controller.savedInvestmentType.value ==
-                              "sip") {
-                            final List<SipFundItemModel> sipFunds = [];
-                            final String selectedDay =
-                                controller.selectedSipDay.value.toString();
-
-                            for (final fund in selectedFunds) {
-                              final schemeCode =
-                                  fund.schemeCode?.toString() ?? '';
-                              final amountText = controller
-                                  .getAmountController(schemeCode)
-                                  .text;
-                              final amount = double.tryParse(amountText) ?? 0.0;
-
-                              if (schemeCode.isNotEmpty && amount > 0) {
-                                sipFunds.add(
-                                  SipFundItemModel(
-                                    schemeCode: schemeCode,
-                                    amount: amount,
-                                    folio: "NEW",
-                                    frequency: "M",
-                                    day: selectedDay,
-                                  ),
-                                );
-                              }
-                            }
-
-                            if (sipFunds.isEmpty) {
-                              Get.snackbar(
-                                "Error",
-                                "Please enter valid amounts for selected funds.",
-                              );
-                              return;
-                            }
-
-                            // 🚀 Fire the Multi-SIP API (Latest postSip API with goal_id)!
-                            await mfuController.postSip(
-                              goalId: finalGoalId,
-                              funds: sipFunds,
-                              onSuccess: (res) {
-                                Get.snackbar(
-                                  "Success",
-                                  "SIP investment initiated successfully!",
-                                );
-                              },
-                            );
-                          } else {
-                            // Your SIP cart logic goes here later
-                            Get.snackbar("Info", "Processing SIP Checkout...");
-                          }
-                        } catch (e) {
-                          debugPrint("Transaction Error: $e");
-                          Get.snackbar(
-                            "Error",
-                            "Something went wrong while processing.",
-                          );
-                        } finally {
-                          // 🚀 End Loading State (runs whether it succeeds or fails)
-                          controller.isLoading.value = false;
-                        }
-                      },
-                    );
-                  },
-                  amount: controller.savedInvestmentType.value == 'lumpsum'
-                      ? ((controller.lumpsumAmount.value / 100).ceil() * 100)
-                          .toString()
-                      : ((controller.monthlySip.value / 100).ceil() * 100)
-                          .toString(),
-                  amountColor: Ucolors.blue,
-                ),
-              ),
-            ],
-          );
-        }),
-      ),
+            // 🚀 Fire the Multi-SIP API (Latest postSip API with goal_id)!
+            await mfuController.postSip(
+              goalId: finalGoalId,
+              funds: sipFunds,
+              onSuccess: (res) {
+                Get.snackbar(
+                  "Success",
+                  "SIP investment initiated successfully!",
+                );
+              },
+            );
+          } else {
+            // Your SIP cart logic goes here later
+            Get.snackbar("Info", "Processing SIP Checkout...");
+          }
+        } catch (e) {
+          debugPrint("Transaction Error: $e");
+          Get.snackbar("Error", "Something went wrong while processing.");
+        } finally {
+          // 🚀 End Loading State (runs whether it succeeds or fails)
+          controller.isLoading.value = false;
+        }
+      },
     );
   }
 
@@ -625,21 +672,26 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
   // Fixed: consistent amount (minSipAmount), no duplicate card render
   // =============================================================================
 
-  void _showExploreMoreBottomSheet(BuildContext context) {
+  Future<void> _showExploreMoreBottomSheet(BuildContext context) async {
     final mutualController = Get.find<MutualFundController>();
     final goalSipController = Get.find<GoalSipController>();
     final FocusNode searchFocus = FocusNode();
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F6FA),
       useSafeArea: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(primary: const Color(0xFF441D9E)),
+            textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Plus Jakarta Sans'),
+          ),
+          child: DraggableScrollableSheet(
           initialChildSize: 0.9,
           minChildSize: 0.5,
           maxChildSize: 0.96,
@@ -671,13 +723,13 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         children: [
                           Text(
                             "Explore Funds",
-                            style: AppTextStyles.h2(color: Ucolors.dark),
+                            style: const TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF12121A)),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             "Search and select funds for your goal.",
                             style: TextStyle(
-                              fontFamily: FontFamily.medium,
+                              fontFamily: 'Plus Jakarta Sans',
                               fontSize: 13,
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.w500,
@@ -729,7 +781,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                       hintStyle: WidgetStateProperty.all(
                         TextStyle(
-                          fontFamily: FontFamily.medium,
+                          fontFamily: 'Plus Jakarta Sans',
                           color: Colors.grey.shade500,
                           fontSize: 14,
                         ),
@@ -756,7 +808,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                     if (mutualController.isLoading.value) {
                       return const Center(
                         child: CircularProgressIndicator(
-                          color: Ucolors.primary,
+                          color: Color(0xFF441D9E),
                         ),
                       );
                     }
@@ -766,7 +818,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         child: Text(
                           "No mutual funds found",
                           style: TextStyle(
-                            fontFamily: FontFamily.medium,
+                            fontFamily: 'Plus Jakarta Sans',
                             color: Colors.grey.shade600,
                           ),
                         ),
@@ -936,14 +988,14 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                       ),
 
                                       decoration: BoxDecoration(
-                                        color: Ucolors.primary.withValues(
+                                        color: const Color(0xFF441D9E).withValues(
                                           alpha: 0.05,
                                         ),
 
                                         borderRadius: BorderRadius.circular(16),
 
                                         border: Border.all(
-                                          color: Ucolors.primary,
+                                          color: const Color(0xFF441D9E),
                                           width: 2,
                                         ),
                                       ),
@@ -978,6 +1030,9 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         goalSipController.selectedPopularFund.length;
 
                     return UElevatedBUtton(
+                      color: const Color(0xFF441D9E),
+                      circular: 999,
+                      height: 56,
                       onPressed: () {
                         Get.back();
                       },
@@ -988,7 +1043,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                               ? "Add $selectedCount Funds"
                               : "Done",
 
-                          style: AppTextStyles.bodyMedium(color: Colors.white),
+                          style: const TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
                         ),
                       ),
                     );
@@ -997,16 +1052,13 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
               ],
             );
           },
+        ),
         );
       },
-    ).whenComplete(() {
-      Future.delayed(const Duration(milliseconds: 300), () {
-        mutualController.setSearchFocus(false);
-
-        Get.find<FundhouseController>().clearAllFilters();
-
-        mutualController.silentReset();
-      });
+    ).whenComplete(() async {
+      mutualController.setSearchFocus(false);
+      Get.find<FundhouseController>().clearAllFilters();
+      await mutualController.silentReset();
     });
   }
 
@@ -2432,7 +2484,12 @@ class GoalsGridScreen extends GetView<GoalSipController> {
     controller.lumpsumTotalReturn.value = goal.targetAmount - pv;
     controller.update();
 
-    Get.to(() => GoalDetailsScreen());
+    Get.to(
+      () => GoalDetailsScreen(),
+      transition: Transition.rightToLeft,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -2516,7 +2573,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
         // Mobile Layout (1:1 with Figma Color Palette & Design)
         final selectedIndex = controller.selectedGoalIndex.value;
-        final selectedGoal = (selectedIndex >= 0 &&
+        final selectedGoal =
+            (selectedIndex >= 0 &&
                 selectedIndex < controller.masterGoals.length)
             ? controller.masterGoals[selectedIndex]
             : null;
@@ -2529,135 +2587,45 @@ class GoalsGridScreen extends GetView<GoalSipController> {
             : 'Continue';
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF9FAFB),
+          backgroundColor: const Color(0xFFF5F6FA),
+          appBar: GoalFlowAppBar(title: 'New Goal', step: 1,
+            onBack: () => Get.back()),
           body: SafeArea(
+            top: false,
             bottom: false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Row: Back button, "New Goal", "1/5" Badge
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Get.back(),
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              size: 15,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Text(
-                        'New Goal',
-                        style: TextStyle(
-                          fontFamily: FontFamily.bold,
-                          fontSize: 16.5,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Ucolors.goalPrimary.withValues(alpha: 0.10),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          '1/5',
-                          style: TextStyle(
-                            fontFamily: FontFamily.bold,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Ucolors.goalPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // 5-Step Segmented Indicator
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 6.0,
-                  ),
-                  child: Row(
-                    children: List.generate(5, (stepIndex) {
-                      final isStepActive = stepIndex == 0;
-                      return Expanded(
-                        child: Container(
-                          margin:
-                              EdgeInsets.only(right: stepIndex < 4 ? 6.0 : 0.0),
-                          height: 3.5,
-                          decoration: BoxDecoration(
-                            color: isStepActive
-                                ? Ucolors.goalPrimary
-                                : const Color(0xFFE5E7EB),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-
                 // Header Title & Subtitle
                 Padding(
                   padding: const EdgeInsets.only(
                     left: 20.0,
                     right: 20.0,
-                    top: 14.0,
-                    bottom: 8.0,
+                    top: 16.0,
+                    bottom: 0,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'What are you dreaming\nof?',
+                        'What are you dreaming of?',
                         style: TextStyle(
-                          fontFamily: FontFamily.bold,
-                          fontSize: 26,
-                          height: 1.18,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF111827),
-                          letterSpacing: -0.5,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 24,
+                          height: 37 / 24,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF12121A),
+                          letterSpacing: -0.48,
                         ),
                       ),
-                      const Gap(6),
+                      const Gap(8),
                       Text(
                         'Pick one. We set a smart timeline and price rise for you — change anything later.',
                         style: TextStyle(
-                          fontFamily: FontFamily.regular,
-                          fontSize: 13.5,
-                          height: 1.4,
-                          color: Colors.grey.shade600,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 14,
+                          height: 1.5,
+                          color: Color(0xFF5E6175),
                         ),
                       ),
                     ],
@@ -2668,23 +2636,23 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                 Expanded(
                   child: GridView.builder(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                      horizontal: 20,
+                      vertical: 20,
                     ),
                     itemCount: controller.masterGoals.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 14,
-                      mainAxisSpacing: 14,
-                      childAspectRatio: 0.69,
-                    ),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          mainAxisExtent: 132,
+                        ),
                     itemBuilder: (context, index) {
                       final goal = controller.masterGoals[index];
                       final isSelected =
                           controller.selectedGoalIndex.value == index;
 
-                      return _buildGoalCard(
+                      return _buildPickGoalCard(
                         context: context,
                         goal: goal,
                         isSelected: isSelected,
@@ -2703,20 +2671,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
                 // Bottom Floating CTA Bar
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 12.0,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, -3),
-                      ),
-                    ],
-                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                   child: SafeArea(
                     top: false,
                     child: Column(
@@ -2725,19 +2680,18 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                         Text(
                           'Takes about a minute · Nothing is debited until you confirm',
                           style: TextStyle(
-                            fontFamily: FontFamily.regular,
+                            fontFamily: 'Plus Jakarta Sans',
                             fontSize: 12,
-                            color: Colors.grey.shade600,
+                            color: const Color(0xFF6E7186),
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const Gap(10),
+                        const Gap(12),
                         InkWell(
                           onTap: () {
-                            final idx =
-                                controller.selectedGoalIndex.value >= 0
-                                    ? controller.selectedGoalIndex.value
-                                    : 0;
+                            final idx = controller.selectedGoalIndex.value >= 0
+                                ? controller.selectedGoalIndex.value
+                                : 0;
                             if (idx < controller.masterGoals.length) {
                               final g = controller.masterGoals[idx];
                               _proceedWithGoal(controller, g);
@@ -2746,16 +2700,15 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                           borderRadius: BorderRadius.circular(30),
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            height: 56,
                             decoration: BoxDecoration(
-                              gradient: Ucolors.goalButtonGradient,
+                              gradient: _pickGoalGradient,
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Ucolors.goalPrimary
-                                      .withValues(alpha: 0.35),
-                                  blurRadius: 14,
-                                  offset: const Offset(0, 4),
+                                  color: const Color(0x617C5CFF),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 12),
                                 ),
                               ],
                             ),
@@ -2763,9 +2716,9 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                               child: Text(
                                 continueButtonText,
                                 style: const TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  fontSize: 15.5,
-                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                 ),
                               ),
@@ -2784,6 +2737,207 @@ class GoalsGridScreen extends GetView<GoalSipController> {
     );
   }
 
+  static const _pickGoalGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF0E176F), Color(0xFF5B3FE0)],
+  );
+
+  Widget _buildPickGoalCard({
+    required BuildContext context,
+    required dynamic goal,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final type = goal.goalType.toString().toLowerCase();
+    final key = switch (type) {
+      'house' => 'home',
+      'custom' => 'other',
+      'car' ||
+      'home' ||
+      'education' ||
+      'marriage' ||
+      'retirement' ||
+      'vacation' => type,
+      _ => 'other',
+    };
+    final (title, subtitle, tint, iconWidth, iconHeight) = switch (key) {
+      'car' => (
+        'Dream Car',
+        'Plan your dream car purchase',
+        0xFFF0F1F6,
+        24.0,
+        24.0,
+      ),
+      'home' => (
+        'Own Home',
+        'Down payment or full cost',
+        0xFFFDF2F0,
+        22.0,
+        22.0,
+      ),
+      'education' => (
+        'Child Education',
+        'Fund higher education for your children',
+        0xFFEFF6FF,
+        22.0,
+        22.0,
+      ),
+      'marriage' => (
+        'Marriage',
+        'Plan for marriage expences',
+        0xFFECFDF5,
+        22.0,
+        22.0,
+      ),
+      'retirement' => (
+        'Retirement',
+        'Plan for comfortable retirement',
+        0xFFECFEFF,
+        18.0,
+        17.002,
+      ),
+      'vacation' => (
+        'Vacation',
+        'Plan your dream vacation gateway',
+        0xFFFEF3C7,
+        17.7143,
+        17.6611,
+      ),
+      _ => ('Other', 'Planning any other goals', 0xFFF3F4F6, 16.0, 16.0),
+    };
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: '$title. $subtitle',
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: isSelected ? _pickGoalGradient : null,
+          color: isSelected ? null : Colors.white,
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFFA992FF)
+                : const Color(0xFFE4E6EE),
+          ),
+          boxShadow: isSelected
+              ? [
+                  const BoxShadow(
+                    color: Color(0x617C5CFF),
+                    blurRadius: 30,
+                    offset: Offset(0, 12),
+                  ),
+                ]
+              : [],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(22),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected
+                              ? Colors.white.withValues(alpha: 0.22)
+                              : Color(tint),
+                        ),
+                        child: Center(
+                          child: SvgPicture.asset(
+                            'assets/home/figma/pick_goal_$key.svg',
+                            width: iconWidth,
+                            height: iconHeight,
+                            colorFilter: isSelected
+                                ? const ColorFilter.mode(
+                                    Colors.white,
+                                    BlendMode.srcIn,
+                                  )
+                                : (key == 'car'
+                                      ? const ColorFilter.mode(
+                                          Color(0xFF441D9E),
+                                          BlendMode.srcIn,
+                                        )
+                                      : null),
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected ? Colors.white : Colors.transparent,
+                          border: isSelected
+                              ? null
+                              : Border.all(
+                                  color: const Color(0xFFC4C6D4),
+                                  width: 1.5,
+                                ),
+                        ),
+                        child: isSelected
+                            ? Center(
+                                child: SvgPicture.asset(
+                                  'assets/home/figma/pick_goal_check.svg',
+                                  width: 14,
+                                  height: 14,
+                                ),
+                              )
+                            : null,
+                      ),
+                    ],
+                  ),
+                  const Gap(4),
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 15,
+                      height: 1.6,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected
+                          ? const Color(0xFFEDE8FF)
+                          : Colors.black,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 12,
+                        height: 1.3,
+                        color: isSelected
+                            ? const Color(0xFFEDE8FF)
+                            : Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildGoalCard({
     required BuildContext context,
     required dynamic goal,
@@ -2799,10 +2953,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
         color: isSelected ? null : Colors.white,
         border: isSelected
             ? null
-            : Border.all(
-                color: const Color(0xFFE5E7EB),
-                width: 1.2,
-              ),
+            : Border.all(color: const Color(0xFFE5E7EB), width: 1.2),
         boxShadow: [
           BoxShadow(
             color: isSelected

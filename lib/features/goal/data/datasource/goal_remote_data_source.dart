@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
@@ -23,13 +24,34 @@ class GoalRemoteDataSource {
     Map<String, dynamic> data,
   ) async {
     try {
-      final result = await apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/goals",
-        data: data,
-        headers: {
-          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
-        },
-      );
+      final fields = Map<String, dynamic>.from(data);
+      final cover = fields['goal_cover'];
+      final headers = {
+        "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+      };
+      final dynamic result;
+      if (cover is XFile) {
+        fields.remove('goal_cover');
+        // Byte uploads support camera/gallery files and browser XFiles.
+        final bytes = await cover.readAsBytes();
+        if (bytes.isEmpty) {
+          return Right(ApiError(message: 'The goal cover image is empty. Please choose another image.'));
+        }
+        result = await apiService.postMultipart(
+          url: "${Appurl.baseUrl}/api/v1/goals",
+          fields: fields,
+          files: [bytes],
+          fileNames: [cover.name],
+          fileFieldName: 'goal_cover',
+          headers: headers,
+        );
+      } else {
+        result = await apiService.postApi(
+          "${Appurl.baseUrl}/api/v1/goals",
+          data: fields,
+          headers: headers,
+        );
+      }
 
       createLog("[Goal Remote Data Source] Goal Response: $result");
 

@@ -3,12 +3,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
+import '../widget/goal_progress_indicator.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/animated/dialog_button.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -280,7 +281,10 @@ class GoalDetailsPage extends GetView<GoalSipController> {
           : (goal?.progressPercent ?? 0.0);
       final String emoji = (args?['emoji'] != null && args!['emoji'] != '🎯')
           ? args['emoji']
-          : controller.getGoalEmoji(effectiveType, progressPercent: liveProgress);
+          : controller.getGoalEmoji(
+              effectiveType,
+              progressPercent: liveProgress,
+            );
       final double target = isCurrentGoalMatch && liveDetail.targetAmount > 0
           ? liveDetail.targetAmount
           : (args?['target'] ?? (goal?.targetAmount ?? 0.0));
@@ -474,9 +478,10 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
+        useSafeArea: true,
         backgroundColor: Colors.white,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
         ),
         builder: (context) {
           return Padding(
@@ -523,6 +528,8 @@ class _EditGoalSheetContent extends StatefulWidget {
 
 class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
   late final TextEditingController _nameController;
+  late final TextEditingController _targetInput;
+  late final TextEditingController _yearsInput;
   late double _targetAmount;
   late double _years;
   late double _rate;
@@ -555,10 +562,16 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
     _rate = (widget.goal != null && widget.goal!.expectedReturnRate > 0)
         ? widget.goal!.expectedReturnRate.clamp(1.0, 30.0)
         : 12.0;
+    _targetInput = TextEditingController(
+      text: _targetAmount.toInt().toString(),
+    );
+    _yearsInput = TextEditingController(text: _years.toInt().toString());
   }
 
   @override
   void dispose() {
+    _targetInput.dispose();
+    _yearsInput.dispose();
     _nameController.dispose();
     super.dispose();
   }
@@ -609,8 +622,379 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
     }
   }
 
+  Widget _mobileEdit() {
+    final monthly = _calcMonthlySip();
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(18),
+      borderSide: const BorderSide(color: _TrackingStyle.line),
+    );
+    InputDecoration decoration({String? prefix}) => InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+      prefixText: prefix,
+      prefixStyle: _TrackingStyle.text(
+        16,
+        color: _TrackingStyle.muted,
+        weight: FontWeight.w800,
+      ),
+      border: border,
+      enabledBorder: border,
+      focusedBorder: border.copyWith(
+        borderSide: const BorderSide(color: _TrackingStyle.purple),
+      ),
+    );
+    Widget field(String label, Widget input) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          label,
+          style: _TrackingStyle.text(
+            13,
+            color: _TrackingStyle.muted,
+            weight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(height: 54, child: input),
+      ],
+    );
+    Widget slider(
+      double value,
+      double min,
+      double max,
+      ValueChanged<double> onChanged,
+    ) => SizedBox(
+      height: 18,
+      child: SliderTheme(
+        data: SliderTheme.of(context).copyWith(
+          trackHeight: 4,
+          activeTrackColor: _TrackingStyle.purple,
+          inactiveTrackColor: const Color(0xFFE9E5F3),
+          thumbColor: _TrackingStyle.purple,
+          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 9),
+          overlayShape: SliderComponentShape.noOverlay,
+          trackShape: const RectangularSliderTrackShape(),
+        ),
+        child: Slider(
+          value: value.clamp(min, max),
+          min: min,
+          max: max,
+          padding: EdgeInsets.zero,
+          onChanged: _isSaving ? null : onChanged,
+        ),
+      ),
+    );
+    Widget step(String label, VoidCallback onTap) => Material(
+      color: const Color(0xFFF1F4F9),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: _isSaving ? null : onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Center(
+            child: Text(
+              label,
+              style: _TrackingStyle.text(18, weight: FontWeight.w800),
+            ),
+          ),
+        ),
+      ),
+    );
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 80,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFA7A7A7),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3EFFF),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.directions_car_outlined,
+                    size: 18,
+                    color: _TrackingStyle.purple,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Edit Goal',
+                        style: _TrackingStyle.text(14, weight: FontWeight.w600),
+                      ),
+                      Text(
+                        'Adjust targets and investments duration',
+                        style: _TrackingStyle.text(
+                          9,
+                          color: _TrackingStyle.muted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: _isSaving
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                  icon: const Icon(
+                    Icons.close,
+                    color: Color(0xFFA7A7A7),
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            field(
+              'Goal name',
+              TextFormField(
+                controller: _nameController,
+                enabled: !_isSaving,
+                decoration: decoration(),
+                style: _TrackingStyle.text(16, weight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(height: 14),
+            field(
+              'I Need',
+              TextFormField(
+                controller: _targetInput,
+                enabled: !_isSaving,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: decoration(prefix: '₹ '),
+                style: _TrackingStyle.text(16, weight: FontWeight.w800),
+                onChanged: (value) {
+                  final parsed = double.tryParse(value);
+                  if (parsed != null) {
+                    setState(
+                      () => _targetAmount = parsed.clamp(10000, 10000000),
+                    );
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            slider(
+              _targetAmount,
+              10000,
+              10000000,
+              (value) => setState(() {
+                _targetAmount = (value / 10000).round() * 10000.0;
+                _targetInput.text = _targetAmount.toInt().toString();
+              }),
+            ),
+            const SizedBox(height: 14),
+            field(
+              'Duration',
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: _TrackingStyle.line),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 28,
+                      child: TextFormField(
+                        controller: _yearsInput,
+                        enabled: !_isSaving,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        style: _TrackingStyle.text(16, weight: FontWeight.w800),
+                        onChanged: (value) {
+                          final parsed = double.tryParse(value);
+                          if (parsed != null) {
+                            setState(() => _years = parsed.clamp(1, 30));
+                          }
+                        },
+                      ),
+                    ),
+                    Text(
+                      'Years',
+                      style: _TrackingStyle.text(
+                        16,
+                        color: _TrackingStyle.muted,
+                        weight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            slider(
+              _years,
+              1,
+              30,
+              (value) => setState(() {
+                _years = value.roundToDouble();
+                _yearsInput.text = _years.toInt().toString();
+              }),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              height: 57,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                border: Border.all(color: _TrackingStyle.line),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Expected Return Rate p.a.',
+                      style: _TrackingStyle.text(13, weight: FontWeight.w600),
+                    ),
+                  ),
+                  step(
+                    '−',
+                    () => setState(() => _rate = (_rate - 0.5).clamp(5, 25)),
+                  ),
+                  SizedBox(
+                    width: 48,
+                    child: Text(
+                      '${_rate.toStringAsFixed(_rate % 1 == 0 ? 0 : 1)}%',
+                      textAlign: TextAlign.center,
+                      style: _TrackingStyle.text(15, weight: FontWeight.w800),
+                    ),
+                  ),
+                  step(
+                    '+',
+                    () => setState(() => _rate = (_rate + 0.5).clamp(5, 25)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FBF4),
+                borderRadius: BorderRadius.circular(26),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Estimated Monthly SIP',
+                    style: _TrackingStyle.text(
+                      13,
+                      color: const Color(0xFF07894C),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '₹${NumberFormat.decimalPattern('en_IN').format(monthly.round())}',
+                    style: _TrackingStyle.text(
+                      26,
+                      color: const Color(0xFF07894C),
+                      weight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                  height: 56,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFFF0F1F6),
+                    ),
+                    onPressed: _isSaving
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    child: Text(
+                      'Cancel',
+                      style: _TrackingStyle.text(16, weight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: _TrackingStyle.gradient,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _isSaving ? null : _handleSave,
+                        borderRadius: BorderRadius.circular(999),
+                        child: Center(
+                          child: _isSaving
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  'Update goal',
+                                  style: _TrackingStyle.text(
+                                    16,
+                                    color: Colors.white,
+                                    weight: FontWeight.w600,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!widget.isDesktop) return _mobileEdit();
     final monthlySip = _calcMonthlySip();
 
     return Container(
@@ -656,7 +1040,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                         "Edit Goal",
                         style: TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           fontFamily: FontFamily.medium,
                           color: Color(0xFF1E293B),
                         ),
@@ -754,7 +1138,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                   _fmt(_targetAmount),
                   style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: Ucolors.primary,
                   ),
                 ),
@@ -799,7 +1183,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                   "${_years.toInt()} Years (${(_years * 12).toInt()} Mos)",
                   style: const TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFF1E293B),
                   ),
                 ),
@@ -844,7 +1228,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                   "${_rate.toStringAsFixed(1)}% p.a.",
                   style: const TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFF1E293B),
                   ),
                 ),
@@ -955,7 +1339,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                           "Update Goal",
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                 ),
@@ -1579,7 +1963,13 @@ class GoalOverviewCard extends StatelessWidget {
 class LinkedFundsCard extends StatelessWidget {
   final UserGoalEntity? goal;
   final VoidCallback? onAddFunds;
-  const LinkedFundsCard({super.key, this.goal, this.onAddFunds});
+  final bool showHeader;
+  const LinkedFundsCard({
+    super.key,
+    this.goal,
+    this.onAddFunds,
+    this.showHeader = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1590,93 +1980,87 @@ class LinkedFundsCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header Row
-        Obx(() {
-          final liveDetail = goalSipController.currentGoalDetail.value;
-          final bool hasLiveFunds =
-              liveDetail != null &&
-              liveDetail.id == currentGoalId &&
-              liveDetail.linkedFunds.isNotEmpty;
+        if (showHeader)
+          Obx(() {
+            final liveDetail = goalSipController.currentGoalDetail.value;
+            final bool hasLiveFunds =
+                liveDetail != null &&
+                liveDetail.id == currentGoalId &&
+                liveDetail.linkedFunds.isNotEmpty;
 
-          final freshGoal =
-              goalSipController.goalResponse.value?.data?.firstWhereOrNull(
-                (g) => g.id == currentGoalId,
-              ) ??
-              goal;
+            final freshGoal =
+                goalSipController.goalResponse.value?.data?.firstWhereOrNull(
+                  (g) => g.id == currentGoalId,
+                ) ??
+                goal;
 
-          final int count = hasLiveFunds
-              ? liveDetail.linkedFunds.length
-              : (freshGoal?.goalFunds.length ?? 0);
-          final showCount =
-              count > 0 || !goalSipController.isLoadingSingleGoal.value;
+            final int count = hasLiveFunds
+                ? liveDetail.linkedFunds.length
+                : (freshGoal?.goalFunds.length ?? 0);
+            final showCount =
+                count > 0 || !goalSipController.isLoadingSingleGoal.value;
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Text(
-                    "Linked Mutual Funds",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: FontFamily.regular,
-                      color: Color(0xFF0F172A),
+            return Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 12,
+              runSpacing: 8,
+              children: [
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    const Text(
+                      "Linked Mutual Funds",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: FontFamily.regular,
+                        color: Color(0xFF0F172A),
+                      ),
                     ),
-                  ),
-                  if (showCount) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Ucolors.skyblue1,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Ucolors.skyblue),
-                      ),
-                      child: Text(
-                        "$count",
-                        style: const TextStyle(
-                          color: Ucolors.primary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                          fontFamily: FontFamily.regular,
+                    if (showCount) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Ucolors.skyblue1,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Ucolors.skyblue),
+                        ),
+                        child: Text(
+                          "$count",
+                          style: const TextStyle(
+                            color: Ucolors.primary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            fontFamily: FontFamily.regular,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
-              ),
-              if (onAddFunds != null)
-                ElevatedButton.icon(
-                  onPressed: onAddFunds,
-                  icon: const Icon(Icons.add_rounded, size: 16),
-                  label: const Text(
-                    "Add Fund",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontFamily: FontFamily.regular,
-                      fontSize: 13,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Ucolors.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
                 ),
-            ],
-          );
-        }),
-        const SizedBox(height: 20),
+                if (onAddFunds != null)
+                  TextButton(
+                    onPressed: onAddFunds,
+                    child: const Text(
+                      'Add',
+                      style: TextStyle(
+                        color: _TrackingStyle.navy,
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }),
+        if (showHeader) const SizedBox(height: 20),
 
         // Funds Grid View Block
         Obx(() {
@@ -1772,18 +2156,18 @@ class LinkedFundsCard extends StatelessWidget {
             final liveFunds = liveDetail.linkedFunds;
             return LayoutBuilder(
               builder: (context, constraints) {
-                final int crossAxisCount = constraints.maxWidth > 900 ? 3 : 2;
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: liveFunds.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: constraints.maxWidth > 900 ? 3.6 : 3.0,
-                  ),
-                  itemBuilder: (context, index) {
+                final scale = MediaQuery.textScalerOf(context).scale(1);
+                final int crossAxisCount =
+                    (constraints.maxWidth / (360 * scale.clamp(1.0, 2.0)))
+                        .floor()
+                        .clamp(1, 3);
+                final cardWidth =
+                    (constraints.maxWidth - (crossAxisCount - 1) * 16) /
+                    crossAxisCount;
+                return Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: List.generate(liveFunds.length, (index) {
                     final fund = liveFunds[index];
                     final String imgUrl = fund.amcLogo.isNotEmpty
                         ? (fund.amcLogo.startsWith('http')
@@ -1801,7 +2185,317 @@ class LinkedFundsCard extends StatelessWidget {
                     final double gain = fund.gainLoss;
                     final double gainPercent = fund.gainLossPercent;
 
-                    return Container(
+                    return SizedBox(
+                      width: cardWidth,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(14),
+                            onTap: () {
+                              PortfolioFundDetailsModal.show(
+                                context,
+                                fund.toPortfolioItem(
+                                  goalName:
+                                      goal?.goalName ?? liveDetail.goalName,
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: const Color(0xFFE2E8F0),
+                                      ),
+                                      color: Colors.white,
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: imgUrl.isNotEmpty
+                                        ? Image.network(
+                                            imgUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                const Icon(
+                                                  Icons.account_balance,
+                                                  size: 20,
+                                                  color: Colors.grey,
+                                                ),
+                                          )
+                                        : const Icon(
+                                            Icons.account_balance,
+                                            size: 20,
+                                            color: Colors.grey,
+                                          ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          fund.fundName.isNotEmpty
+                                              ? fund.fundName
+                                              : 'Unknown Fund',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: FontFamily.regular,
+                                            fontSize: 13,
+                                            color: Color(0xFF0F172A),
+                                            height: 1.25,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          runSpacing: 4,
+                                          children: [
+                                            const Text(
+                                              "Invested: ",
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Color(0xFF64748B),
+                                                fontFamily: FontFamily.regular,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            Text(
+                                              '₹${(fund.fundInvested > 0 ? fund.fundInvested : fund.investedAmount).toStringAsFixed(0)}',
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF1E293B),
+                                                fontFamily: FontFamily.regular,
+                                              ),
+                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 6,
+                                              ),
+                                              child: Text(
+                                                "•",
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Color(0xFFCBD5E1),
+                                                ),
+                                              ),
+                                            ),
+                                            const Text(
+                                              "Current: ",
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Color(0xFF64748B),
+                                                fontFamily: FontFamily.regular,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            Text(
+                                              fund.currentValue > 0
+                                                  ? '₹${fund.currentValue.toStringAsFixed(0)}'
+                                                  : (fund.currentNav > 0
+                                                        ? 'NAV ₹${fund.currentNav.toStringAsFixed(2)}'
+                                                        : '—'),
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF0F172A),
+                                                fontFamily: FontFamily.regular,
+                                              ),
+                                            ),
+                                            if (gain != 0 ||
+                                                gainPercent != 0) ...[
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                "(${gain >= 0 ? '+' : ''}${gainPercent.toStringAsFixed(1)}%)",
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: gain >= 0
+                                                      ? const Color(0xFF16A34A)
+                                                      : const Color(0xFFDC2626),
+                                                  fontFamily:
+                                                      FontFamily.regular,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                        if (fund.hasPendingRedemption) ...[
+                                          const SizedBox(height: 3),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 1.5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFFFF7ED),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color: const Color(0xFFFDBA74),
+                                                width: 0.8,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              fund.redeemedUnits > 0
+                                                  ? "Redemption Pending (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
+                                                  : (fund.redeemedAmount > 0
+                                                        ? "Redemption Pending (₹${fund.redeemedAmount.toStringAsFixed(0)})"
+                                                        : "Redemption Pending"),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFFC2410C),
+                                              ),
+                                            ),
+                                          ),
+                                        ] else if (fund.isRedeemed ||
+                                            fund.holdingStatus.toLowerCase() ==
+                                                'redeemed') ...[
+                                          const SizedBox(height: 3),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 1.5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF1F5F9),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color: const Color(0xFFCBD5E1),
+                                                width: 0.8,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              fund.redeemedUnits > 0
+                                                  ? "Redeemed (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
+                                                  : (fund.redeemedAmount > 0
+                                                        ? "Redeemed (₹${fund.redeemedAmount.toStringAsFixed(0)})"
+                                                        : "Redeemed"),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF475569),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  Obx(() {
+                                    final bool isDel =
+                                        goalSipController.isDeleting[fundId] ??
+                                        false;
+                                    if (fund.hasPendingRedemption) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return isDel
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : IconButton(
+                                            icon: const Icon(
+                                              Iconsax.trash,
+                                              size: 17,
+                                              color: Color(0xFF94A3B8),
+                                            ),
+                                            hoverColor: const Color(0xFFFEE2E2),
+                                            color: const Color(0xFFEF4444),
+                                            tooltip: 'Remove Fund',
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () {
+                                              DialogHelper.showRemoveFundDialog(
+                                                fundName:
+                                                    fund.fundName.isNotEmpty
+                                                    ? fund.fundName
+                                                    : 'this fund',
+                                                onConfirm: () {
+                                                  goalSipController
+                                                      .deleteGoalFund(
+                                                        id: fundId,
+                                                        isEdit: false,
+                                                        schemeName:
+                                                            fund.fundName,
+                                                        goalId: goal?.id,
+                                                      );
+                                                },
+                                              );
+                                            },
+                                          );
+                                  }),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                );
+              },
+            );
+          }
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final scale = MediaQuery.textScalerOf(context).scale(1);
+              final int crossAxisCount =
+                  (constraints.maxWidth / (360 * scale.clamp(1.0, 2.0)))
+                      .floor()
+                      .clamp(1, 3);
+              final cardWidth =
+                  (constraints.maxWidth - (crossAxisCount - 1) * 16) /
+                  crossAxisCount;
+              return Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: List.generate(linkedFunds.length, (index) {
+                  final fund = linkedFunds[index];
+                  final String imgUrl =
+                      "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+                  final String displayAmount =
+                      freshGoal?.txnType.toLowerCase() == 'sip'
+                      ? '₹${fund.sipAmount.toStringAsFixed(0)} / mo'
+                      : '₹${fund.lumpsumAmount.toStringAsFixed(0)}';
+
+                  return SizedBox(
+                    width: cardWidth,
+                    child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
@@ -1822,7 +2516,7 @@ class LinkedFundsCard extends StatelessWidget {
                             PortfolioFundDetailsModal.show(
                               context,
                               fund.toPortfolioItem(
-                                goalName: goal?.goalName ?? liveDetail.goalName,
+                                goalName: goal?.goalName ?? freshGoal?.goalName,
                               ),
                             );
                           },
@@ -1834,19 +2528,18 @@ class LinkedFundsCard extends StatelessWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                          Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFFE2E8F0),
-                              ),
-                              color: Colors.white,
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: imgUrl.isNotEmpty
-                                ? Image.network(
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: const Color(0xFFE2E8F0),
+                                    ),
+                                    color: Colors.white,
+                                  ),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: Image.network(
                                     imgUrl,
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, __, ___) => const Icon(
@@ -1854,404 +2547,130 @@ class LinkedFundsCard extends StatelessWidget {
                                       size: 20,
                                       color: Colors.grey,
                                     ),
-                                  )
-                                : const Icon(
-                                    Icons.account_balance,
-                                    size: 20,
-                                    color: Colors.grey,
-                                  ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  fund.fundName.isNotEmpty
-                                      ? fund.fundName
-                                      : 'Unknown Fund',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: FontFamily.regular,
-                                    fontSize: 13,
-                                    color: Color(0xFF0F172A),
-                                    height: 1.25,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      "Invested: ",
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Color(0xFF64748B),
-                                        fontFamily: FontFamily.regular,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      '₹${(fund.fundInvested > 0 ? fund.fundInvested : fund.investedAmount).toStringAsFixed(0)}',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF1E293B),
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                      ),
-                                      child: Text(
-                                        "•",
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFFCBD5E1),
-                                        ),
-                                      ),
-                                    ),
-                                    const Text(
-                                      "Current: ",
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Color(0xFF64748B),
-                                        fontFamily: FontFamily.regular,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      fund.currentValue > 0
-                                          ? '₹${fund.currentValue.toStringAsFixed(0)}'
-                                          : (fund.currentNav > 0
-                                                ? 'NAV ₹${fund.currentNav.toStringAsFixed(2)}'
-                                                : '—'),
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF0F172A),
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                    if (gain != 0 || gainPercent != 0) ...[
-                                      const SizedBox(width: 4),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
                                       Text(
-                                        "(${gain >= 0 ? '+' : ''}${gainPercent.toStringAsFixed(1)}%)",
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: gain >= 0
-                                              ? const Color(0xFF16A34A)
-                                              : const Color(0xFFDC2626),
+                                        fund.mutualFund?.schemeName ??
+                                            'Unknown Fund',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
                                           fontFamily: FontFamily.regular,
+                                          fontSize: 13,
+                                          color: Color(0xFF0F172A),
+                                          height: 1.25,
                                         ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        runSpacing: 4,
+                                        children: [
+                                          const Text(
+                                            "Amount: ",
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Color(0xFF64748B),
+                                              fontFamily: FontFamily.regular,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            displayAmount,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF0F172A),
+                                              fontFamily: FontFamily.regular,
+                                            ),
+                                          ),
+                                          if (fund
+                                                  .mutualFund
+                                                  ?.mfPerformanceScheme
+                                                  ?.oneMonth !=
+                                              null) ...[
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              "${fund.mutualFund!.mfPerformanceScheme!.oneMonth}% (1M)",
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF16A34A),
+                                                fontFamily: FontFamily.regular,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
                                       ),
                                     ],
-                                  ],
+                                  ),
                                 ),
-                                if (fund.hasPendingRedemption) ...[
-                                  const SizedBox(height: 3),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 1.5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF7ED),
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: const Color(0xFFFDBA74),
-                                        width: 0.8,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      fund.redeemedUnits > 0
-                                          ? "Redemption Pending (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
-                                          : (fund.redeemedAmount > 0
-                                              ? "Redemption Pending (₹${fund.redeemedAmount.toStringAsFixed(0)})"
-                                              : "Redemption Pending"),
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFFC2410C),
-                                      ),
-                                    ),
-                                  ),
-                                ] else if (fund.isRedeemed ||
-                                    fund.holdingStatus.toLowerCase() ==
-                                        'redeemed') ...[
-                                  const SizedBox(height: 3),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 1.5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF1F5F9),
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: const Color(0xFFCBD5E1),
-                                        width: 0.8,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      fund.redeemedUnits > 0
-                                          ? "Redeemed (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
-                                          : (fund.redeemedAmount > 0
-                                              ? "Redeemed (₹${fund.redeemedAmount.toStringAsFixed(0)})"
-                                              : "Redeemed"),
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF475569),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                Obx(() {
+                                  final bool isDel =
+                                      goalSipController.isDeleting[fund.id] ??
+                                      false;
+                                  return isDel
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : IconButton(
+                                          icon: const Icon(
+                                            Iconsax.trash,
+                                            size: 17,
+                                            color: Color(0xFF94A3B8),
+                                          ),
+                                          hoverColor: const Color(0xFFFEE2E2),
+                                          color: const Color(0xFFEF4444),
+                                          tooltip: 'Remove Fund',
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                          onPressed: () {
+                                            final fundTitle =
+                                                fund.mutualFund?.schemeName ??
+                                                fund.mutualFund?.schemeCode
+                                                    ?.toString() ??
+                                                'this fund';
+                                            DialogHelper.showRemoveFundDialog(
+                                              fundName: fundTitle,
+                                              onConfirm: () {
+                                                goalSipController
+                                                    .deleteGoalFund(
+                                                      id: fund.id,
+                                                      isEdit: false,
+                                                      schemeName:
+                                                          fund
+                                                              .mutualFund
+                                                              ?.schemeCode
+                                                              ?.toString() ??
+                                                          '',
+                                                      goalId: goal?.id,
+                                                    );
+                                              },
+                                            );
+                                          },
+                                        );
+                                }),
                               ],
                             ),
                           ),
-                          Obx(() {
-                            final bool isDel =
-                                goalSipController.isDeleting[fundId] ?? false;
-                            if (fund.hasPendingRedemption) {
-                              return const SizedBox.shrink();
-                            }
-                            return isDel
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : IconButton(
-                                    icon: const Icon(
-                                      Iconsax.trash,
-                                      size: 17,
-                                      color: Color(0xFF94A3B8),
-                                    ),
-                                    hoverColor: const Color(0xFFFEE2E2),
-                                    color: const Color(0xFFEF4444),
-                                    tooltip: 'Remove Fund',
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    onPressed: () {
-                                      DialogHelper.showRemoveFundDialog(
-                                        fundName: fund.fundName.isNotEmpty
-                                            ? fund.fundName
-                                            : 'this fund',
-                                        onConfirm: () {
-                                          goalSipController.deleteGoalFund(
-                                            id: fundId,
-                                            isEdit: false,
-                                            schemeName: fund.fundName,
-                                            goalId: goal?.id,
-                                          );
-                                        },
-                                      );
-                                    },
-                                  );
-                          }),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            },
-                );
-              },
-            );
-          }
-
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final int crossAxisCount = constraints.maxWidth > 900 ? 3 : 2;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: linkedFunds.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: constraints.maxWidth > 900 ? 3.6 : 3.0,
-                ),
-                itemBuilder: (context, index) {
-                  final fund = linkedFunds[index];
-                  final String imgUrl =
-                      "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
-                  final String displayAmount =
-                      freshGoal?.txnType.toLowerCase() == 'sip'
-                      ? '₹${fund.sipAmount.toStringAsFixed(0)} / mo'
-                      : '₹${fund.lumpsumAmount.toStringAsFixed(0)}';
-
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.02),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: () {
-                          PortfolioFundDetailsModal.show(
-                            context,
-                            fund.toPortfolioItem(
-                              goalName: goal?.goalName ?? freshGoal?.goalName,
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
-                            color: Colors.white,
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Image.network(
-                            imgUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.account_balance,
-                              size: 20,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                fund.mutualFund?.schemeName ?? 'Unknown Fund',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: FontFamily.regular,
-                                  fontSize: 13,
-                                  color: Color(0xFF0F172A),
-                                  height: 1.25,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Text(
-                                    "Amount: ",
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Color(0xFF64748B),
-                                      fontFamily: FontFamily.regular,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    displayAmount,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF0F172A),
-                                      fontFamily: FontFamily.regular,
-                                    ),
-                                  ),
-                                  if (fund
-                                          .mutualFund
-                                          ?.mfPerformanceScheme
-                                          ?.oneMonth !=
-                                      null) ...[
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      "${fund.mutualFund!.mfPerformanceScheme!.oneMonth}% (1M)",
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF16A34A),
-                                        fontFamily: FontFamily.regular,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Obx(() {
-                          final bool isDel =
-                              goalSipController.isDeleting[fund.id] ?? false;
-                          return isDel
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : IconButton(
-                                  icon: const Icon(
-                                    Iconsax.trash,
-                                    size: 17,
-                                    color: Color(0xFF94A3B8),
-                                  ),
-                                  hoverColor: const Color(0xFFFEE2E2),
-                                  color: const Color(0xFFEF4444),
-                                  tooltip: 'Remove Fund',
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  onPressed: () {
-                                    final fundTitle = fund.mutualFund?.schemeName ??
-                                        fund.mutualFund?.schemeCode?.toString() ??
-                                        'this fund';
-                                    DialogHelper.showRemoveFundDialog(
-                                      fundName: fundTitle,
-                                      onConfirm: () {
-                                        goalSipController.deleteGoalFund(
-                                          id: fund.id,
-                                          isEdit: false,
-                                          schemeName:
-                                              fund.mutualFund?.schemeCode
-                                                  ?.toString() ??
-                                              '',
-                                          goalId: goal?.id,
-                                        );
-                                      },
-                                    );
-                                  },
-                                );
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
+                  );
+                }),
               );
             },
           );
@@ -2572,17 +2991,14 @@ class NextMilestoneCard extends StatelessWidget {
 /// ----------------------------------------------------------------------
 /// Mobile View Layout (Tabbed Switching Container Remains Unchanged)
 /// ----------------------------------------------------------------------
-class GoalDetailsMobileView extends StatelessWidget {
+class GoalDetailsMobileView extends StatefulWidget {
   final String title;
   final UserGoalEntity? goal;
   final String emoji;
   final double target;
   final double invested;
   final String logo;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-  final VoidCallback onAddFunds;
-
+  final VoidCallback onEdit, onDelete, onAddFunds;
   const GoalDetailsMobileView({
     super.key,
     required this.title,
@@ -2595,126 +3011,788 @@ class GoalDetailsMobileView extends StatelessWidget {
     required this.onDelete,
     required this.onAddFunds,
   });
+  @override
+  State<GoalDetailsMobileView> createState() => _TrackingViewState();
+}
+
+class _TrackingViewState extends State<GoalDetailsMobileView> {
+  bool _funds = false;
+  final _scroll = ScrollController();
+  GoalSipController get c => Get.find<GoalSipController>();
+  SingleGoalDetailEntity? get live {
+    final detail = c.currentGoalDetail.value;
+    return detail != null && detail.id == widget.goal?.id ? detail : null;
+  }
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  String url(String value) => value.isEmpty
+      ? ''
+      : Uri.parse(value).hasScheme
+      ? value
+      : '${Appurl.baseUrl.replaceFirst(RegExp(r'/+$'), '')}/${value.replaceFirst(RegExp(r'^/+'), '')}';
+  String money(num amount) =>
+      '₹${NumberFormat.decimalPattern('en_IN').format(amount.round())}';
+  String compact(num value) => value.abs() >= 100000
+      ? '₹${(value / 100000).toStringAsFixed(2)}L'
+      : money(value);
+
+  @override
+  Widget build(BuildContext context) => Obx(() {
+    final detail = live;
+    final funds = detail?.linkedFunds ?? <GoalLinkedFundEntity>[];
+    final saved = detail?.savedAmount ?? widget.invested;
+    final target = detail?.targetAmount ?? widget.target;
+    final progress = calculateGoalProgress(
+      targetAmount: target,
+      investedAmount: saved,
+      progressPercent: detail?.progressPercent ?? widget.goal?.progressPercent,
+    );
+    final monthly =
+        detail?.monthlySavings ?? widget.goal?.monthlyInvestment ?? 0;
+    final end = DateTime.tryParse(detail?.endDate ?? '');
+    final years = end == null
+        ? ((widget.goal?.goalTenure ?? 0) > 30
+              ? (widget.goal?.goalTenure ?? 0) / 12
+              : (widget.goal?.goalTenure ?? 0).toDouble())
+        : math.max(0, end.difference(DateTime.now()).inDays / 365);
+    final year = (detail?.estYear ?? 0) > 0 ? detail!.estYear : end?.year;
+    final gain = funds.fold<double>(0, (sum, f) => sum + f.gainLoss);
+    final projected = target;
     return Scaffold(
-      backgroundColor: const Color(0xffF3F4F6),
-      appBar: CustomAppBarNormal(
-        title: title,
-        action: [
-          PopupMenuButton<String>(
-            color: Ucolors.light,
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'edit') onEdit();
-              if (value == 'delete') onDelete();
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, size: 18),
-                    SizedBox(width: 8),
-                    Text('Edit'),
-                  ],
+      backgroundColor: _TrackingStyle.background,
+      appBar: AppBar(
+        backgroundColor: _TrackingStyle.background,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 50,
+        titleSpacing: 20,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _circle(Icons.chevron_left, () => Navigator.of(context).pop()),
+            Text(
+              'Goal Detail',
+              style: _TrackingStyle.text(16, weight: FontWeight.w600),
+            ),
+            Material(
+              color: const Color(0xFFF0F1F6),
+              shape: const CircleBorder(),
+              child: PopupMenuButton<String>(
+                tooltip: 'Goal actions',
+                icon: const Icon(Icons.more_horiz, size: 22),
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  side: const BorderSide(color: _TrackingStyle.line),
                 ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, size: 18, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text(
-                      'Delete',
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        color: Colors.red,
+                popUpAnimationStyle: const AnimationStyle(
+                  duration: Duration(milliseconds: 250),
+                  curve: Curves.easeOut,
+                ),
+                onSelected: (value) {
+                  if (value == 'edit') widget.onEdit();
+                  if (value == 'delete') widget.onDelete();
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Text(
+                      'Edit',
+                      style: _TrackingStyle.text(
+                        12,
+                        color: _TrackingStyle.navy,
+                        weight: FontWeight.w600,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: UPadding.screenPadding,
-        child: DefaultTabController(
-          length: 2,
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: Colors.white,
-                  border: Border.all(color: Colors.black12),
-                ),
-                child: Tab(
-                  child: TabBar(
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    unselectedLabelColor: Colors.grey.shade700,
-                    dividerColor: Colors.transparent,
-                    labelColor: Ucolors.light,
-                    indicatorColor: Colors.transparent,
-                    labelPadding: const EdgeInsets.symmetric(vertical: 10),
-                    indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Ucolors.primary,
-                    ),
-                    tabs: const [Text('Goal'), Text('Record')],
                   ),
-                ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Text(
+                      'Delete',
+                      style: _TrackingStyle.text(12, color: Colors.red),
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: TabBarView(
+            ),
+          ],
+        ),
+      ),
+      body: RefreshIndicator(
+        color: _TrackingStyle.purple,
+        onRefresh: () async {
+          if (widget.goal != null) await c.fetchSingleGoal(widget.goal!.id);
+        },
+        child: SingleChildScrollView(
+          controller: _scroll,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                widget.title,
+                style: _TrackingStyle.text(
+                  22,
+                  weight: FontWeight.w600,
+                ).copyWith(letterSpacing: -0.6),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                decoration: _TrackingStyle.box(26),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    RefreshIndicator(
-                      onRefresh: () async {
-                        final int currentGoalId = goal?.id ?? 0;
-                        if (currentGoalId != 0) {
-                          await Get.find<GoalSipController>().fetchSingleGoal(
-                            currentGoalId,
-                          );
-                        }
+                    LayoutBuilder(
+                      builder: (context, bounds) {
+                        final height = bounds.maxWidth * 224 / 390;
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(26),
+                          child: SizedBox(
+                            height: height,
+                            child: widget.logo.isEmpty
+                                ? ColoredBox(
+                                    color: const Color(0xFFF0F1F6),
+                                    child: Center(
+                                      child: Icon(
+                                        c.getGoalIcon(widget.title),
+                                        size: 80,
+                                        color: _TrackingStyle.purple,
+                                      ),
+                                    ),
+                                  )
+                                : CustomCachedImage(
+                                    imageUrl: url(widget.logo),
+                                    width: bounds.maxWidth,
+                                    height: height,
+                                    radius: 26,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        );
                       },
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: GoalDetailSection(
-                          goal: goal,
-                          target: target,
-                          invested: invested,
-                          emoji: emoji,
-                          logo: logo,
-                          onAddFunds: onAddFunds,
-                        ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    _info(
+                                      'Plan',
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFBC50),
+                                          borderRadius: BorderRadius.circular(
+                                            999,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${money(widget.goal?.txnType == 'lumpsum' ? (widget.goal?.lumpsumAmount ?? 0) : monthly)}${widget.goal?.txnType == 'lumpsum' ? '' : '/mo'}',
+                                          style: _TrackingStyle.text(
+                                            12,
+                                            weight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _info(
+                                      'Due date',
+                                      Text(
+                                        end == null
+                                            ? (detail
+                                                          ?.deadlineLabel
+                                                          .isNotEmpty ==
+                                                      true
+                                                  ? detail!.deadlineLabel
+                                                  : year == null
+                                                  ? '—'
+                                                  : '$year')
+                                            : '${DateFormat('MMM yyyy').format(end)} · ${years.ceil()} years left',
+                                        style: _TrackingStyle.text(
+                                          12,
+                                          weight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              SizedBox(
+                                width: 52,
+                                height: 52,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    SizedBox.expand(
+                                      child: TweenAnimationBuilder<double>(
+                                        tween: Tween(begin: 0, end: progress),
+                                        duration: const Duration(
+                                          milliseconds: 500,
+                                        ),
+                                        curve: Curves.easeOut,
+                                        builder: (context, value, child) =>
+                                            CircularProgressIndicator(
+                                              value: value,
+                                              strokeWidth: 6,
+                                              color: const Color(0xFFF5A524),
+                                              backgroundColor:
+                                                  _TrackingStyle.line,
+                                            ),
+                                      ),
+                                    ),
+                                    Text(
+                                      '${(progress * 100).round()}%',
+                                      style: _TrackingStyle.text(
+                                        13,
+                                        weight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            money(saved),
+                            style: _TrackingStyle.text(
+                              26,
+                              weight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _stat(
+                                  'Gain so far',
+                                  '${gain >= 0 ? '+' : ''}${money(gain)}',
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: _stat(
+                                  'Projected${year == null ? '' : ' $year'}',
+                                  compact(projected),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    GoalRecordTab(goalId: goal?.id ?? 0),
                   ],
                 ),
               ),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _action(Icons.add, 'Top up', widget.onAddFunds),
+                  _action(Icons.trending_up, 'Raise SIP', widget.onEdit),
+                  _action(
+                    Icons.pause,
+                    'Pause',
+                    () => Get.snackbar(
+                      'Pause SIP',
+                      'Pausing a SIP is not available in the current investment flow.',
+                    ),
+                  ),
+                  _action(
+                    Icons.arrow_downward,
+                    'Withdraw',
+                    () => _chooseFund(funds),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF5DF),
+                  border: Border.all(color: const Color(0xFFFFD07A)),
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFE1A5),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFFFBC50)),
+                      ),
+                      child: const Icon(Icons.card_giftcard_outlined, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Got a Diwali bonus?',
+                            style: _TrackingStyle.text(
+                              14,
+                              weight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '${money(25000)} today ≈ +${money(25000 * math.pow(1 + (widget.goal?.expectedReturnRate ?? 0) / 100, years))}${year == null ? '' : ' by $year'}',
+                            style: _TrackingStyle.text(
+                              12,
+                              color: const Color(0xFF8F5700),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFFF5A524),
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        minimumSize: const Size(0, 36),
+                      ),
+                      onPressed: widget.onAddFunds,
+                      child: Text(
+                        'Top up',
+                        style: _TrackingStyle.text(13, weight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              _panel(funds),
             ],
           ),
         ),
       ),
-      // bottomNavigationBar: UElevatedBUtton(
-      //   onPressed: onAddFunds,
-      //   child: Center(
-      //     child: Text(
-      //       'Add Funds',
-      //       style: UTextStyles.buttonText.copyWith(
-      //         color: Colors.white,
-      //         fontSize: 14,
-      //       ),
-      //     ),
-      //   ),
-      // ),
+    );
+  });
+
+  Widget _circle(IconData icon, VoidCallback tap) => Material(
+    color: const Color(0xFFF0F1F6),
+    shape: const CircleBorder(),
+    child: IconButton(
+      onPressed: tap,
+      icon: Icon(icon, size: 22, color: _TrackingStyle.navy),
+    ),
+  );
+  Widget _info(String title, Widget value) => Row(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      SizedBox(
+        width: 82,
+        child: Text(
+          title,
+          style: _TrackingStyle.text(12, color: _TrackingStyle.muted),
+        ),
+      ),
+      Expanded(child: value),
+    ],
+  );
+  Widget _stat(String title, String value) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    decoration: BoxDecoration(
+      color: _TrackingStyle.background,
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: _TrackingStyle.text(11, color: Colors.black)),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: _TrackingStyle.text(
+            20,
+            color: const Color(0xFF3023AC),
+            weight: FontWeight.w800,
+          ),
+        ),
+      ],
+    ),
+  );
+  Widget _action(IconData icon, String label, VoidCallback tap) => Expanded(
+    child: Column(
+      children: [
+        SizedBox(width: 40, height: 40, child: _circle(icon, tap)),
+        const SizedBox(height: 8),
+        Text(label, style: _TrackingStyle.text(12)),
+      ],
+    ),
+  );
+
+  int _fundCount(List<GoalLinkedFundEntity> funds) {
+    if (funds.isNotEmpty) return funds.length;
+    final fresh = c.goalResponse.value?.data.firstWhereOrNull((goal) => goal.id == widget.goal?.id);
+    return (fresh ?? widget.goal)?.goalFunds.length ?? 0;
+  }
+
+  Widget _panel(List<GoalLinkedFundEntity> funds) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: _TrackingStyle.box(26),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: const Color(0xFFECECF4),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            children: [
+              for (final tab in ['Activity', 'Funds'])
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _funds = tab == 'Funds'),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: (_funds == (tab == 'Funds'))
+                            ? _TrackingStyle.gradient
+                            : null,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        tab,
+                        style: _TrackingStyle.text(
+                          13,
+                          color: (_funds == (tab == 'Funds'))
+                              ? Colors.white
+                              : _TrackingStyle.muted,
+                          weight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (_funds) ...[
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8, runSpacing: 4,
+            children: [
+              Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text('Linked Mutual Funds', style: _TrackingStyle.text(14, weight: FontWeight.w600)),
+                  Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(color: const Color(0xFFF3EFFF), borderRadius: BorderRadius.circular(999)),
+                    child: Text('${_fundCount(funds)}', style: _TrackingStyle.text(12, color: _TrackingStyle.purple, weight: FontWeight.w700))),
+                ]),
+              TextButton(onPressed: widget.onAddFunds,
+                child: Text('Add Fund', style: _TrackingStyle.text(13, color: _TrackingStyle.navy, weight: FontWeight.w600))),
+            ],
+          ),
+          if (c.isLoadingSingleGoal.value && funds.isEmpty)
+            const GoalLinkedFundsShimmer()
+          else if (funds.isEmpty)
+            LinkedFundsCard(goal: widget.goal, onAddFunds: widget.onAddFunds, showHeader: false)
+          else
+            ...funds.take(2).map(_fundRow),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: widget.onAddFunds,
+              icon: const Icon(Icons.add, size: 16, color: _TrackingStyle.navy),
+              label: Text('Add more', style: _TrackingStyle.text(13,
+                color: _TrackingStyle.navy, weight: FontWeight.w600)),
+            ),
+          ),
+          if (funds.isNotEmpty)
+            TextButton(
+              onPressed: () => _allFunds(),
+              child: Text(
+                'See all ${funds.length} Funds',
+                style: _TrackingStyle.text(
+                  13,
+                  color: _TrackingStyle.navy,
+                  weight: FontWeight.w600,
+                ),
+              ),
+            ),
+        ] else
+          ..._activity(funds),
+      ],
+    ),
+  );
+
+  Widget _fundRow(GoalLinkedFundEntity fund) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Material(
+      color: const Color(0xFFF0F1F7),
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(color: _TrackingStyle.line),
+        borderRadius: BorderRadius.circular(22),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        leading: ClipOval(
+          child: CustomCachedImage(
+            imageUrl: url(
+              fund.amcLogo.isNotEmpty ? fund.amcLogo : fund.amcImageUrl,
+            ),
+            width: 40,
+            height: 40,
+            fit: BoxFit.contain,
+          ),
+        ),
+        title: Text(
+          fund.fundName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: _TrackingStyle.text(12, weight: FontWeight.w600),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 7),
+          child: Text(
+            'Inv: ${money(fund.fundInvested)}   Cur: ${money(fund.currentValue)}   (${fund.gainLossPercent >= 0 ? '+' : ''}${fund.gainLossPercent.toStringAsFixed(1)}%)',
+            style: _TrackingStyle.text(10, color: _TrackingStyle.muted),
+          ),
+        ),
+        onTap: () => PortfolioFundDetailsModal.show(
+          context,
+          fund.toPortfolioItem(goalName: widget.title),
+        ),
+        trailing: fund.hasPendingRedemption
+            ? null
+            : Obx(
+                () =>
+                    (c.isDeleting[fund.id > 0 ? fund.id : fund.mfuOrderFundId] ??
+                        false)
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : IconButton(
+                        onPressed: () => DialogHelper.showRemoveFundDialog(
+                          fundName: fund.fundName,
+                          onConfirm: () => c.deleteGoalFund(
+                            id: fund.id > 0 ? fund.id : fund.mfuOrderFundId,
+                            isEdit: false,
+                            schemeName: fund.fundName,
+                            goalId: widget.goal?.id,
+                          ),
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor: const Color(0xFFF6E3E7),
+                        ),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          size: 18,
+                          color: Color(0xFFFF5368),
+                        ),
+                      ),
+              ),
+      ),
+    ),
+  );
+
+  List<Widget> _activity(List<GoalLinkedFundEntity> funds) {
+    final txns = funds.expand((f) => f.transactions).toList()
+      ..sort(
+        (a, b) => (DateTime.tryParse(b.date) ?? DateTime(1970)).compareTo(
+          DateTime.tryParse(a.date) ?? DateTime(1970),
+        ),
+      );
+    return [
+      if (txns.isEmpty)
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            'No transactions yet',
+            textAlign: TextAlign.center,
+            style: _TrackingStyle.text(13, color: _TrackingStyle.muted),
+          ),
+        )
+      else
+        ...txns
+            .take(2)
+            .map(
+              (txn) => Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F1F7),
+                  border: Border.all(color: _TrackingStyle.line),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      ['success', 'settled', 'processed', 'completed'].any(
+                            (status) =>
+                                '${txn.status} ${txn.statusLabel} ${txn.orderStatusLabel}'
+                                    .toLowerCase()
+                                    .contains(status),
+                          )
+                          ? Icons.check_circle
+                          : Icons.schedule,
+                      color: _TrackingStyle.purple,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            txn.investmentType.isEmpty
+                                ? txn.type
+                                : txn.investmentType,
+                            style: _TrackingStyle.text(
+                              14,
+                              weight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '${txn.displayDate.isEmpty ? txn.date : txn.displayDate} · ${txn.statusLabel.isEmpty ? txn.status : txn.statusLabel}',
+                            style: _TrackingStyle.text(
+                              12,
+                              color: _TrackingStyle.muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      txn.display?.amount.isNotEmpty == true
+                          ? txn.display!.amount
+                          : money(txn.amount),
+                      style: _TrackingStyle.text(14, weight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+      TextButton(
+        onPressed: () => Get.to(
+          () => Scaffold(
+            backgroundColor: _TrackingStyle.background,
+            appBar: AppBar(title: const Text('Activity')),
+            body: GoalRecordTab(goalId: widget.goal?.id ?? 0),
+          ),
+        ),
+        child: Text(
+          txns.isEmpty
+              ? 'See all activity'
+              : 'See all ${txns.length} instalments',
+          style: _TrackingStyle.text(
+            13,
+            color: _TrackingStyle.navy,
+            weight: FontWeight.w600,
+          ),
+        ),
+      ),
+    ];
+  }
+
+  void _allFunds() => Get.to(
+    () => Scaffold(
+      backgroundColor: _TrackingStyle.background,
+      appBar: AppBar(title: const Text('Linked Funds')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: LinkedFundsCard(
+          goal: widget.goal,
+          onAddFunds: widget.onAddFunds,
+        ),
+      ),
+    ),
+  );
+  void _chooseFund(List<GoalLinkedFundEntity> funds) {
+    if (funds.isEmpty) {
+      setState(() => _funds = true);
+      return;
+    }
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+      ),
+      builder: (sheet) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: funds
+              .map(
+                (fund) => ListTile(
+                  title: Text(fund.fundName),
+                  onTap: () {
+                    Navigator.pop(sheet);
+                    PortfolioFundDetailsModal.show(
+                      context,
+                      fund.toPortfolioItem(goalName: widget.title),
+                    );
+                  },
+                ),
+              )
+              .toList(),
+        ),
+      ),
     );
   }
+}
+
+class _TrackingStyle {
+  static const background = Color(0xFFF5F6FA),
+      line = Color(0xFFE4E6EE),
+      purple = Color(0xFF441D9E),
+      navy = Color(0xFF0E176F),
+      muted = Color(0xFF5E6175);
+  static const gradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [navy, Color(0xFF5B3FE0)],
+  );
+  static TextStyle text(
+    double size, {
+    FontWeight weight = FontWeight.w500,
+    Color color = const Color(0xFF12121A),
+  }) => TextStyle(
+    fontFamily: 'Plus Jakarta Sans',
+    fontSize: size,
+    fontWeight: weight,
+    color: color,
+  );
+  static BoxDecoration box(double radius) => BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(radius),
+  );
 }
 
 /// ----------------------------------------------------------------------
@@ -2746,10 +3824,13 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
 
           // Add redemption details if not already present in transactions
           for (final r in fund.redemptionDetails) {
-            final bool alreadyExists = fund.transactions.any((t) =>
-                (r.orderRefNo.isNotEmpty &&
-                    (t.orderId == r.orderRefNo || t.mfOrderId == r.orderRefNo)) ||
-                (r.gorn.isNotEmpty && t.mfuGorn == r.gorn));
+            final bool alreadyExists = fund.transactions.any(
+              (t) =>
+                  (r.orderRefNo.isNotEmpty &&
+                      (t.orderId == r.orderRefNo ||
+                          t.mfOrderId == r.orderRefNo)) ||
+                  (r.gorn.isNotEmpty && t.mfuGorn == r.gorn),
+            );
 
             if (!alreadyExists) {
               final bool isUnits =
@@ -2897,14 +3978,19 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 40,
+                            horizontal: 20,
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
-                                  color: Ucolors.primary.withValues(alpha: 0.08),
+                                  color: Ucolors.primary.withValues(
+                                    alpha: 0.08,
+                                  ),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -2945,7 +4031,9 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
                       padding: const EdgeInsets.only(bottom: 24, top: 4),
                       itemCount: filteredTxns.length,
                       itemBuilder: (context, index) {
-                        return _GoalTransactionCardItem(transaction: filteredTxns[index]);
+                        return _GoalTransactionCardItem(
+                          transaction: filteredTxns[index],
+                        );
                       },
                     ),
             ),
@@ -3133,7 +4221,7 @@ class _GoalTransactionCardItem extends StatelessWidget {
                 amountStr,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                   fontFamily: FontFamily.medium,
                   color: amountColor,
                 ),
@@ -3150,10 +4238,7 @@ class _GoalTransactionCardItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 3,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: statusBg,
                   borderRadius: BorderRadius.circular(6),
@@ -3378,7 +4463,7 @@ class GoalDetailSection extends StatelessWidget {
                         "${hasLiveFunds ? liveDetail.linkedFunds.length : linkedFunds.length}",
                         style: const TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: Ucolors.primary,
                         ),
                       ),
@@ -3398,7 +4483,7 @@ class GoalDetailSection extends StatelessWidget {
                     "Add",
                     style: TextStyle(
                       color: Ucolors.primary,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
                   ),
@@ -3538,216 +4623,221 @@ class GoalDetailSection extends StatelessWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                          CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Colors.white,
-                            backgroundImage: imgUrl.isNotEmpty
-                                ? NetworkImage(imgUrl)
-                                : null,
-                            onBackgroundImageError: (_, __) {},
-                            child: imgUrl.isEmpty
-                                ? const Icon(
-                                    Icons.account_balance,
-                                    size: 18,
-                                    color: Colors.grey,
-                                  )
-                                : null,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  fund.fundName.isNotEmpty
-                                      ? fund.fundName
-                                      : 'Unknown Fund',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: UTextStyles.medium.copyWith(
-                                    color: const Color(0xFF0F172A),
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                    height: 1.2,
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                Row(
+                              CircleAvatar(
+                                radius: 18,
+                                backgroundColor: Colors.white,
+                                backgroundImage: imgUrl.isNotEmpty
+                                    ? NetworkImage(imgUrl)
+                                    : null,
+                                onBackgroundImageError: (_, __) {},
+                                child: imgUrl.isEmpty
+                                    ? const Icon(
+                                        Icons.account_balance,
+                                        size: 18,
+                                        color: Colors.grey,
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      "Inv: ",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Color(0xFF64748B),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
                                     Text(
-                                      "₹${(fund.fundInvested > 0 ? fund.fundInvested : fund.investedAmount).toStringAsFixed(0)}",
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF1E293B),
+                                      fund.fundName.isNotEmpty
+                                          ? fund.fundName
+                                          : 'Unknown Fund',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: UTextStyles.medium.copyWith(
+                                        color: const Color(0xFF0F172A),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                        height: 1.2,
                                       ),
                                     ),
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 4,
-                                      ),
-                                      child: Text(
-                                        "•",
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Color(0xFFCBD5E1),
+                                    const SizedBox(height: 3),
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          "Inv: ",
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Color(0xFF64748B),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        Text(
+                                          "₹${(fund.fundInvested > 0 ? fund.fundInvested : fund.investedAmount).toStringAsFixed(0)}",
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF1E293B),
+                                          ),
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 4,
+                                          ),
+                                          child: Text(
+                                            "•",
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Color(0xFFCBD5E1),
+                                            ),
+                                          ),
+                                        ),
+                                        const Text(
+                                          "Cur: ",
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Color(0xFF64748B),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        Text(
+                                          fund.currentValue > 0
+                                              ? "₹${fund.currentValue.toStringAsFixed(0)}"
+                                              : (fund.currentNav > 0
+                                                    ? "NAV ₹${fund.currentNav.toStringAsFixed(2)}"
+                                                    : "—"),
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF0F172A),
+                                          ),
+                                        ),
+                                        if (gain != 0 || gainPercent != 0) ...[
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            "(${gain >= 0 ? '+' : ''}${gainPercent.toStringAsFixed(1)}%)",
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: gain >= 0
+                                                  ? const Color(0xFF16A34A)
+                                                  : const Color(0xFFDC2626),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    if (fund.hasPendingRedemption) ...[
+                                      const SizedBox(height: 3),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 1.5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFF7ED),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                          border: Border.all(
+                                            color: const Color(0xFFFDBA74),
+                                            width: 0.8,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          fund.redeemedUnits > 0
+                                              ? "Redemption Pending (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
+                                              : (fund.redeemedAmount > 0
+                                                    ? "Redemption Pending (₹${fund.redeemedAmount.toStringAsFixed(0)})"
+                                                    : "Redemption Pending"),
+                                          style: const TextStyle(
+                                            fontSize: 9.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFFC2410C),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const Text(
-                                      "Cur: ",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Color(0xFF64748B),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      fund.currentValue > 0
-                                          ? "₹${fund.currentValue.toStringAsFixed(0)}"
-                                          : (fund.currentNav > 0
-                                                ? "NAV ₹${fund.currentNav.toStringAsFixed(2)}"
-                                                : "—"),
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF0F172A),
-                                      ),
-                                    ),
-                                    if (gain != 0 || gainPercent != 0) ...[
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        "(${gain >= 0 ? '+' : ''}${gainPercent.toStringAsFixed(1)}%)",
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w700,
-                                          color: gain >= 0
-                                              ? const Color(0xFF16A34A)
-                                              : const Color(0xFFDC2626),
+                                    ] else if (fund.isRedeemed ||
+                                        fund.holdingStatus.toLowerCase() ==
+                                            'redeemed') ...[
+                                      const SizedBox(height: 3),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 1.5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF1F5F9),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                          border: Border.all(
+                                            color: const Color(0xFFCBD5E1),
+                                            width: 0.8,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          fund.redeemedUnits > 0
+                                              ? "Redeemed (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
+                                              : (fund.redeemedAmount > 0
+                                                    ? "Redeemed (₹${fund.redeemedAmount.toStringAsFixed(0)})"
+                                                    : "Redeemed"),
+                                          style: const TextStyle(
+                                            fontSize: 9.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF475569),
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ],
                                 ),
-                                if (fund.hasPendingRedemption) ...[
-                                  const SizedBox(height: 3),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 1.5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF7ED),
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: const Color(0xFFFDBA74),
-                                        width: 0.8,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      fund.redeemedUnits > 0
-                                          ? "Redemption Pending (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
-                                          : (fund.redeemedAmount > 0
-                                              ? "Redemption Pending (₹${fund.redeemedAmount.toStringAsFixed(0)})"
-                                              : "Redemption Pending"),
-                                      style: const TextStyle(
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFFC2410C),
-                                      ),
-                                    ),
-                                  ),
-                                ] else if (fund.isRedeemed ||
-                                    fund.holdingStatus.toLowerCase() ==
-                                        'redeemed') ...[
-                                  const SizedBox(height: 3),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 1.5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF1F5F9),
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: const Color(0xFFCBD5E1),
-                                        width: 0.8,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      fund.redeemedUnits > 0
-                                          ? "Redeemed (${fund.redeemedUnits.toStringAsFixed(3)} Units)"
-                                          : (fund.redeemedAmount > 0
-                                              ? "Redeemed (₹${fund.redeemedAmount.toStringAsFixed(0)})"
-                                              : "Redeemed"),
-                                      style: const TextStyle(
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF475569),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          Obx(() {
-                            final bool deleting =
-                                goalSipController.isDeleting[fundId] ?? false;
-                            if (fund.hasPendingRedemption) {
-                              return const SizedBox.shrink();
-                            }
-                            return deleting
-                                ? const Padding(
-                                    padding: EdgeInsets.only(left: 6),
-                                    child: SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                  )
-                                : IconButton(
-                                    icon: const Icon(
-                                      Iconsax.trash,
-                                      color: Color(0xFF94A3B8),
-                                      size: 17,
-                                    ),
-                                    padding: const EdgeInsets.only(left: 6),
-                                    constraints: const BoxConstraints(),
-                                    onPressed: () {
-                                      DialogHelper.showRemoveFundDialog(
-                                        fundName: fund.fundName.isNotEmpty
-                                            ? fund.fundName
-                                            : 'this fund',
-                                        onConfirm: () {
-                                          goalSipController.deleteGoalFund(
-                                            id: fundId,
-                                            isEdit: false,
-                                            schemeName: fund.fundName,
-                                            goalId: freshGoal?.id,
+                              ),
+                              Obx(() {
+                                final bool deleting =
+                                    goalSipController.isDeleting[fundId] ??
+                                    false;
+                                if (fund.hasPendingRedemption) {
+                                  return const SizedBox.shrink();
+                                }
+                                return deleting
+                                    ? const Padding(
+                                        padding: EdgeInsets.only(left: 6),
+                                        child: SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      )
+                                    : IconButton(
+                                        icon: const Icon(
+                                          Iconsax.trash,
+                                          color: Color(0xFF94A3B8),
+                                          size: 17,
+                                        ),
+                                        padding: const EdgeInsets.only(left: 6),
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () {
+                                          DialogHelper.showRemoveFundDialog(
+                                            fundName: fund.fundName.isNotEmpty
+                                                ? fund.fundName
+                                                : 'this fund',
+                                            onConfirm: () {
+                                              goalSipController.deleteGoalFund(
+                                                id: fundId,
+                                                isEdit: false,
+                                                schemeName: fund.fundName,
+                                                goalId: freshGoal?.id,
+                                              );
+                                            },
                                           );
                                         },
                                       );
-                                    },
-                                  );
-                          }),
-                        ],
+                              }),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            })
+                  );
+                })
               else
                 ...linkedFunds.map((fund) {
                   return Obx(() {
@@ -3804,7 +4894,7 @@ class GoalDetailSection extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: UTextStyles.medium.copyWith(
                             color: const Color(0xFF0F172A),
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
                         ),
@@ -3825,7 +4915,7 @@ class GoalDetailSection extends StatelessWidget {
                               displayAmount,
                               style: const TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 color: Color(0xFF1E293B),
                               ),
                             ),
