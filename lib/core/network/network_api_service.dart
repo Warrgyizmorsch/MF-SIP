@@ -224,6 +224,7 @@ class NetworkServicesApi implements BaseApiServices {
     required Map<String, dynamic> fields,
     required List<Uint8List> files,
     required List<String> fileNames,
+    List<String>? fileFieldNames,
     Map<String, String>? headers,
     String? fileFieldName,
     String? contentType,
@@ -246,12 +247,15 @@ class NetworkServicesApi implements BaseApiServices {
       });
 
       for (int i = 0; i < files.length; i++) {
+        final field = (fileFieldNames != null && i < fileFieldNames.length)
+            ? fileFieldNames[i]
+            : actualFileField;
         final mime = lookupMimeType(fileNames[i]) ?? 'application/octet-stream';
         final mimeType = mime.split('/');
 
         formData.files.add(
           MapEntry(
-            actualFileField,
+            field,
             MultipartFile.fromBytes(
               files[i],
               filename: fileNames[i],
@@ -719,6 +723,7 @@ class InvalidInputException extends AppException {
   InvalidInputException([String? message])
     : super(message: message ?? 'Invalid input', prefix: 'Invalid Input');
 }
+
 /// Exception for required app upgrades (426)
 class AppUpgradeRequiredException extends AppException {
   AppUpgradeRequiredException([String? message])

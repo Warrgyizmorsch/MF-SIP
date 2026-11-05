@@ -279,6 +279,8 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
     required String bankProofType,
     required Uint8List? bankProofBytes,
     required String? bankProofFileName,
+    Uint8List? existingBankProofBytes,
+    String? existingBankProofFileName,
   }) async {
     try {
       final response = await _remoteDataSource.addBankAccount(
@@ -292,6 +294,8 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
         bankProofType: bankProofType,
         bankProofBytes: bankProofBytes,
         bankProofFileName: bankProofFileName,
+        existingBankProofBytes: existingBankProofBytes,
+        existingBankProofFileName: existingBankProofFileName,
       );
 
       return response.fold(

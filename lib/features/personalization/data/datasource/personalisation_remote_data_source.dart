@@ -360,6 +360,8 @@ class PersonalisationRemoteDataSource {
     required String bankProofType,
     required Uint8List? bankProofBytes,
     required String? bankProofFileName,
+    Uint8List? existingBankProofBytes,
+    String? existingBankProofFileName,
   }) async {
     try {
       final fields = {
@@ -377,10 +379,20 @@ class PersonalisationRemoteDataSource {
 
       List<Uint8List> files = [];
       List<String> fileNames = [];
+      List<String> fileFieldNames = [];
 
+      // 1. New Bank Proof (proof_image)
       if (bankProofBytes != null && bankProofFileName != null) {
         files.add(bankProofBytes);
         fileNames.add(bankProofFileName);
+        fileFieldNames.add("proof_image");
+      }
+
+      // 2. Existing Bank Proof (existing_bank_proof_image) - required when adding 2nd/3rd bank
+      if (existingBankProofBytes != null && existingBankProofFileName != null) {
+        files.add(existingBankProofBytes);
+        fileNames.add(existingBankProofFileName);
+        fileFieldNames.add("existing_bank_proof_image");
       }
 
       final resp = await _apiService.postMultipart(
@@ -388,6 +400,7 @@ class PersonalisationRemoteDataSource {
         fields: fields,
         files: files,
         fileNames: fileNames,
+        fileFieldNames: fileFieldNames,
         fileFieldName: "proof_image",
       );
 

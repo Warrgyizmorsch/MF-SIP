@@ -181,8 +181,13 @@ class PersonalisationController extends GetxController {
 
   // Check if CAN is available but not yet approved
   bool get isCanPendingApproval {
-    final can = (userData.value?.canNumber ?? session.getUserData?.canNumber ?? '').trim();
-    final status = (userData.value?.canStatus ?? session.getUserData?.canStatus ?? '').trim().toLowerCase();
+    final can =
+        (userData.value?.canNumber ?? session.getUserData?.canNumber ?? '')
+            .trim();
+    final status =
+        (userData.value?.canStatus ?? session.getUserData?.canStatus ?? '')
+            .trim()
+            .toLowerCase();
     return can.isNotEmpty && status != 'approved' && status != 'active';
   }
 
@@ -244,7 +249,6 @@ class PersonalisationController extends GetxController {
     'Mother-In-Law',
     'Son',
     'Spouse',
-  
   ];
 
   final occupationList = [
@@ -319,7 +323,8 @@ class PersonalisationController extends GetxController {
     nominationLevel.value = level;
     if (level == 'CAN') {
       selectedNominationFolio.value = null;
-    } else if (selectedNominationFolio.value == null && userFolioItems.isNotEmpty) {
+    } else if (selectedNominationFolio.value == null &&
+        userFolioItems.isNotEmpty) {
       selectedNominationFolio.value = userFolioItems.first;
     }
     resetNomineeForms();
@@ -426,12 +431,36 @@ class PersonalisationController extends GetxController {
   final Rx<Uint8List?> bankProofBytes = Rx<Uint8List?>(null);
   final RxString bankProofFileName = ''.obs;
 
+  // --- Existing Registered Bank Proof (Required when user has >= 1 bank already) ---
+  final RxString existingBankProofPath = ''.obs;
+  final Rx<Uint8List?> existingBankProofBytes = Rx<Uint8List?>(null);
+  final RxString existingBankProofFileName = ''.obs;
+
   final List<Map<String, String>> bankProofOptions = [
     {"code": "14", "label": "Latest Bank Passbook"},
     {"code": "15", "label": "Latest Bank Account Statement"},
     {"code": "77", "label": "Cheque Copy"},
     {"code": "78", "label": "Bank Letter"},
   ];
+
+  /// Checks if the user already has at least 1 registered bank account
+  bool get requiresExistingBankProof =>
+      linkedBankAccounts.isNotEmpty ||
+      (userData.value?.bankAccounts?.isNotEmpty ?? false);
+
+  /// Retrieves the existing registered bank (primary or first approved)
+  profileEntity.BankAccountEntity? get existingRegisteredBank {
+    if (linkedBankAccounts.isNotEmpty) {
+      return linkedBankAccounts.firstWhereOrNull((b) => b.isFullyApproved) ??
+          linkedBankAccounts.first;
+    }
+    final userBanks = userData.value?.bankAccounts;
+    if (userBanks != null && userBanks.isNotEmpty) {
+      return userBanks.firstWhereOrNull((b) => b.isFullyApproved) ??
+          userBanks.first;
+    }
+    return null;
+  }
 
   /// Checks if the bank is being added as an NCT bank to an existing approved CAN
   bool get isAddingBankForNct {
@@ -553,6 +582,49 @@ class PersonalisationController extends GetxController {
     }
   }
 
+  Future<void> pickExistingBankProof(ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: source,
+      imageQuality: 85,
+      maxHeight: 2048,
+      maxWidth: 2048,
+    );
+    if (image != null) {
+      final ext = image.name.split('.').last.toLowerCase();
+      const allowedExts = ['jpg', 'jpeg', 'png', 'bmp'];
+
+      if (!allowedExts.contains(ext)) {
+        CustomSnackbar.warning(
+          title: "Invalid Format",
+          message:
+              "Only ${allowedExts.join(', ').toUpperCase()} formats are allowed for existing bank proof.",
+        );
+        return;
+      }
+
+      final bytes = await image.readAsBytes();
+      if (bytes.lengthInBytes > 500 * 1024) {
+        CustomSnackbar.warning(
+          title: "File Too Large",
+          message:
+              "Existing bank proof size (${(bytes.lengthInBytes / 1024).round()} KB) exceeds 500 KB. Please crop closer to the document and try again.",
+        );
+        return;
+      }
+
+      existingBankProofPath.value = image.path;
+      existingBankProofFileName.value = image.name;
+      existingBankProofBytes.value = bytes;
+    }
+  }
+
+  void clearExistingBankProof() {
+    existingBankProofPath.value = '';
+    existingBankProofFileName.value = '';
+    existingBankProofBytes.value = null;
+  }
+
   Future<void> fetchUserBankList({bool isRefresh = false}) async {
     final uid = session.getUserData?.id;
     if (uid == null || uid == 0) return;
@@ -587,7 +659,9 @@ class PersonalisationController extends GetxController {
             hasBank.value = linkedBankAccounts.isNotEmpty;
 
             if (isRefresh) {
-              final pendingBank = linkedBankAccounts.firstWhereOrNull((b) => b.isPendingValidation);
+              final pendingBank = linkedBankAccounts.firstWhereOrNull(
+                (b) => b.isPendingValidation,
+              );
               if (pendingBank != null) {
                 final ref = pendingBank.nctRefNo?.isNotEmpty == true
                     ? pendingBank.nctRefNo
@@ -608,11 +682,14 @@ class PersonalisationController extends GetxController {
           }
         },
         (error) {
-          log("[PersonalisationController] fetchUserBankList error: ${error.message}");
+          log(
+            "[PersonalisationController] fetchUserBankList error: ${error.message}",
+          );
           if (isRefresh) {
             CustomSnackbar.warning(
               title: "Notice",
-              message: error.message ?? "Could not refresh bank status right now.",
+              message:
+                  error.message ?? "Could not refresh bank status right now.",
             );
           }
         },
@@ -652,6 +729,9 @@ class PersonalisationController extends GetxController {
     bankProofPath.value = '';
     bankProofBytes.value = null;
     bankProofFileName.value = '';
+
+    // Clear existing bank proof fields
+    clearExistingBankProof();
   }
 
   Future<void> fetchBanks() async {
@@ -703,14 +783,16 @@ class PersonalisationController extends GetxController {
             userData.value = profileData;
 
             // Sync folios from profile
-            final rawFoliosList = profileData.rawFolios ?? success.data?.rawFolios;
+            final rawFoliosList =
+                profileData.rawFolios ?? success.data?.rawFolios;
             final richFolios = profileData.folios ?? success.data?.folios;
 
             if (richFolios != null && richFolios.isNotEmpty) {
               userFolioItems.assignAll(richFolios);
             }
 
-            final List<String> stringFolios = rawFoliosList ??
+            final List<String> stringFolios =
+                rawFoliosList ??
                 richFolios
                     ?.map((FolioItemEntity e) => e.folioNumber ?? e.folio ?? '')
                     .where((s) => s.isNotEmpty)
@@ -846,10 +928,12 @@ class PersonalisationController extends GetxController {
 
     final existingCan = session.getUserData?.canNumber ?? '';
     final exitstingCan1 = userData.value?.canNumber ?? '';
-    final String statusFromUserData =
-        (userData.value?.canStatus ?? '').trim().toLowerCase();
-    final String statusFromSession =
-        (session.getUserData?.canStatus ?? '').trim().toLowerCase();
+    final String statusFromUserData = (userData.value?.canStatus ?? '')
+        .trim()
+        .toLowerCase();
+    final String statusFromSession = (session.getUserData?.canStatus ?? '')
+        .trim()
+        .toLowerCase();
     final String userCanStatus = statusFromUserData.isNotEmpty
         ? statusFromUserData
         : statusFromSession;
@@ -888,8 +972,7 @@ class PersonalisationController extends GetxController {
       if (isManualTrigger) {
         CustomSnackbar.warning(
           title: 'Action Required',
-          message:
-              'Please complete KYC, Bank, and Personal Details first.',
+          message: 'Please complete KYC, Bank, and Personal Details first.',
         );
       }
       final missing = [
@@ -1079,6 +1162,38 @@ class PersonalisationController extends GetxController {
       return;
     }
 
+    // --- Existing Bank Proof Validation (Required when user has >= 1 bank already) ---
+    if (requiresExistingBankProof) {
+      if (existingBankProofBytes.value == null) {
+        final existingBankName =
+            existingRegisteredBank?.bankName ?? "registered bank";
+        CustomSnackbar.warning(
+          title: "Existing Bank Proof Required",
+          message:
+              "Please upload a cheque or passbook copy of your currently registered bank ($existingBankName).",
+        );
+        return;
+      }
+
+      if (existingBankProofFileName.value.toLowerCase().endsWith('.pdf')) {
+        CustomSnackbar.warning(
+          title: "Invalid Format",
+          message:
+              "PDF format is not supported for existing bank proof. Please upload an image (JPG, JPEG, PNG, BMP).",
+        );
+        return;
+      }
+
+      if (existingBankProofBytes.value != null &&
+          existingBankProofBytes.value!.lengthInBytes > 500 * 1024) {
+        CustomSnackbar.warning(
+          title: "File Too Large",
+          message: "Existing bank proof size must not exceed 500 KB.",
+        );
+        return;
+      }
+    }
+
     isBankAdding.value = true;
 
     try {
@@ -1101,6 +1216,10 @@ class PersonalisationController extends GetxController {
         bankProofType: bankProofType.value,
         bankProofBytes: bankProofBytes.value,
         bankProofFileName: bankProofFileName.value,
+        existingBankProofBytes: existingBankProofBytes.value,
+        existingBankProofFileName: existingBankProofFileName.value.isNotEmpty
+            ? existingBankProofFileName.value
+            : null,
       );
 
       await result.fold(
@@ -1154,8 +1273,9 @@ class PersonalisationController extends GetxController {
       return;
     }
 
-    final targetBank =
-        linkedBankAccounts.firstWhereOrNull((b) => b.id == bankId);
+    final targetBank = linkedBankAccounts.firstWhereOrNull(
+      (b) => b.id == bankId,
+    );
 
     // Guard 1: In-flight NCT pending bank lock (Option A)
     if (targetBank != null && targetBank.isPendingValidation) {
@@ -1182,8 +1302,9 @@ class PersonalisationController extends GetxController {
     }
 
     // Guard 3: Primary / Last approved bank check
-    final approvedBanks =
-        linkedBankAccounts.where((b) => b.isFullyApproved).toList();
+    final approvedBanks = linkedBankAccounts
+        .where((b) => b.isFullyApproved)
+        .toList();
     if (approvedBanks.length <= 1 && (targetBank?.isFullyApproved ?? false)) {
       ULoaders.warning(
         title: "Primary Bank Required",
@@ -1420,10 +1541,13 @@ class PersonalisationController extends GetxController {
               image: apiData.data?.image,
               panCard: apiData.data?.panCard,
               kycStatus: apiData.data?.kycStatus,
-              folios: apiData.data?.rawFolios ??
+              folios:
+                  apiData.data?.rawFolios ??
                   apiData.rawFolios ??
                   (apiData.data?.folios ?? apiData.folios)
-                      ?.map((FolioItemEntity e) => e.folioNumber ?? e.folio ?? '')
+                      ?.map(
+                        (FolioItemEntity e) => e.folioNumber ?? e.folio ?? '',
+                      )
                       .where((s) => s.isNotEmpty)
                       .toList(),
               // ... map other fields
@@ -1561,7 +1685,8 @@ class PersonalisationController extends GetxController {
         .fold(0.0, (sum, item) => sum + item.allocationPercent);
   }
 
-  double get remainingCanAllocation => (100.0 - currentCanAllocation).clamp(0.0, 100.0);
+  double get remainingCanAllocation =>
+      (100.0 - currentCanAllocation).clamp(0.0, 100.0);
 
   bool get isCanNominationFull => remainingCanAllocation <= 0.01;
 
@@ -1902,11 +2027,13 @@ class PersonalisationController extends GetxController {
           addNomineeLoading.value = false;
           return;
         }
-        final folio = selectedNominationFolio.value!.folioNumber ??
+        final folio =
+            selectedNominationFolio.value!.folioNumber ??
             selectedNominationFolio.value!.folio ??
             '';
         requestData["folio_number"] = folio;
-        final rtaCode = selectedNominationFolio.value!.rtaAmcCode ??
+        final rtaCode =
+            selectedNominationFolio.value!.rtaAmcCode ??
             selectedNominationFolio.value!.amcCode;
         if (rtaCode != null && rtaCode.isNotEmpty) {
           requestData["rta_amc_code"] = rtaCode;
@@ -2210,13 +2337,10 @@ class PersonalisationController extends GetxController {
       return;
     }
     final isFolioMode = statementTypeIndex.value == 1;
-    if (isFolioMode &&
-        selectedFolio.value.trim().isEmpty) {
+    if (isFolioMode && selectedFolio.value.trim().isEmpty) {
       Get.snackbar('Missing Info', 'Please select a valid folio number');
       return;
     }
-
-
 
     // Validation for custom dates
     if (selectedDuration.value == 3 &&
@@ -2242,11 +2366,6 @@ class PersonalisationController extends GetxController {
       );
     } else {
       // Handle normal account statement download here
-
-
-
-
-
 
       requestAccountStatement(
         type: "download",
@@ -2280,8 +2399,7 @@ class PersonalisationController extends GetxController {
       return;
     }
     final isFolioMode = statementTypeIndex.value == 1;
-    if (isFolioMode &&
-        selectedFolio.value.trim().isEmpty) {
+    if (isFolioMode && selectedFolio.value.trim().isEmpty) {
       Get.snackbar('Missing Info', 'Please select a valid folio number');
       return;
     }
@@ -2311,11 +2429,6 @@ class PersonalisationController extends GetxController {
       );
     } else {
       // Handle normal account statement email here
-
-
-
-
-
 
       requestAccountStatement(
         type: "email",

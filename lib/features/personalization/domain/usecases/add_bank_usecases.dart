@@ -23,6 +23,8 @@ class AddBankUseCase {
     required String bankProofType,
     required Uint8List? bankProofBytes,
     required String? bankProofFileName,
+    Uint8List? existingBankProofBytes,
+    String? existingBankProofFileName,
   }) async {
     return await personalisationRepository.addBankAccount(
       uid: uid,
@@ -35,6 +37,8 @@ class AddBankUseCase {
       bankProofType: bankProofType,
       bankProofBytes: bankProofBytes,
       bankProofFileName: bankProofFileName,
+      existingBankProofBytes: existingBankProofBytes,
+      existingBankProofFileName: existingBankProofFileName,
     );
   }
 }

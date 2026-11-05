@@ -142,8 +142,7 @@ class CanBlockReasonEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [blockName, blockSubName, seqNo, rspType, rspCode];
+  List<Object?> get props => [blockName, blockSubName, seqNo, rspType, rspCode];
 }
 
 extension CanBlockReasonEntityX on CanBlockReasonModel {
@@ -163,7 +162,8 @@ extension ProfileUpdateResponseX on ProfileUpdateModel {
     return ProfileUpdateResponseEntity(
       status: status,
       message: message,
-      folios: folios?.map((e) => e.toEntity()).toList() ?? data?.toEntity().folios,
+      folios:
+          folios?.map((e) => e.toEntity()).toList() ?? data?.toEntity().folios,
       rawFolios: rawFolios ?? data?.rawFolios,
       nomineeVerifyLinkH1: nomineeVerifyLinkH1,
       nomineeVerifyLinkH2: nomineeVerifyLinkH2,
@@ -695,9 +695,9 @@ class BankAccountEntity extends Equatable {
   bool get isPendingValidation =>
       !isFullyApproved &&
       (mfuBankExistFlag?.toUpperCase() == 'N' ||
-       nctStatus?.toLowerCase() == 'pending' ||
-       status?.toLowerCase() == 'pending' ||
-       verified == 0);
+          nctStatus?.toLowerCase() == 'pending' ||
+          status?.toLowerCase() == 'pending' ||
+          verified == 0);
 
   /// Rejected by MFU or AMC
   bool get isRejected =>
@@ -714,6 +714,27 @@ class BankAccountEntity extends Equatable {
     }
     return accountNumber ?? '****';
   }
+
+  /// Formatted human-readable label for the uploaded bank proof document
+  String get proofLabel {
+    final code = (proof ?? proofDocId ?? '').trim();
+    switch (code) {
+      case '14':
+        return 'Latest Bank Passbook';
+      case '15':
+        return 'Latest Bank Account Statement';
+      case '77':
+        return 'Cheque Copy';
+      case '78':
+        return 'Bank Letter';
+      default:
+        return code.isNotEmpty ? 'Document ($code)' : '';
+    }
+  }
+
+  /// Whether a proof document or image exists for this bank account
+  bool get hasProofDocument =>
+      proofLabel.isNotEmpty || (proofImage != null && proofImage!.isNotEmpty);
 
   @override
   List<Object?> get props => [

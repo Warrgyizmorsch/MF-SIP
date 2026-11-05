@@ -71,6 +71,8 @@ abstract class PersonalisationRepository {
     required String bankProofType,
     required Uint8List? bankProofBytes,
     required String? bankProofFileName,
+    Uint8List? existingBankProofBytes,
+    String? existingBankProofFileName,
   });
 
   Future<Either<Result<DeleteBankEntity>, ApiError>> deleteBank({

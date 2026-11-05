@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-
 abstract class BaseApiServices {
   Future<dynamic> getApi(String url);
 
@@ -19,17 +18,15 @@ abstract class BaseApiServices {
 
   Future<dynamic> postFormData(String url, Map<String, dynamic> data);
 
-
   /// Multipart (supports ANY file type)
   Future<dynamic> postMultipart({
     required String url,
     required Map<String, String> fields,
     required List<Uint8List> files,
     required List<String> fileNames,
-
+    List<String>? fileFieldNames,
     Map<String, String>? headers,
     String? fileFieldName,
     String? contentType,
   });
-
 }

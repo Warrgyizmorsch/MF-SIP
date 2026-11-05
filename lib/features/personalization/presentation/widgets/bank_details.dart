@@ -154,10 +154,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                         onDelete: () {
                           if (bank.id != null) {
                             debugPrint(bank.id.toString());
-                            _confirmDelete(
-                              context,
-                              bank,
-                            );
+                            _confirmDelete(context, bank);
                           } else {
                             Get.snackbar("Error", "Bank ID not found");
                           }
@@ -166,11 +163,17 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                         cardNumber: bank.maskedAccountNumber,
                         ifsccode: bank.ifscCode ?? '',
                         isVerified: bank.isFullyApproved,
-                        nctStatus: bank.nctStatus ?? (bank.isPendingValidation ? 'pending' : null),
-                        nctRefNo: bank.nctRefNo ?? controller.userBankNctRefNo.value,
-                        canCheckStatus: bank.canCheckStatus ?? controller.userBankCanCheckStatus.value,
+                        nctStatus:
+                            bank.nctStatus ??
+                            (bank.isPendingValidation ? 'pending' : null),
+                        nctRefNo:
+                            bank.nctRefNo ?? controller.userBankNctRefNo.value,
+                        canCheckStatus:
+                            bank.canCheckStatus ??
+                            controller.userBankCanCheckStatus.value,
                         isCheckingStatus: controller.isFetchingUserBanks.value,
-                        onCheckStatus: () => controller.fetchUserBankList(isRefresh: true),
+                        onCheckStatus: () =>
+                            controller.fetchUserBankList(isRefresh: true),
                         bankLogo: UImages.sbi,
                         color: Ucolors.deepOceanGradient,
                       ),
@@ -426,8 +429,9 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
     }
 
     // 3. Primary / Last Approved Bank Guard
-    final approvedBanks =
-        controller.linkedBankAccounts.where((b) => b.isFullyApproved).toList();
+    final approvedBanks = controller.linkedBankAccounts
+        .where((b) => b.isFullyApproved)
+        .toList();
     if (approvedBanks.length <= 1 && bank.isFullyApproved) {
       DialogHelper.showPrerequisiteDialog(
         title: "Primary Bank Required",
@@ -441,7 +445,8 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 
     DialogHelper.showPrerequisiteDialog(
       title: 'Delete Bank',
-      message: 'Are you sure you want to delete ${bank.bankName ?? "this bank"}?',
+      message:
+          'Are you sure you want to delete ${bank.bankName ?? "this bank"}?',
       buttonText: 'Delete',
       onTap: () {
         Get.back(); // Close dialog
@@ -554,8 +559,8 @@ class BankCard extends StatelessWidget {
                           isVerified
                               ? "Verified Primary"
                               : (nctStatus?.toLowerCase() == 'pending'
-                                  ? "Verification in Progress"
-                                  : "Pending Verification"),
+                                    ? "Verification in Progress"
+                                    : "Pending Verification"),
                           style: const TextStyle(
                             fontFamily: FontFamily.medium,
                             color: Colors.white,
@@ -563,7 +568,9 @@ class BankCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (!isVerified && nctRefNo != null && nctRefNo!.isNotEmpty)
+                        if (!isVerified &&
+                            nctRefNo != null &&
+                            nctRefNo!.isNotEmpty)
                           Text(
                             "Ref ID: $nctRefNo",
                             style: const TextStyle(
@@ -601,7 +608,11 @@ class BankCard extends StatelessWidget {
                           : const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.refresh, size: 12, color: Colors.white),
+                                Icon(
+                                  Icons.refresh,
+                                  size: 12,
+                                  color: Colors.white,
+                                ),
                                 SizedBox(width: 4),
                                 Text(
                                   "Check Status",

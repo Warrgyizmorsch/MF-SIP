@@ -303,249 +303,8 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
         }),
         const Gap(20),
 
-        Text(
-          'Bank Proof Document',
-          style: TextStyle(
-            fontFamily: FontFamily.medium,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
-          ),
-        ),
-        const Gap(8),
-        Obx(() {
-          final hasFile = controller.bankProofPath.value.isNotEmpty;
-
-          return GestureDetector(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                builder: (context) => SafeArea(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          'Select File Source',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: FontFamily.medium,
-                          ),
-                        ),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.camera_alt_outlined),
-                        title: const Text(
-                          'Camera',
-                          style: TextStyle(fontFamily: FontFamily.medium),
-                        ),
-                        onTap: () {
-                          Get.back();
-                          controller.pickBankProof(ImageSource.camera);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.image_outlined),
-                        title: const Text(
-                          'Gallery',
-                          style: TextStyle(fontFamily: FontFamily.medium),
-                        ),
-                        onTap: () {
-                          Get.back();
-                          controller.pickBankProof(ImageSource.gallery);
-                        },
-                      ),
-                      if (!controller.isAddingBankForNct)
-                        ListTile(
-                          leading: const Icon(
-                            Icons.picture_as_pdf_outlined,
-                            color: Colors.red,
-                          ),
-                          title: const Text(
-                            'Document (PDF / File)',
-                            style: TextStyle(fontFamily: FontFamily.medium),
-                          ),
-                          onTap: () {
-                            Get.back();
-                            controller.pickBankProofPdf();
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: hasFile ? Ucolors.primary : Colors.grey.shade300,
-                  style: BorderStyle.solid,
-                ),
-              ),
-              child: hasFile
-                  ? Row(
-                      children: [
-                        if (!controller.bankProofFileName.value
-                                .toLowerCase()
-                                .endsWith('.pdf') &&
-                            controller.bankProofBytes.value != null)
-                          GestureDetector(
-                            onTap: () =>
-                                _showDocumentPreview(context, controller),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Stack(
-                                children: [
-                                  Image.memory(
-                                    controller.bankProofBytes.value!,
-                                    width: 44,
-                                    height: 44,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  Positioned.fill(
-                                    child: Container(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.15),
-                                      child: const Icon(
-                                        Icons.zoom_in,
-                                        size: 20,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        else
-                          Icon(
-                            controller.bankProofFileName.value
-                                    .toLowerCase()
-                                    .endsWith('.pdf')
-                                ? Icons.picture_as_pdf
-                                : Icons.insert_drive_file,
-                            color: controller.bankProofFileName.value
-                                    .toLowerCase()
-                                    .endsWith('.pdf')
-                                ? Colors.red
-                                : Ucolors.primary,
-                            size: 32,
-                          ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                controller.bankProofFileName.value,
-                                style: const TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  if (controller.bankProofBytes.value !=
-                                      null) ...[
-                                    Text(
-                                      '${(controller.bankProofBytes.value!.lengthInBytes / 1024).toStringAsFixed(1)} KB',
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.medium,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    const Text(' • ',
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 11)),
-                                  ],
-                                  const Text(
-                                    'Tap to change file',
-                                    style: TextStyle(
-                                      fontFamily: FontFamily.medium,
-                                      fontSize: 11,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (!controller.bankProofFileName.value
-                                .toLowerCase()
-                                .endsWith('.pdf') &&
-                            controller.bankProofBytes.value != null)
-                          IconButton(
-                            icon: const Icon(
-                              Icons.visibility_outlined,
-                              color: Ucolors.primary,
-                            ),
-                            tooltip: 'Preview document quality',
-                            onPressed: () =>
-                                _showDocumentPreview(context, controller),
-                          ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
-                          ),
-                          onPressed: () {
-                            controller.bankProofPath.value = '';
-                            controller.bankProofBytes.value = null;
-                            controller.bankProofFileName.value = '';
-                          },
-                        ),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        Icon(
-                          Icons.cloud_upload_outlined,
-                          size: 36,
-                          color: Colors.grey.shade400,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Upload Bank Proof Copy',
-                          style: TextStyle(
-                            fontFamily: FontFamily.medium,
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          controller.isAddingBankForNct
-                              ? 'Supported formats: JPG, JPEG, PNG, BMP (Max 500 KB)'
-                              : 'Supported formats: JPG, JPEG, PNG, PDF (Max 500 KB)',
-                          style: TextStyle(
-                            fontFamily: FontFamily.medium,
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ),
-            ),
-          );
-        }),
-        const Gap(6),
+        _buildProofUploadSection(context),
+        const Gap(10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -622,10 +381,459 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
     );
   }
 
+  Widget _buildProofUploadSection(BuildContext context) {
+    return Obx(() {
+      final requiresExisting = controller.requiresExistingBankProof;
+
+      if (!requiresExisting) {
+        // Single proof for 1st-time bank addition
+        return _buildUploadBox(
+          context: context,
+          title: 'Bank Proof Document',
+          subtitle: 'Upload Cheque Copy or Passbook',
+          pathRx: controller.bankProofPath,
+          fileNameRx: controller.bankProofFileName,
+          bytesRx: controller.bankProofBytes,
+          onCameraTap: () => controller.pickBankProof(ImageSource.camera),
+          onGalleryTap: () => controller.pickBankProof(ImageSource.gallery),
+          onPdfTap: controller.isAddingBankForNct
+              ? null
+              : () => controller.pickBankProofPdf(),
+          onClear: () {
+            controller.bankProofPath.value = '';
+            controller.bankProofBytes.value = null;
+            controller.bankProofFileName.value = '';
+          },
+          allowedFormatsHint: controller.isAddingBankForNct
+              ? 'Supported formats: JPG, JPEG, PNG, BMP (Max 500 KB)'
+              : 'Supported formats: JPG, JPEG, PNG, PDF (Max 500 KB)',
+        );
+      }
+
+      // 2 proofs required when user already has >= 1 registered bank account
+      final regBank = controller.existingRegisteredBank;
+      final regBankName = regBank?.bankName ?? "Existing Registered Bank";
+      final regAcc =
+          regBank?.accountNumber != null && regBank!.accountNumber!.isNotEmpty
+          ? " (••••${regBank.accountNumber!.length > 4 ? regBank.accountNumber!.substring(regBank.accountNumber!.length - 4) : regBank.accountNumber})"
+          : "";
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Informational Alert
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0F9FF),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFB9E6FE)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: Color(0xFF026AA2),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Two Bank Proofs Required",
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Color(0xFF026AA2),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "As per MFU guidelines for adding an additional bank, please upload proof for both your new bank account and your currently registered bank ($regBankName$regAcc).",
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          color: Color(0xFF175CD3),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Gap(20),
+
+          // 1. New Bank Proof
+          _buildUploadBox(
+            context: context,
+            title: '1. New Bank Proof',
+            subtitle: 'Cheque copy or passbook for your new bank',
+            pathRx: controller.bankProofPath,
+            fileNameRx: controller.bankProofFileName,
+            bytesRx: controller.bankProofBytes,
+            onCameraTap: () => controller.pickBankProof(ImageSource.camera),
+            onGalleryTap: () => controller.pickBankProof(ImageSource.gallery),
+            onPdfTap: controller.isAddingBankForNct
+                ? null
+                : () => controller.pickBankProofPdf(),
+            onClear: () {
+              controller.bankProofPath.value = '';
+              controller.bankProofBytes.value = null;
+              controller.bankProofFileName.value = '';
+            },
+            allowedFormatsHint: controller.isAddingBankForNct
+                ? 'Supported formats: JPG, JPEG, PNG, BMP (Max 500 KB)'
+                : 'Supported formats: JPG, JPEG, PNG, PDF (Max 500 KB)',
+          ),
+          const Gap(24),
+
+          // 2. Existing Bank Proof
+          _buildUploadBox(
+            context: context,
+            title: '2. Existing Bank Proof',
+            subtitle: 'Cheque copy or passbook for your registered bank',
+            badge: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFECFDF3),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xFFABEFC6)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.check_circle_outline,
+                    size: 12,
+                    color: Color(0xFF067647),
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      "$regBankName$regAcc",
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF067647),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            pathRx: controller.existingBankProofPath,
+            fileNameRx: controller.existingBankProofFileName,
+            bytesRx: controller.existingBankProofBytes,
+            onCameraTap: () =>
+                controller.pickExistingBankProof(ImageSource.camera),
+            onGalleryTap: () =>
+                controller.pickExistingBankProof(ImageSource.gallery),
+            onPdfTap: null, // Images only for existing registered bank proof
+            onClear: () => controller.clearExistingBankProof(),
+            allowedFormatsHint:
+                'Supported formats: JPG, JPEG, PNG, BMP (Max 500 KB)',
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildUploadBox({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    Widget? badge,
+    required RxString pathRx,
+    required RxString fileNameRx,
+    required Rx<Uint8List?> bytesRx,
+    required VoidCallback onCameraTap,
+    required VoidCallback onGalleryTap,
+    VoidCallback? onPdfTap,
+    required VoidCallback onClear,
+    required String allowedFormatsHint,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (badge != null) ...[
+              const SizedBox(width: 8),
+              Flexible(child: badge),
+            ],
+          ],
+        ),
+        const Gap(8),
+        Obx(() {
+          final hasFile = pathRx.value.isNotEmpty;
+          final fileName = fileNameRx.value;
+          final bytes = bytesRx.value;
+
+          return GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (context) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Upload $title',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: FontFamily.medium,
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.camera_alt_outlined),
+                        title: const Text(
+                          'Camera',
+                          style: TextStyle(fontFamily: FontFamily.medium),
+                        ),
+                        onTap: () {
+                          Get.back();
+                          onCameraTap();
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.image_outlined),
+                        title: const Text(
+                          'Gallery',
+                          style: TextStyle(fontFamily: FontFamily.medium),
+                        ),
+                        onTap: () {
+                          Get.back();
+                          onGalleryTap();
+                        },
+                      ),
+                      if (onPdfTap != null)
+                        ListTile(
+                          leading: const Icon(
+                            Icons.picture_as_pdf_outlined,
+                            color: Colors.red,
+                          ),
+                          title: const Text(
+                            'Document (PDF / File)',
+                            style: TextStyle(fontFamily: FontFamily.medium),
+                          ),
+                          onTap: () {
+                            Get.back();
+                            onPdfTap();
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: hasFile ? Ucolors.primary : Colors.grey.shade300,
+                  style: BorderStyle.solid,
+                ),
+              ),
+              child: hasFile
+                  ? Row(
+                      children: [
+                        if (!fileName.toLowerCase().endsWith('.pdf') &&
+                            bytes != null)
+                          GestureDetector(
+                            onTap: () =>
+                                _showDocumentPreview(context, bytes, fileName),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Stack(
+                                children: [
+                                  Image.memory(
+                                    bytes,
+                                    width: 44,
+                                    height: 44,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Positioned.fill(
+                                    child: Container(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      child: const Icon(
+                                        Icons.zoom_in,
+                                        size: 20,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          Icon(
+                            fileName.toLowerCase().endsWith('.pdf')
+                                ? Icons.picture_as_pdf
+                                : Icons.insert_drive_file,
+                            color: fileName.toLowerCase().endsWith('.pdf')
+                                ? Colors.red
+                                : Ucolors.primary,
+                            size: 32,
+                          ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                fileName,
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  if (bytes != null) ...[
+                                    Text(
+                                      '${(bytes.lengthInBytes / 1024).toStringAsFixed(1)} KB',
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    const Text(
+                                      ' • ',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                  const Text(
+                                    'Tap to change file',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!fileName.toLowerCase().endsWith('.pdf') &&
+                            bytes != null)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.visibility_outlined,
+                              color: Ucolors.primary,
+                            ),
+                            tooltip: 'Preview document quality',
+                            onPressed: () =>
+                                _showDocumentPreview(context, bytes, fileName),
+                          ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                          ),
+                          onPressed: onClear,
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Icon(
+                          Icons.cloud_upload_outlined,
+                          size: 36,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Upload $title',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          allowedFormatsHint,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
   void _showDocumentPreview(
-      BuildContext context, PersonalisationController controller) {
-    final bytes = controller.bankProofBytes.value;
-    final fileName = controller.bankProofFileName.value;
+    BuildContext context,
+    Uint8List? bytes,
+    String fileName,
+  ) {
     if (bytes == null) return;
 
     Get.dialog(
@@ -642,12 +850,17 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.verified_outlined,
-                        size: 18, color: Ucolors.primary),
+                    const Icon(
+                      Icons.verified_outlined,
+                      size: 18,
+                      color: Ucolors.primary,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -677,10 +890,7 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
                       panEnabled: true,
                       minScale: 1.0,
                       maxScale: 4.0,
-                      child: Image.memory(
-                        bytes,
-                        fit: BoxFit.contain,
-                      ),
+                      child: Image.memory(bytes, fit: BoxFit.contain),
                     ),
                   ),
                 ),
