@@ -464,7 +464,7 @@ class AppTextStyles {
   // BUTTON  (14sp)
   // ─────────────────────────────────────────
   static TextStyle button({
-    Color color = Colors.blue,
+    Color color = Ucolors.primary,
     double size = 14.0,
     FontWeight weight = FontWeight.w600,
     TextDecoration? decoration,

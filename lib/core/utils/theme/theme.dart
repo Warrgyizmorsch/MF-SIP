@@ -48,13 +48,34 @@ class Utheme {
 
   static const String _font = 'Roboto';
 
-  static ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
-    fontFamily: _font,
-    textTheme: lightTextTheme,
-    scaffoldBackgroundColor: Ucolors.light,
-    appBarTheme: uAppBarTheme.lightAppBarTheme,
-  );
+  static ThemeData lightTheme = _buildLightTheme();
+
+  static ThemeData _buildLightTheme() {
+    final baseTheme = ThemeData(
+      useMaterial3: true,
+      fontFamily: _font,
+      textTheme: lightTextTheme,
+      scaffoldBackgroundColor: Ucolors.light,
+      appBarTheme: uAppBarTheme.lightAppBarTheme,
+    );
+
+    return baseTheme.copyWith(
+      primaryColor: Ucolors.primary,
+      primaryColorLight: Ucolors.skyblue1,
+      primaryColorDark: Ucolors.blue,
+      colorScheme: baseTheme.colorScheme.copyWith(
+        primary: Ucolors.primary,
+        onPrimary: Ucolors.onPrimary,
+        primaryContainer: Ucolors.skyblue1,
+        onPrimaryContainer: Ucolors.blue,
+        secondary: Ucolors.indigo,
+        onSecondary: Ucolors.white,
+        secondaryContainer: Ucolors.skyblue,
+        onSecondaryContainer: Ucolors.homeInk,
+        surfaceTint: Ucolors.primary,
+      ),
+    );
+  }
 
   static TextTheme lightTextTheme = TextTheme(
     headlineLarge: TextStyle(
@@ -111,7 +132,7 @@ class Utheme {
       fontFamily: _font,
       fontSize: 14.0,
       fontWeight: FontWeight.w500,
-      color: Ucolors.dark.withValues(alpha:0.5),
+      color: Ucolors.dark.withValues(alpha: 0.5),
     ),
 
     labelLarge: TextStyle(
@@ -124,7 +145,7 @@ class Utheme {
       fontFamily: _font,
       fontSize: 12.0,
       fontWeight: FontWeight.normal,
-      color: Ucolors.dark.withValues(alpha:0.5),
+      color: Ucolors.dark.withValues(alpha: 0.5),
     ),
   );
 }
