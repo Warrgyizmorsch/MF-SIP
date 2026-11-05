@@ -240,6 +240,121 @@ class SipCancellationDetailsModel {
   }
 }
 
+class MfuExitLoadLotModel {
+  final String? allotmentDate;
+  final double? units;
+  final double? amount;
+  final double? ratePercent;
+  final double? exitLoadAmount;
+  final int? daysHeld;
+
+  MfuExitLoadLotModel({
+    this.allotmentDate,
+    this.units,
+    this.amount,
+    this.ratePercent,
+    this.exitLoadAmount,
+    this.daysHeld,
+  });
+
+  factory MfuExitLoadLotModel.fromJson(Map<String, dynamic> json) {
+    return MfuExitLoadLotModel(
+      allotmentDate: json.parse<String>('allotment_date'),
+      units: json.parse<double>('units'),
+      amount: json.parse<double>('amount'),
+      ratePercent: json.parse<double>('rate_percent'),
+      exitLoadAmount: json.parse<double>('exit_load_amount'),
+      daysHeld: json.parse<int>('days_held'),
+    );
+  }
+}
+
+class MfuExitLoadDataModel {
+  final bool? success;
+  final String? schemeCode;
+  final String? fundName;
+  final String? folio;
+  final double? currentNav;
+  final double? grossAmount;
+  final double? units;
+  final double? exitLoadAmount;
+  final double? netEstimatedPayout;
+  final double? ratePercent;
+  final String? rateFormatted;
+  final bool? isApplicable;
+  final int? daysHeld;
+  final int? thresholdDays;
+  final int? daysRemainingForNil;
+  final String? freeDate;
+  final String? freeDateFormatted;
+  final String? statusBadge;
+  final String? summaryText;
+  final String? smartTip;
+  final String? rawRule;
+  final int? lotsCount;
+  final List<MfuExitLoadLotModel>? lotsBreakdown;
+  final String? disclaimer;
+
+  MfuExitLoadDataModel({
+    this.success,
+    this.schemeCode,
+    this.fundName,
+    this.folio,
+    this.currentNav,
+    this.grossAmount,
+    this.units,
+    this.exitLoadAmount,
+    this.netEstimatedPayout,
+    this.ratePercent,
+    this.rateFormatted,
+    this.isApplicable,
+    this.daysHeld,
+    this.thresholdDays,
+    this.daysRemainingForNil,
+    this.freeDate,
+    this.freeDateFormatted,
+    this.statusBadge,
+    this.summaryText,
+    this.smartTip,
+    this.rawRule,
+    this.lotsCount,
+    this.lotsBreakdown,
+    this.disclaimer,
+  });
+
+  factory MfuExitLoadDataModel.fromJson(Map<String, dynamic> json) {
+    return MfuExitLoadDataModel(
+      success: json.parse<bool>('success'),
+      schemeCode: json['scheme_code']?.toString(),
+      fundName: json.parse<String>('fund_name'),
+      folio: json.parse<String>('folio'),
+      currentNav: json.parse<double>('current_nav'),
+      grossAmount: json.parse<double>('gross_amount'),
+      units: json.parse<double>('units'),
+      exitLoadAmount: json.parse<double>('exit_load_amount'),
+      netEstimatedPayout: json.parse<double>('net_estimated_payout'),
+      ratePercent: json.parse<double>('rate_percent'),
+      rateFormatted: json.parse<String>('rate_formatted'),
+      isApplicable: json.parse<bool>('is_applicable'),
+      daysHeld: json.parse<int>('days_held'),
+      thresholdDays: json.parse<int>('threshold_days'),
+      daysRemainingForNil: json.parse<int>('days_remaining_for_nil'),
+      freeDate: json.parse<String>('free_date'),
+      freeDateFormatted: json.parse<String>('free_date_formatted'),
+      statusBadge: json.parse<String>('status_badge'),
+      summaryText: json.parse<String>('summary_text'),
+      smartTip: json.parse<String>('smart_tip'),
+      rawRule: json.parse<String>('raw_rule'),
+      lotsCount: json.parse<int>('lots_count'),
+      lotsBreakdown: (json['lots_breakdown'] as List?)
+          ?.whereType<Map<String, dynamic>>()
+          .map((e) => MfuExitLoadLotModel.fromJson(e))
+          .toList(),
+      disclaimer: json.parse<String>('disclaimer'),
+    );
+  }
+}
+
 class MfuFundTransactionModel {
   final int? id;
   final String? date;
@@ -313,9 +428,11 @@ class MfuFundTransactionModel {
       mfuGorn: json.parse<String>('mfu_gorn'),
       mfuItrn: json.parse<String>('mfu_itrn'),
       direction: json.parse<String>('direction'),
-      displayAmount: displayMap?.parse<String>('amount') ??
+      displayAmount:
+          displayMap?.parse<String>('amount') ??
           json.parse<String>('display_amount'),
-      displayUnits: displayMap?.parse<String>('units') ??
+      displayUnits:
+          displayMap?.parse<String>('units') ??
           json.parse<String>('display_units'),
     );
   }
@@ -367,6 +484,15 @@ class MfuPortfolioItemModel {
   final String? latestOrderStatus;
   final String? latestOrderStatusLabel;
   final String? exitLoad;
+  final MfuExitLoadDataModel? exitLoadData;
+  final double? exitLoadAmount;
+  final double? exitLoadRate;
+  final String? exitLoadRateFormatted;
+  final int? exitLoadDaysRemaining;
+  final String? exitLoadFreeDate;
+  final String? exitLoadFreeDateFormatted;
+  final String? exitLoadStatusBadge;
+  final String? exitLoadSmartTip;
   final bool? isRedeemed;
   final String? holdingStatus;
   final String? firstInvestedDate;
@@ -425,6 +551,15 @@ class MfuPortfolioItemModel {
     this.latestOrderStatus,
     this.latestOrderStatusLabel,
     this.exitLoad,
+    this.exitLoadData,
+    this.exitLoadAmount,
+    this.exitLoadRate,
+    this.exitLoadRateFormatted,
+    this.exitLoadDaysRemaining,
+    this.exitLoadFreeDate,
+    this.exitLoadFreeDateFormatted,
+    this.exitLoadStatusBadge,
+    this.exitLoadSmartTip,
     this.isRedeemed,
     this.holdingStatus,
     this.firstInvestedDate,
@@ -565,16 +700,35 @@ class MfuPortfolioItemModel {
       latestOrderStatus: json.parse<String>('latest_order_status'),
       latestOrderStatusLabel: json.parse<String>('latest_order_status_label'),
       exitLoad: json.parse<String>('exit_load'),
+      exitLoadData:
+          json['exit_load_data'] != null &&
+              json['exit_load_data'] is Map<String, dynamic>
+          ? MfuExitLoadDataModel.fromJson(
+              json['exit_load_data'] as Map<String, dynamic>,
+            )
+          : null,
+      exitLoadAmount: json.parse<double>('exit_load_amount'),
+      exitLoadRate: json.parse<double>('exit_load_rate'),
+      exitLoadRateFormatted: json.parse<String>('exit_load_rate_formatted'),
+      exitLoadDaysRemaining: json.parse<int>('exit_load_days_remaining'),
+      exitLoadFreeDate: json.parse<String>('exit_load_free_date'),
+      exitLoadFreeDateFormatted: json.parse<String>(
+        'exit_load_free_date_formatted',
+      ),
+      exitLoadStatusBadge: json.parse<String>('exit_load_status_badge'),
+      exitLoadSmartTip: json.parse<String>('exit_load_smart_tip'),
       isRedeemed: json.parse<bool>('is_redeemed'),
       holdingStatus: json.parse<String>('holding_status'),
       firstInvestedDate: json.parse<String>('first_invested_date'),
       latestInvestedDate: json.parse<String>('latest_invested_date'),
       latestPurchaseNav: json.parse<double>('latest_purchase_nav'),
-      sipFrequency: json.parse<String>('sip_frequency') ??
+      sipFrequency:
+          json.parse<String>('sip_frequency') ??
           json.parse<String>('frequency'),
       sipFrequencyType: json.parse<String>('sip_frequency_type'),
       sipDay: json.parse<String>('sip_day'),
-      nextSipDate: json.parse<String>('next_sip_date') ??
+      nextSipDate:
+          json.parse<String>('next_sip_date') ??
           json.parse<String>('next_installment_date'),
       totalInstallments: json.parse<int>('total_installments'),
       transactions: (json['transactions'] as List?)

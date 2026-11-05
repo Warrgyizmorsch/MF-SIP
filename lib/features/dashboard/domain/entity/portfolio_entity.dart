@@ -134,21 +134,31 @@ class MfuPortfolioEntity extends Equatable {
   final bool success;
   final List<MfuPortfolioItemEntity> portfolio;
   final MfuPortfolioSummaryEntity summary;
+  final MfuPortfolioUserEntity? user;
+  final MfuPortfolioPaginationEntity? pagination;
 
   const MfuPortfolioEntity({
     required this.success,
     required this.portfolio,
     required this.summary,
+    this.user,
+    this.pagination,
   });
 
   int get totalFunds => portfolio.length;
 
-  MfuPortfolioEntity copyWith({List<MfuPortfolioItemEntity>? portfolio}) =>
-      MfuPortfolioEntity(
-        success: success,
-        portfolio: portfolio ?? this.portfolio,
-        summary: summary,
-      );
+  MfuPortfolioEntity copyWith({
+    List<MfuPortfolioItemEntity>? portfolio,
+    MfuPortfolioSummaryEntity? summary,
+    MfuPortfolioUserEntity? user,
+    MfuPortfolioPaginationEntity? pagination,
+  }) => MfuPortfolioEntity(
+    success: success,
+    portfolio: portfolio ?? this.portfolio,
+    summary: summary ?? this.summary,
+    user: user ?? this.user,
+    pagination: pagination ?? this.pagination,
+  );
 
   List<MfuPortfolioItemEntity> get sipFunds =>
       portfolio.where((f) => f.investmentType.toLowerCase() == 'sip').toList();
@@ -162,7 +172,7 @@ class MfuPortfolioEntity extends Equatable {
       .toList();
 
   @override
-  List<Object?> get props => [success, portfolio, summary];
+  List<Object?> get props => [success, portfolio, summary, user, pagination];
 }
 
 class MfuRedemptionDetailsEntity extends Equatable {
@@ -233,6 +243,174 @@ class SipCancellationDetailsEntity extends Equatable {
     orderRefNo,
     message,
     cancelledDate,
+  ];
+}
+
+class MfuPortfolioUserEntity extends Equatable {
+  final int id;
+  final String name;
+  final String image;
+
+  const MfuPortfolioUserEntity({this.id = 0, this.name = '', this.image = ''});
+
+  @override
+  List<Object?> get props => [id, name, image];
+}
+
+class MfuPortfolioPaginationEntity extends Equatable {
+  final int currentPage;
+  final int perPage;
+  final int total;
+  final int lastPage;
+  final bool hasMore;
+
+  const MfuPortfolioPaginationEntity({
+    this.currentPage = 1,
+    this.perPage = 20,
+    this.total = 0,
+    this.lastPage = 1,
+    this.hasMore = false,
+  });
+
+  @override
+  List<Object?> get props => [currentPage, perPage, total, lastPage, hasMore];
+}
+
+class MfuExitLoadLotEntity extends Equatable {
+  final String allotmentDate;
+  final double units;
+  final double amount;
+  final double ratePercent;
+  final double exitLoadAmount;
+  final int daysHeld;
+
+  const MfuExitLoadLotEntity({
+    this.allotmentDate = '',
+    this.units = 0.0,
+    this.amount = 0.0,
+    this.ratePercent = 0.0,
+    this.exitLoadAmount = 0.0,
+    this.daysHeld = 0,
+  });
+
+  @override
+  List<Object?> get props => [
+    allotmentDate,
+    units,
+    amount,
+    ratePercent,
+    exitLoadAmount,
+    daysHeld,
+  ];
+}
+
+class MfuExitLoadDataEntity extends Equatable {
+  final bool success;
+  final String schemeCode;
+  final String fundName;
+  final String folio;
+  final double currentNav;
+  final double grossAmount;
+  final double units;
+  final double exitLoadAmount;
+  final double netEstimatedPayout;
+  final double ratePercent;
+  final String rateFormatted;
+  final bool isApplicable;
+  final int daysHeld;
+  final int thresholdDays;
+  final int daysRemainingForNil;
+  final String freeDate;
+  final String freeDateFormatted;
+  final String statusBadge;
+  final String summaryText;
+  final String smartTip;
+  final String rawRule;
+  final int lotsCount;
+  final List<MfuExitLoadLotEntity> lotsBreakdown;
+  final String disclaimer;
+
+  const MfuExitLoadDataEntity({
+    this.success = false,
+    this.schemeCode = '',
+    this.fundName = '',
+    this.folio = '',
+    this.currentNav = 0.0,
+    this.grossAmount = 0.0,
+    this.units = 0.0,
+    this.exitLoadAmount = 0.0,
+    this.netEstimatedPayout = 0.0,
+    this.ratePercent = 0.0,
+    this.rateFormatted = '',
+    this.isApplicable = false,
+    this.daysHeld = 0,
+    this.thresholdDays = 0,
+    this.daysRemainingForNil = 0,
+    this.freeDate = '',
+    this.freeDateFormatted = '',
+    this.statusBadge = '',
+    this.summaryText = '',
+    this.smartTip = '',
+    this.rawRule = '',
+    this.lotsCount = 0,
+    this.lotsBreakdown = const [],
+    this.disclaimer = '',
+  });
+
+  @override
+  List<Object?> get props => [
+    success,
+    schemeCode,
+    fundName,
+    folio,
+    currentNav,
+    grossAmount,
+    units,
+    exitLoadAmount,
+    netEstimatedPayout,
+    ratePercent,
+    rateFormatted,
+    isApplicable,
+    daysHeld,
+    thresholdDays,
+    daysRemainingForNil,
+    freeDate,
+    freeDateFormatted,
+    statusBadge,
+    summaryText,
+    smartTip,
+    rawRule,
+    lotsCount,
+    lotsBreakdown,
+    disclaimer,
+  ];
+}
+
+class MfuPortfolioDisplayEntity extends Equatable {
+  final String currentValue;
+  final String totalInvested;
+  final String totalReturns;
+  final String totalReturnsPercent;
+  final String oneDayReturns;
+  final String oneDayReturnsPercent;
+
+  const MfuPortfolioDisplayEntity({
+    this.currentValue = '',
+    this.totalInvested = '',
+    this.totalReturns = '',
+    this.totalReturnsPercent = '',
+    this.oneDayReturns = '',
+    this.oneDayReturnsPercent = '',
+  });
+
+  @override
+  List<Object?> get props => [
+    currentValue,
+    totalInvested,
+    totalReturns,
+    totalReturnsPercent,
+    oneDayReturns,
+    oneDayReturnsPercent,
   ];
 }
 
@@ -359,6 +537,15 @@ class MfuPortfolioItemEntity extends Equatable {
   final String latestOrderStatus;
   final String latestOrderStatusLabel;
   final String exitLoad;
+  final MfuExitLoadDataEntity? exitLoadData;
+  final double exitLoadAmount;
+  final double exitLoadRate;
+  final String exitLoadRateFormatted;
+  final int exitLoadDaysRemaining;
+  final String exitLoadFreeDate;
+  final String exitLoadFreeDateFormatted;
+  final String exitLoadStatusBadge;
+  final String exitLoadSmartTip;
   final bool isRedeemed;
   final String holdingStatus;
   final String firstInvestedDate;
@@ -414,6 +601,15 @@ class MfuPortfolioItemEntity extends Equatable {
     this.latestOrderStatus = '',
     this.latestOrderStatusLabel = '',
     this.exitLoad = '',
+    this.exitLoadData,
+    this.exitLoadAmount = 0.0,
+    this.exitLoadRate = 0.0,
+    this.exitLoadRateFormatted = '',
+    this.exitLoadDaysRemaining = 0,
+    this.exitLoadFreeDate = '',
+    this.exitLoadFreeDateFormatted = '',
+    this.exitLoadStatusBadge = '',
+    this.exitLoadSmartTip = '',
     this.isRedeemed = false,
     this.holdingStatus = '',
     this.firstInvestedDate = '',
@@ -484,6 +680,15 @@ class MfuPortfolioItemEntity extends Equatable {
       latestOrderStatus: latestOrderStatus,
       latestOrderStatusLabel: latestOrderStatusLabel,
       exitLoad: exitLoad,
+      exitLoadData: exitLoadData,
+      exitLoadAmount: exitLoadAmount,
+      exitLoadRate: exitLoadRate,
+      exitLoadRateFormatted: exitLoadRateFormatted,
+      exitLoadDaysRemaining: exitLoadDaysRemaining,
+      exitLoadFreeDate: exitLoadFreeDate,
+      exitLoadFreeDateFormatted: exitLoadFreeDateFormatted,
+      exitLoadStatusBadge: exitLoadStatusBadge,
+      exitLoadSmartTip: exitLoadSmartTip,
       isRedeemed: isRedeemed,
       holdingStatus: holdingStatus,
       firstInvestedDate: firstInvestedDate,
@@ -542,6 +747,11 @@ class MfuPortfolioItemEntity extends Equatable {
           allotmentStatus.toLowerCase() == 'allotment_in_progress' ||
           allotmentStatus.toLowerCase() == 'pending');
 
+  bool get hasExitLoadData => exitLoadData != null;
+  bool get isExitLoadFree =>
+      (exitLoadData?.daysRemainingForNil ?? exitLoadDaysRemaining) <= 0 &&
+      (exitLoadData?.exitLoadAmount ?? exitLoadAmount) <= 0;
+
   @override
   List<Object?> get props => [
     schemeCode,
@@ -584,6 +794,15 @@ class MfuPortfolioItemEntity extends Equatable {
     latestOrderStatus,
     latestOrderStatusLabel,
     exitLoad,
+    exitLoadData,
+    exitLoadAmount,
+    exitLoadRate,
+    exitLoadRateFormatted,
+    exitLoadDaysRemaining,
+    exitLoadFreeDate,
+    exitLoadFreeDateFormatted,
+    exitLoadStatusBadge,
+    exitLoadSmartTip,
     isRedeemed,
     holdingStatus,
     firstInvestedDate,
@@ -603,16 +822,23 @@ class MfuPortfolioSummaryEntity extends Equatable {
   final double totalCurrentValue;
   final double totalGainLoss;
   final double totalGainLossPercent;
+  final double oneDayReturns;
+  final double oneDayReturnsPercent;
+  final MfuPortfolioDisplayEntity? display;
 
   const MfuPortfolioSummaryEntity({
     required this.totalInvested,
     required this.totalCurrentValue,
     required this.totalGainLoss,
     required this.totalGainLossPercent,
+    this.oneDayReturns = 0.0,
+    this.oneDayReturnsPercent = 0.0,
+    this.display,
   });
 
   // Computed property for UI styling (green/red)
   bool get isOverallProfit => totalGainLoss >= 0;
+  bool get isOneDayProfit => oneDayReturns >= 0;
 
   @override
   List<Object?> get props => [
@@ -620,6 +846,9 @@ class MfuPortfolioSummaryEntity extends Equatable {
     totalCurrentValue,
     totalGainLoss,
     totalGainLossPercent,
+    oneDayReturns,
+    oneDayReturnsPercent,
+    display,
   ];
 }
 
@@ -630,6 +859,8 @@ extension MfuPortfolioModelMapper on MfuPortfolioModel {
     return MfuPortfolioEntity(
       success: success ?? false,
       portfolio: portfolio?.map((e) => e.toEntity()).toList() ?? [],
+      user: user?.toEntity(),
+      pagination: pagination?.toEntity(),
       // Provide a safe default empty summary if the API returns null
       summary:
           summary?.toEntity() ??
@@ -722,6 +953,19 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       latestOrderStatus: latestOrderStatus ?? '',
       latestOrderStatusLabel: latestOrderStatusLabel ?? '',
       exitLoad: exitLoad ?? '',
+      exitLoadData: exitLoadData?.toEntity(),
+      exitLoadAmount: exitLoadAmount ?? exitLoadData?.exitLoadAmount ?? 0.0,
+      exitLoadRate: exitLoadRate ?? exitLoadData?.ratePercent ?? 0.0,
+      exitLoadRateFormatted:
+          exitLoadRateFormatted ?? exitLoadData?.rateFormatted ?? '',
+      exitLoadDaysRemaining:
+          exitLoadDaysRemaining ?? exitLoadData?.daysRemainingForNil ?? 0,
+      exitLoadFreeDate: exitLoadFreeDate ?? exitLoadData?.freeDate ?? '',
+      exitLoadFreeDateFormatted:
+          exitLoadFreeDateFormatted ?? exitLoadData?.freeDateFormatted ?? '',
+      exitLoadStatusBadge:
+          exitLoadStatusBadge ?? exitLoadData?.statusBadge ?? '',
+      exitLoadSmartTip: exitLoadSmartTip ?? exitLoadData?.smartTip ?? '',
       isRedeemed: isRedeemed ?? false,
       holdingStatus: holdingStatus ?? '',
       firstInvestedDate: firstInvestedDate ?? '',
@@ -772,6 +1016,89 @@ extension MfuPortfolioSummaryMapper on MfuPortfolioSummaryModel {
       totalCurrentValue: totalCurrentValue ?? 0.0,
       totalGainLoss: totalGainLoss ?? 0.0,
       totalGainLossPercent: totalGainLossPercent ?? 0.0,
+      oneDayReturns: oneDayReturns ?? 0.0,
+      oneDayReturnsPercent: oneDayReturnsPercent ?? 0.0,
+      display: display?.toEntity(),
+    );
+  }
+}
+
+extension MfuPortfolioDisplayMapper on MfuPortfolioDisplayModel {
+  MfuPortfolioDisplayEntity toEntity() {
+    return MfuPortfolioDisplayEntity(
+      currentValue: currentValue ?? '',
+      totalInvested: totalInvested ?? '',
+      totalReturns: totalReturns ?? '',
+      totalReturnsPercent: totalReturnsPercent ?? '',
+      oneDayReturns: oneDayReturns ?? '',
+      oneDayReturnsPercent: oneDayReturnsPercent ?? '',
+    );
+  }
+}
+
+extension MfuPortfolioUserMapper on MfuPortfolioUserModel {
+  MfuPortfolioUserEntity toEntity() {
+    return MfuPortfolioUserEntity(
+      id: id ?? 0,
+      name: name ?? '',
+      image: image ?? '',
+    );
+  }
+}
+
+extension MfuPortfolioPaginationMapper on MfuPortfolioPaginationModel {
+  MfuPortfolioPaginationEntity toEntity() {
+    return MfuPortfolioPaginationEntity(
+      currentPage: currentPage ?? 1,
+      perPage: perPage ?? 20,
+      total: total ?? 0,
+      lastPage: lastPage ?? 1,
+      hasMore: hasMore ?? false,
+    );
+  }
+}
+
+extension MfuExitLoadLotMapper on MfuExitLoadLotModel {
+  MfuExitLoadLotEntity toEntity() {
+    return MfuExitLoadLotEntity(
+      allotmentDate: allotmentDate ?? '',
+      units: units ?? 0.0,
+      amount: amount ?? 0.0,
+      ratePercent: ratePercent ?? 0.0,
+      exitLoadAmount: exitLoadAmount ?? 0.0,
+      daysHeld: daysHeld ?? 0,
+    );
+  }
+}
+
+extension MfuExitLoadDataMapper on MfuExitLoadDataModel {
+  MfuExitLoadDataEntity toEntity() {
+    return MfuExitLoadDataEntity(
+      success: success ?? false,
+      schemeCode: schemeCode ?? '',
+      fundName: fundName ?? '',
+      folio: folio ?? '',
+      currentNav: currentNav ?? 0.0,
+      grossAmount: grossAmount ?? 0.0,
+      units: units ?? 0.0,
+      exitLoadAmount: exitLoadAmount ?? 0.0,
+      netEstimatedPayout: netEstimatedPayout ?? 0.0,
+      ratePercent: ratePercent ?? 0.0,
+      rateFormatted: rateFormatted ?? '',
+      isApplicable: isApplicable ?? false,
+      daysHeld: daysHeld ?? 0,
+      thresholdDays: thresholdDays ?? 0,
+      daysRemainingForNil: daysRemainingForNil ?? 0,
+      freeDate: freeDate ?? '',
+      freeDateFormatted: freeDateFormatted ?? '',
+      statusBadge: statusBadge ?? '',
+      summaryText: summaryText ?? '',
+      smartTip: smartTip ?? '',
+      rawRule: rawRule ?? '',
+      lotsCount: lotsCount ?? 0,
+      lotsBreakdown:
+          lotsBreakdown?.map((l) => l.toEntity()).toList() ?? const [],
+      disclaimer: disclaimer ?? '',
     );
   }
 }
