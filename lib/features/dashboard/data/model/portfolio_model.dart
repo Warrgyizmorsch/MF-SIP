@@ -606,7 +606,9 @@ class MfuPortfolioItemModel {
         json.parse<String>('amc_logo') ?? json.parse<String>('amc_image_url');
 
     final String? parsedType =
-        json.parse<String>('type') ?? json.parse<String>('investment_type');
+        json.parse<String>('investment_type') ??
+        json.parse<String>('investmentType') ??
+        json.parse<String>('type');
 
     final double? parsedInvested =
         json.parse<double>('invested_amount') ??

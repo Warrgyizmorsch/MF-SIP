@@ -281,6 +281,19 @@ class PortfolioFundDetailsPage extends StatelessWidget {
         _buildHeroCard(activeFund, isProfit: isProfit, is1DProfit: is1DProfit),
         const SizedBox(height: 20),
         ..._buildStatusBanners(activeFund),
+        if (_hasSipScheduleSection(activeFund)) ...[
+          const Text(
+            'SIP Schedule',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildSipScheduleCard(activeFund),
+          const SizedBox(height: 20),
+        ],
         const Text(
           'Investment Metrics',
           style: TextStyle(
@@ -331,6 +344,19 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           _buildSipCancellationCard(activeFund),
           const SizedBox(height: 20),
         ],
+        if (_hasTransactionsSection(activeFund)) ...[
+          const Text(
+            'Transaction History',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildFundTransactionsCard(activeFund),
+          const SizedBox(height: 20),
+        ],
       ],
     );
   }
@@ -345,7 +371,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left Column: Hero Overview, Status Banners, and Transaction Card
+        // Left Column: Hero Overview, Status Banners, SIP Schedule, Actions, Transactions
         Expanded(
           flex: 6,
           child: Column(
@@ -358,6 +384,19 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               ..._buildStatusBanners(activeFund),
+              if (_hasSipScheduleSection(activeFund)) ...[
+                const Text(
+                  'SIP Schedule',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildSipScheduleCard(activeFund),
+                const SizedBox(height: 20),
+              ],
               if (canTransact) ...[
                 Container(
                   width: double.infinity,
@@ -426,6 +465,19 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(height: 20),
+              ],
+              if (_hasTransactionsSection(activeFund)) ...[
+                const Text(
+                  'Transaction History',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildFundTransactionsCard(activeFund),
                 const SizedBox(height: 20),
               ],
             ],
@@ -523,60 +575,98 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'Folio: ${activeFund.folioNo}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ),
-                  if (activeFund.exitLoadStatusBadge.isNotEmpty) ...[
-                    const SizedBox(width: 8),
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
+                        horizontal: 10,
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            (activeFund.isExitLoadFree
-                                    ? Colors.green
-                                    : Colors.amber)
-                                .withValues(alpha: 0.25),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: activeFund.isExitLoadFree
-                              ? Colors.greenAccent
-                              : Colors.amberAccent,
-                        ),
                       ),
                       child: Text(
-                        activeFund.exitLoadStatusBadge,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: activeFund.isExitLoadFree
-                              ? Colors.greenAccent
-                              : Colors.amberAccent,
+                        'Folio: ${activeFund.folioNo}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70,
                         ),
                       ),
                     ),
+                    if (activeFund.exitLoadStatusBadge.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              (activeFund.isExitLoadFree
+                                      ? Colors.green
+                                      : Colors.amber)
+                                  .withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: activeFund.isExitLoadFree
+                                ? Colors.greenAccent
+                                : Colors.amberAccent,
+                          ),
+                        ),
+                        child: Text(
+                          activeFund.exitLoadStatusBadge,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: activeFund.isExitLoadFree
+                                ? Colors.greenAccent
+                                : Colors.amberAccent,
+                          ),
+                        ),
+                      ),
+                    if (activeFund.goalName != null &&
+                        activeFund.goalName!.trim().isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.amberAccent.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Iconsax.direct_up,
+                              size: 11,
+                              color: Colors.amberAccent,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              activeFund.goalName!,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amberAccent,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
-                ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -814,6 +904,35 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               'Investment Date',
               activeFund.purchaseDate,
               icon: Iconsax.calendar,
+            ),
+          ],
+          if (activeFund.firstInvestedDate.isNotEmpty &&
+              activeFund.firstInvestedDate != activeFund.purchaseDate) ...[
+            const Divider(height: 24),
+            _infoRow(
+              'First Invested Date',
+              activeFund.firstInvestedDate,
+              icon: Iconsax.calendar,
+            ),
+          ],
+          if (activeFund.latestInvestedDate.isNotEmpty &&
+              activeFund.latestInvestedDate != activeFund.purchaseDate &&
+              activeFund.latestInvestedDate !=
+                  activeFund.firstInvestedDate) ...[
+            const Divider(height: 24),
+            _infoRow(
+              'Latest Invested Date',
+              activeFund.latestInvestedDate,
+              icon: Iconsax.calendar_tick,
+            ),
+          ],
+          if (activeFund.latestPurchaseNav > 0 &&
+              activeFund.latestPurchaseNav != activeFund.purchaseNav) ...[
+            const Divider(height: 24),
+            _infoRow(
+              'Latest Purchase NAV',
+              '₹${activeFund.latestPurchaseNav.toStringAsFixed(4)}',
+              icon: Iconsax.card,
             ),
           ],
           const Divider(height: 24),
@@ -1153,6 +1272,321 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  bool _hasSipScheduleSection(MfuPortfolioItemEntity activeFund) {
+    if (activeFund.isLumpsum || !activeFund.isSip) return false;
+    return activeFund.nextSipDate.isNotEmpty ||
+        activeFund.totalInstallments > 0 ||
+        activeFund.sipFrequency.isNotEmpty ||
+        activeFund.isSipActive;
+  }
+
+  Widget _buildSipScheduleCard(MfuPortfolioItemEntity activeFund) {
+    final bool isCancelled = activeFund.isSipCancelledFlag;
+    final String frequency = activeFund.sipFrequency.isNotEmpty
+        ? activeFund.sipFrequency
+        : 'Monthly';
+    final String statusText = isCancelled ? 'Cancelled' : 'Active SIP';
+    final Color statusColor = isCancelled
+        ? Colors.grey
+        : const Color(0xFF16A34A);
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Iconsax.calendar_tick,
+                      size: 18,
+                      color: Color(0xFF2563EB),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'SIP Schedule',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.4)),
+                ),
+                child: Text(
+                  statusText,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: statusColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (activeFund.nextSipDate.isNotEmpty && !isCancelled) ...[
+            _infoRow(
+              'Next SIP Date',
+              activeFund.nextSipDate,
+              icon: Iconsax.calendar_1,
+              valueColor: const Color(0xFF2563EB),
+            ),
+            const Divider(height: 24),
+          ],
+          _infoRow('Frequency', frequency, icon: Iconsax.repeat),
+          if (activeFund.sipDay.isNotEmpty) ...[
+            const Divider(height: 24),
+            _infoRow(
+              'Debit Day',
+              '${activeFund.sipDay} of every month',
+              icon: Iconsax.calendar_edit,
+            ),
+          ],
+          if (activeFund.totalInstallments > 0) ...[
+            const Divider(height: 24),
+            _infoRow(
+              'Completed Installments',
+              '${activeFund.totalInstallments} ${activeFund.totalInstallments == 1 ? "installment" : "installments"}',
+              icon: Iconsax.tick_circle,
+              valueColor: Colors.green.shade700,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  bool _hasTransactionsSection(MfuPortfolioItemEntity activeFund) {
+    return activeFund.transactions.isNotEmpty;
+  }
+
+  Widget _buildFundTransactionsCard(MfuPortfolioItemEntity activeFund) {
+    final txList = activeFund.transactions;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Iconsax.receipt_item,
+                      size: 18,
+                      color: Color(0xFF475569),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Transaction History',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Text(
+                  '${txList.length} ${txList.length == 1 ? "entry" : "entries"}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: txList.length,
+            separatorBuilder: (context, index) => const Divider(height: 20),
+            itemBuilder: (context, index) {
+              final tx = txList[index];
+              final bool isCredit = tx.isCredit || !tx.isDebit;
+              final String dateStr = tx.displayDate.isNotEmpty
+                  ? tx.displayDate
+                  : tx.date;
+              final String typeStr = tx.type.isNotEmpty
+                  ? tx.type
+                  : (tx.investmentType.isNotEmpty
+                        ? tx.investmentType
+                        : (isCredit ? 'Purchase / SIP' : 'Redemption'));
+              final String statusLabel = tx.statusLabel.isNotEmpty
+                  ? tx.statusLabel
+                  : (tx.orderStatusLabel.isNotEmpty
+                        ? tx.orderStatusLabel
+                        : (tx.isSuccess ? 'Settled' : tx.status));
+              final Color statusColor = tx.isSuccess
+                  ? Colors.green.shade700
+                  : (tx.status.toLowerCase().contains('fail') ||
+                            tx.status.toLowerCase().contains('reject')
+                        ? Colors.red.shade700
+                        : const Color(0xFFD97706));
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: (isCredit ? Colors.green : Colors.red).withValues(
+                        alpha: 0.1,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isCredit
+                          ? Icons.arrow_downward_rounded
+                          : Icons.arrow_upward_rounded,
+                      size: 16,
+                      color: isCredit
+                          ? Colors.green.shade700
+                          : Colors.red.shade700,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          typeStr,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          dateStr,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        if (tx.units > 0 || tx.nav > 0) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Units: ${tx.units.toStringAsFixed(3)} ${tx.nav > 0 ? "@ ₹${tx.nav.toStringAsFixed(2)}" : ""}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '₹${tx.amount.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: isCredit
+                              ? const Color(0xFF1E293B)
+                              : Colors.red.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          statusLabel.isEmpty ? 'Processed' : statusLabel,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: statusColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );

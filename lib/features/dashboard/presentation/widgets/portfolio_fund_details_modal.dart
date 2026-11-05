@@ -267,7 +267,13 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            fund.investmentType.toUpperCase(),
+                            fund.isLumpsum
+                                ? 'LUMP SUM'
+                                : (fund.isSip
+                                      ? 'SIP'
+                                      : (fund.investmentType.isNotEmpty
+                                            ? fund.investmentType.toUpperCase()
+                                            : 'LUMP SUM')),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -277,6 +283,39 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                             ),
                           ),
                         ),
+                        if (fund.goalName != null &&
+                            fund.goalName!.trim().isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF3C7),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Iconsax.direct_up,
+                                  size: 10,
+                                  color: Color(0xFFD97706),
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  fund.goalName!,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFD97706),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -616,6 +655,31 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                     ? Colors.green.shade700
                     : Colors.red.shade700,
               ),
+              if (fund.isSipActive && fund.nextSipDate.isNotEmpty) ...[
+                const Divider(
+                  height: 20,
+                  thickness: 1,
+                  color: Color(0xFFE2E8F0),
+                ),
+                _detailRow(
+                  'Next SIP Date',
+                  fund.nextSipDate,
+                  valueColor: const Color(0xFF2563EB),
+                ),
+              ],
+              if (fund.goalName != null &&
+                  fund.goalName!.trim().isNotEmpty) ...[
+                const Divider(
+                  height: 20,
+                  thickness: 1,
+                  color: Color(0xFFE2E8F0),
+                ),
+                _detailRow(
+                  'Linked Goal',
+                  fund.goalName!,
+                  valueColor: const Color(0xFFD97706),
+                ),
+              ],
               if (fund.exitLoadStatusBadge.isNotEmpty ||
                   fund.exitLoad.isNotEmpty) ...[
                 const Divider(

@@ -161,15 +161,10 @@ class MfuPortfolioEntity extends Equatable {
   );
 
   List<MfuPortfolioItemEntity> get sipFunds =>
-      portfolio.where((f) => f.investmentType.toLowerCase() == 'sip').toList();
+      portfolio.where((f) => f.isSip).toList();
 
-  List<MfuPortfolioItemEntity> get lumpsumFunds => portfolio
-      .where(
-        (f) =>
-            f.investmentType.toLowerCase() == 'lumpsum' ||
-            f.investmentType.toLowerCase() == 'normal',
-      )
-      .toList();
+  List<MfuPortfolioItemEntity> get lumpsumFunds =>
+      portfolio.where((f) => f.isLumpsum).toList();
 
   @override
   List<Object?> get props => [success, portfolio, summary, user, pagination];
@@ -706,12 +701,24 @@ class MfuPortfolioItemEntity extends Equatable {
   // Computed properties for easy UI styling
   bool get isProfit => gainLoss >= 0;
   bool get isOneDayProfit => oneDayChange >= 0;
-  bool get isSip => investmentType.toLowerCase() == 'sip' || isSipFlag;
+  bool get isLumpsum {
+    final type = investmentType.toLowerCase().trim();
+    return type == 'lumpsum' ||
+        type == 'normal' ||
+        type == 'lump-sum' ||
+        type == 'lump_sum' ||
+        type == 'one_time' ||
+        type == 'onetime' ||
+        type == 'purchase';
+  }
+
+  bool get isSip {
+    if (isLumpsum) return false;
+    final type = investmentType.toLowerCase().trim();
+    return type == 'sip' || isSipFlag;
+  }
+
   bool get isSipActive => isSip && !isSipCancelledFlag;
-  bool get isLumpsum =>
-      investmentType.toLowerCase() == 'lumpsum' ||
-      investmentType.toLowerCase() == 'normal' ||
-      investmentType.toLowerCase() == 'lump-sum';
 
   bool get isRedemptionSettled =>
       redemptionStatus.toLowerCase() == 'settled' ||
