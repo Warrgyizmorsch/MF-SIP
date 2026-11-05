@@ -66,7 +66,8 @@ class PortfolioFundDetailsModal extends StatelessWidget {
     BuildContext context,
     MfuPortfolioItemEntity fund,
   ) async {
-    final bool isLinkedToGoal = (fund.goalId != null && fund.goalId != 0) ||
+    final bool isLinkedToGoal =
+        (fund.goalId != null && fund.goalId != 0) ||
         (fund.goalName != null &&
             fund.goalName!.trim().isNotEmpty &&
             fund.goalName != 'null');
@@ -75,7 +76,8 @@ class PortfolioFundDetailsModal extends StatelessWidget {
       return true; // Not linked to any goal, proceed directly
     }
 
-    final String goalName = (fund.goalName != null &&
+    final String goalName =
+        (fund.goalName != null &&
             fund.goalName!.trim().isNotEmpty &&
             fund.goalName != 'null')
         ? fund.goalName!
@@ -83,24 +85,15 @@ class PortfolioFundDetailsModal extends StatelessWidget {
 
     final result = await Get.dialog<bool>(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: Ucolors.red,
-              size: 28,
-            ),
+            Icon(Icons.warning_amber_rounded, color: Ucolors.red, size: 28),
             const SizedBox(width: 10),
             const Expanded(
               child: Text(
                 'Fund Linked to Goal',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -118,10 +111,7 @@ class PortfolioFundDetailsModal extends StatelessWidget {
             onPressed: () => Get.back(result: false),
             child: const Text(
               'Cancel',
-              style: TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
             ),
           ),
           ElevatedButton(
@@ -373,7 +363,10 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                         });
                       } else {
                         final shouldProceed =
-                            await confirmGoalLinkedRedeemIfNeeded(context, fund);
+                            await confirmGoalLinkedRedeemIfNeeded(
+                              context,
+                              fund,
+                            );
                         if (!shouldProceed) return;
 
                         if (!context.mounted) return;
@@ -608,26 +601,14 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                 'Total Invested',
                 '₹${fund.investedAmount.toStringAsFixed(2)}',
               ),
-              const Divider(
-                height: 20,
-                thickness: 1,
-                color: Color(0xFFE2E8F0),
-              ),
+              const Divider(height: 20, thickness: 1, color: Color(0xFFE2E8F0)),
               _detailRow('Total Units', fund.totalUnits.toStringAsFixed(3)),
-              const Divider(
-                height: 20,
-                thickness: 1,
-                color: Color(0xFFE2E8F0),
-              ),
+              const Divider(height: 20, thickness: 1, color: Color(0xFFE2E8F0)),
               _detailRow(
                 'Current NAV',
                 '₹${fund.currentNav.toStringAsFixed(4)} ${fund.navDate.isNotEmpty ? "(${fund.navDate})" : ""}',
               ),
-              const Divider(
-                height: 20,
-                thickness: 1,
-                color: Color(0xFFE2E8F0),
-              ),
+              const Divider(height: 20, thickness: 1, color: Color(0xFFE2E8F0)),
               _detailRow(
                 '1-Day Returns',
                 '${is1DProfit ? "+" : ""}₹${fund.oneDayChange.abs().toStringAsFixed(2)} (${fund.oneDayChangePercent.abs().toStringAsFixed(2)}%)',
@@ -635,10 +616,61 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                     ? Colors.green.shade700
                     : Colors.red.shade700,
               ),
+              if (fund.exitLoadStatusBadge.isNotEmpty ||
+                  fund.exitLoad.isNotEmpty) ...[
+                const Divider(
+                  height: 20,
+                  thickness: 1,
+                  color: Color(0xFFE2E8F0),
+                ),
+                _detailRow(
+                  'Exit Load',
+                  fund.exitLoadStatusBadge.isNotEmpty
+                      ? fund.exitLoadStatusBadge
+                      : fund.exitLoad,
+                  valueColor: fund.isExitLoadFree
+                      ? Colors.green.shade700
+                      : const Color(0xFFD97706),
+                ),
+              ],
             ],
           ),
         ),
-        
+
+        // Smart Tip Card (if available)
+        if (fund.exitLoadSmartTip.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFBBF7D0)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.lightbulb_outline_rounded,
+                  size: 16,
+                  color: Color(0xFF16A34A),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    fund.exitLoadSmartTip,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF15803D),
+                      fontWeight: FontWeight.w500,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -658,14 +690,14 @@ class PortfolioFundDetailsModal extends StatelessWidget {
     final ref = fund.redemptionDetails?.orderRefNo ?? '';
     final dtl = fund.redemptionDetails;
     final double amt = dtl?.amount ?? fund.redeemedAmount;
-    final double units =
-        (dtl?.units ?? 0) > 0 ? dtl!.units : fund.redeemedUnits;
-    final String volType =
-        dtl?.transactionVolumeType ?? (amt > 0 ? 'A' : 'U');
+    final double units = (dtl?.units ?? 0) > 0
+        ? dtl!.units
+        : fund.redeemedUnits;
+    final String volType = dtl?.transactionVolumeType ?? (amt > 0 ? 'A' : 'U');
     final String payoutStr =
         (volType.toUpperCase() == 'U' || amt == 0) && units > 0
-            ? '${units.toStringAsFixed(3)} Units'
-            : '₹${amt > 0 ? amt.toStringAsFixed(2) : (fund.redeemedAmount > 0 ? fund.redeemedAmount.toStringAsFixed(2) : "0.00")}';
+        ? '${units.toStringAsFixed(3)} Units'
+        : '₹${amt > 0 ? amt.toStringAsFixed(2) : (fund.redeemedAmount > 0 ? fund.redeemedAmount.toStringAsFixed(2) : "0.00")}';
 
     final String baseMsg = fund.redemptionMessage.isNotEmpty
         ? fund.redemptionMessage
@@ -680,20 +712,20 @@ class PortfolioFundDetailsModal extends StatelessWidget {
     final ref = fund.redemptionDetails?.orderRefNo ?? '';
     final dtl = fund.redemptionDetails;
     final double amt = dtl?.amount ?? fund.redeemedAmount;
-    final double units =
-        (dtl?.units ?? 0) > 0 ? dtl!.units : fund.redeemedUnits;
-    final String volType =
-        dtl?.transactionVolumeType ?? (amt > 0 ? 'A' : 'U');
+    final double units = (dtl?.units ?? 0) > 0
+        ? dtl!.units
+        : fund.redeemedUnits;
+    final String volType = dtl?.transactionVolumeType ?? (amt > 0 ? 'A' : 'U');
     final String payoutStr =
         (volType.toUpperCase() == 'U' || amt == 0) && units > 0
-            ? '${units.toStringAsFixed(3)} Units'
-            : (amt > 0 ? '₹${amt.toStringAsFixed(2)}' : '');
+        ? '${units.toStringAsFixed(3)} Units'
+        : (amt > 0 ? '₹${amt.toStringAsFixed(2)}' : '');
 
     final String baseMsg = fund.redemptionMessage.isNotEmpty
         ? fund.redemptionMessage
         : (payoutStr.isNotEmpty
-            ? 'Redemption request for $payoutStr is being processed. Payout will be credited to your bank account in 1-2 working days.'
-            : 'Payout will be credited to your bank account in 1-2 working days.');
+              ? 'Redemption request for $payoutStr is being processed. Payout will be credited to your bank account in 1-2 working days.'
+              : 'Payout will be credited to your bank account in 1-2 working days.');
     if (ref.isNotEmpty && !baseMsg.contains(ref)) {
       return '$baseMsg (Ref: $ref)';
     }

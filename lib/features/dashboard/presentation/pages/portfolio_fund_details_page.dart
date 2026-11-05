@@ -41,8 +41,11 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     if (activeFund.isSipActive) {
       SipCancelOtpModal.show(context, activeFund);
     } else {
-      final shouldProceed = await PortfolioFundDetailsModal
-          .confirmGoalLinkedRedeemIfNeeded(context, activeFund);
+      final shouldProceed =
+          await PortfolioFundDetailsModal.confirmGoalLinkedRedeemIfNeeded(
+            context,
+            activeFund,
+          );
       if (!shouldProceed) return;
 
       final redeemArgs = RedeemArgs(
@@ -289,6 +292,19 @@ class PortfolioFundDetailsPage extends StatelessWidget {
         const SizedBox(height: 12),
         _buildInvestmentMetricsCard(activeFund, is1DProfit: is1DProfit),
         const SizedBox(height: 20),
+        if (_hasExitLoadSection(activeFund)) ...[
+          const Text(
+            'Exit Load & Redemption Forecast',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildExitLoadCard(activeFund),
+          const SizedBox(height: 20),
+        ],
         if (_hasRedemptionSection(activeFund)) ...[
           const Text(
             'Redemption Payout Details',
@@ -432,6 +448,19 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               _buildInvestmentMetricsCard(activeFund, is1DProfit: is1DProfit),
+              if (_hasExitLoadSection(activeFund)) ...[
+                const SizedBox(height: 24),
+                const Text(
+                  'Exit Load & Redemption Forecast',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildExitLoadCard(activeFund),
+              ],
               if (_hasRedemptionSection(activeFund)) ...[
                 const SizedBox(height: 24),
                 const Text(
@@ -494,23 +523,59 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Folio: ${activeFund.folioNo}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white70,
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Folio: ${activeFund.folioNo}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white70,
+                      ),
+                    ),
                   ),
-                ),
+                  if (activeFund.exitLoadStatusBadge.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            (activeFund.isExitLoadFree
+                                    ? Colors.green
+                                    : Colors.amber)
+                                .withValues(alpha: 0.25),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: activeFund.isExitLoadFree
+                              ? Colors.greenAccent
+                              : Colors.amberAccent,
+                        ),
+                      ),
+                      child: Text(
+                        activeFund.exitLoadStatusBadge,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: activeFund.isExitLoadFree
+                              ? Colors.greenAccent
+                              : Colors.amberAccent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -757,12 +822,335 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             activeFund.folioNo,
             icon: Iconsax.folder_open,
           ),
-          if (activeFund.exitLoad.isNotEmpty) ...[
+          if (activeFund.exitLoadStatusBadge.isNotEmpty ||
+              activeFund.exitLoad.isNotEmpty) ...[
             const Divider(height: 24),
             _infoRow(
               'Exit Load',
-              activeFund.exitLoad,
+              activeFund.exitLoadStatusBadge.isNotEmpty
+                  ? activeFund.exitLoadStatusBadge
+                  : activeFund.exitLoad,
               icon: Iconsax.info_circle,
+              valueColor: activeFund.isExitLoadFree
+                  ? Colors.green.shade700
+                  : const Color(0xFFD97706),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  bool _hasExitLoadSection(MfuPortfolioItemEntity activeFund) {
+    return activeFund.hasExitLoadData ||
+        activeFund.exitLoad.isNotEmpty ||
+        activeFund.exitLoadStatusBadge.isNotEmpty;
+  }
+
+  Widget _buildExitLoadCard(MfuPortfolioItemEntity activeFund) {
+    final exitData = activeFund.exitLoadData;
+    final bool isFree = activeFund.isExitLoadFree;
+    final String statusBadge = activeFund.exitLoadStatusBadge.isNotEmpty
+        ? activeFund.exitLoadStatusBadge
+        : (isFree ? 'Nil (Exit Load Free)' : 'Applicable');
+    final String smartTip = activeFund.exitLoadSmartTip;
+    final double estLoad = activeFund.exitLoadAmount;
+    final double estNet =
+        exitData?.netEstimatedPayout ??
+        (activeFund.currentValue - estLoad > 0
+            ? activeFund.currentValue - estLoad
+            : 0.0);
+    final String rateStr = activeFund.exitLoadRateFormatted.isNotEmpty
+        ? activeFund.exitLoadRateFormatted
+        : (activeFund.exitLoadRate > 0
+              ? '${activeFund.exitLoadRate.toStringAsFixed(2)}%'
+              : (isFree ? '0.00%' : ''));
+    final String freeDateStr = activeFund.exitLoadFreeDateFormatted.isNotEmpty
+        ? activeFund.exitLoadFreeDateFormatted
+        : (activeFund.exitLoadFreeDate.isNotEmpty
+              ? activeFund.exitLoadFreeDate
+              : '');
+    final int daysRemaining = activeFund.exitLoadDaysRemaining;
+    final List<MfuExitLoadLotEntity> lots = exitData?.lotsBreakdown ?? const [];
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Status Badge & Exit Load Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Iconsax.shield_tick,
+                    size: 20,
+                    color: isFree
+                        ? Colors.green.shade700
+                        : const Color(0xFFD97706),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Exit Load Status',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: isFree
+                      ? const Color(0xFFECFDF3)
+                      : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isFree
+                        ? const Color(0xFFA7F3D0)
+                        : const Color(0xFFFDE68A),
+                  ),
+                ),
+                child: Text(
+                  statusBadge,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isFree
+                        ? const Color(0xFF047857)
+                        : const Color(0xFFB45309),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // 2. Smart Tip (if available)
+          if (smartTip.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFBBF7D0)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.lightbulb_outline_rounded,
+                    size: 18,
+                    color: Color(0xFF16A34A),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      smartTip,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: Color(0xFF15803D),
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          const Divider(height: 24),
+
+          // 3. Key Exit Load Numbers
+          if (rateStr.isNotEmpty) ...[
+            _infoRow(
+              'Applicable Rate',
+              rateStr,
+              icon: Iconsax.percentage_circle,
+            ),
+            const Divider(height: 20),
+          ],
+          _infoRow(
+            'Estimated Exit Load',
+            '₹${estLoad.toStringAsFixed(2)}',
+            icon: Iconsax.money_remove,
+            valueColor: estLoad > 0
+                ? Colors.red.shade700
+                : Colors.green.shade700,
+          ),
+          const Divider(height: 20),
+          _infoRow(
+            'Est. Net Payout',
+            '₹${estNet.toStringAsFixed(2)}',
+            icon: Iconsax.money_recive,
+            valueColor: Colors.green.shade800,
+          ),
+          if (freeDateStr.isNotEmpty) ...[
+            const Divider(height: 20),
+            _infoRow(
+              'Exit Load Free Date',
+              '$freeDateStr ${daysRemaining > 0 ? "($daysRemaining days left)" : "(Free Now)"}',
+              icon: Iconsax.calendar_tick,
+            ),
+          ],
+
+          // 4. FIFO Lots Breakdown (if lots available)
+          if (lots.isNotEmpty) ...[
+            const Divider(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'FIFO Lot Breakdown',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  '${lots.length} ${lots.length == 1 ? "Lot" : "Lots"}',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ...lots.asMap().entries.map((entry) {
+              final idx = entry.key + 1;
+              final lot = entry.value;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Lot #$idx • ${lot.allotmentDate}',
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${lot.units.toStringAsFixed(3)} units • Held ${lot.daysHeld}d',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '₹${lot.amount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          lot.exitLoadAmount > 0
+                              ? 'Load: ₹${lot.exitLoadAmount.toStringAsFixed(2)} (${lot.ratePercent}%)'
+                              : 'Load: Nil',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: lot.exitLoadAmount > 0
+                                ? Colors.red.shade700
+                                : Colors.green.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+
+          // 5. AMC Rule & Disclaimer
+          if (activeFund.exitLoad.isNotEmpty ||
+              (exitData != null && exitData.rawRule.isNotEmpty)) ...[
+            const Divider(height: 24),
+            Text(
+              'AMC Exit Load Policy:',
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              exitData?.rawRule.isNotEmpty == true
+                  ? exitData!.rawRule
+                  : activeFund.exitLoad,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 11,
+                color: Colors.grey.shade600,
+                height: 1.35,
+              ),
+            ),
+          ],
+          if (exitData != null && exitData.disclaimer.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              exitData.disclaimer,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 10,
+                color: Colors.grey.shade500,
+                fontStyle: FontStyle.italic,
+                height: 1.3,
+              ),
             ),
           ],
         ],
