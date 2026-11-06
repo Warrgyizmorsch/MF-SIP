@@ -421,6 +421,23 @@ The update sends name, target, assumed return, and positive optional monthly
 investment/tenure to `POST /api/v1/goals/{goalId}`. On success it refreshes live
 detail and the user-goal list, then closes the edit UI.
 
+Both edit layouts show the existing goal cover and an Add/Change image action.
+The editor keeps the selected `XFile` and its byte preview locally, so cancelling
+does not change shared new-goal cover state. Cancelled picks retain the previous
+selection; empty, unreadable, or undecodable images are rejected. Saving is
+disabled while an image is being read or an update is in progress.
+
+Without a replacement image, the existing JSON update is preserved and no
+`goal_cover` field is sent. With a replacement, the same POST endpoint receives
+multipart form data: existing goal fields as text and a binary `goal_cover`
+file. This uses the shared multipart uploader, without a method override or
+an image-removal field. Upload failures retain the editor and selection for retry.
+After success, affected cover URLs are evicted from the image cache on a
+best-effort basis and the refreshed goal state is notified. Browser caching
+and already displayed resized images can still depend on the backend returning
+a new image URL or suitable cache headers. Live multipart acceptance and
+rendered mobile/web behavior have not been verified.
+
 Updating a goal plan is not shown calling an MFU SIP-amendment endpoint. It
 should not be described as automatically changing an existing bank debit/SIP.
 Older planner Update Goal handlers still contain commented-out calls.

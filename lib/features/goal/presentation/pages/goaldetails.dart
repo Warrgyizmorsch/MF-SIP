@@ -1,7 +1,9 @@
 // ignore_for_file: unnecessary_to_list_in_spreads, invalid_null_aware_operator, unnecessary_null_comparison, unused_local_variable
 
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -9,6 +11,7 @@ import 'package:intl/intl.dart';
 import '../widget/goal_progress_indicator.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
@@ -21,6 +24,7 @@ import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller
 import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
+import '../../../../common/widget/images/image_picker.dart';
 import '../widget/add_fund_bottom_sheet.dart';
 import '../widget/goal_linked_funds_shimmer.dart';
 
@@ -462,12 +466,14 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                     ),
                   ],
                 ),
-                child: _EditGoalSheetContent(
-                  goalId: resolvedId,
-                  goal: goal,
-                  liveDetail: liveDetail,
-                  controller: controller,
-                  isDesktop: true,
+                child: SingleChildScrollView(
+                  child: _EditGoalSheetContent(
+                    goalId: resolvedId,
+                    goal: goal,
+                    liveDetail: liveDetail,
+                    controller: controller,
+                    isDesktop: true,
+                  ),
                 ),
               ),
             ),
@@ -534,6 +540,154 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
   late double _years;
   late double _rate;
   bool _isSaving = false;
+  bool _isPickingCover = false;
+  XFile? _selectedCover;
+  Uint8List? _coverBytes;
+
+  String _resolveCoverUrl(String path) {
+    final value = path.trim();
+    final uri = Uri.tryParse(value);
+    if (value.isEmpty || uri == null) return '';
+    if (uri.hasScheme) return value;
+    return '${Appurl.baseUrl.replaceFirst(RegExp(r'/+$'), '')}/${value.replaceFirst(RegExp(r'^/+'), '')}';
+  }
+
+  String get _existingCoverUrl {
+    final live = widget.liveDetail;
+    final cover = live?.id == widget.goalId ? live!.goalCover : '';
+    return _resolveCoverUrl(
+      cover.trim().isNotEmpty ? cover : (widget.goal?.goalCover ?? ''),
+    );
+  }
+
+  Future<void> _pickCover(ImageSource source) async {
+    if (!mounted || _isSaving || _isPickingCover) return;
+    setState(() => _isPickingCover = true);
+    try {
+      final image = await ImagePicker().pickImage(
+        source: source,
+        imageQuality: 80,
+      );
+      if (image == null || !mounted) return;
+      final bytes = await image.readAsBytes();
+      if (bytes.isEmpty) throw const FormatException('Empty image');
+      final codec = await ui.instantiateImageCodec(bytes, targetWidth: 160);
+      try {
+        final frame = await codec.getNextFrame();
+        frame.image.dispose();
+      } finally {
+        codec.dispose();
+      }
+      if (!mounted) return;
+      setState(() {
+        _selectedCover = image;
+        _coverBytes = bytes;
+      });
+    } catch (_) {
+      if (mounted) {
+        Get.snackbar(
+          'Image unavailable',
+          'Could not read this image. Please choose another image.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPickingCover = false);
+    }
+  }
+
+  Widget _coverEditor() {
+    final url = _existingCoverUrl;
+    final bytes = _coverBytes;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFFE4E6EE)),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: bytes != null
+                ? Image.memory(
+                    bytes,
+                    width: 80,
+                    height: 80,
+                    cacheWidth: 160,
+                    fit: BoxFit.cover,
+                  )
+                : CustomCachedImage(
+                    imageUrl: url,
+                    width: 80,
+                    height: 80,
+                    radius: 12,
+                  ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Goal image',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                TextButton.icon(
+                  onPressed: _isSaving || _isPickingCover
+                      ? null
+                      : () => UImagePicker.showImageSourceOptions(
+                          context: context,
+                          onImageSelected: _pickCover,
+                        ),
+                  icon: _isPickingCover
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(
+                          Icons.add_photo_alternate_outlined,
+                          size: 20,
+                        ),
+                  label: Text(
+                    _isPickingCover
+                        ? 'Reading image…'
+                        : (bytes != null || url.isNotEmpty
+                              ? 'Change image'
+                              : 'Add image'),
+                  ),
+                  style: TextButton.styleFrom(foregroundColor: Ucolors.primary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refreshCoverCache() async {
+    final detail = widget.controller.currentGoalDetail.value;
+    final urls = {
+      _existingCoverUrl,
+      if (detail?.id == widget.goalId) _resolveCoverUrl(detail!.goalCover),
+    }..remove('');
+    try {
+      for (final url in urls) {
+        await CachedNetworkImage.evictFromCache(url);
+      }
+    } catch (_) {
+      // A cache failure must not turn a confirmed goal update into a failure.
+    }
+    if (!widget.controller.isClosed) {
+      widget.controller.currentGoalDetail.refresh();
+      widget.controller.goalResponse.refresh();
+    }
+  }
 
   @override
   void initState() {
@@ -592,6 +746,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
   }
 
   Future<void> _handleSave() async {
+    if (_isSaving || _isPickingCover) return;
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       Get.snackbar(
@@ -613,7 +768,11 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
       expectedReturnRate: _rate,
       monthlyInvestment: monthly,
       goalTenure: (_years * 12).round(),
+      goalCover: _selectedCover,
     );
+    if (success && _selectedCover != null) {
+      await _refreshCoverCache();
+    }
     if (mounted) {
       setState(() => _isSaving = false);
       if (success) {
@@ -770,6 +929,8 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
               ],
             ),
             const SizedBox(height: 12),
+            _coverEditor(),
+            const SizedBox(height: 14),
             field(
               'Goal name',
               TextFormField(
@@ -959,7 +1120,9 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: _isSaving ? null : _handleSave,
+                        onTap: _isSaving || _isPickingCover
+                            ? null
+                            : _handleSave,
                         borderRadius: BorderRadius.circular(999),
                         child: Center(
                           child: _isSaving
@@ -1072,6 +1235,8 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
             ],
           ),
           const SizedBox(height: 20),
+          _coverEditor(),
+          const SizedBox(height: 18),
           const Text(
             "Goal Name",
             style: TextStyle(
@@ -1315,7 +1480,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: _isSaving ? null : _handleSave,
+                  onPressed: _isSaving || _isPickingCover ? null : _handleSave,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Ucolors.primary,
                     foregroundColor: Colors.white,

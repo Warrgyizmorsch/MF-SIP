@@ -197,19 +197,40 @@ class GoalRemoteDataSource {
     required Map<String, dynamic> data,
   }) async {
     try {
-      createLog(
-        "[GoalRemoteDataSource] updateGoal id: $goalId, payload: $data",
-      );
-
-      final resp = await apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/goals/$goalId",
-        data: data,
-        headers: {
-          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-      );
+      final fields = Map<String, dynamic>.from(data);
+      final cover = fields['goal_cover'];
+      final headers = {
+        "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        "Accept": "application/json",
+      };
+      final url = "${Appurl.baseUrl}/api/v1/goals/$goalId";
+      final dynamic resp;
+      if (cover is XFile) {
+        fields.remove('goal_cover');
+        final bytes = await cover.readAsBytes();
+        if (bytes.isEmpty) {
+          return Right(
+            ApiError(
+              message:
+                  'The goal cover image is empty. Please choose another image.',
+            ),
+          );
+        }
+        resp = await apiService.postMultipart(
+          url: url,
+          fields: fields,
+          files: [bytes],
+          fileNames: [cover.name],
+          fileFieldName: 'goal_cover',
+          headers: headers,
+        );
+      } else {
+        resp = await apiService.postApi(
+          url,
+          data: fields,
+          headers: {...headers, "Content-Type": "application/json"},
+        );
+      }
 
       createLog("[GoalRemoteDataSource] updateGoal Response: $resp");
 

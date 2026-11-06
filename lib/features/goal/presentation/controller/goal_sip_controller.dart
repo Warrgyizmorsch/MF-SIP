@@ -1448,6 +1448,7 @@ class GoalSipController extends GetxController {
     required double expectedReturnRate,
     double? monthlyInvestment,
     int? goalTenure,
+    XFile? goalCover,
   }) async {
     try {
       isUpdatingGoal.value = true;
@@ -1464,6 +1465,9 @@ class GoalSipController extends GetxController {
       }
       if (goalTenure != null && goalTenure > 0) {
         payload['goal_tenure'] = goalTenure;
+      }
+      if (goalCover != null) {
+        payload['goal_cover'] = goalCover;
       }
 
       final result = await goalUseCases.updateGoalUseCase(
