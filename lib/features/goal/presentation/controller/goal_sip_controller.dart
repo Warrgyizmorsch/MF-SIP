@@ -1501,7 +1501,8 @@ class GoalSipController extends GetxController {
   bool canLinkPortfolioFund(MfuPortfolioItemEntity holding) {
     final id = holding.goalLinkId;
     final scheme = holding.normalizedSchemeCode;
-    if (id <= 0 ||
+    if ((holding.mfuOrderId ?? 0) <= 0 ||
+        id <= 0 ||
         scheme.isEmpty ||
         holding.hasGoalAssociation ||
         linkingFundMap[id] == true ||
@@ -1537,9 +1538,11 @@ class GoalSipController extends GetxController {
     bool refreshGoals = true,
   }) async {
     if (goalId <= 0 || !canLinkPortfolioFund(holding)) return false;
-    final mfuOrderId = holding.goalLinkId;
+    final mfuOrderId = holding.mfuOrderId ?? 0;
+    // Keep fund-level tracking separate from the order ID sent to the API.
+    final linkingId = holding.goalLinkId;
     final scheme = holding.normalizedSchemeCode;
-    linkingFundMap[mfuOrderId] = true;
+    linkingFundMap[linkingId] = true;
     linkingSchemeCodes.add(scheme);
     try {
       final result = await goalUseCases.linkFundToGoalUseCase(
@@ -1551,7 +1554,7 @@ class GoalSipController extends GetxController {
         (success) async {
           if (Get.isRegistered<DashboardController>()) {
             Get.find<DashboardController>().markHoldingLinked(
-              mfuOrderId: mfuOrderId,
+              mfuOrderId: linkingId,
               goalId: goalId,
               goalName: goalName,
             );
@@ -1592,7 +1595,7 @@ class GoalSipController extends GetxController {
       );
       return false;
     } finally {
-      linkingFundMap[mfuOrderId] = false;
+      linkingFundMap[linkingId] = false;
       linkingSchemeCodes.remove(scheme);
     }
   }
