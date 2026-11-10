@@ -1066,10 +1066,15 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                   onTap: isSelected ? null : toggleSelection,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      color: isSelected
+                          ? const Color(0xFFFAF9FF)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected
                             ? Ucolors.primary
@@ -1081,7 +1086,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           color: isSelected
                               ? Ucolors.primary.withValues(alpha: 0.08)
                               : Colors.black.withValues(alpha: 0.02),
-                          blurRadius: 6,
+                          blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
                       ],
@@ -1097,13 +1102,13 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(100),
                                 child: CustomCachedImage(
                                   imageUrl: logoUrl,
-                                  size: 30,
+                                  size: 36,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1113,41 +1118,35 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 13,
                                         fontWeight: isSelected
                                             ? FontWeight.bold
                                             : FontWeight.w600,
                                         color: const Color(0xFF1E293B),
                                       ),
                                     ),
+                                    const SizedBox(height: 3),
                                     Row(
                                       children: [
                                         Text(
-                                          fund.schemeType ?? '',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.grey.shade500,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
                                           "$returnLabel: $returnVal%",
                                           style: TextStyle(
-                                            fontSize: 10,
+                                            fontSize: 11,
                                             fontWeight: FontWeight.bold,
                                             color: retNum < 0
                                                 ? Colors.red
                                                 : Ucolors.success,
                                           ),
                                         ),
-                                        const SizedBox(width: 6),
+                                        const SizedBox(width: 8),
                                         Flexible(
                                           child: Text(
-                                            "• Min ${_isLumpsum ? 'Lumpsum' : 'SIP'}: ₹$minAllowed",
+                                            "•  Min ${_isLumpsum ? 'Lumpsum' : 'SIP'} : ₹$minAllowed",
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              fontSize: 10,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
                                               color: Colors.grey.shade600,
                                             ),
                                           ),
@@ -1157,11 +1156,11 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 12),
                               AnimatedContainer(
                                 duration: const Duration(milliseconds: 150),
-                                width: 22,
-                                height: 22,
+                                width: 24,
+                                height: 24,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: isSelected
@@ -1188,9 +1187,14 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
 
                     // When Selected: Amount Input & Quick Chips
                       if (isSelected) ...[
-                        const SizedBox(height: 8),
-                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                        const SizedBox(height: 8),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: Color(0xFFF1F5F9),
+                          ),
+                        ),
                         Builder(
                           builder: (context) {
                             final currentAmount =
@@ -1206,70 +1210,54 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                     const Text(
                                       "Amount:",
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: Color(0xFF475569),
+                                        color: Color(0xFF1E293B),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: SizedBox(
-                                        height: 34,
-                                        child: TextFormField(
-                                          controller: amountCtrl,
-                                          keyboardType: TextInputType.number,
-                                          style: TextStyle(
+                                    const SizedBox(width: 12),
+                                    Container(
+                                      width: 120,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: isAmountBelowMin
+                                              ? Colors.red.shade400
+                                              : const Color(0xFFE2E8F0),
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: TextFormField(
+                                        controller: amountCtrl,
+                                        keyboardType: TextInputType.number,
+                                        textAlignVertical:
+                                            TextAlignVertical.center,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: isAmountBelowMin
+                                              ? Colors.red.shade700
+                                              : const Color(0xFF1E293B),
+                                        ),
+                                        onChanged: (_) => setState(() {}),
+                                        decoration: InputDecoration(
+                                          prefixText: "₹ ",
+                                          prefixStyle: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold,
                                             color: isAmountBelowMin
                                                 ? Colors.red.shade700
                                                 : const Color(0xFF1E293B),
                                           ),
-                                          onChanged: (_) => setState(() {}),
-                                          decoration: InputDecoration(
-                                            prefixText: "₹ ",
-                                            prefixStyle: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold,
-                                              color: isAmountBelowMin
-                                                  ? Colors.red.shade700
-                                                  : const Color(0xFF1E293B),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 0,
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              borderSide: BorderSide(
-                                                color: isAmountBelowMin
-                                                    ? Colors.red.shade400
-                                                    : const Color(0xFFCBD5E1),
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              borderSide: BorderSide(
-                                                color: isAmountBelowMin
-                                                    ? Colors.red.shade400
-                                                    : const Color(0xFFCBD5E1),
-                                                width:
-                                                    isAmountBelowMin ? 1.5 : 1.0,
-                                              ),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              borderSide: BorderSide(
-                                                color: isAmountBelowMin
-                                                    ? Colors.red.shade600
-                                                    : Ucolors.primary,
-                                                width: 1.5,
-                                              ),
-                                            ),
+                                          isDense: true,
+                                          border: InputBorder.none,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 7,
                                           ),
                                         ),
                                       ),
@@ -1279,7 +1267,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                 if (isAmountBelowMin)
                                   Padding(
                                     padding:
-                                        const EdgeInsets.only(top: 4, bottom: 4),
+                                        const EdgeInsets.only(top: 6, bottom: 2),
                                     child: Row(
                                       children: [
                                         Icon(
@@ -1303,43 +1291,45 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                             );
                           },
                         ),
-                        const SizedBox(height: 4),
-                        // Quick increment chips
+                        const SizedBox(height: 8),
+                        // Quick increment chips (Matching Figma)
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [500, 1000, 2000, 5000].map((step) {
                               return Padding(
-                                padding: const EdgeInsets.only(right: 6),
+                                padding: const EdgeInsets.only(right: 8),
                                 child: InkWell(
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(8),
                                   onTap: () {
                                     final current =
                                         int.tryParse(amountCtrl.text) ?? 0;
                                     final updated =
-                                        (current < minAllowed ? minAllowed : current) +
-                                            step;
+                                        (current < minAllowed
+                                            ? minAllowed
+                                            : current) +
+                                        step;
                                     amountCtrl.text = updated.toString();
                                     setState(() {});
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
+                                      horizontal: 12,
+                                      vertical: 5,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Ucolors.skyblue1,
-                                      borderRadius: BorderRadius.circular(6),
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: Ucolors.skyblue,
+                                        color: const Color(0xFFE2E8F0),
                                       ),
                                     ),
                                     child: Text(
                                       "+₹$step",
                                       style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: Ucolors.primary,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF1E293B),
                                       ),
                                     ),
                                   ),
