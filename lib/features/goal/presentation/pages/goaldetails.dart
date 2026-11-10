@@ -3181,7 +3181,7 @@ class GoalDetailsMobileView extends StatefulWidget {
 }
 
 class _TrackingViewState extends State<GoalDetailsMobileView> {
-  bool _funds = false;
+  bool _funds = true;
   final _scroll = ScrollController();
   GoalSipController get c => Get.find<GoalSipController>();
   SingleGoalDetailEntity? get live {
@@ -3631,7 +3631,7 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
           ),
           child: Row(
             children: [
-              for (final tab in ['Activity', 'Funds'])
+              for (final tab in ['Funds', 'Activity'])
                 Expanded(
                   child: GestureDetector(
                     onTap: () => setState(() => _funds = tab == 'Funds'),
