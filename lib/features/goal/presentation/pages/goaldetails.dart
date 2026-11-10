@@ -3358,22 +3358,25 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                                   children: [
                                     _info(
                                       'Plan',
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFFBC50),
-                                          borderRadius: BorderRadius.circular(
-                                            999,
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
                                           ),
-                                        ),
-                                        child: Text(
-                                          '${money(widget.goal?.txnType == 'lumpsum' ? (widget.goal?.lumpsumAmount ?? 0) : monthly)}${widget.goal?.txnType == 'lumpsum' ? '' : '/mo'}',
-                                          style: _TrackingStyle.text(
-                                            12,
-                                            weight: FontWeight.w600,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFBC50),
+                                            borderRadius: BorderRadius.circular(
+                                              999,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            '${money(widget.goal?.txnType == 'lumpsum' ? (widget.goal?.lumpsumAmount ?? 0) : (monthly > 0 ? monthly : (widget.goal?.effectiveMonthlySip ?? 0)))}${widget.goal?.txnType == 'lumpsum' ? '' : '/mo'}',
+                                            style: _TrackingStyle.text(
+                                              12,
+                                              weight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -3496,7 +3499,12 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
           style: _TrackingStyle.text(12, color: _TrackingStyle.muted),
         ),
       ),
-      Expanded(child: value),
+      Expanded(
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: value,
+        ),
+      ),
     ],
   );
   Widget _stat(String title, String value) => Container(
