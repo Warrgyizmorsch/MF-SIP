@@ -126,7 +126,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
     if (_activeTabIndex == newIndex) return;
     setState(() {
       _activeTabIndex = newIndex;
-      // If switching between SIP (0) and Lumpsum (1), auto-adjust any amount that is below the new minimum
+      // If switching between SIP (0) and Lumpsum (1), auto-adjust selected funds to the new tab's minimum amount
       if (newIndex == 0 || newIndex == 1) {
         for (final schemeCode in _selectedSchemeCodes) {
           final fund = _selectedFundsMap[schemeCode];
@@ -134,10 +134,7 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
             final newMin = _getMinAmountForFund(fund);
             final ctrl = _amountControllers[schemeCode];
             if (ctrl != null) {
-              final currentVal = double.tryParse(ctrl.text) ?? 0.0;
-              if (currentVal < newMin) {
-                ctrl.text = newMin.toString();
-              }
+              ctrl.text = newMin.toString();
             }
           }
         }
@@ -176,13 +173,14 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
     String schemeCode,
     int? defaultMin,
   ) {
+    final targetMin =
+        (defaultMin != null && defaultMin > 0) ? defaultMin : 1000;
     if (!_amountControllers.containsKey(schemeCode)) {
-      final initialAmount = (defaultMin != null && defaultMin > 0)
-          ? defaultMin
-          : 1000;
       _amountControllers[schemeCode] = TextEditingController(
-        text: initialAmount.toString(),
+        text: targetMin.toString(),
       );
+    } else if (!_selectedSchemeCodes.contains(schemeCode)) {
+      _amountControllers[schemeCode]!.text = targetMin.toString();
     }
     return _amountControllers[schemeCode]!;
   }
@@ -1057,6 +1055,10 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                     } else {
                       _selectedSchemeCodes.add(schemeCode);
                       _selectedFundsMap[schemeCode] = fund;
+                      final currentMin = _getMinAmountForFund(fund);
+                      final ctrl =
+                          _getControllerForScheme(schemeCode, currentMin);
+                      ctrl.text = currentMin.toString();
                     }
                   });
                 }
