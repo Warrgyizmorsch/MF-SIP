@@ -307,9 +307,13 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                 ? goal.goalCover
                 : (goal?.goalType?.logo ?? ""));
 
-      final String title = isCurrentGoalMatch && liveDetail.goalName.isNotEmpty
-          ? liveDetail.goalName
-          : (goal?.goalName ?? 'Goal Details');
+      final String rawName =
+          isCurrentGoalMatch && liveDetail.goalName.isNotEmpty
+              ? liveDetail.goalName
+              : (goal?.goalName ?? 'Goal Details');
+      final String title = rawName.trim().isNotEmpty
+          ? '${rawName.trim()[0].toUpperCase()}${rawName.trim().substring(1)}'
+          : rawName;
 
       void onEdit() =>
           _showEditGoalDialog(context, currentGoalId, goal, isDesktop);
@@ -3303,7 +3307,9 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                widget.title,
+                widget.title.trim().isNotEmpty
+                    ? '${widget.title.trim()[0].toUpperCase()}${widget.title.trim().substring(1)}'
+                    : widget.title,
                 style: _TrackingStyle.text(
                   22,
                   weight: FontWeight.w600,
