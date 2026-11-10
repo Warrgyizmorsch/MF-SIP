@@ -1044,13 +1044,6 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                 }
                 final double retNum = double.tryParse(returnVal) ?? 0.0;
                 final minAllowed = _getMinAmountForFund(fund);
-                final sipMin =
-                    (fund.minSipAmount != null && fund.minSipAmount! > 0)
-                        ? fund.minSipAmount!
-                        : 500;
-                final lumpMin = (fund.minLumpsum != null && fund.minLumpsum! > 0)
-                    ? fund.minLumpsum!
-                    : 1000;
                 final amountCtrl = _getControllerForScheme(
                   schemeCode,
                   minAllowed,
@@ -1148,11 +1141,15 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                           ),
                                         ),
                                         const SizedBox(width: 6),
-                                        Text(
-                                          "• Min Lumpsum: ₹$lumpMin",
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.grey.shade600,
+                                        Flexible(
+                                          child: Text(
+                                            "• Min ${_isLumpsum ? 'Lumpsum' : 'SIP'}: ₹$minAllowed",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.grey.shade600,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -1279,38 +1276,29 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                     ),
                                   ],
                                 ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 4, bottom: 4),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        isAmountBelowMin
-                                            ? Icons.error_outline
-                                            : Icons.info_outline,
-                                        size: 13,
-                                        color: isAmountBelowMin
-                                            ? Colors.red.shade600
-                                            : Colors.grey.shade500,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        isAmountBelowMin
-                                            ? "Minimum $modeLabel amount is ₹$minAllowed"
-                                            : "Min SIP: ₹$sipMin  •  Min Lumpsum: ₹$lumpMin",
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: isAmountBelowMin
-                                              ? FontWeight.bold
-                                              : FontWeight.w500,
-                                          color: isAmountBelowMin
-                                              ? Colors.red.shade700
-                                              : Colors.grey.shade600,
+                                if (isAmountBelowMin)
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(top: 4, bottom: 4),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.error_outline,
+                                          size: 13,
+                                          color: Colors.red.shade600,
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "Minimum $modeLabel amount is ₹$minAllowed",
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red.shade700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
                               ],
                             );
                           },
