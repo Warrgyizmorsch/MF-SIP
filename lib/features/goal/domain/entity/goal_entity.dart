@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:equatable/equatable.dart';
 
 import '../../data/model/goal_model.dart';
@@ -5,16 +7,19 @@ import '../../data/model/goal_model.dart';
 class GoalResponseEntity extends Equatable {
   final bool success;
   final String message;
+  final List<UserGoalEntity> goal;
   final List<UserGoalEntity> data;
 
   const GoalResponseEntity({
     required this.success,
     required this.message,
-    required this.data,
-  });
+    List<UserGoalEntity>? goal,
+    List<UserGoalEntity>? data,
+  }) : goal = goal ?? data ?? const [],
+       data = data ?? goal ?? const [];
 
   @override
-  List<Object?> get props => [success, message, data];
+  List<Object?> get props => [success, message, goal, data];
 }
 
 class SaveGoalResponseEntity extends Equatable {
@@ -114,10 +119,15 @@ class UserGoalEntity extends Equatable {
   final double monthlyInvestment;
   final double expectedReturnRate;
   final int goalTenure;
+  final double savedAmount;
   final double investedAmount;
+  final double remainingAmount;
+  final double progressPercent;
+  final String startDate;
+  final String endDate;
+  final String duration;
   final String status;
   final String mfuOrderStatus;
-  final double progressPercent;
   final GoalTypeEntity? goalType;
   final List<GoalFundEntity> goalFunds;
 
@@ -134,13 +144,90 @@ class UserGoalEntity extends Equatable {
     required this.monthlyInvestment,
     required this.expectedReturnRate,
     required this.goalTenure,
-    required this.investedAmount,
-    required this.status,
-    required this.mfuOrderStatus,
+    double? savedAmount,
+    double? investedAmount,
+    this.remainingAmount = 0.0,
     this.progressPercent = 0.0,
+    this.startDate = '',
+    this.endDate = '',
+    this.duration = '',
+    this.status = '',
+    this.mfuOrderStatus = 'not_ordered',
     this.goalType,
-    required this.goalFunds,
-  });
+    this.goalFunds = const [],
+  }) : savedAmount = savedAmount ?? investedAmount ?? 0.0,
+       investedAmount = investedAmount ?? savedAmount ?? 0.0;
+
+  double get effectiveTenureYears {
+    if (duration.isNotEmpty) {
+      final match = RegExp(r'(\d+)').firstMatch(duration);
+      if (match != null) {
+        final val = double.tryParse(match.group(1)!);
+        if (val != null && val > 0) return val;
+      }
+    }
+    if (startDate.isNotEmpty && endDate.isNotEmpty) {
+      final start = DateTime.tryParse(startDate);
+      final end = DateTime.tryParse(endDate);
+      if (start != null && end != null && end.isAfter(start)) {
+        final days = end.difference(start).inDays;
+        if (days > 0) return days / 365.25;
+      }
+    }
+    final rawTenure = goalTenure > 0 ? goalTenure : (goalType?.goalTenure ?? 0);
+    if (rawTenure <= 0) return 0.0;
+    return rawTenure > 50 ? rawTenure / 12.0 : rawTenure.toDouble();
+  }
+
+  double get effectiveRemainingAmount {
+    if (remainingAmount > 0) return remainingAmount;
+    final diff = targetAmount - investedAmount;
+    return diff > 0 ? diff : 0.0;
+  }
+
+  double get effectiveProgressPercent {
+    if (progressPercent > 0) return progressPercent;
+    if (targetAmount > 0 && investedAmount > 0) {
+      final calc = (investedAmount / targetAmount) * 100.0;
+      return calc.clamp(0.0, 100.0);
+    }
+    return 0.0;
+  }
+
+  double get effectiveMonthlySip {
+    final explicitMonthly = monthlyInvestment > 0
+        ? monthlyInvestment
+        : (goalType?.monthlyInvestment ?? 0.0);
+    if (explicitMonthly > 0) return explicitMonthly;
+
+    final deficit = effectiveRemainingAmount;
+    if (deficit <= 0) return 0.0;
+
+    final tenureYears = effectiveTenureYears;
+    if (tenureYears <= 0) return 0.0;
+
+    final totalMonths = (tenureYears * 12).round();
+    if (totalMonths <= 0) return 0.0;
+
+    final annualRate = expectedReturnRate > 0
+        ? expectedReturnRate
+        : (goalType?.expectedReturnRate ?? 12.0);
+    final rate = annualRate > 0 ? annualRate : 12.0;
+    final monthlyRate = math.pow(1 + rate / 100.0, 1.0 / 12.0) - 1.0;
+
+    if (monthlyRate <= 0) {
+      return (deficit / totalMonths).ceilToDouble();
+    }
+
+    final factor =
+        ((math.pow(1 + monthlyRate, totalMonths) - 1.0) / monthlyRate) *
+        (1 + monthlyRate);
+    if (factor <= 0) {
+      return (deficit / totalMonths).ceilToDouble();
+    }
+
+    return (deficit / factor).ceilToDouble();
+  }
 
   @override
   List<Object?> get props => [
@@ -156,10 +243,15 @@ class UserGoalEntity extends Equatable {
     monthlyInvestment,
     expectedReturnRate,
     goalTenure,
+    savedAmount,
     investedAmount,
+    remainingAmount,
+    progressPercent,
+    startDate,
+    endDate,
+    duration,
     status,
     mfuOrderStatus,
-    progressPercent,
     goalType,
     goalFunds,
   ];
@@ -406,10 +498,12 @@ class MfPerformanceSchemeEntity extends Equatable {
 
 extension GoalResponseMapper on GoalResponseModel {
   GoalResponseEntity toEntity() {
+    final list = (goal ?? data)?.map((e) => e.toEntity()).toList() ?? [];
     return GoalResponseEntity(
       success: success ?? false,
       message: message ?? '',
-      data: data?.map((e) => e.toEntity()).toList() ?? [],
+      goal: list,
+      data: list,
     );
   }
 }
@@ -455,10 +549,15 @@ extension UserGoalMapper on UserGoalModel {
       monthlyInvestment: monthlyInvestment ?? 0.0,
       expectedReturnRate: expectedReturnRate ?? 0.0,
       goalTenure: goalTenure ?? 0,
-      investedAmount: investedAmount ?? 0.0,
+      savedAmount: savedAmount ?? investedAmount ?? 0.0,
+      investedAmount: investedAmount ?? savedAmount ?? 0.0,
+      remainingAmount: remainingAmount ?? 0.0,
+      progressPercent: progressPercent ?? 0.0,
+      startDate: startDate ?? '',
+      endDate: endDate ?? '',
+      duration: duration ?? '',
       status: status ?? '',
       mfuOrderStatus: mfuOrderStatus ?? 'not_ordered',
-      progressPercent: progressPercent ?? 0.0,
       goalType: goalType?.toEntity(),
       goalFunds: goalFunds?.map((e) => e.toEntity()).toList() ?? [],
     );

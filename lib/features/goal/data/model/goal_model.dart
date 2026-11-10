@@ -4,20 +4,44 @@ class GoalResponseModel {
   final bool? status;
   final bool? success;
   final String? message;
+  final List<UserGoalModel>? goal;
   final List<UserGoalModel>? data;
 
-  GoalResponseModel({this.status, this.success, this.message, this.data});
+  GoalResponseModel({
+    this.status,
+    this.success,
+    this.message,
+    this.goal,
+    List<UserGoalModel>? data,
+  }) : data = data ?? goal;
 
   factory GoalResponseModel.fromJson(Map<String, dynamic> json) {
+    final list =
+        json.parseListOf<UserGoalModel>(
+          'goal',
+          (item) => UserGoalModel.fromJson(item as Map<String, dynamic>),
+        ) ??
+        json.parseListOf<UserGoalModel>(
+          'data',
+          (item) => UserGoalModel.fromJson(item as Map<String, dynamic>),
+        );
     return GoalResponseModel(
       status: json.parse<bool>('status'),
       success: json.parse<bool>('success'),
       message: json.parse<String>('message'),
-      data: json.parseListOf<UserGoalModel>(
-        'goal',
-        (item) => UserGoalModel.fromJson(item as Map<String, dynamic>),
-      ),
+      goal: list,
+      data: list,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (status != null) 'status': status,
+      if (success != null) 'success': success,
+      'message': message,
+      if (goal != null) 'goal': goal!.map((e) => e.toJson()).toList(),
+      if (data != null) 'data': data!.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
@@ -158,10 +182,15 @@ class UserGoalModel {
   final double? monthlyInvestment;
   final double? expectedReturnRate;
   final int? goalTenure;
+  final double? savedAmount;
   final double? investedAmount;
+  final double? remainingAmount;
+  final double? progressPercent;
+  final String? startDate;
+  final String? endDate;
+  final String? duration;
   final String? status;
   final String? mfuOrderStatus;
-  final double? progressPercent;
   final GoalTypeModel? goalType;
   final List<GoalFundModel>? goalFunds;
 
@@ -178,15 +207,41 @@ class UserGoalModel {
     this.monthlyInvestment,
     this.expectedReturnRate,
     this.goalTenure,
-    this.investedAmount,
+    this.savedAmount,
+    double? investedAmount,
+    this.remainingAmount,
+    this.progressPercent,
+    this.startDate,
+    this.endDate,
+    this.duration,
     this.status,
     this.mfuOrderStatus,
-    this.progressPercent,
     this.goalType,
     this.goalFunds,
-  });
+  }) : investedAmount = investedAmount ?? savedAmount;
 
   factory UserGoalModel.fromJson(Map<String, dynamic> json) {
+    int? parsedTenure =
+        json.parse<int>('goal_tenure') ??
+        json.parse<int>('tenure') ??
+        json.parse<int>('tenure_months') ??
+        json.parse<int>('years');
+    if (parsedTenure == null || parsedTenure == 0) {
+      final rawDuration = json['duration']?.toString() ?? '';
+      final match = RegExp(r'(\d+)').firstMatch(rawDuration);
+      if (match != null) {
+        final val = int.tryParse(match.group(1)!);
+        if (val != null && val > 0) {
+          parsedTenure = val;
+        }
+      }
+    }
+
+    final parsedSaved =
+        json.parse<double>('saved_amount') ??
+        json.parse<double>('Invested_amount') ??
+        json.parse<double>('invested_amount');
+
     return UserGoalModel(
       id: json.parse<int>('id'),
       userId: json.parse<int>('user_id'),
@@ -199,15 +254,24 @@ class UserGoalModel {
         'target_amount',
       ), // Handles String "1000000.00" safely
       frequency: json.parse<String>('frequency'),
-      monthlyInvestment: json.parse<double>('monthly_investment'),
+      monthlyInvestment:
+          json.parse<double>('monthly_investment') ??
+          json.parse<double>('monthly_savings') ??
+          json.parse<double>('monthly_sip') ??
+          json.parse<double>('sip_amount') ??
+          json.parse<double>('monthly_contribution') ??
+          json.parse<double>('installment_amount'),
       expectedReturnRate: json.parse<double>('expected_return_rate'),
-      goalTenure: json.parse<int>('goal_tenure'),
-      investedAmount:
-          json.parse<double>('Invested_amount') ??
-          json.parse<double>('invested_amount'),
+      goalTenure: parsedTenure,
+      savedAmount: parsedSaved,
+      investedAmount: parsedSaved,
+      remainingAmount: json.parse<double>('remaining_amount'),
+      progressPercent: json.parse<double>('progress_percent'),
+      startDate: json.parse<String>('start_date'),
+      endDate: json.parse<String>('end_date'),
+      duration: json.parse<String>('duration'),
       status: json.parse<String>('status'),
       mfuOrderStatus: json.parse<String>('mfu_order_status'),
-      progressPercent: json.parse<double>('progress_percent'),
       goalType: json.parseNested<GoalTypeModel>(
         'goal',
         (data) => GoalTypeModel.fromJson(data),
@@ -233,10 +297,15 @@ class UserGoalModel {
       'monthly_investment': monthlyInvestment,
       'expected_return_rate': expectedReturnRate,
       'goal_tenure': goalTenure,
-      'invested_amount': investedAmount,
+      'saved_amount': savedAmount ?? investedAmount,
+      'invested_amount': investedAmount ?? savedAmount,
+      'remaining_amount': remainingAmount,
+      'progress_percent': progressPercent,
+      'start_date': startDate,
+      'end_date': endDate,
+      'duration': duration,
       'status': status,
       'mfu_order_status': mfuOrderStatus,
-      'progress_percent': progressPercent,
       if (goalType != null) 'goal': goalType!.toJson(),
       if (goalFunds != null)
         'goal_funds': goalFunds!.map((e) => e.toJson()).toList(),
