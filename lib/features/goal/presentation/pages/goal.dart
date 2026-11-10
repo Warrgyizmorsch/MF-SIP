@@ -412,17 +412,18 @@ class GoalScreenMobile extends GetView<GoalSipController> {
             .whereType<DateTime>()
             .toList()
           ..sort();
-    final end = endDates.isEmpty ? null : endDates.last;
-    final years = goal.goalTenure > 30
-        ? goal.goalTenure / 12
-        : goal.goalTenure.toDouble();
+    final end = endDates.isEmpty
+        ? DateTime.tryParse(goal.endDate)
+        : endDates.last;
     final now = DateTime.now();
-    final monthsLeft = end == null
-        ? null
-        : ((end.year - now.year) * 12 + end.month - now.month).clamp(0, 1200);
-    final duration = monthsLeft == null
-        ? '${years.toStringAsFixed(years % 1 == 0 ? 0 : 1)} year goal'
-        : '$monthsLeft month${monthsLeft == 1 ? '' : 's'} left';
+    final monthsLeft = end != null
+        ? ((end.year - now.year) * 12 + end.month - now.month).clamp(0, 1200)
+        : (goal.effectiveTenureYears > 0
+              ? (goal.effectiveTenureYears * 12).round()
+              : null);
+    final badgeText = monthsLeft != null
+        ? '$monthsLeft month${monthsLeft == 1 ? '' : 's'} left'
+        : (goal.duration.isNotEmpty ? goal.duration : 'Target based');
     return Semantics(
       button: true,
       label: '${goal.goalName}, ${(progress * 100).round()} percent complete',
@@ -487,7 +488,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
-                            duration,
+                            badgeText,
                             style: _text(10, weight: FontWeight.w700),
                           ),
                         );
@@ -541,7 +542,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                               const SizedBox(width: 6),
                               Text(
                                 end == null
-                                    ? 'Duration: ${years.toStringAsFixed(years % 1 == 0 ? 0 : 1)}y'
+                                    ? 'Target based'
                                     : DateFormat('MMM yyyy').format(end),
                                 style: _text(12, color: _muted),
                               ),
