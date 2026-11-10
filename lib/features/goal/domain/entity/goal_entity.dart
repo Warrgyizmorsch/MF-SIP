@@ -203,11 +203,18 @@ class UserGoalEntity extends Equatable {
     final deficit = effectiveRemainingAmount;
     if (deficit <= 0) return 0.0;
 
-    final tenureYears = effectiveTenureYears;
-    if (tenureYears <= 0) return 0.0;
+    final end = DateTime.tryParse(endDate);
+    final now = DateTime.now();
+    int remainingMonths = 0;
+    if (end != null) {
+      remainingMonths = ((end.year - now.year) * 12 + end.month - now.month)
+          .clamp(1, 1200);
+    } else {
+      final tenureYears = effectiveTenureYears;
+      remainingMonths = (tenureYears * 12).round().clamp(1, 1200);
+    }
 
-    final totalMonths = (tenureYears * 12).round();
-    if (totalMonths <= 0) return 0.0;
+    if (remainingMonths <= 0) return deficit;
 
     final annualRate = expectedReturnRate > 0
         ? expectedReturnRate
@@ -216,17 +223,73 @@ class UserGoalEntity extends Equatable {
     final monthlyRate = math.pow(1 + rate / 100.0, 1.0 / 12.0) - 1.0;
 
     if (monthlyRate <= 0) {
-      return (deficit / totalMonths).ceilToDouble();
+      return (deficit / remainingMonths).ceilToDouble();
     }
 
     final factor =
-        ((math.pow(1 + monthlyRate, totalMonths) - 1.0) / monthlyRate) *
+        ((math.pow(1 + monthlyRate, remainingMonths) - 1.0) / monthlyRate) *
         (1 + monthlyRate);
     if (factor <= 0) {
-      return (deficit / totalMonths).ceilToDouble();
+      return (deficit / remainingMonths).ceilToDouble();
     }
 
     return (deficit / factor).ceilToDouble();
+  }
+
+  String get goalHealthStatus {
+    final rawStatus = status.toLowerCase().replaceAll(' ', '_');
+    if (rawStatus == 'completed' || effectiveProgressPercent >= 100.0) {
+      return 'completed';
+    }
+    if (['behind', 'off_track', 'needs_top_up'].contains(rawStatus)) {
+      return 'behind';
+    }
+    if (['ahead'].contains(rawStatus)) {
+      return 'ahead';
+    }
+    if (['on_track'].contains(rawStatus)) {
+      return 'on_track';
+    }
+
+    final start = DateTime.tryParse(startDate);
+    final end = DateTime.tryParse(endDate);
+    final now = DateTime.now();
+
+    if (start != null && end != null && end.isAfter(start)) {
+      final totalDays = end.difference(start).inDays;
+      if (totalDays > 0) {
+        final elapsedDays = now.difference(start).inDays.clamp(0, totalDays);
+        final expectedRatio = elapsedDays / totalDays;
+        final actualRatio = effectiveProgressPercent / 100.0;
+
+        if (elapsedDays <= 30 && actualRatio >= 0.0) {
+          return actualRatio >= 0.1 ? 'ahead' : 'on_track';
+        }
+
+        if (actualRatio >= expectedRatio + 0.10) {
+          return 'ahead';
+        }
+        if (actualRatio >= expectedRatio - 0.05) {
+          return 'on_track';
+        }
+        return 'behind';
+      }
+    }
+
+    return 'on_track';
+  }
+
+  bool get isOnTrack =>
+      goalHealthStatus == 'on_track' ||
+      goalHealthStatus == 'ahead' ||
+      goalHealthStatus == 'completed';
+
+  bool get isBehind => goalHealthStatus == 'behind';
+
+  String get capitalizedGoalName {
+    final trimmed = goalName.trim();
+    if (trimmed.isEmpty) return '';
+    return '${trimmed[0].toUpperCase()}${trimmed.substring(1)}';
   }
 
   @override

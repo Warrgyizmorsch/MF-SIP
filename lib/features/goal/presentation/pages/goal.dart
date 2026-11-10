@@ -94,12 +94,9 @@ class GoalScreenMobile extends GetView<GoalSipController> {
       : value >= 100000
       ? '₹${(value / 100000).toStringAsFixed(1)}L'
       : _money(value);
-  static String _status(UserGoalEntity goal) =>
-      goal.status.toLowerCase().replaceAll(' ', '_');
-  static bool _behind(UserGoalEntity goal) =>
-      ['behind', 'off_track', 'needs_top_up'].contains(_status(goal));
-  static bool _onTrack(UserGoalEntity goal) =>
-      ['on_track', 'completed'].contains(_status(goal));
+  static String _status(UserGoalEntity goal) => goal.goalHealthStatus;
+  static bool _behind(UserGoalEntity goal) => goal.isBehind;
+  static bool _onTrack(UserGoalEntity goal) => goal.isOnTrack;
 
   @override
   Widget build(BuildContext context) => Obx(() {
@@ -256,9 +253,10 @@ class GoalScreenMobile extends GetView<GoalSipController> {
   Widget _summary(List<UserGoalEntity> goals) {
     final behind = goals.where(_behind).length;
     final onTrack = goals.where(_onTrack).length;
-    final monthly = goals
-        .where((g) => g.txnType.toLowerCase() == 'sip')
-        .fold<double>(0, (sum, g) => sum + g.monthlyInvestment);
+    final monthly = goals.fold<double>(
+      0,
+      (sum, g) => sum + g.effectiveMonthlySip,
+    );
     final next = _nextSip(goals);
     return IntrinsicHeight(
       child: Row(
@@ -440,29 +438,98 @@ class GoalScreenMobile extends GetView<GoalSipController> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               LayoutBuilder(
-                builder: (context, bounds) => ClipRRect(
-                  borderRadius: BorderRadius.circular(22),
-                  child: SizedBox(
-                    height: bounds.maxWidth * 170 / 388,
-                    child: image == null
-                        ? ColoredBox(
-                            color: const Color(0xFFF0F1F6),
-                            child: Center(
-                              child: Icon(
-                                controller.getGoalIcon(goal.goalName),
-                                size: 56,
-                                color: _purple.withValues(alpha: 0.25),
+                builder: (context, bounds) => Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: SizedBox(
+                        height: bounds.maxWidth * 170 / 388,
+                        width: bounds.maxWidth,
+                        child: image == null
+                            ? ColoredBox(
+                                color: const Color(0xFFF0F1F6),
+                                child: Center(
+                                  child: Icon(
+                                    controller.getGoalIcon(goal.goalName),
+                                    size: 56,
+                                    color: _purple.withValues(alpha: 0.25),
+                                  ),
+                                ),
+                              )
+                            : CustomCachedImage(
+                                imageUrl: image,
+                                width: bounds.maxWidth,
+                                height: bounds.maxWidth * 170 / 388,
+                                radius: 22,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _behind(goal)
+                              ? const Color(0xFFE5484D).withValues(alpha: 0.92)
+                              : const Color(0xFF10B981).withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _behind(goal)
+                                  ? Icons.warning_amber_rounded
+                                  : Icons.check_circle_rounded,
+                              size: 13,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _behind(goal)
+                                  ? 'Needs Attention'
+                                  : (goal.goalHealthStatus == 'ahead'
+                                        ? 'Ahead'
+                                        : 'On Track'),
+                              style: _text(
+                                11,
+                                color: Colors.white,
+                                weight: FontWeight.w700,
                               ),
                             ),
-                          )
-                        : CustomCachedImage(
-                            imageUrl: image,
-                            width: bounds.maxWidth,
-                            height: bounds.maxWidth * 170 / 388,
-                            radius: 22,
-                            fit: BoxFit.cover,
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (goal.effectiveMonthlySip > 0)
+                      Positioned(
+                        bottom: 12,
+                        right: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
                           ),
-                  ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.65),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            'SIP · ${_money(goal.effectiveMonthlySip)}/mo',
+                            style: _text(
+                              11,
+                              color: Colors.white,
+                              weight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               Padding(
@@ -473,7 +540,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                     LayoutBuilder(
                       builder: (context, bounds) {
                         final title = Text(
-                          goal.goalName,
+                          goal.capitalizedGoalName,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: _text(16, weight: FontWeight.w700),
@@ -611,7 +678,7 @@ class _GoalSearch extends SearchDelegate<UserGoalEntity?> {
     return ListView.builder(
       itemCount: matches.length,
       itemBuilder: (context, index) => ListTile(
-        title: Text(matches[index].goalName),
+        title: Text(matches[index].capitalizedGoalName),
         onTap: () {
           close(context, null);
           onSelect(matches[index]);
@@ -804,8 +871,8 @@ class WebGoalGridContent extends GetView<GoalSipController> {
               final double invested = goal.investedAmount > 0
                   ? goal.investedAmount
                   : (target * (goal.progressPercent / 100));
-              final String name = goal.goalName.isNotEmpty
-                  ? goal.goalName
+              final String name = goal.capitalizedGoalName.isNotEmpty
+                  ? goal.capitalizedGoalName
                   : 'Goal ${index + 1}';
               final String logo = goal.goalCover.isNotEmpty
                   ? goal.goalCover
