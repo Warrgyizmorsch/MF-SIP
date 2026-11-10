@@ -1103,6 +1103,64 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: CustomCachedImage(
+                                  imageUrl: logoUrl,
+                                  size: 30,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.w600,
+                                        color: const Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          fund.schemeType ?? '',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.grey.shade500,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          "$returnLabel: $returnVal%",
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: retNum < 0
+                                                ? Colors.red
+                                                : Ucolors.success,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          "• Min Lumpsum: ₹$lumpMin",
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
                               AnimatedContainer(
                                 duration: const Duration(milliseconds: 150),
                                 width: 22,
@@ -1127,67 +1185,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                                       )
                                     : null,
                               ),
-                              const SizedBox(width: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: CustomCachedImage(
-                              imageUrl: logoUrl,
-                              size: 30,
-                            ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.w600,
-                                    color: const Color(0xFF1E293B),
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      fund.schemeType ?? '',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey.shade500,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      "$returnLabel: $returnVal%",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: retNum < 0
-                                            ? Colors.red
-                                            : Ucolors.success,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      "• Min Lumpsum: ₹$lumpMin",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
 
                     // When Selected: Amount Input & Quick Chips
                       if (isSelected) ...[
