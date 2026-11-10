@@ -3469,86 +3469,6 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _action(Icons.add, 'Top up', widget.onAddFunds),
-                  _action(Icons.trending_up, 'Raise SIP', widget.onEdit),
-                  _action(
-                    Icons.pause,
-                    'Pause',
-                    () => Get.snackbar(
-                      'Pause SIP',
-                      'Pausing a SIP is not available in the current investment flow.',
-                    ),
-                  ),
-                  _action(
-                    Icons.arrow_downward,
-                    'Withdraw',
-                    () => _chooseFund(funds),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF5DF),
-                  border: Border.all(color: const Color(0xFFFFD07A)),
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFE1A5),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFFFBC50)),
-                      ),
-                      child: const Icon(Icons.card_giftcard_outlined, size: 24),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Got a Diwali bonus?',
-                            style: _TrackingStyle.text(
-                              14,
-                              weight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            '${money(25000)} today ≈ +${money(25000 * math.pow(1 + (widget.goal?.expectedReturnRate ?? 0) / 100, years))}${year == null ? '' : ' by $year'}',
-                            style: _TrackingStyle.text(
-                              12,
-                              color: const Color(0xFF8F5700),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: const Color(0xFFF5A524),
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        minimumSize: const Size(0, 36),
-                      ),
-                      onPressed: widget.onAddFunds,
-                      child: Text(
-                        'Top up',
-                        style: _TrackingStyle.text(13, weight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 16),
               _panel(funds),
             ],
@@ -3598,15 +3518,6 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
             weight: FontWeight.w800,
           ),
         ),
-      ],
-    ),
-  );
-  Widget _action(IconData icon, String label, VoidCallback tap) => Expanded(
-    child: Column(
-      children: [
-        SizedBox(width: 40, height: 40, child: _circle(icon, tap)),
-        const SizedBox(height: 8),
-        Text(label, style: _TrackingStyle.text(12)),
       ],
     ),
   );
@@ -3899,38 +3810,6 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
       ),
     ),
   );
-  void _chooseFund(List<GoalLinkedFundEntity> funds) {
-    if (funds.isEmpty) {
-      setState(() => _funds = true);
-      return;
-    }
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-      ),
-      builder: (sheet) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: funds
-              .map(
-                (fund) => ListTile(
-                  title: Text(fund.fundName),
-                  onTap: () {
-                    Navigator.pop(sheet);
-                    PortfolioFundDetailsModal.show(
-                      context,
-                      fund.toPortfolioItem(goalName: widget.title),
-                    );
-                  },
-                ),
-              )
-              .toList(),
-        ),
-      ),
-    );
-  }
 }
 
 class _TrackingStyle {
