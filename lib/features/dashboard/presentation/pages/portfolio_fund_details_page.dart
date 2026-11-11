@@ -562,20 +562,8 @@ class PortfolioFundDetailsPage extends StatelessWidget {
 
   List<Widget> _buildStatusBanners(MfuPortfolioItemEntity activeFund) {
     final List<Widget> banners = [];
-    if (activeFund.isSipCancelledFlag) {
-      banners.add(
-        _buildStatusBanner(
-          icon: Icons.cancel_outlined,
-          title: 'SIP Cancelled',
-          subtitle:
-              activeFund.sipCancellationDetails?.message.isNotEmpty == true
-              ? activeFund.sipCancellationDetails!.message
-              : 'Your SIP for this fund has been cancelled. No future installments will be deducted.',
-          color: Colors.grey,
-        ),
-      );
-      banners.add(const SizedBox(height: 20));
-    } else if (activeFund.isRedemptionSettled) {
+    if (activeFund.isSipCancelledFlag) return banners;
+    if (activeFund.isRedemptionSettled) {
       banners.add(
         _buildStatusBanner(
           icon: Icons.check_circle_outline_rounded,
