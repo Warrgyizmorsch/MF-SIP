@@ -107,6 +107,7 @@ flutter:
     - assets/icon/
     - assets/home/icon/
     - assets/home/figma/
+    - assets/portfolio/figma/
     - assets/fonts/Roboto/static/
   #   - images/a_dot_ham.jpeg
 

@@ -1,17 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
-import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
+import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 
 import '../widgets/portfolio_fund_details_modal.dart';
+import '../widgets/portfolio_holding_header.dart';
+import '../widgets/portfolio_details_panels.dart';
+import '../widgets/portfolio_transactions_section.dart';
+import '../widgets/portfolio_fund_actions.dart';
+import '../widgets/portfolio_additional_details_section.dart';
 import '../widgets/sip_cancel_otp_modal.dart';
 
 class PortfolioFundDetailsPage extends StatelessWidget {
@@ -36,17 +42,32 @@ class PortfolioFundDetailsPage extends StatelessWidget {
 
   Future<void> _handleRedeemOrCancel(
     BuildContext context,
-    MfuPortfolioItemEntity activeFund,
-  ) async {
-    if (activeFund.isSipActive) {
-      SipCancelOtpModal.show(context, activeFund);
+    MfuPortfolioItemEntity selectedFund, {
+    required bool redeem,
+  }) async {
+    final dashboard = Get.isRegistered<DashboardController>()
+        ? Get.find<DashboardController>()
+        : null;
+    if (dashboard?.isLoadingPortfolio.value ?? false) return;
+    var activeFund = _latestFund(selectedFund);
+    if (!_canTransact(activeFund)) return;
+    if (!redeem) {
+      if (!activeFund.isSipActive || activeFund.hasPendingSipCancellation) {
+        return;
+      }
+      await SipCancelOtpModal.show(context, activeFund);
     } else {
       final shouldProceed =
           await PortfolioFundDetailsModal.confirmGoalLinkedRedeemIfNeeded(
             context,
             activeFund,
           );
-      if (!shouldProceed) return;
+      if (!shouldProceed || !context.mounted) return;
+      activeFund = _latestFund(selectedFund);
+      if (!_canTransact(activeFund) ||
+          (dashboard?.isLoadingPortfolio.value ?? false)) {
+        return;
+      }
 
       final redeemArgs = RedeemArgs(
         mfuOrderFundId: activeFund.mfuOrderFundId,
@@ -81,9 +102,29 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           arguments: redeemArgs,
         );
       } else {
-        Get.toNamed(AppRoutes.redeemPage, arguments: redeemArgs);
+        await Get.toNamed(AppRoutes.redeemPage, arguments: redeemArgs);
       }
     }
+  }
+
+  bool _canTransact(MfuPortfolioItemEntity activeFund) =>
+      !activeFund.isAllotmentPending &&
+      !activeFund.isRedemptionPending &&
+      !activeFund.isFullyRedeemed &&
+      activeFund.totalUnits > 0 &&
+      (int.tryParse(activeFund.mfuOrderFundId?.toString().trim() ?? '') ?? 0) >
+          0;
+
+  MfuPortfolioItemEntity _latestFund(MfuPortfolioItemEntity selectedFund) {
+    if (!Get.isRegistered<DashboardController>()) return selectedFund;
+    final holdings =
+        Get.find<DashboardController>().portfolioData.value?.portfolio;
+    final id = selectedFund.mfuOrderFundId?.toString().trim();
+    if (id == null || id.isEmpty || holdings == null) return selectedFund;
+    return holdings.firstWhere(
+      (holding) => holding.mfuOrderFundId?.toString().trim() == id,
+      orElse: () => selectedFund,
+    );
   }
 
   @override
@@ -178,92 +219,118 @@ class PortfolioFundDetailsPage extends StatelessWidget {
       );
     }
 
+    if (!Get.isRegistered<DashboardController>()) {
+      return _buildFundDetails(context, activeFund);
+    }
+    final controller = Get.find<DashboardController>();
+    return Obx(
+      () => _buildFundDetails(
+        context,
+        _latestFund(activeFund),
+        isRefreshing: controller.isLoadingPortfolio.value,
+      ),
+    );
+  }
+
+  Widget _buildFundDetails(
+    BuildContext context,
+    MfuPortfolioItemEntity activeFund, {
+    bool isRefreshing = false,
+  }) {
     final isProfit = activeFund.gainLoss >= 0;
     final is1DProfit = activeFund.oneDayChange >= 0;
 
-    final canTransact =
-        !activeFund.isAllotmentPending &&
-        !activeFund.isRedemptionPending &&
-        !activeFund.isFullyRedeemed &&
-        activeFund.totalUnits > 0;
+    final canTransact = _canTransact(activeFund);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 960;
-
-        return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0.5,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Colors.black87,
-                size: 18,
-              ),
-              onPressed: () => _handleBack(context),
-            ),
-            title: Row(
-              children: [
-                if (activeFund.amcLogo.isNotEmpty)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: CustomCachedImage(
-                      imageUrl: activeFund.amcLogo,
-                      width: 28,
-                      height: 28,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    activeFund.fundName,
-                    style: const TextStyle(
-                      fontFamily: FontFamily.medium,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
+        final topInset = MediaQuery.paddingOf(context).top;
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light.copyWith(
+            statusBarColor: Colors.transparent,
           ),
-          body: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: isDesktop ? 1140 : double.infinity,
-              ),
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 32 : 20,
-                  vertical: isDesktop ? 28 : 20,
-                ),
-                child: isDesktop
-                    ? _buildDesktopLayout(
-                        context,
-                        activeFund,
-                        isProfit: isProfit,
-                        is1DProfit: is1DProfit,
-                        canTransact: canTransact,
-                      )
-                    : _buildMobileLayout(
-                        context,
-                        activeFund,
-                        isProfit: isProfit,
-                        is1DProfit: is1DProfit,
+          child: Scaffold(
+            backgroundColor: Ucolors.homeBackground,
+            body: SingleChildScrollView(
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 174 + topInset,
+                    child: const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: PortfolioDetailsHeader.gradient,
                       ),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: RadialGradient(
+                            center: Alignment(0.64, -0.7),
+                            radius: 0.22,
+                            colors: [Color(0x599D85FF), Color(0x009D85FF)],
+                            stops: [0, 0.28],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: SafeArea(
+                      top: false,
+                      bottom: false,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isDesktop ? 1140 : double.infinity,
+                        ),
+                        child: Column(
+                          children: [
+                            SafeArea(
+                              bottom: false,
+                              child: PortfolioDetailsHeader(
+                                fund: activeFund,
+                                onBack: () => _handleBack(context),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isDesktop ? 32 : 20,
+                                vertical: isDesktop ? 28 : 20,
+                              ),
+                              child: isDesktop
+                                  ? _buildDesktopLayout(
+                                      context,
+                                      activeFund,
+                                      isProfit: isProfit,
+                                      is1DProfit: is1DProfit,
+                                      canTransact: canTransact,
+                                      isRefreshing: isRefreshing,
+                                    )
+                                  : _buildMobileLayout(
+                                      context,
+                                      activeFund,
+                                      isProfit: isProfit,
+                                      is1DProfit: is1DProfit,
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+            bottomNavigationBar: (!isDesktop && canTransact)
+                ? _buildBottomActionBar(
+                    context,
+                    activeFund,
+                    isRefreshing: isRefreshing,
+                  )
+                : null,
           ),
-          bottomNavigationBar: (!isDesktop && canTransact)
-              ? _buildBottomActionBar(context, activeFund)
-              : null,
         );
       },
     );
@@ -279,81 +346,11 @@ class PortfolioFundDetailsPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeroCard(activeFund, isProfit: isProfit, is1DProfit: is1DProfit),
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
         ..._buildStatusBanners(activeFund),
-        if (_hasSipScheduleSection(activeFund)) ...[
-          const Text(
-            'SIP Schedule',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildSipScheduleCard(activeFund),
-          const SizedBox(height: 20),
-        ],
-        const Text(
-          'Investment Metrics',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildInvestmentMetricsCard(activeFund, is1DProfit: is1DProfit),
-        const SizedBox(height: 20),
-        if (_hasExitLoadSection(activeFund)) ...[
-          const Text(
-            'Exit Load & Redemption Forecast',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildExitLoadCard(activeFund),
-          const SizedBox(height: 20),
-        ],
-        if (_hasRedemptionSection(activeFund)) ...[
-          const Text(
-            'Redemption Payout Details',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildRedemptionDetailsCard(activeFund),
-          const SizedBox(height: 20),
-        ],
-        if (activeFund.sipCancellationDetails != null) ...[
-          const Text(
-            'SIP Cancellation Audit',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildSipCancellationCard(activeFund),
-          const SizedBox(height: 20),
-        ],
+        _buildDetailsPanels(context, activeFund, isDesktop: false),
+        const SizedBox(height: 24),
         if (_hasTransactionsSection(activeFund)) ...[
-          const Text(
-            'Transaction History',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
           _buildFundTransactionsCard(activeFund),
           const SizedBox(height: 20),
         ],
@@ -367,11 +364,12 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     required bool isProfit,
     required bool is1DProfit,
     required bool canTransact,
+    required bool isRefreshing,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left Column: Hero Overview, Status Banners, SIP Schedule, Actions, Transactions
+        // Left Column: Hero Overview, Status Banners, Actions, Transactions
         Expanded(
           flex: 6,
           child: Column(
@@ -384,19 +382,6 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               ..._buildStatusBanners(activeFund),
-              if (_hasSipScheduleSection(activeFund)) ...[
-                const Text(
-                  'SIP Schedule',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildSipScheduleCard(activeFund),
-                const SizedBox(height: 20),
-              ],
               if (canTransact) ...[
                 Container(
                   width: double.infinity,
@@ -427,7 +412,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         activeFund.isSipActive
-                            ? 'Cancel your active SIP mandate for this scheme.'
+                            ? 'Cancel future SIP installments or redeem available units.'
                             : 'Submit a redemption request to withdraw your invested amount or units.',
                         style: TextStyle(
                           fontSize: 13,
@@ -436,31 +421,10 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Ucolors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          onPressed: () =>
-                              _handleRedeemOrCancel(context, activeFund),
-                          child: Text(
-                            activeFund.isSipActive
-                                ? 'Cancel SIP'
-                                : (activeFund.isPartiallyRedeemed
-                                      ? 'Redeem Remaining'
-                                      : 'Redeem'),
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                      _buildFundActions(
+                        context,
+                        activeFund,
+                        isRefreshing: isRefreshing,
                       ),
                     ],
                   ),
@@ -468,15 +432,6 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                 const SizedBox(height: 20),
               ],
               if (_hasTransactionsSection(activeFund)) ...[
-                const Text(
-                  'Transaction History',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 12),
                 _buildFundTransactionsCard(activeFund),
                 const SizedBox(height: 20),
               ],
@@ -484,61 +439,13 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 24),
-        // Right Column: Investment Metrics, Redemption Payout, SIP Cancellation Audit
+        // Right Column: Detail panels, with retained metrics and audits in the sheet.
         Expanded(
           flex: 6,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Investment Metrics',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildInvestmentMetricsCard(activeFund, is1DProfit: is1DProfit),
-              if (_hasExitLoadSection(activeFund)) ...[
-                const SizedBox(height: 24),
-                const Text(
-                  'Exit Load & Redemption Forecast',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildExitLoadCard(activeFund),
-              ],
-              if (_hasRedemptionSection(activeFund)) ...[
-                const SizedBox(height: 24),
-                const Text(
-                  'Redemption Payout Details',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildRedemptionDetailsCard(activeFund),
-              ],
-              if (activeFund.sipCancellationDetails != null) ...[
-                const SizedBox(height: 24),
-                const Text(
-                  'SIP Cancellation Audit',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildSipCancellationCard(activeFund),
-              ],
+              _buildDetailsPanels(context, activeFund, isDesktop: true),
             ],
           ),
         ),
@@ -546,248 +453,112 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     );
   }
 
+  Widget _buildDetailsPanels(
+    BuildContext context,
+    MfuPortfolioItemEntity activeFund, {
+    required bool isDesktop,
+  }) => PortfolioDetailsPanels(
+    fund: activeFund,
+    showSipSchedule: _hasSipScheduleSection(activeFund),
+    onViewInvestmentDetails: () =>
+        _showInvestmentDetails(context, activeFund, isDesktop: isDesktop),
+  );
+
+  void _showInvestmentDetails(
+    BuildContext context,
+    MfuPortfolioItemEntity activeFund, {
+    required bool isDesktop,
+  }) {
+    Widget content(BuildContext overlayContext) => Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Additional details',
+                  style: UTextStyles.homeText(
+                    family: FontFamily.plusJakartaSans,
+                    size: 17,
+                    weight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Close additional details',
+                onPressed: () => Navigator.of(overlayContext).pop(),
+                icon: const Icon(Icons.close, color: Color(0xFF441D9E)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          PortfolioAdditionalDetailsSection(
+            title: 'Performance & dates',
+            initiallyExpanded: true,
+            child: _buildInvestmentMetricsCard(
+              activeFund,
+              is1DProfit: activeFund.oneDayChange >= 0,
+            ),
+          ),
+          if (_hasSipScheduleSection(activeFund))
+            PortfolioAdditionalDetailsSection(
+              title: 'SIP schedule',
+              child: _buildSipScheduleCard(activeFund),
+            ),
+          if (_hasRedemptionSection(activeFund))
+            PortfolioAdditionalDetailsSection(
+              title: 'Redemption payout details',
+              child: _buildRedemptionDetailsCard(activeFund),
+            ),
+          if (activeFund.sipCancellationDetails != null)
+            PortfolioAdditionalDetailsSection(
+              title: 'SIP cancellation audit',
+              child: _buildSipCancellationCard(activeFund),
+            ),
+        ],
+      ),
+    );
+
+    if (isDesktop) {
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) => Dialog(
+          backgroundColor: Ucolors.homeBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: SingleChildScrollView(child: content(dialogContext)),
+          ),
+        ),
+      );
+    } else {
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Ucolors.homeBackground,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        builder: (sheetContext) => SafeArea(
+          top: false,
+          child: SingleChildScrollView(child: content(sheetContext)),
+        ),
+      );
+    }
+  }
+
   Widget _buildHeroCard(
     MfuPortfolioItemEntity activeFund, {
     required bool isProfit,
     required bool is1DProfit,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'Folio: ${activeFund.folioNo}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ),
-                    if (activeFund.exitLoadStatusBadge.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              (activeFund.isExitLoadFree
-                                      ? Colors.green
-                                      : Colors.amber)
-                                  .withValues(alpha: 0.25),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: activeFund.isExitLoadFree
-                                ? Colors.greenAccent
-                                : Colors.amberAccent,
-                          ),
-                        ),
-                        child: Text(
-                          activeFund.exitLoadStatusBadge,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: activeFund.isExitLoadFree
-                                ? Colors.greenAccent
-                                : Colors.amberAccent,
-                          ),
-                        ),
-                      ),
-                    if (activeFund.goalName != null &&
-                        activeFund.goalName!.trim().isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.amber.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.amberAccent.withValues(alpha: 0.5),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Iconsax.direct_up,
-                              size: 11,
-                              color: Colors.amberAccent,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              activeFund.goalName!,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.amberAccent,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color:
-                      (activeFund.isSip
-                              ? Colors.purpleAccent
-                              : Colors.cyanAccent)
-                          .withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color:
-                        (activeFund.isSip
-                                ? Colors.purpleAccent
-                                : Colors.cyanAccent)
-                            .withValues(alpha: 0.5),
-                  ),
-                ),
-                child: Text(
-                  activeFund.isSip ? 'SIP' : 'Lump Sum',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: activeFund.isSip
-                        ? Colors.purpleAccent
-                        : Colors.cyanAccent,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Current Value',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withValues(alpha: 0.7),
-            ),
-          ),
-          const SizedBox(height: 4),
-          TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0, end: activeFund.currentValue),
-            duration: const Duration(milliseconds: 700),
-            curve: Curves.easeOutQuart,
-            builder: (context, value, child) {
-              return Text(
-                '₹${value.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 8,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: (isProfit ? Colors.green : Colors.red).withValues(
-                    alpha: 0.18,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isProfit
-                          ? Icons.arrow_upward_rounded
-                          : Icons.arrow_downward_rounded,
-                      size: 14,
-                      color: isProfit ? Colors.greenAccent : Colors.redAccent,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${isProfit ? '+' : ''}₹${activeFund.gainLoss.abs().toStringAsFixed(2)} (${activeFund.gainLossPercent.abs().toStringAsFixed(2)}%)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isProfit ? Colors.greenAccent : Colors.redAccent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '1D: ${is1DProfit ? "+" : ""}₹${activeFund.oneDayChange.abs().toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: is1DProfit ? Colors.greenAccent : Colors.redAccent,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  }) => PortfolioHoldingCard(fund: activeFund);
 
   List<Widget> _buildStatusBanners(MfuPortfolioItemEntity activeFund) {
     final List<Widget> banners = [];
@@ -892,7 +663,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           const Divider(height: 24),
           _infoRow(
             '1-Day Returns',
-            '${is1DProfit ? "+" : ""}₹${activeFund.oneDayChange.abs().toStringAsFixed(2)} (${activeFund.oneDayChangePercent.abs().toStringAsFixed(2)}%)',
+            '${is1DProfit ? "+" : "−"}₹${activeFund.oneDayChange.abs().toStringAsFixed(2)} (${activeFund.oneDayChangePercent < 0 ? "−" : "+"}${activeFund.oneDayChangePercent.abs().toStringAsFixed(2)}%)',
             icon: Iconsax.trend_up,
             valueColor: is1DProfit
                 ? Colors.green.shade700
@@ -941,20 +712,6 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             activeFund.folioNo,
             icon: Iconsax.folder_open,
           ),
-          if (activeFund.exitLoadStatusBadge.isNotEmpty ||
-              activeFund.exitLoad.isNotEmpty) ...[
-            const Divider(height: 24),
-            _infoRow(
-              'Exit Load',
-              activeFund.exitLoadStatusBadge.isNotEmpty
-                  ? activeFund.exitLoadStatusBadge
-                  : activeFund.exitLoad,
-              icon: Iconsax.info_circle,
-              valueColor: activeFund.isExitLoadFree
-                  ? Colors.green.shade700
-                  : const Color(0xFFD97706),
-            ),
-          ],
         ],
       ),
     );
@@ -1312,10 +1069,14 @@ class PortfolioFundDetailsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 10,
             children: [
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
@@ -1330,12 +1091,14 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    'SIP Schedule',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  const Flexible(
+                    child: Text(
+                      'SIP Schedule',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                 ],
@@ -1398,199 +1161,8 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     return activeFund.transactions.isNotEmpty;
   }
 
-  Widget _buildFundTransactionsCard(MfuPortfolioItemEntity activeFund) {
-    final txList = activeFund.transactions;
-
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x08000000),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Iconsax.receipt_item,
-                      size: 18,
-                      color: Color(0xFF475569),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'Transaction History',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Text(
-                  '${txList.length} ${txList.length == 1 ? "entry" : "entries"}',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: txList.length,
-            separatorBuilder: (context, index) => const Divider(height: 20),
-            itemBuilder: (context, index) {
-              final tx = txList[index];
-              final bool isCredit = tx.isCredit || !tx.isDebit;
-              final String dateStr = tx.displayDate.isNotEmpty
-                  ? tx.displayDate
-                  : tx.date;
-              final String typeStr = tx.type.isNotEmpty
-                  ? tx.type
-                  : (tx.investmentType.isNotEmpty
-                        ? tx.investmentType
-                        : (isCredit ? 'Purchase / SIP' : 'Redemption'));
-              final String statusLabel = tx.statusLabel.isNotEmpty
-                  ? tx.statusLabel
-                  : (tx.orderStatusLabel.isNotEmpty
-                        ? tx.orderStatusLabel
-                        : (tx.isSuccess ? 'Settled' : tx.status));
-              final Color statusColor = tx.isSuccess
-                  ? Colors.green.shade700
-                  : (tx.status.toLowerCase().contains('fail') ||
-                            tx.status.toLowerCase().contains('reject')
-                        ? Colors.red.shade700
-                        : const Color(0xFFD97706));
-
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: (isCredit ? Colors.green : Colors.red).withValues(
-                        alpha: 0.1,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      isCredit
-                          ? Icons.arrow_downward_rounded
-                          : Icons.arrow_upward_rounded,
-                      size: 16,
-                      color: isCredit
-                          ? Colors.green.shade700
-                          : Colors.red.shade700,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          typeStr,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          dateStr,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        if (tx.units > 0 || tx.nav > 0) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            'Units: ${tx.units.toStringAsFixed(3)} ${tx.nav > 0 ? "@ ₹${tx.nav.toStringAsFixed(2)}" : ""}',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '₹${tx.amount.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: isCredit
-                              ? const Color(0xFF1E293B)
-                              : Colors.red.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          statusLabel.isEmpty ? 'Processed' : statusLabel,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: statusColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildFundTransactionsCard(MfuPortfolioItemEntity activeFund) =>
+      PortfolioTransactionsSection(fund: activeFund);
 
   bool _hasRedemptionSection(MfuPortfolioItemEntity activeFund) {
     return activeFund.redemptionDetails != null ||
@@ -1749,46 +1321,36 @@ class PortfolioFundDetailsPage extends StatelessWidget {
 
   Widget _buildBottomActionBar(
     BuildContext context,
-    MfuPortfolioItemEntity activeFund,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 10,
-            offset: Offset(0, -4),
-          ),
-        ],
-      ),
+    MfuPortfolioItemEntity activeFund, {
+    required bool isRefreshing,
+  }) {
+    return ColoredBox(
+      color: Ucolors.homeBackground,
       child: SafeArea(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Ucolors.primary,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          onPressed: () => _handleRedeemOrCancel(context, activeFund),
-          child: Text(
-            activeFund.isSipActive
-                ? 'Cancel SIP'
-                : (activeFund.isPartiallyRedeemed
-                      ? 'Redeem Remaining'
-                      : 'Redeem'),
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          child: _buildFundActions(
+            context,
+            activeFund,
+            isRefreshing: isRefreshing,
           ),
         ),
       ),
     );
   }
+
+  Widget _buildFundActions(
+    BuildContext context,
+    MfuPortfolioItemEntity activeFund, {
+    required bool isRefreshing,
+  }) => PortfolioFundActions(
+    fund: activeFund,
+    isRefreshing: isRefreshing,
+    onCancelSip: () =>
+        _handleRedeemOrCancel(context, activeFund, redeem: false),
+    onRedeem: () => _handleRedeemOrCancel(context, activeFund, redeem: true),
+  );
 
   Widget _infoRow(
     String label,
@@ -1801,21 +1363,27 @@ class PortfolioFundDetailsPage extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: Colors.grey.shade600),
         const SizedBox(width: 10),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey.shade600,
+        Expanded(
+          flex: 5,
+          child: Text(
+            label,
+            style: UTextStyles.homeText(
+              family: FontFamily.plusJakartaSans,
+              size: 13,
+              weight: FontWeight.w500,
+              color: Colors.grey.shade600,
+            ),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 10),
         Expanded(
+          flex: 6,
           child: Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
+            style: UTextStyles.homeText(
+              family: FontFamily.plusJakartaSans,
+              size: 13,
+              weight: FontWeight.w700,
               color: valueColor ?? Colors.black87,
             ),
             textAlign: TextAlign.right,
