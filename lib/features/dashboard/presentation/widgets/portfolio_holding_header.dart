@@ -28,13 +28,11 @@ class PortfolioDetailsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = _HoldingMetadata(fund);
-    final textScaler = MediaQuery.textScalerOf(context);
-    final contentHeight =
-        textScaler.scale(15) * 1.5 + 3 + textScaler.scale(10) * 1.5 + 20;
-    return SizedBox(
-      height: contentHeight > 76 ? contentHeight : 76,
+    return Container(
+      constraints: const BoxConstraints(minHeight: 76),
+      // decoration: const BoxDecoration(gradient: gradient),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           children: [
             Material(
@@ -87,33 +85,15 @@ class PortfolioDetailsHeader extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    metadata.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: _text(
-                      15,
-                      weight: FontWeight.w700,
-                      color: Colors.white,
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    metadata.subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: _text(
-                      10,
-                      color: Colors.white.withValues(alpha: 0.7),
-                      height: 1.5,
-                    ),
-                  ),
-                ],
+              child: Text(
+                metadata.name,
+                softWrap: true,
+                style: _text(
+                  15,
+                  weight: FontWeight.w700,
+                  color: Colors.white,
+                  height: 1.5,
+                ),
               ),
             ),
           ],
@@ -424,9 +404,6 @@ class _HoldingMetadata {
     return null;
   }
 
-  String get subtitle => plan != null || option != null
-      ? '${plan ?? '—'} · ${option ?? '—'}'
-      : description;
   String get description => fund.amcName.trim().isNotEmpty
       ? fund.amcName.trim()
       : (fund.isSip
