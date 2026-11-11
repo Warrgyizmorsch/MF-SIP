@@ -205,7 +205,7 @@ class PortfolioHoldingCard extends StatelessWidget {
               children: [
                 Text(
                   '${fund.totalUnits.isFinite ? fund.totalUnits.toStringAsFixed(3) : '—'} total units',
-                  style: _text(8, color: _dim, height: 1.5),
+                  style: _text(12, color: _ink, height: 1.5,weight: FontWeight.w700),
                 ),
                 _statusBadge(),
               ],
