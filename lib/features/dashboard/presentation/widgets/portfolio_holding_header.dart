@@ -116,7 +116,6 @@ class PortfolioHoldingCard extends StatelessWidget {
         : Ucolors.homePositive;
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 314.047),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -126,81 +125,6 @@ class PortfolioHoldingCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: LayoutBuilder(
-              builder: (context, bounds) {
-                final heading = Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'YOUR HOLDING',
-                      style: _text(
-                        9,
-                        weight: FontWeight.w700,
-                        color: _dim,
-                        height: 1.5,
-                      ).copyWith(letterSpacing: 0.9),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      metadata.name,
-                      style: _text(17, weight: FontWeight.w700, height: 1.25),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      metadata.description,
-                      style: _text(10, color: _dim, height: 1.5),
-                    ),
-                  ],
-                );
-                final badge = _statusBadge();
-                if (bounds.maxWidth < 300 ||
-                    MediaQuery.textScalerOf(context).scale(1) > 1.2) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [heading, const SizedBox(height: 10), badge],
-                  );
-                }
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: heading),
-                    const SizedBox(width: 8),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: bounds.maxWidth * 0.36,
-                      ),
-                      child: badge,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            decoration: _band,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(child: _metadata('Folio number', fund.folioNo)),
-                    const SizedBox(width: 24),
-                    Expanded(child: _metadata('Goal', fund.goalName ?? '')),
-                  ],
-                ),
-                const SizedBox(height: 11),
-                Row(
-                  children: [
-                    Expanded(child: _metadata('Plan', metadata.plan ?? '')),
-                    const SizedBox(width: 24),
-                    Expanded(child: _metadata('Option', metadata.option ?? '')),
-                  ],
-                ),
-              ],
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 18),
             child: IntrinsicHeight(
@@ -245,6 +169,43 @@ class PortfolioHoldingCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            decoration: _band,
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Status',
+                        style: _text(10, color: _dim, height: 1.5),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(child: _statusBadge()),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(child: _metadata('Folio number', fund.folioNo)),
+                    const SizedBox(width: 24),
+                    Expanded(child: _metadata('Goal', fund.goalName ?? '')),
+                  ],
+                ),
+                const SizedBox(height: 11),
+                Row(
+                  children: [
+                    Expanded(child: _metadata('Plan', metadata.plan ?? '')),
+                    const SizedBox(width: 24),
+                    Expanded(child: _metadata('Option', metadata.option ?? '')),
+                  ],
+                ),
+              ],
             ),
           ),
           Container(
