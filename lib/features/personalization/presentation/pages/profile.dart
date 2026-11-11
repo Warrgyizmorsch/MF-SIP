@@ -299,6 +299,12 @@ class _WebProfileDashboard extends StatelessWidget {
         () => Get.toNamed(AppRoutes.nomineeList),
       ),
       _GridItem(
+        'Wishlist',
+        null,
+        () => Get.toNamed(AppRoutes.watchlist),
+        icon: Icons.favorite_border_rounded,
+      ),
+      _GridItem(
         'Documents',
         UImages.cardtick,
         // () => Get.to(() => const DocumentScreen()),
@@ -509,6 +515,11 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             onTap: () => Get.toNamed(AppRoutes.nomineeList),
             title: 'Nominee Details',
             images: UImages.verify,
+          ),
+          Listtilecustom(
+            onTap: () => Get.toNamed(AppRoutes.watchlist),
+            title: 'Wishlist',
+            icon: Icons.favorite_border_rounded,
           ),
           // Listtilecustom(
           //   onTap: () => Get.to(() => const DocumentScreen()),
