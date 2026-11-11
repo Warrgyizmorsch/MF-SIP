@@ -110,7 +110,6 @@ class PortfolioHoldingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final metadata = _HoldingMetadata(fund);
     final gainColor = fund.gainLoss < 0
         ? const Color(0xFFFF383C)
         : Ucolors.homePositive;
@@ -183,14 +182,6 @@ class PortfolioHoldingCard extends StatelessWidget {
                     Expanded(child: _metadata('Goal', fund.goalName ?? '')),
                   ],
                 ),
-                const SizedBox(height: 11),
-                Row(
-                  children: [
-                    Expanded(child: _metadata('Plan', metadata.plan ?? '')),
-                    const SizedBox(width: 24),
-                    Expanded(child: _metadata('Option', metadata.option ?? '')),
-                  ],
-                ),
               ],
             ),
           ),
@@ -205,7 +196,12 @@ class PortfolioHoldingCard extends StatelessWidget {
               children: [
                 Text(
                   '${fund.totalUnits.isFinite ? fund.totalUnits.toStringAsFixed(3) : '—'} total units',
-                  style: _text(12, color: _ink, height: 1.5,weight: FontWeight.w700),
+                  style: _text(
+                    12,
+                    color: _ink,
+                    height: 1.5,
+                    weight: FontWeight.w700,
+                  ),
                 ),
                 _statusBadge(),
               ],
@@ -320,34 +316,13 @@ class PortfolioHoldingCard extends StatelessWidget {
   );
 }
 
-// Only explicit name metadata is used until the portfolio API exposes these
-// properties separately. Missing plan/option values are not inferred.
+// Display the supplied scheme identity without changing the official name.
 class _HoldingMetadata {
   const _HoldingMetadata(this.fund);
   final MfuPortfolioItemEntity fund;
 
   String get name =>
       fund.fundName.trim().isEmpty ? 'Fund holding' : fund.fundName.trim();
-  String? get plan {
-    if (RegExp(r'\bdirect\b', caseSensitive: false).hasMatch(name)) {
-      return 'Direct';
-    }
-    if (RegExp(r'\bregular\b', caseSensitive: false).hasMatch(name)) {
-      return 'Regular';
-    }
-    return null;
-  }
-
-  String? get option {
-    if (RegExp(r'\bgrowth\b', caseSensitive: false).hasMatch(name)) {
-      return 'Growth';
-    }
-    if (RegExp(r'\bidcw\b', caseSensitive: false).hasMatch(name)) {
-      return 'IDCW';
-    }
-    return null;
-  }
-
   String get description => fund.amcName.trim().isNotEmpty
       ? fund.amcName.trim()
       : (fund.isSip
