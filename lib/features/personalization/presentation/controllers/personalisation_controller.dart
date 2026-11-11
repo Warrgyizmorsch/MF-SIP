@@ -2272,12 +2272,17 @@ class PersonalisationController extends GetxController {
   // Duration: 0=Current FY, 1=Previous FY, 2=Full Statement, 3=Custom
   final selectedDuration = 0.obs;
 
+  // Statement format: 'pdf' or 'excel'
+  final selectedFormat = 'pdf'.obs;
+
   final List<String> durations = [
     'Current FY',
     'Previous FY',
     'Full Statement',
     'Custom',
   ];
+
+  void selectFormat(String format) => selectedFormat.value = format;
 
   void selectFolio(String folio) => selectedFolio.value = folio;
 
@@ -2315,6 +2320,7 @@ class PersonalisationController extends GetxController {
 
     // Optional: Reset other variables to default when opening the screen
     statementTypeIndex.value = 0;
+    selectedFormat.value = 'pdf';
     // panController.text = 'ABCDE1234F';
     initFolios();
   }
@@ -2330,7 +2336,8 @@ class PersonalisationController extends GetxController {
   //   }
   //   CustomSnackbar.success(title: 'Download', message: 'Generating statement…');
   // }
-  void onDownload() {
+  void onDownload({String? format}) {
+    final effectiveFormat = format ?? selectedFormat.value;
     if (statementTypeIndex.value == 0 &&
         (session.getUserData?.panCard ?? panController.text.trim()).isEmpty) {
       Get.snackbar('Missing Info', 'Please enter a valid PAN number');
@@ -2363,6 +2370,7 @@ class PersonalisationController extends GetxController {
         panNumber: panParam,
         startDate: dates['start']!,
         endDate: dates['end']!,
+        format: effectiveFormat,
       );
     } else {
       // Handle normal account statement download here
@@ -2374,6 +2382,7 @@ class PersonalisationController extends GetxController {
         pan: panParam,
         startDate: dates['start']!,
         endDate: dates['end']!,
+        format: effectiveFormat,
       );
     }
   }
@@ -2392,7 +2401,8 @@ class PersonalisationController extends GetxController {
   //     message: 'Statement sent to ****@gmail.com',
   //   );
   // }
-  void onEmail() {
+  void onEmail({String? format}) {
+    final effectiveFormat = format ?? selectedFormat.value;
     if (statementTypeIndex.value == 0 &&
         (session.getUserData?.panCard ?? panController.text.trim()).isEmpty) {
       Get.snackbar('Missing Info', 'Please enter a valid PAN number');
@@ -2426,6 +2436,7 @@ class PersonalisationController extends GetxController {
         panNumber: panParam,
         startDate: dates['start']!,
         endDate: dates['end']!,
+        format: effectiveFormat,
       );
     } else {
       // Handle normal account statement email here
@@ -2437,6 +2448,7 @@ class PersonalisationController extends GetxController {
         pan: panParam,
         startDate: dates['start']!,
         endDate: dates['end']!,
+        format: effectiveFormat,
       );
     }
   }
@@ -2533,12 +2545,21 @@ class PersonalisationController extends GetxController {
   }
 
   // ── IN-APP DOWNLOAD TO PUBLIC FOLDER ──────────────────────
-  Future<void> _downloadAndSavePdf(String url, String folio) async {
+  Future<void> _downloadAndSavePdf(
+    String url,
+    String folio, {
+    String format = 'pdf',
+  }) async {
     try {
+      final isExcel =
+          format.toLowerCase() == 'excel' || format.toLowerCase() == 'xlsx';
+      final ext = isExcel ? 'xlsx' : 'pdf';
+      final String prefix = isCapitalGain.value
+          ? "CapitalGain"
+          : "AccountStatement";
       // 1. Create a unique filename
-      final String fileName = isCapitalGain.value
-          ? "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf"
-          : "AccountStatement_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+      final String fileName =
+          "${prefix}_${folio}_${DateTime.now().millisecondsSinceEpoch}.$ext";
 
       // 2. Handle web platform download (avoids dart:io Platform & filesystem crashes)
       if (kIsWeb) {
@@ -2554,7 +2575,10 @@ class PersonalisationController extends GetxController {
             options: Options(responseType: ResponseType.bytes),
           );
           if (response.data != null) {
-            final blob = html.Blob([response.data], 'application/pdf');
+            final mimeType = isExcel
+                ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                : 'application/pdf';
+            final blob = html.Blob([response.data], mimeType);
             final blobUrl = html.Url.createObjectUrlFromBlob(blob);
             html.AnchorElement(href: blobUrl)
               ..setAttribute('download', fileName)
@@ -2633,7 +2657,7 @@ class PersonalisationController extends GetxController {
       log("[MfuController] Download error: $e");
       CustomSnackbar.error(
         title: 'Error',
-        message: 'Failed to download the PDF file.',
+        message: 'Failed to download the statement file.',
       );
     }
   }
@@ -2696,10 +2720,12 @@ class PersonalisationController extends GetxController {
     String? panNumber,
     required String startDate,
     required String endDate,
+    String? format,
   }) async {
     isRequestingStatement.value = true;
 
     final uid = session.getUserData?.id ?? 0;
+    final selectedFmt = format ?? selectedFormat.value;
 
     ULoaders.showLoading(message: "Processing Capital Gain Statement...");
 
@@ -2713,6 +2739,7 @@ class PersonalisationController extends GetxController {
       folioNo: folioNo,
       startDate: startDate,
       endDate: endDate,
+      format: selectedFmt,
     );
 
     result.fold(
@@ -2727,7 +2754,11 @@ class PersonalisationController extends GetxController {
             final identifier = (folioNo != null && folioNo.isNotEmpty)
                 ? folioNo
                 : (panNumber ?? "all");
-            await _downloadAndSavePdf(data.downloadUrl, identifier);
+            await _downloadAndSavePdf(
+              data.downloadUrl,
+              identifier,
+              format: selectedFmt,
+            );
           } else if (data.isEmail) {
             ULoaders.stopLoading();
             log("[MfuController] Email sent to: ${data.emailTo}");
@@ -2758,12 +2789,14 @@ class PersonalisationController extends GetxController {
     String? pan,
     required String startDate,
     required String endDate,
+    String? format,
   }) async {
     isRequestingAccountStatement.value = true;
 
     ULoaders.showLoading(message: "Processing Account Statement...");
 
     final uid = session.getUserData?.id ?? 0;
+    final selectedFmt = format ?? selectedFormat.value;
 
     final result = await useCases.requestAccountStatementUseCase(
       uid: uid, // for testing
@@ -2774,6 +2807,7 @@ class PersonalisationController extends GetxController {
       pan: pan,
       startDate: startDate,
       endDate: endDate,
+      format: selectedFmt,
     );
 
     result.fold(
@@ -2787,6 +2821,7 @@ class PersonalisationController extends GetxController {
             await _downloadAndSavePdf(
               data.downloadUrl,
               folioNo ?? pan ?? 'statement',
+              format: selectedFmt,
             );
           } else if (data.isEmail) {
             ULoaders.stopLoading();

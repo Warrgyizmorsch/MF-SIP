@@ -245,6 +245,7 @@ class PersonalisationRemoteDataSource {
     String? panNumber,
     required String startDate,
     required String endDate,
+    String? format,
   }) async {
     try {
       final body = {
@@ -256,6 +257,7 @@ class PersonalisationRemoteDataSource {
           "pan_number": panNumber,
         "start_date": startDate,
         "end_date": endDate,
+        if (format != null && format.trim().isNotEmpty) "format": format,
       };
 
       createLog(
@@ -303,6 +305,7 @@ class PersonalisationRemoteDataSource {
     String? pan,
     required String startDate,
     required String endDate,
+    String? format,
   }) async {
     try {
       final body = {
@@ -313,6 +316,7 @@ class PersonalisationRemoteDataSource {
         // if (pan != null && pan.trim().isNotEmpty) "pan": pan,
         "start_date": startDate,
         "end_date": endDate,
+        if (format != null && format.trim().isNotEmpty) "format": format,
       };
 
       createLog("[MfuRemoteDataSource] requestAccountStatement Request: $body");

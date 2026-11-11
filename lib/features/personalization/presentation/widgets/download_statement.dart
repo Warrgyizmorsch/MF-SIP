@@ -917,6 +917,10 @@ class _MobileDownloadStatementsLayout extends StatelessWidget {
               return const SizedBox.shrink();
             }),
 
+            // Card 4 – Format (PDF / Excel)
+            _FormatCard(ctrl: ctrl),
+            const SizedBox(height: 16),
+
             // Info Banner
             _InfoBanner(email: ctrl.emailController.text),
 
@@ -1129,82 +1133,84 @@ class _WebStatementFormCard extends StatelessWidget {
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: _WebStatementSource(ctrl: ctrl),
-                        ),
+                        Expanded(child: _WebStatementSource(ctrl: ctrl)),
                         const SizedBox(width: 42),
                         Expanded(child: _WebPanFolioInput(ctrl: ctrl)),
                       ],
                     ),
 
-                const SizedBox(height: 28),
+              const SizedBox(height: 28),
 
-                _WebDurationSection(ctrl: ctrl),
+              _WebDurationSection(ctrl: ctrl),
 
-                const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-                _WebDateRangeBar(ctrl: ctrl),
+              _WebDateRangeBar(ctrl: ctrl),
 
-                const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-                Row(
-                  children: [
-                    Expanded(child: _WebTaxReadyInfo()),
-                    const SizedBox(width: 16),
-                    Obx(() {
-                      final loading =
-                          ctrl.isRequestingStatement.value ||
-                          ctrl.isRequestingAccountStatement.value;
+              _WebFormatSection(ctrl: ctrl),
 
-                      return SizedBox(
-                        height: 54,
-                        width: 250,
-                        child: ElevatedButton(
-                          onPressed: loading ? null : ctrl.onDownload,
-                          style: ElevatedButton.styleFrom(
-                            elevation: 0,
-                            backgroundColor: Ucolors.primary,
-                            disabledBackgroundColor: Ucolors.skyblue,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+              const SizedBox(height: 20),
+
+              Row(
+                children: [
+                  Expanded(child: _WebTaxReadyInfo()),
+                  const SizedBox(width: 16),
+                  Obx(() {
+                    final loading =
+                        ctrl.isRequestingStatement.value ||
+                        ctrl.isRequestingAccountStatement.value;
+
+                    return SizedBox(
+                      height: 54,
+                      width: 250,
+                      child: ElevatedButton(
+                        onPressed: loading ? null : ctrl.onDownload,
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: Ucolors.primary,
+                          disabledBackgroundColor: Ucolors.skyblue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          child: loading
-                              ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.4,
-                                    color: Ucolors.blue,
+                        ),
+                        child: loading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  color: Ucolors.blue,
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.post_add_rounded,
+                                    size: 24,
+                                    color: Colors.white,
                                   ),
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.post_add_rounded,
-                                      size: 24,
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Generate Statement',
+                                    style: UTextStyles.bodyMedium.copyWith(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
                                       color: Colors.white,
                                     ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Generate Statement',
-                                      style: UTextStyles.bodyMedium.copyWith(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ],
-            );
+                                  ),
+                                ],
+                              ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ],
+          );
         },
       ),
     );
@@ -1508,10 +1514,7 @@ class _WebDurationSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _WebStepTitle(
-          number: '3.',
-          title: 'Select Duration',
-        ),
+        _WebStepTitle(number: '3.', title: 'Select Duration'),
 
         const SizedBox(height: 12),
 
@@ -1690,6 +1693,140 @@ class _WebDurationTile extends StatelessWidget {
   }
 }
 
+class _WebFormatSection extends StatelessWidget {
+  final PersonalisationController ctrl;
+
+  const _WebFormatSection({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _WebStepTitle(number: '4.', title: 'Select Statement Format'),
+        const SizedBox(height: 12),
+        Obx(() {
+          final selected = ctrl.selectedFormat.value;
+
+          return Row(
+            children: [
+              _WebFormatTile(
+                icon: Icons.picture_as_pdf_rounded,
+                iconColor: Ucolors.red,
+                title: 'PDF Document',
+                subtitle:
+                    'Printable statement formatted for viewing & official records',
+                active: selected == 'pdf',
+                onTap: () => ctrl.selectFormat('pdf'),
+              ),
+              const SizedBox(width: 14),
+              _WebFormatTile(
+                icon: Icons.table_chart_rounded,
+                iconColor: const Color(0xFF16A34A),
+                title: 'Excel Spreadsheet',
+                subtitle:
+                    'Editable .xlsx workbook for tax calculation & analysis',
+                active: selected == 'excel',
+                onTap: () => ctrl.selectFormat('excel'),
+              ),
+            ],
+          );
+        }),
+      ],
+    );
+  }
+}
+
+class _WebFormatTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _WebFormatTile({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: active
+                ? Ucolors.primary.withValues(alpha: 0.05)
+                : const Color(0xFFFBFCFF),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: active ? Ucolors.primary : const Color(0xFFDCE3EF),
+              width: active ? 1.8 : 1.0,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: iconColor, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: UTextStyles.bodyMedium.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: active
+                            ? Ucolors.primary
+                            : const Color(0xFF1E293B),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                active ? Icons.radio_button_checked : Icons.radio_button_off,
+                color: active ? Ucolors.primary : const Color(0xFFCBD5E1),
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _WebDateRangeBar extends StatelessWidget {
   final PersonalisationController ctrl;
 
@@ -1861,25 +1998,25 @@ class _WebStatementPreviewCard extends StatelessWidget {
                 _PreviewIconButton(
                   icon: Icons.mail_outline_rounded,
                   color: Ucolors.primary,
-                  onTap: ctrl.onEmail,
+                  onTap: () => ctrl.onEmail(),
                 ),
                 const SizedBox(width: 12),
                 _PreviewIconButton(
                   icon: Icons.picture_as_pdf_rounded,
                   color: Ucolors.red,
-                  onTap: ctrl.onDownload,
+                  onTap: () => ctrl.onDownload(format: 'pdf'),
                 ),
                 const SizedBox(width: 12),
                 _PreviewIconButton(
                   icon: Icons.table_chart_rounded,
                   color: const Color(0xFF16A34A),
-                  onTap: ctrl.onDownload,
+                  onTap: () => ctrl.onDownload(format: 'excel'),
                 ),
                 const SizedBox(width: 12),
                 _PreviewIconButton(
                   icon: Icons.print_rounded,
                   color: Ucolors.primary,
-                  onTap: ctrl.onDownload,
+                  onTap: () => ctrl.onDownload(format: 'pdf'),
                 ),
               ],
             ),
@@ -2619,6 +2756,50 @@ class _StatementTypeCard extends StatelessWidget {
   }
 }
 
+class _FormatCard extends StatelessWidget {
+  final PersonalisationController ctrl;
+  const _FormatCard({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Statement Format',
+            style: UTextStyles.sectionHeading.copyWith(fontSize: 16),
+          ),
+          const SizedBox(height: 12),
+          Obx(
+            () => Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              padding: const EdgeInsets.all(4),
+              child: Row(
+                children: [
+                  _SegmentButton(
+                    label: 'PDF Document',
+                    isActive: ctrl.selectedFormat.value == 'pdf',
+                    onTap: () => ctrl.selectFormat('pdf'),
+                  ),
+                  _SegmentButton(
+                    label: 'Excel (.xlsx)',
+                    isActive: ctrl.selectedFormat.value == 'excel',
+                    onTap: () => ctrl.selectFormat('excel'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SegmentButton extends StatelessWidget {
   final String label;
   final bool isActive;
@@ -2708,39 +2889,39 @@ class _FolioInputCard extends StatelessWidget {
     return _Card(
       child: Column(
         children: [
-          Obx(
-            () {
-              final selected = ctrl.selectedFolio.value;
-              String displayLabel = 'Select Folio';
+          Obx(() {
+            final selected = ctrl.selectedFolio.value;
+            String displayLabel = 'Select Folio';
 
-              if (selected.isNotEmpty) {
-                final matchingItem = ctrl.userFolioItems.firstWhereOrNull(
-                  (f) =>
-                      (f.folioNumber != null && f.folioNumber == selected) ||
-                      (f.folio != null && f.folio == selected),
-                );
-                if (matchingItem != null) {
-                  final folio = matchingItem.folioNumber ?? matchingItem.folio ?? selected;
-                  final amc = matchingItem.amcName;
-                  if (amc != null && amc.isNotEmpty) {
-                    displayLabel = '$folio ($amc)';
-                  } else if (matchingItem.displayLabel != null && matchingItem.displayLabel!.isNotEmpty) {
-                    displayLabel = matchingItem.displayLabel!;
-                  } else {
-                    displayLabel = folio;
-                  }
-                } else {
-                  displayLabel = selected;
-                }
-              }
-
-              return _DropdownTile(
-                label: 'Select Folio',
-                value: displayLabel,
-                onTap: () => _showFolioPicker(context, ctrl),
+            if (selected.isNotEmpty) {
+              final matchingItem = ctrl.userFolioItems.firstWhereOrNull(
+                (f) =>
+                    (f.folioNumber != null && f.folioNumber == selected) ||
+                    (f.folio != null && f.folio == selected),
               );
-            },
-          ),
+              if (matchingItem != null) {
+                final folio =
+                    matchingItem.folioNumber ?? matchingItem.folio ?? selected;
+                final amc = matchingItem.amcName;
+                if (amc != null && amc.isNotEmpty) {
+                  displayLabel = '$folio ($amc)';
+                } else if (matchingItem.displayLabel != null &&
+                    matchingItem.displayLabel!.isNotEmpty) {
+                  displayLabel = matchingItem.displayLabel!;
+                } else {
+                  displayLabel = folio;
+                }
+              } else {
+                displayLabel = selected;
+              }
+            }
+
+            return _DropdownTile(
+              label: 'Select Folio',
+              value: displayLabel,
+              onTap: () => _showFolioPicker(context, ctrl),
+            );
+          }),
         ],
       ),
     );
@@ -2751,8 +2932,8 @@ class _FolioInputCard extends StatelessWidget {
     final plainFolios = ctrl.userFolios.isNotEmpty
         ? ctrl.userFolios.toList()
         : (ctrl.selectedFolio.value.isNotEmpty
-            ? [ctrl.selectedFolio.value]
-            : <String>[]);
+              ? [ctrl.selectedFolio.value]
+              : <String>[]);
 
     showModalBottomSheet(
       context: context,
@@ -2839,8 +3020,11 @@ class _FolioInputCard extends StatelessWidget {
 
                               // AMC Name logic
                               String amcName = item.amcName ?? '';
-                              if (amcName.isEmpty && item.displayLabel != null) {
-                                final match = RegExp(r'\((.*?)\)').firstMatch(item.displayLabel!);
+                              if (amcName.isEmpty &&
+                                  item.displayLabel != null) {
+                                final match = RegExp(
+                                  r'\((.*?)\)',
+                                ).firstMatch(item.displayLabel!);
                                 if (match != null && match.group(1) != null) {
                                   amcName = match.group(1)!;
                                 }
@@ -2872,8 +3056,9 @@ class _FolioInputCard extends StatelessWidget {
                                   alignment: Alignment.center,
                                   child: (logoUrl != null && logoUrl.isNotEmpty)
                                       ? ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                           child: CustomCachedImage(
                                             imageUrl: logoUrl,
                                             width: 32,

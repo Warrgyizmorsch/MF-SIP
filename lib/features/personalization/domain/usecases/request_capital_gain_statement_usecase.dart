@@ -17,6 +17,7 @@ class RequestCapitalGainStatementUseCase {
     String? panNumber,
     required String startDate,
     required String endDate,
+    String? format,
   }) async {
     return await personalisationRepository.requestCapitalGainStatement(
       uid: uid,
@@ -26,6 +27,7 @@ class RequestCapitalGainStatementUseCase {
       panNumber: panNumber,
       startDate: startDate,
       endDate: endDate,
+      format: format,
     );
   }
 }

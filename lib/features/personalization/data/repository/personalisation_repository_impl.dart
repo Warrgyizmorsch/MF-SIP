@@ -215,6 +215,7 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
     String? panNumber,
     required String startDate,
     required String endDate,
+    String? format,
   }) async {
     try {
       final response = await _remoteDataSource.requestCapitalGainStatement(
@@ -225,6 +226,7 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
         folioNo: folioNo,
         startDate: startDate,
         endDate: endDate,
+        format: format,
       );
 
       return response.fold(
@@ -246,6 +248,7 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
     String? pan,
     required String startDate,
     required String endDate,
+    String? format,
   }) async {
     try {
       final response = await _remoteDataSource.requestAccountStatement(
@@ -256,6 +259,7 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
         pan: pan,
         startDate: startDate,
         endDate: endDate,
+        format: format,
       );
 
       return response.fold(

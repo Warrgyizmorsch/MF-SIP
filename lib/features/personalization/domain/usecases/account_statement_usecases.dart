@@ -19,6 +19,7 @@ class RequestAccountStatementUseCase {
     String? pan,
     required String startDate,
     required String endDate,
+    String? format,
   }) async {
     return await personalisationRepository.requestAccountStatement(
       uid: uid,
@@ -28,6 +29,7 @@ class RequestAccountStatementUseCase {
       pan: pan,
       startDate: startDate,
       endDate: endDate,
+      format: format,
     );
   }
 }

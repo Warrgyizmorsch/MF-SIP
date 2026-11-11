@@ -47,6 +47,7 @@ abstract class PersonalisationRepository {
     String? panNumber,
     required String startDate,
     required String endDate,
+    String? format,
   });
 
   Future<Either<Result<AccountStatementEntity>, ApiError>>
@@ -58,6 +59,7 @@ abstract class PersonalisationRepository {
     String? pan,
     required String startDate,
     required String endDate,
+    String? format,
   });
 
   Future<Either<Result<AddBankResponseEntity>, ApiError>> addBankAccount({
