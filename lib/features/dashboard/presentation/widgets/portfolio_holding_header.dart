@@ -177,20 +177,6 @@ class PortfolioHoldingCard extends StatelessWidget {
             child: Column(
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Status',
-                        style: _text(10, color: _dim, height: 1.5),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Flexible(child: _statusBadge()),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
                   children: [
                     Expanded(child: _metadata('Folio number', fund.folioNo)),
                     const SizedBox(width: 24),
@@ -213,6 +199,7 @@ class PortfolioHoldingCard extends StatelessWidget {
             decoration: _band,
             child: Wrap(
               alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 12,
               runSpacing: 6,
               children: [
@@ -220,11 +207,7 @@ class PortfolioHoldingCard extends StatelessWidget {
                   '${fund.totalUnits.isFinite ? fund.totalUnits.toStringAsFixed(3) : '—'} total units',
                   style: _text(8, color: _dim, height: 1.5),
                 ),
-                if (fund.navDate.trim().isNotEmpty)
-                  Text(
-                    'NAV as of ${_date(fund.navDate)}',
-                    style: _text(8, color: _dim, height: 1.5),
-                  ),
+                _statusBadge(),
               ],
             ),
           ),
