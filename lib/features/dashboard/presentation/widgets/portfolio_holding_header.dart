@@ -171,21 +171,6 @@ class PortfolioHoldingCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            decoration: _band,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(child: _metadata('Folio number', fund.folioNo)),
-                    const SizedBox(width: 24),
-                    Expanded(child: _metadata('Goal', fund.goalName ?? '')),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
             decoration: _band,
             child: Wrap(
@@ -204,6 +189,21 @@ class PortfolioHoldingCard extends StatelessWidget {
                   ),
                 ),
                 _statusBadge(),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            decoration: _band,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(child: _metadata('Folio number', fund.folioNo)),
+                    const SizedBox(width: 24),
+                    Expanded(child: _metadata('Goal', fund.goalName ?? '')),
+                  ],
+                ),
               ],
             ),
           ),
