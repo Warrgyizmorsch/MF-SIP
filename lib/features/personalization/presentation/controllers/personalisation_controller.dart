@@ -462,6 +462,55 @@ class PersonalisationController extends GetxController {
     return null;
   }
 
+  /// Selected bank for Checkout (Lumpsum / SIP)
+  final selectedCheckoutBank = Rxn<profileEntity.BankAccountEntity>();
+
+  /// Selects a bank for checkout
+  void selectCheckoutBank(profileEntity.BankAccountEntity bank) {
+    selectedCheckoutBank.value = bank;
+  }
+
+  /// Helper to get the active checkout bank with fallback
+  profileEntity.BankAccountEntity? get activeCheckoutBank {
+    if (selectedCheckoutBank.value != null) {
+      return selectedCheckoutBank.value;
+    }
+    return existingRegisteredBank;
+  }
+
+  /// Synchronize default checkout bank based on investment mode (Lumpsum vs SIP)
+  void syncDefaultCheckoutBank({bool isLumpsum = true}) {
+    if (linkedBankAccounts.isEmpty) {
+      final userBanks = userData.value?.bankAccounts;
+      if (userBanks != null && userBanks.isNotEmpty) {
+        linkedBankAccounts.assignAll(userBanks);
+      }
+    }
+
+    if (linkedBankAccounts.isEmpty) return;
+
+    if (selectedCheckoutBank.value != null &&
+        linkedBankAccounts.any((b) => b.id == selectedCheckoutBank.value!.id)) {
+      selectedCheckoutBank.value = linkedBankAccounts.firstWhere(
+        (b) => b.id == selectedCheckoutBank.value!.id,
+      );
+      return;
+    }
+
+    final defaultBank =
+        linkedBankAccounts.firstWhereOrNull(
+          (b) => isLumpsum
+              ? (b.canInvestLumpsum == true ||
+                    b.isCanVerified == true ||
+                    b.isFullyApproved)
+              : (b.canInvestSip == true || b.hasActiveMandate == true),
+        ) ??
+        linkedBankAccounts.firstWhereOrNull((b) => b.isFullyApproved) ??
+        linkedBankAccounts.first;
+
+    selectedCheckoutBank.value = defaultBank;
+  }
+
   /// Checks if the bank is being added as an NCT bank to an existing approved CAN
   bool get isAddingBankForNct {
     // 1. Explicit route argument override (if passed)

@@ -14,6 +14,7 @@ import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 import '../../../fund_details/domain/entity/fund_detail_entity.dart';
 
@@ -347,10 +348,30 @@ class CartController extends GetxController {
       return;
     }
 
+    final personalisationCtrl = Get.find<PersonalisationController>();
+    final selectedBank = personalisationCtrl.activeCheckoutBank;
+
+    if (selectedBank != null &&
+        selectedBank.canInvestLumpsum == false &&
+        selectedBank.isCanVerified == false) {
+      CustomSnackbar.error(
+        title: "Bank Verification Required",
+        message:
+            "${selectedBank.bankName ?? 'Selected bank'} is pending MFU CAN verification. Please select another bank.",
+      );
+      return;
+    }
+
     final mfuCtrl = Get.find<MfuController>();
+    final paymentType = mfuCtrl.selectedMethod.value == 'netbanking'
+        ? 'NETBANKING'
+        : 'UPI';
 
     await mfuCtrl.executeLumpsum(
       funds: funds,
+      bankId: selectedBank?.id,
+      paymentType: paymentType,
+      goalId: goalId.value ?? filterGoalId.value,
       onSuccess: (res) async {
         await removePurchasedItems(itemsToPurchase);
       },
@@ -412,10 +433,30 @@ class CartController extends GetxController {
       return;
     }
 
+    final personalisationCtrl = Get.find<PersonalisationController>();
+    final selectedBank = personalisationCtrl.activeCheckoutBank;
+
+    if (selectedBank != null &&
+        selectedBank.canInvestSip == false &&
+        selectedBank.hasActiveMandate == false) {
+      CustomSnackbar.error(
+        title: "Active Mandate Required",
+        message:
+            "${selectedBank.bankName ?? 'Selected bank'} does not have an active AutoPay mandate. Please select an eligible bank or set up a mandate.",
+      );
+      return;
+    }
+
     final mfuCtrl = Get.find<MfuController>();
+    final paymentType = mfuCtrl.selectedMethod.value == 'netbanking'
+        ? 'NETBANKING'
+        : 'UPI';
 
     await mfuCtrl.executeSip(
       funds: normalFunds,
+      bankId: selectedBank?.id,
+      paymentType: paymentType,
+      goalId: goalId.value ?? filterGoalId.value,
       onSuccess: (res) async {
         CustomSnackbar.success(
           title: 'SIP Processing',
@@ -550,7 +591,7 @@ class CartController extends GetxController {
     String transType = 'sip',
     String title = 'Cart',
   }) async {
-//HapticFeedback.successNotification();
+    //HapticFeedback.successNotification();
     bool alreadyInCart =
         cartResponseEntity.value?.items.any(
           (item) =>
@@ -818,7 +859,8 @@ class CartController extends GetxController {
         final mfCtrl = Get.find<MutualFundController>();
         final codeStr = item.schemeCode?.toString();
         if (codeStr != null && codeStr.isNotEmpty) {
-          final matched = mfCtrl.searchFund.firstWhereOrNull(
+          final matched =
+              mfCtrl.searchFund.firstWhereOrNull(
                 (f) => f.schemeCode == codeStr,
               ) ??
               mfCtrl.mutualfund.firstWhereOrNull(

@@ -651,6 +651,12 @@ class BankAccountEntity extends Equatable {
   final String? nctRemarks;
   final String? rejectionRemarks;
   final bool? canCheckStatus;
+  final bool? isCanVerified;
+  final bool? canInvestLumpsum;
+  final bool? hasActiveMandate;
+  final bool? canInvestSip;
+  final String? accountNumberMasked;
+  final String? payMode;
 
   const BankAccountEntity({
     required this.id,
@@ -682,6 +688,12 @@ class BankAccountEntity extends Equatable {
     this.nctRemarks,
     this.rejectionRemarks,
     this.canCheckStatus,
+    this.isCanVerified,
+    this.canInvestLumpsum,
+    this.hasActiveMandate,
+    this.canInvestSip,
+    this.accountNumberMasked,
+    this.payMode,
   });
 
   /// Fully verified and active in MFU
@@ -706,6 +718,9 @@ class BankAccountEntity extends Equatable {
 
   /// Masked account number display fallback
   String get maskedAccountNumber {
+    if (accountNumberMasked != null && accountNumberMasked!.isNotEmpty) {
+      return accountNumberMasked!;
+    }
     if (accountNumberEncrypted != null && accountNumberEncrypted!.isNotEmpty) {
       return accountNumberEncrypted!;
     }
@@ -767,6 +782,12 @@ class BankAccountEntity extends Equatable {
     nctRemarks,
     rejectionRemarks,
     canCheckStatus,
+    isCanVerified,
+    canInvestLumpsum,
+    hasActiveMandate,
+    canInvestSip,
+    accountNumberMasked,
+    payMode,
   ];
 }
 
@@ -802,6 +823,12 @@ extension BankAccountEntityX on BankAccountModel {
       nctRemarks: nctRemarks,
       rejectionRemarks: rejectionRemarks,
       canCheckStatus: canCheckStatus,
+      isCanVerified: isCanVerified,
+      canInvestLumpsum: canInvestLumpsum,
+      hasActiveMandate: hasActiveMandate,
+      canInvestSip: canInvestSip,
+      accountNumberMasked: accountNumberMasked,
+      payMode: payMode,
     );
   }
 }

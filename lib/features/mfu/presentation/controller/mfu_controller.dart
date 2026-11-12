@@ -39,7 +39,8 @@ import 'package:my_sip/features/mfu/presentation/pages/mandate_waiting_screen.da
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
-import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart' show FolioItemEntity;
+import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart'
+    show FolioItemEntity;
 import 'package:my_sip/services/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -148,7 +149,8 @@ class MfuController extends GetxController {
     selectedFolioMode.value = mode;
     if (mode == 'NEW') {
       selectedExistingFolio.value = null;
-    } else if (selectedExistingFolio.value == null && matchingAmcFolios.isNotEmpty) {
+    } else if (selectedExistingFolio.value == null &&
+        matchingAmcFolios.isNotEmpty) {
       selectedExistingFolio.value = matchingAmcFolios.first;
     }
   }
@@ -162,12 +164,47 @@ class MfuController extends GetxController {
   static Set<String> _extractAmcKeywords(String name) {
     if (name.isEmpty) return {};
     const stopWords = {
-      'asset', 'management', 'company', 'co', 'ltd', 'limited', 'pvt',
-      'private', 'mutual', 'fund', 'funds', 'amc', 'trustee', 'services',
-      'india', 'investments', 'investment', 'llc', 'corp', 'corporation',
-      'regular', 'direct', 'growth', 'plan', 'dividend', 'idcw', 'scheme',
-      'cap', 'large', 'mid', 'small', 'flexi', 'multi', 'equity', 'debt',
-      'hybrid', 'elss', 'index', 'etf', 'fund-of-funds', 'opportunities'
+      'asset',
+      'management',
+      'company',
+      'co',
+      'ltd',
+      'limited',
+      'pvt',
+      'private',
+      'mutual',
+      'fund',
+      'funds',
+      'amc',
+      'trustee',
+      'services',
+      'india',
+      'investments',
+      'investment',
+      'llc',
+      'corp',
+      'corporation',
+      'regular',
+      'direct',
+      'growth',
+      'plan',
+      'dividend',
+      'idcw',
+      'scheme',
+      'cap',
+      'large',
+      'mid',
+      'small',
+      'flexi',
+      'multi',
+      'equity',
+      'debt',
+      'hybrid',
+      'elss',
+      'index',
+      'etf',
+      'fund-of-funds',
+      'opportunities',
     };
 
     return name
@@ -261,8 +298,10 @@ class MfuController extends GetxController {
   }
 
   String get effectiveFolio {
-    if (selectedFolioMode.value == 'EXISTING' && selectedExistingFolio.value != null) {
-      final f = selectedExistingFolio.value!.folioNumber ??
+    if (selectedFolioMode.value == 'EXISTING' &&
+        selectedExistingFolio.value != null) {
+      final f =
+          selectedExistingFolio.value!.folioNumber ??
           selectedExistingFolio.value!.folio;
       if (f != null && f.trim().isNotEmpty) return f.trim();
     }
@@ -329,7 +368,8 @@ class MfuController extends GetxController {
       final match = available.firstWhereOrNull(
         (f) => (f.folioNumber ?? f.folio) == args.folio,
       );
-      selectedExistingFolio.value = match ??
+      selectedExistingFolio.value =
+          match ??
           FolioItemEntity(
             folioNumber: args.folio,
             folio: args.folio,
@@ -349,9 +389,14 @@ class MfuController extends GetxController {
     sipCapError.value = null;
     sipInvType.value = args.initialInvType ?? InvType.sip;
     sipFreq.value = args.initialFrequency ?? SipFrequency.monthly;
-    final List<int> allowedDates = args.allowedSipDates ?? List.generate(28, (i) => i + 1);
-    final int candidateDay = args.initialSipDay ?? (allowedDates.contains(16) ? 16 : allowedDates.first);
-    sipDay.value = allowedDates.contains(candidateDay) ? candidateDay : allowedDates.first;
+    final List<int> allowedDates =
+        args.allowedSipDates ?? List.generate(28, (i) => i + 1);
+    final int candidateDay =
+        args.initialSipDay ??
+        (allowedDates.contains(16) ? 16 : allowedDates.first);
+    sipDay.value = allowedDates.contains(candidateDay)
+        ? candidateDay
+        : allowedDates.first;
     sipWeekDay.value = args.initialWeekDay ?? 1;
     sipStepByPct.value = false;
     sipStepUpPct.value = 10;
@@ -700,10 +745,10 @@ class MfuController extends GetxController {
             message:
                 "Your investment account (CAN) is approved. You can now set up Auto Pay!",
           );
-        
         } else if (rawStatus == 'cancelled' || rawStatus == 'rejected') {
           _stopCanStatusPolling();
-          log("[MfuController] CAN status is $rawStatus - stopped polling");}
+          log("[MfuController] CAN status is $rawStatus - stopped polling");
+        }
       },
       (error) {
         errorMessage.value = error.message ?? 'Something went wrong';
@@ -749,7 +794,9 @@ class MfuController extends GetxController {
 
   void resumePollingIfNeeded() {
     final canNumber = session.getUserData?.canNumber ?? '';
-    final canStatus = (session.getUserData?.canStatus ?? '').trim().toLowerCase();
+    final canStatus = (session.getUserData?.canStatus ?? '')
+        .trim()
+        .toLowerCase();
 
     if (canStatus == 'cancelled' ||
         canStatus == 'rejected' ||
@@ -1497,14 +1544,31 @@ class MfuController extends GetxController {
       return 'external';
     } else {
       final result = await Get.to(
-        () => MandateWebView(
-          url: url,
-          title: title,
-          onVerifying: onVerifying,
-        ),
+        () => MandateWebView(url: url, title: title, onVerifying: onVerifying),
       );
       return result as String?;
     }
+  }
+
+  /// Format backend 422 error codes into investor-friendly explanations
+  String formatInvestmentErrorMessage(String rawMessage) {
+    final lower = rawMessage.toLowerCase();
+    if (lower.contains('invalid_bank')) {
+      return "The selected bank is invalid or does not belong to your account.";
+    } else if (lower.contains('bank_not_verified')) {
+      return "This bank is still awaiting verification on MFU CAN.";
+    } else if (lower.contains('bank_mandate_required')) {
+      return "Active AutoPay mandate required for SIP on this bank. Please choose a bank with an active mandate or create one.";
+    } else if (lower.contains('bank_mandate_mismatch')) {
+      return "The selected mandate is linked to another bank.";
+    } else if (lower.contains('mandate_mode_mismatch')) {
+      return "Mandate mode does not match selected payment method (UPI vs Netbanking).";
+    } else if (lower.contains('invalid_payment_type')) {
+      return "The selected payment mode is not supported for this transaction.";
+    } else if (lower.contains('can_not_registered')) {
+      return "Your MFU CAN registration is pending. Please complete CAN setup to invest.";
+    }
+    return rawMessage;
   }
 
   /// Latest API Alias: postLumpsum (`POST /api/v1/invest/lumpsum`)
@@ -1513,6 +1577,8 @@ class MfuController extends GetxController {
     double? amount,
     String folio = 'NEW',
     dynamic goalId,
+    int? bankId,
+    String? paymentType,
     List<LumpsumFundItemModel>? funds,
     Function(LumpsumResModel)? onSuccess,
   }) => executeLumpsum(
@@ -1520,6 +1586,8 @@ class MfuController extends GetxController {
     amount: amount,
     folio: folio,
     goalId: goalId,
+    bankId: bankId,
+    paymentType: paymentType,
     funds: funds,
     onSuccess: onSuccess,
   );
@@ -1532,6 +1600,10 @@ class MfuController extends GetxController {
     String? day,
     String frequency = 'M',
     dynamic goalId,
+    int? bankId,
+    String? paymentType,
+    int? mandateId,
+    String? mandateRefNo,
     List<SipFundItemModel>? funds,
     Function(SipResModel)? onSuccess,
   }) => executeSip(
@@ -1541,6 +1613,10 @@ class MfuController extends GetxController {
     day: day,
     frequency: frequency,
     goalId: goalId,
+    bankId: bankId,
+    paymentType: paymentType,
+    mandateId: mandateId,
+    mandateRefNo: mandateRefNo,
     funds: funds,
     onSuccess: onSuccess,
   );
@@ -1551,11 +1627,19 @@ class MfuController extends GetxController {
     double? amount,
     String folio = 'NEW',
     dynamic goalId,
+    int? bankId,
+    String? paymentType,
     List<LumpsumFundItemModel>? funds,
     Function(LumpsumResModel)? onSuccess,
   }) async {
     isSubmittingLumpsum.value = true;
     errorMessage.value = '';
+
+    final personalisationCtrl = Get.find<PersonalisationController>();
+    final resolvedBankId = bankId ?? personalisationCtrl.activeCheckoutBank?.id;
+    final resolvedPaymentType =
+        paymentType ??
+        (selectedMethod.value == 'netbanking' ? 'NETBANKING' : 'UPI');
 
     final List<LumpsumFundItemModel> lumpsumFunds =
         funds ??
@@ -1572,6 +1656,13 @@ class MfuController extends GetxController {
     final req = LumpsumReqModel(
       funds: lumpsumFunds,
       goalId: goalId,
+      bankId: resolvedBankId,
+      paymentType: resolvedPaymentType,
+      schemeCode: (lumpsumFunds.length == 1)
+          ? lumpsumFunds.first.schemeCode
+          : schemeCode,
+      amount: (lumpsumFunds.length == 1) ? lumpsumFunds.first.amount : amount,
+      folio: (lumpsumFunds.length == 1) ? lumpsumFunds.first.folio : folio,
     );
 
     final res = await mfuUseCases.postLumpsumUseCase(req);
@@ -1637,11 +1728,12 @@ class MfuController extends GetxController {
         }
       },
       (error) {
-        errorMessage.value = error.message;
+        final friendlyMsg = formatInvestmentErrorMessage(error.message);
+        errorMessage.value = friendlyMsg;
         log("[MfuController] Lumpsum Error → ${error.message}");
         CustomSnackbar.error(
           title: 'Lumpsum Purchase Failed',
-          message: error.message,
+          message: friendlyMsg,
         );
       },
     );
@@ -1657,11 +1749,40 @@ class MfuController extends GetxController {
     String? day,
     String frequency = 'M',
     dynamic goalId,
+    int? bankId,
+    String? paymentType,
+    int? mandateId,
+    String? mandateRefNo,
     List<SipFundItemModel>? funds,
     Function(SipResModel)? onSuccess,
   }) async {
     isSubmittingSip.value = true;
     errorMessage.value = '';
+
+    final personalisationCtrl = Get.find<PersonalisationController>();
+    final resolvedBank = personalisationCtrl.activeCheckoutBank;
+    final resolvedBankId = bankId ?? resolvedBank?.id;
+    final resolvedPaymentType =
+        paymentType ??
+        (selectedMethod.value == 'netbanking' ? 'NETBANKING' : 'UPI');
+
+    int? resolvedMandateId = mandateId;
+    if (resolvedMandateId == null && resolvedBank?.approvedMandates != null) {
+      final matchingMandate =
+          resolvedBank!.approvedMandates!.firstWhereOrNull(
+            (m) =>
+                (m.mandateMode?.toUpperCase() == resolvedPaymentType) ||
+                (resolvedPaymentType == 'NETBANKING' &&
+                    (m.mandateMode?.toUpperCase() == 'ENACH' ||
+                        m.mandateMode?.toUpperCase() == 'NETBANKING')),
+          ) ??
+          (resolvedBank.approvedMandates!.isNotEmpty
+              ? resolvedBank.approvedMandates!.first
+              : null);
+      if (matchingMandate != null && matchingMandate.id != null) {
+        resolvedMandateId = matchingMandate.id;
+      }
+    }
 
     final List<SipFundItemModel> sipFunds =
         funds ??
@@ -1677,9 +1798,22 @@ class MfuController extends GetxController {
             ),
         ];
 
+    final defaultDay = sipFunds.isNotEmpty ? sipFunds.first.day : (day ?? '10');
+
     final req = SipReqModel(
       funds: sipFunds,
       goalId: goalId,
+      bankId: resolvedBankId,
+      paymentType: resolvedPaymentType,
+      frequency: frequency,
+      sipDay: int.tryParse(defaultDay) ?? defaultDay,
+      mandateId: resolvedMandateId,
+      mandateRefNo: mandateRefNo,
+      schemeCode: (sipFunds.length == 1)
+          ? sipFunds.first.schemeCode
+          : schemeCode,
+      amount: (sipFunds.length == 1) ? sipFunds.first.amount : amount,
+      folio: (sipFunds.length == 1) ? sipFunds.first.folio : folio,
     );
 
     final res = await mfuUseCases.postSipUseCase(req);
@@ -1745,7 +1879,8 @@ class MfuController extends GetxController {
         }
       },
       (error) {
-        errorMessage.value = error.message;
+        final friendlyMsg = formatInvestmentErrorMessage(error.message);
+        errorMessage.value = friendlyMsg;
         log("[MfuController] SIP Error → ${error.message}");
         CustomSnackbar.error(
           title: 'SIP Registration Failed',
@@ -2053,7 +2188,9 @@ class _MandateWebViewState extends State<MandateWebView> {
 
                 onReceivedHttpError: (controller, request, errorResponse) async {
                   final reqUrl = request.url.toString();
-                  debugPrint("HTTP Error ${errorResponse.statusCode} on $reqUrl");
+                  debugPrint(
+                    "HTTP Error ${errorResponse.statusCode} on $reqUrl",
+                  );
                   if (_isMfuSuccessUrl(reqUrl)) {
                     debugPrint(
                       "🎉 Intercepted HTTP Error on Success URL! Auto-closing WebView as Success...",

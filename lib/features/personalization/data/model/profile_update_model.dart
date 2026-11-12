@@ -116,13 +116,16 @@ class ProfileUpdateModel {
               }
             }).toList()
           : null,
-      rawFolios: (json['raw_folios'] as List?)?.map((e) => e.toString()).toList(),
+      rawFolios: (json['raw_folios'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
       nomineeVerifyLinkH1: json.parse<String>('nominee_verify_link_h1'),
       nomineeVerifyLinkH2: json.parse<String>('nominee_verify_link_h2'),
       nomineeVerifyLinkH3: json.parse<String>('nominee_verify_link_h3'),
       registrationNumber: json.parse<String>('registration_number'),
-      registrationMobileNumber:
-          json.parse<String>('registration_mobile_number'),
+      registrationMobileNumber: json.parse<String>(
+        'registration_mobile_number',
+      ),
       registrationMobile: json.parse<String>('registration_mobile'),
       canRegistrationNumber: json.parse<String>('can_registration_number'),
       canMobileNumber: json.parse<String>('can_mobile_number'),
@@ -136,9 +139,11 @@ class ProfileUpdateModel {
       canStatusMessage: json.parse<String>('can_status_message'),
       canBlockReasons: json['can_block_reasons'] != null
           ? (json['can_block_reasons'] as List)
-              .map((e) =>
-                  CanBlockReasonModel.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map(
+                  (e) =>
+                      CanBlockReasonModel.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
           : null,
       data: json.parseNested<ProfileDataModel>(
         'data',
@@ -383,7 +388,9 @@ class ProfileDataModel {
               }
             }).toList()
           : null,
-      rawFolios: (json['raw_folios'] as List?)?.map((e) => e.toString()).toList(),
+      rawFolios: (json['raw_folios'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
     );
   }
 }
@@ -562,6 +569,12 @@ class BankAccountModel {
   final String? nctRemarks;
   final String? rejectionRemarks;
   final bool? canCheckStatus;
+  final bool? isCanVerified;
+  final bool? canInvestLumpsum;
+  final bool? hasActiveMandate;
+  final bool? canInvestSip;
+  final String? accountNumberMasked;
+  final String? payMode;
 
   BankAccountModel({
     this.id,
@@ -593,6 +606,12 @@ class BankAccountModel {
     this.nctRemarks,
     this.rejectionRemarks,
     this.canCheckStatus,
+    this.isCanVerified,
+    this.canInvestLumpsum,
+    this.hasActiveMandate,
+    this.canInvestSip,
+    this.accountNumberMasked,
+    this.payMode,
   });
 
   factory BankAccountModel.fromJson(Map<String, dynamic> json) {
@@ -611,7 +630,8 @@ class BankAccountModel {
           : json.parse<int>('verified'),
       verifiedAt: json.parse<String>('verified_at'),
       proof: json.parse<String>('proof'),
-      proofDocId: json.parse<String>('proof_doc_id') ??
+      proofDocId:
+          json.parse<String>('proof_doc_id') ??
           json.parse<String>('proofDocId'),
       proofImage: json.parse<String>('proof_image'),
       createdAt: json.parse<String>('created_at'),
@@ -624,11 +644,17 @@ class BankAccountModel {
       status: json.parse<String>('status'),
       nctStatus: json.parse<String>('nct_status'),
       nctRefNo: json.parse<String>('nct_ref_no'),
-      nctUniqId: json.parse<String>('nctUniqId') ??
-          json.parse<String>('nct_uniq_id'),
+      nctUniqId:
+          json.parse<String>('nctUniqId') ?? json.parse<String>('nct_uniq_id'),
       nctRemarks: json.parse<String>('nct_remarks'),
       rejectionRemarks: json.parse<String>('rejection_remarks'),
       canCheckStatus: json.parse<bool>('can_check_status'),
+      isCanVerified: json.parse<bool>('is_can_verified'),
+      canInvestLumpsum: json.parse<bool>('can_invest_lumpsum'),
+      hasActiveMandate: json.parse<bool>('has_active_mandate'),
+      canInvestSip: json.parse<bool>('can_invest_sip'),
+      accountNumberMasked: json.parse<String>('account_number_masked'),
+      payMode: json.parse<String>('pay_mode'),
       approvedMandates: json['approved_mandates'] != null
           ? (json['approved_mandates'] as List)
                 .map((e) => MfuMandateModel.fromJson(e as Map<String, dynamic>))

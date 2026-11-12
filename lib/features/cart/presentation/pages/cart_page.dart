@@ -31,6 +31,7 @@ import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
+import 'package:my_sip/features/cart/presentation/widgets/checkout_bank_selector.dart';
 
 class CartPage extends GetView<CartController> {
   const CartPage({super.key});
@@ -333,6 +334,7 @@ class CartPage extends GetView<CartController> {
                                 ],
                               ),
                             ),
+                          MobileCheckoutBankStrip(isLumpsum: isLumpsumTab),
                           CartBottomBar(
                             isValid: controller.isListValid(targetItems),
                             isLoading: isSubmitting,
@@ -1333,37 +1335,45 @@ class _InlinePaymentSectionState extends State<_InlinePaymentSection> {
 
   @override
   Widget build(BuildContext context) {
-    final banks = personalisationController.userData.value?.bankAccounts;
-    final primaryBank = (banks != null && banks.isNotEmpty)
-        ? banks.first
-        : null;
-    final bankName = primaryBank?.bankName ?? 'Saved Bank';
-    final maskedAccount =
-        primaryBank?.accountNumberEncrypted ?? '••••  ••••  1234';
+    return Obx(() {
+      final selectedBank = personalisationController.activeCheckoutBank;
+      final bankName = selectedBank?.bankName ?? 'Saved Bank';
+      final maskedAccount =
+          selectedBank?.maskedAccountNumber ?? '••••  ••••  1234';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Select Payment Mode',
-          style: TextStyle(
-            fontFamily: FontFamily.medium,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Ucolors.dark,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Investment Bank',
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Ucolors.dark,
+            ),
           ),
-        ),
-        const Gap(12),
-        Obx(
-          () => _CheckoutMethodSelectorRow(
+          const Gap(8),
+          CheckoutBankCard(
+            isLumpsum: Get.find<CartController>().activeTabIndex.value == 1,
+          ),
+          const Gap(18),
+          const Text(
+            'Select Payment Mode',
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Ucolors.dark,
+            ),
+          ),
+          const Gap(12),
+          _CheckoutMethodSelectorRow(
             selected: paymentController.selectedMethod.value,
             onSelect: paymentController.selectMethod,
           ),
-        ),
-        const Gap(16),
-        Obx(() {
-          final method = paymentController.selectedMethod.value;
-          return AnimatedSwitcher(
+          const Gap(16),
+          AnimatedSwitcher(
             duration: const Duration(milliseconds: 240),
             transitionBuilder: (child, animation) => FadeTransition(
               opacity: animation,
@@ -1375,7 +1385,7 @@ class _InlinePaymentSectionState extends State<_InlinePaymentSection> {
                 child: child,
               ),
             ),
-            child: method == 'upi'
+            child: paymentController.selectedMethod.value == 'upi'
                 ? _CheckoutUpiPanel(
                     key: const ValueKey('checkout-upi'),
                     controller: paymentController,
@@ -1388,10 +1398,10 @@ class _InlinePaymentSectionState extends State<_InlinePaymentSection> {
                     bankName: bankName,
                     maskedAccount: maskedAccount,
                   ),
-          );
-        }),
-      ],
-    );
+          ),
+        ],
+      );
+    });
   }
 }
 
