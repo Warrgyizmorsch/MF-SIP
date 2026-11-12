@@ -364,7 +364,6 @@ class CartPage extends GetView<CartController> {
                                 ],
                               ),
                             ),
-                          MobileCheckoutBankStrip(isLumpsum: isLumpsumTab),
                           CartBottomBar(
                             isValid: controller.isListValid(targetItems),
                             isLoading: isSubmitting,
