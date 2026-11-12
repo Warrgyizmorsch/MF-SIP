@@ -470,6 +470,25 @@ class PersonalisationController extends GetxController {
     selectedCheckoutBank.value = bank;
   }
 
+  /// Selects a bank by its ID (useful for deep-links, route arguments, or mandate setup)
+  void selectCheckoutBankById(dynamic bankId) {
+    if (bankId == null) return;
+    final int? id = bankId is int ? bankId : int.tryParse(bankId.toString());
+    if (id == null) return;
+
+    if (linkedBankAccounts.isEmpty) {
+      final userBanks = userData.value?.bankAccounts;
+      if (userBanks != null && userBanks.isNotEmpty) {
+        linkedBankAccounts.assignAll(userBanks);
+      }
+    }
+
+    final match = linkedBankAccounts.firstWhereOrNull((b) => b.id == id);
+    if (match != null) {
+      selectedCheckoutBank.value = match;
+    }
+  }
+
   /// Helper to get the active checkout bank with fallback
   profileEntity.BankAccountEntity? get activeCheckoutBank {
     if (selectedCheckoutBank.value != null) {
@@ -478,8 +497,11 @@ class PersonalisationController extends GetxController {
     return existingRegisteredBank;
   }
 
-  /// Synchronize default checkout bank based on investment mode (Lumpsum vs SIP)
-  void syncDefaultCheckoutBank({bool isLumpsum = true}) {
+  /// Synchronize default checkout bank based on investment mode (Lumpsum vs SIP vs Mandate setup)
+  void syncDefaultCheckoutBank({
+    bool isLumpsum = true,
+    bool isMandateFlow = false,
+  }) {
     if (linkedBankAccounts.isEmpty) {
       final userBanks = userData.value?.bankAccounts;
       if (userBanks != null && userBanks.isNotEmpty) {
@@ -497,16 +519,31 @@ class PersonalisationController extends GetxController {
       return;
     }
 
-    final defaultBank =
-        linkedBankAccounts.firstWhereOrNull(
-          (b) => isLumpsum
-              ? (b.canInvestLumpsum == true ||
+    final defaultBank = isMandateFlow
+        ? (linkedBankAccounts.firstWhereOrNull(
+                (b) =>
+                    (b.isCanVerified == true ||
+                        b.canInvestLumpsum == true ||
+                        b.isFullyApproved) &&
+                    b.hasActiveMandate != true &&
+                    b.canInvestSip != true,
+              ) ??
+              linkedBankAccounts.firstWhereOrNull(
+                (b) =>
                     b.isCanVerified == true ||
-                    b.isFullyApproved)
-              : (b.canInvestSip == true || b.hasActiveMandate == true),
-        ) ??
-        linkedBankAccounts.firstWhereOrNull((b) => b.isFullyApproved) ??
-        linkedBankAccounts.first;
+                    b.canInvestLumpsum == true ||
+                    b.isFullyApproved,
+              ) ??
+              linkedBankAccounts.first)
+        : (linkedBankAccounts.firstWhereOrNull(
+                (b) => isLumpsum
+                    ? (b.canInvestLumpsum == true ||
+                          b.isCanVerified == true ||
+                          b.isFullyApproved)
+                    : (b.canInvestSip == true || b.hasActiveMandate == true),
+              ) ??
+              linkedBankAccounts.firstWhereOrNull((b) => b.isFullyApproved) ??
+              linkedBankAccounts.first);
 
     selectedCheckoutBank.value = defaultBank;
   }

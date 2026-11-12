@@ -10,6 +10,7 @@ import 'package:my_sip/features/personalization/presentation/controllers/persona
 void showCheckoutBankSelectorModal(
   BuildContext context, {
   required bool isLumpsum,
+  bool isMandateFlow = false,
 }) {
   final personalisationController = Get.find<PersonalisationController>();
 
@@ -62,9 +63,11 @@ void showCheckoutBankSelectorModal(
                     ),
                     const Gap(3),
                     Text(
-                      isLumpsum
-                          ? 'Choose a CAN-verified bank for lumpsum'
-                          : 'Choose a bank with an active AutoPay mandate',
+                      isMandateFlow
+                          ? 'Choose a CAN-verified bank to set up AutoPay'
+                          : (isLumpsum
+                                ? 'Choose a CAN-verified bank for lumpsum'
+                                : 'Choose a bank with an active AutoPay mandate'),
                       style: TextStyle(
                         fontFamily: FontFamily.medium,
                         fontSize: 12,
@@ -118,13 +121,18 @@ void showCheckoutBankSelectorModal(
                     final isSelected =
                         selectedBank != null && selectedBank.id == bank.id;
 
-                    final bool isEligible = isLumpsum
-                        ? (bank.canInvestLumpsum ??
-                              bank.isCanVerified ??
+                    final bool isEligible = isMandateFlow
+                        ? (bank.isCanVerified == true ||
+                              bank.canInvestLumpsum == true ||
                               bank.isFullyApproved)
-                        : (bank.canInvestSip ??
-                              bank.hasActiveMandate ??
-                              (bank.approvedMandates?.isNotEmpty ?? false));
+                        : (isLumpsum
+                              ? (bank.canInvestLumpsum ??
+                                    bank.isCanVerified ??
+                                    bank.isFullyApproved)
+                              : (bank.canInvestSip ??
+                                    bank.hasActiveMandate ??
+                                    (bank.approvedMandates?.isNotEmpty ??
+                                        false)));
 
                     return InkWell(
                       onTap: () {
@@ -240,7 +248,24 @@ void showCheckoutBankSelectorModal(
                                     spacing: 6,
                                     runSpacing: 4,
                                     children: [
-                                      if (isLumpsum)
+                                      if (isMandateFlow)
+                                        _buildEligibilityChip(
+                                          label:
+                                              (bank.hasActiveMandate == true ||
+                                                  bank.canInvestSip == true)
+                                              ? 'Mandate Already Active ✓'
+                                              : ((bank.isCanVerified == true ||
+                                                        bank.canInvestLumpsum ==
+                                                            true ||
+                                                        bank.isFullyApproved)
+                                                    ? 'Ready for Mandate ✓'
+                                                    : 'CAN Pending'),
+                                          isSuccess:
+                                              (bank.isCanVerified == true ||
+                                              bank.canInvestLumpsum == true ||
+                                              bank.isFullyApproved),
+                                        )
+                                      else if (isLumpsum)
                                         _buildEligibilityChip(
                                           label:
                                               (bank.canInvestLumpsum == true ||
@@ -279,9 +304,11 @@ void showCheckoutBankSelectorModal(
                                   if (!isEligible) ...[
                                     const Gap(6),
                                     Text(
-                                      isLumpsum
-                                          ? '⚠️ Not verified on MFU CAN yet'
-                                          : '⚠️ AutoPay mandate setup required for SIP',
+                                      isMandateFlow
+                                          ? '⚠️ Bank must be CAN-verified before mandate registration'
+                                          : (isLumpsum
+                                                ? '⚠️ Not verified on MFU CAN yet'
+                                                : '⚠️ AutoPay mandate setup required for SIP'),
                                       style: TextStyle(
                                         fontFamily: FontFamily.medium,
                                         fontSize: 11,
@@ -336,9 +363,14 @@ Widget _buildEligibilityChip({required String label, required bool isSuccess}) {
 
 /// Standalone Bank Selection Card for Web & Desktop checkout summary
 class CheckoutBankCard extends StatelessWidget {
-  const CheckoutBankCard({super.key, required this.isLumpsum});
+  const CheckoutBankCard({
+    super.key,
+    required this.isLumpsum,
+    this.isMandateFlow = false,
+  });
 
   final bool isLumpsum;
+  final bool isMandateFlow;
 
   @override
   Widget build(BuildContext context) {
@@ -406,6 +438,7 @@ class CheckoutBankCard extends StatelessWidget {
                           onTap: () => showCheckoutBankSelectorModal(
                             context,
                             isLumpsum: isLumpsum,
+                            isMandateFlow: isMandateFlow,
                           ),
                           borderRadius: BorderRadius.circular(6),
                           child: const Padding(
@@ -440,25 +473,39 @@ class CheckoutBankCard extends StatelessWidget {
                   if (bank != null) ...[
                     const Gap(6),
                     _buildEligibilityChip(
-                      label: isLumpsum
-                          ? ((bank.canInvestLumpsum == true ||
-                                    bank.isCanVerified == true ||
-                                    bank.isFullyApproved)
-                                ? 'CAN Verified ✓'
-                                : 'CAN Pending')
-                          : ((bank.canInvestSip == true ||
-                                    bank.hasActiveMandate == true ||
-                                    (bank.approvedMandates?.isNotEmpty ??
-                                        false))
+                      label: isMandateFlow
+                          ? ((bank.hasActiveMandate == true ||
+                                    bank.canInvestSip == true)
                                 ? 'AutoPay Active ✓'
-                                : 'No Active Mandate'),
-                      isSuccess: isLumpsum
-                          ? (bank.canInvestLumpsum == true ||
-                                bank.isCanVerified == true ||
+                                : ((bank.isCanVerified == true ||
+                                          bank.canInvestLumpsum == true ||
+                                          bank.isFullyApproved)
+                                      ? 'Ready for Mandate ✓'
+                                      : 'CAN Pending'))
+                          : (isLumpsum
+                                ? ((bank.canInvestLumpsum == true ||
+                                          bank.isCanVerified == true ||
+                                          bank.isFullyApproved)
+                                      ? 'CAN Verified ✓'
+                                      : 'CAN Pending')
+                                : ((bank.canInvestSip == true ||
+                                          bank.hasActiveMandate == true ||
+                                          (bank.approvedMandates?.isNotEmpty ??
+                                              false))
+                                      ? 'AutoPay Active ✓'
+                                      : 'No Active Mandate')),
+                      isSuccess: isMandateFlow
+                          ? (bank.isCanVerified == true ||
+                                bank.canInvestLumpsum == true ||
                                 bank.isFullyApproved)
-                          : (bank.canInvestSip == true ||
-                                bank.hasActiveMandate == true ||
-                                (bank.approvedMandates?.isNotEmpty ?? false)),
+                          : (isLumpsum
+                                ? (bank.canInvestLumpsum == true ||
+                                      bank.isCanVerified == true ||
+                                      bank.isFullyApproved)
+                                : (bank.canInvestSip == true ||
+                                      bank.hasActiveMandate == true ||
+                                      (bank.approvedMandates?.isNotEmpty ??
+                                          false))),
                     ),
                   ],
                 ],

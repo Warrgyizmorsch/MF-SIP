@@ -96,9 +96,20 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                             return;
                           }
 
+                          final activeBank =
+                              controller.activeCheckoutBank ??
+                              (controller.linkedBankAccounts.isNotEmpty
+                                  ? controller.linkedBankAccounts.first
+                                  : null);
+
                           Get.toNamed(
                             AppRoutes.paymentScreen,
-                            arguments: {'isMandate': true, 'amount': '100000'},
+                            arguments: {
+                              'isMandate': true,
+                              'amount': '100000',
+                              if (activeBank?.id != null)
+                                'bankId': activeBank!.id,
+                            },
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -282,9 +293,20 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                             return;
                           }
 
+                          final activeBank =
+                              controller.activeCheckoutBank ??
+                              (controller.linkedBankAccounts.isNotEmpty
+                                  ? controller.linkedBankAccounts.first
+                                  : null);
+
                           Get.toNamed(
                             AppRoutes.paymentScreen,
-                            arguments: {'isMandate': true, 'amount': '100000'},
+                            arguments: {
+                              'isMandate': true,
+                              'amount': '100000',
+                              if (activeBank?.id != null)
+                                'bankId': activeBank!.id,
+                            },
                           );
                         },
                         child: const Center(

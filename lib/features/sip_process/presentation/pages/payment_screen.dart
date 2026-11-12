@@ -32,10 +32,21 @@ class PaymentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, dynamic>? arg = Get.arguments as Map<String, dynamic>?;
     final bool isMandateFlow = arg?['isMandate'] ?? false;
-    final bool isLumpsum =
-        arg?['isLumpsum'] ?? (cartController.activeTabIndex.value == 1);
+    final bool isLumpsum = isMandateFlow
+        ? false
+        : (arg?['isLumpsum'] ?? (cartController.activeTabIndex.value == 1));
     final String amount =
         arg?['amount']?.toString() ?? cartController.totalAmount.toString();
+
+    // Pre-select explicit bank if passed in route arguments, else sync default
+    if (arg != null && arg.containsKey('bankId')) {
+      personalisationController.selectCheckoutBankById(arg['bankId']);
+    } else {
+      personalisationController.syncDefaultCheckoutBank(
+        isLumpsum: isLumpsum,
+        isMandateFlow: isMandateFlow,
+      );
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -62,7 +73,10 @@ class PaymentScreen extends StatelessWidget {
               ),
             ),
             const Gap(10),
-            CheckoutBankCard(isLumpsum: isLumpsum),
+            CheckoutBankCard(
+              isLumpsum: isLumpsum,
+              isMandateFlow: isMandateFlow,
+            ),
             const Gap(22),
 
             // ── Payment Method Section ────────────────────────────────
@@ -732,6 +746,8 @@ class _BottomBar extends StatelessWidget {
 }
 
 void _showMandateSheet(BuildContext context, String amount) {
+  final personalisationController = Get.find<PersonalisationController>();
+
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -815,6 +831,12 @@ void _showMandateSheet(BuildContext context, String amount) {
             Obx(() {
               final paymentController = Get.find<MfuController>();
               final method = paymentController.selectedMethod.value;
+              final selectedBank = personalisationController.activeCheckoutBank;
+              final bankName = selectedBank?.bankName ?? 'Bank Account';
+              final maskedAccount = selectedBank?.maskedAccountNumber ?? '';
+              final bankDisplay = maskedAccount.isNotEmpty
+                  ? '$bankName ($maskedAccount)'
+                  : bankName;
 
               String debitTypeLabel = 'Auto-debit (e-NACH)';
               if (method == 'upi') {
@@ -841,6 +863,16 @@ void _showMandateSheet(BuildContext context, String amount) {
                     color: Color(0xFFF0F2F8),
                   ),
                   _mandateRow(
+                    Icons.account_balance_rounded,
+                    'Bank Account',
+                    bankDisplay,
+                  ),
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFF0F2F8),
+                  ),
+                  _mandateRow(
                     Icons.repeat_rounded,
                     'Frequency',
                     'As & when presented',
@@ -851,7 +883,7 @@ void _showMandateSheet(BuildContext context, String amount) {
                     color: Color(0xFFF0F2F8),
                   ),
                   _mandateRow(
-                    Icons.account_balance_rounded,
+                    Icons.sync_alt_rounded,
                     'Debit type',
                     debitTypeLabel,
                   ),
@@ -937,21 +969,46 @@ void _showMandateSheet(BuildContext context, String amount) {
                   flex: 2,
                   child: GestureDetector(
                     onTap: () async {
-                      Get.back();
                       final controller = Get.find<MfuController>();
                       final method = controller.selectedMethod.value;
                       final uid =
                           Get.find<SessionManager>().getUserData?.id ?? 0;
-                      final String? enteredUpi = method == 'upi'
-                          ? controller.upiId.value.trim()
-                          : null;
                       if (uid == 0) {
+                        Get.back();
                         ULoaders.error(
                           title: "Error",
                           message: "User session not found.",
                         );
                         return;
                       }
+
+                      final selectedBank =
+                          personalisationController.activeCheckoutBank;
+                      final selectedBankId = selectedBank?.id;
+
+                      if (selectedBank == null || selectedBankId == null) {
+                        Get.back();
+                        ULoaders.error(
+                          title: "Select Bank",
+                          message:
+                              "Please select a bank account to set up Auto Pay mandate.",
+                        );
+                        return;
+                      }
+
+                      if (!(selectedBank.isCanVerified == true ||
+                          selectedBank.canInvestLumpsum == true ||
+                          selectedBank.isFullyApproved)) {
+                        Get.back();
+                        ULoaders.warning(
+                          title: "Bank Pending Verification",
+                          message:
+                              "The selected bank account is pending verification on your CAN. Please select a verified bank.",
+                        );
+                        return;
+                      }
+
+                      Get.back();
 
                       if (method == 'upi') {
                         final String upiId = controller.upiId.value.trim();
@@ -960,24 +1017,18 @@ void _showMandateSheet(BuildContext context, String amount) {
                           MfuMandateCreateRequest.upi(
                             workflowType: "C",
                             upiId: upiId,
+                            bankId: selectedBankId,
                           ),
                         );
                       } else {
                         // eNACH
                         await controller.createMandate(
-                          MfuMandateCreateRequest.enach(regMode: "PN"),
+                          MfuMandateCreateRequest.enach(
+                            regMode: "PN",
+                            bankId: selectedBankId,
+                          ),
                         );
                       }
-
-                      // controller.createMandate(
-                      //   mandateType: method == 'upi' ? 'upi' : 'enach',
-                      //   upiId: enteredUpi,
-                      // );
-
-                      // Get.find<MfuController>().createMandate(
-                      //   mandateType: method == 'upi' ? 'upi' : 'enach',
-
-                      // );
                     },
                     child: Container(
                       height: 54,

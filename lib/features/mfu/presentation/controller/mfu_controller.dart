@@ -859,11 +859,41 @@ class MfuController extends GetxController {
     isCreatingMandate.value = true;
     errorMessage.value = '';
 
-    // 1. Show Loading Dialog
+    // 1. Resolve bankId fallback from activeCheckoutBank if omitted
+    int? resolvedBankId = request.bankId;
+    if (resolvedBankId == null &&
+        Get.isRegistered<PersonalisationController>()) {
+      resolvedBankId =
+          Get.find<PersonalisationController>().activeCheckoutBank?.id;
+    }
+
+    final effectiveRequest = (request.bankId != null || resolvedBankId == null)
+        ? request
+        : (request.mandateType == 'upi'
+              ? MfuMandateCreateRequest.upi(
+                  workflowType: request.workflowType ?? "C",
+                  upiId: request.upiId,
+                  bankId: resolvedBankId,
+                  uid: request.uid,
+                  amount: request.amount,
+                  endDate: request.endDate,
+                )
+              : MfuMandateCreateRequest.enach(
+                  regMode: request.regMode ?? "PN",
+                  bankId: resolvedBankId,
+                  uid: request.uid,
+                  amount: request.amount,
+                  startDate: request.startDate,
+                  endDate: request.endDate,
+                ));
+
+    // 2. Show Loading Dialog
     CustomLoadingDialog.show(title: "Preparing secure gateway...");
 
     try {
-      final result = await mfuUseCases.mfuMandateCreateUseCase(request);
+      final result = await mfuUseCases.mfuMandateCreateUseCase(
+        effectiveRequest,
+      );
 
       await result.fold(
         (success) async {
@@ -872,7 +902,9 @@ class MfuController extends GetxController {
           // Get the mandate type (Fallback to selectedMethod if backend doesn't echo it)
           final mandateType = success.data?.mandateType ?? selectedMethod.value;
 
-          log("[MfuController] Mandate created — type: $mandateType");
+          log(
+            "[MfuController] Mandate created — type: $mandateType, bankId: $resolvedBankId",
+          );
 
           final approveLink = success.data?.approveLink ?? '';
 
@@ -911,8 +943,8 @@ class MfuController extends GetxController {
                 await session.savePendingMandate(
                   can: can,
                   mumrn: freshMumrn,
-                  upiId: request.upiId,
-                  maxAmount: request.amount?.toString(),
+                  upiId: effectiveRequest.upiId,
+                  maxAmount: effectiveRequest.amount?.toString(),
                 );
 
                 // 4. Launch Native Mandate Waiting & Polling Screen
@@ -921,11 +953,17 @@ class MfuController extends GetxController {
                     userId: uid,
                     can: can,
                     mumrn: freshMumrn,
-                    upiId: request.upiId,
-                    maxAmount: request.amount?.toString(),
+                    upiId: effectiveRequest.upiId,
+                    maxAmount: effectiveRequest.amount?.toString(),
                     deepLink: success.data?.deepLink,
                   ),
                 );
+
+                if (Get.isRegistered<PersonalisationController>()) {
+                  final pCtrl = Get.find<PersonalisationController>();
+                  pCtrl.fetchUserBankList(isRefresh: true);
+                  pCtrl.fetchUserDetails();
+                }
               } else {
                 // Handle eNACH verification
                 if (freshMmrn.isEmpty) {
@@ -942,6 +980,12 @@ class MfuController extends GetxController {
                     mmrn: freshMmrn,
                   ),
                 );
+
+                if (Get.isRegistered<PersonalisationController>()) {
+                  final pCtrl = Get.find<PersonalisationController>();
+                  pCtrl.fetchUserBankList(isRefresh: true);
+                  pCtrl.fetchUserDetails();
+                }
               }
             } else if (webViewResult == 'failed') {
               CustomSnackbar.error(
