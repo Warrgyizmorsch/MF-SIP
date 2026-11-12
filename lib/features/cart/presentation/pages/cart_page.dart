@@ -60,6 +60,14 @@ class CartPage extends GetView<CartController> {
     final targetItems = isLumpsum
         ? controller.lumpsumItems
         : controller.sipAndStepUpItems;
+    final targetAmount = isLumpsum
+        ? controller.totalLumpsumAmount
+        : controller.totalSipStepUpAmount;
+    final bool isDesktop = Get.width > 800;
+
+    Get.find<PersonalisationController>().syncDefaultCheckoutBank(
+      isLumpsum: isLumpsum,
+    );
 
     final paused = controller.getPausedItems(targetItems, isLumpsum: isLumpsum);
     if (paused.isNotEmpty) {
@@ -177,13 +185,35 @@ class CartPage extends GetView<CartController> {
       onInvestAsLumpsum: isLumpsum
           ? null
           : () {
-              controller.checkoutLumpsum();
+              if (isDesktop) {
+                controller.checkoutLumpsum();
+              } else {
+                Get.toNamed(
+                  AppRoutes.paymentScreen,
+                  arguments: {
+                    'amount': targetAmount,
+                    'isLumpsum': true,
+                    'isMandate': false,
+                  },
+                );
+              }
             },
       onSuccess: () {
-        if (isLumpsum) {
-          controller.checkoutLumpsum();
+        if (isDesktop) {
+          if (isLumpsum) {
+            controller.checkoutLumpsum();
+          } else {
+            controller.checkoutSip();
+          }
         } else {
-          controller.checkoutSip();
+          Get.toNamed(
+            AppRoutes.paymentScreen,
+            arguments: {
+              'amount': targetAmount,
+              'isLumpsum': isLumpsum,
+              'isMandate': false,
+            },
+          );
         }
       },
     );

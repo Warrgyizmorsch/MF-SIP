@@ -14,6 +14,7 @@ import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
+import 'package:my_sip/features/cart/presentation/widgets/checkout_bank_selector.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
 
@@ -31,26 +32,40 @@ class PaymentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, dynamic>? arg = Get.arguments as Map<String, dynamic>?;
     final bool isMandateFlow = arg?['isMandate'] ?? false;
+    final bool isLumpsum =
+        arg?['isLumpsum'] ?? (cartController.activeTabIndex.value == 1);
     final String amount =
         arg?['amount']?.toString() ?? cartController.totalAmount.toString();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      // backgroundColor: const Color(0xFFF6F7FB),
       appBar: _buildAppBar(context, isMandateFlow),
-
       body: SingleChildScrollView(
-        // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         padding: EdgeInsets.only(
           left: 20,
           right: 20,
           top: 24,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24, // <-- FIX
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Section Label ────────────────────────────────
+            // ── Bank Selection Section ────────────────────────────────
+            const Text(
+              'Investment Bank',
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF8A8FA8),
+                letterSpacing: 0.6,
+              ),
+            ),
+            const Gap(10),
+            CheckoutBankCard(isLumpsum: isLumpsum),
+            const Gap(22),
+
+            // ── Payment Method Section ────────────────────────────────
             const Text(
               'Choose Payment Method',
               style: TextStyle(
@@ -73,6 +88,10 @@ class PaymentScreen extends StatelessWidget {
 
             Obx(() {
               final method = paymentController.selectedMethod.value;
+              final selectedBank = personalisationController.activeCheckoutBank;
+              final bankName = selectedBank?.bankName ?? 'Saved Bank';
+              final maskedAccount =
+                  selectedBank?.maskedAccountNumber ?? '••••  ••••  1234';
 
               return AnimatedSwitcher(
                 duration: const Duration(milliseconds: 280),
@@ -91,41 +110,13 @@ class PaymentScreen extends StatelessWidget {
                         key: const ValueKey('upi'),
                         controller: paymentController,
                         textController: upiController,
-                        bankName:
-                            personalisationController
-                                .userData
-                                .value
-                                ?.bankAccounts
-                                ?.first
-                                ?.bankName ??
-                            'Saved Bank',
-                        maskedAccount:
-                            personalisationController
-                                .userData
-                                .value
-                                ?.bankAccounts
-                                ?.first
-                                ?.accountNumberEncrypted ??
-                            '••••  ••••  1234',
+                        bankName: bankName,
+                        maskedAccount: maskedAccount,
                       )
                     : _NetBankingPanel(
                         key: const ValueKey('netbanking'),
-                        bankName:
-                            personalisationController
-                                .userData
-                                .value
-                                ?.bankAccounts
-                                ?.first
-                                ?.bankName ??
-                            'Saved Bank',
-                        maskedAccount:
-                            personalisationController
-                                .userData
-                                .value
-                                ?.bankAccounts
-                                ?.first
-                                ?.accountNumberEncrypted ??
-                            '••••  ••••  1234',
+                        bankName: bankName,
+                        maskedAccount: maskedAccount,
                       ),
               );
             }),
@@ -137,6 +128,7 @@ class PaymentScreen extends StatelessWidget {
       bottomNavigationBar: _BottomBar(
         amount: amount,
         isMandateFlow: isMandateFlow,
+        isLumpsum: isLumpsum,
       ),
     );
   }
@@ -595,12 +587,19 @@ class _PanelCard extends StatelessWidget {
 }
 
 class _BottomBar extends StatelessWidget {
-  const _BottomBar({required this.amount, required this.isMandateFlow});
+  const _BottomBar({
+    required this.amount,
+    required this.isMandateFlow,
+    this.isLumpsum = false,
+  });
   final String amount;
   final bool isMandateFlow;
+  final bool isLumpsum;
 
   @override
   Widget build(BuildContext context) {
+    final mfuCtrl = Get.find<MfuController>();
+
     return SafeArea(
       top: false,
       child: Container(
@@ -635,56 +634,71 @@ class _BottomBar extends StatelessWidget {
             ),
             const Gap(5),
 
-            UElevatedBUtton(
-              color: Ucolors.primary,
-              height: 54,
-              onPressed: () {
-                if (Get.find<MfuController>().upiId.isEmpty &&
-                    Get.find<MfuController>().selectedMethod.value == 'upi') {
-                  showCustomToast(
-                    title: 'Enter UPI Id',
-                    message: '',
-                    backgroundColor: Colors.red,
-                    icon: Icons.warning,
-                  );
-                  return;
-                }
-                // _showMandateSheet(context, amount);
-                if (isMandateFlow) {
-                  // Flow A: Open the Mandate Confirmation Sheet
-                  _showMandateSheet(context, amount);
-                } else {
-                  // Flow B: Process Cart Payment directly
-                  // Call your Cart Checkout or normalTransaction API here!
-                  _processCartPayment();
-                }
-              },
+            Obx(() {
+              final isSubmitting = isLumpsum
+                  ? mfuCtrl.isSubmittingLumpsum.value
+                  : mfuCtrl.isSubmittingSip.value;
 
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    isMandateFlow ? 'Enable Auto Pay' : 'Pay  ',
-                    style: TextStyle(
-                      fontFamily: FontFamily.medium,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  if (!isMandateFlow)
-                    Text(
-                      '₹$amount',
-                      style: const TextStyle(
-                        fontFamily: FontFamily.medium,
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
+              return UElevatedBUtton(
+                color: Ucolors.primary,
+                height: 54,
+                onPressed: () {
+                  if (isSubmitting) return;
+
+                  if (mfuCtrl.upiId.isEmpty &&
+                      mfuCtrl.selectedMethod.value == 'upi') {
+                    showCustomToast(
+                      title: 'Enter UPI Id',
+                      message: '',
+                      backgroundColor: Colors.red,
+                      icon: Icons.warning,
+                    );
+                    return;
+                  }
+                  if (isMandateFlow) {
+                    _showMandateSheet(context, amount);
+                  } else {
+                    _processCartPayment();
+                  }
+                },
+
+                child: isSubmitting
+                    ? const Center(
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.2,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            isMandateFlow ? 'Enable Auto Pay' : 'Pay  ',
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          if (!isMandateFlow)
+                            Text(
+                              '₹$amount',
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
-                ],
-              ),
-            ),
+              );
+            }),
 
             CustomFooter(),
           ],
@@ -695,15 +709,24 @@ class _BottomBar extends StatelessWidget {
 
   void _processCartPayment() {
     final cartController = Get.find<CartController>();
-    if (cartController.lumpsumItems.isNotEmpty) {
-      cartController.checkoutLumpsum();
-    } else if (cartController.sipAndStepUpItems.isNotEmpty) {
-      cartController.checkoutSip();
+    if (isLumpsum) {
+      if (cartController.lumpsumItems.isNotEmpty) {
+        cartController.checkoutLumpsum();
+      } else {
+        CustomSnackbar.error(
+          title: 'Empty Cart',
+          message: 'No lumpsum items found in your cart to checkout.',
+        );
+      }
     } else {
-      CustomSnackbar.error(
-        title: 'Empty Cart',
-        message: 'No items found in your cart to checkout.',
-      );
+      if (cartController.sipAndStepUpItems.isNotEmpty) {
+        cartController.checkoutSip();
+      } else {
+        CustomSnackbar.error(
+          title: 'Empty Cart',
+          message: 'No SIP items found in your cart to checkout.',
+        );
+      }
     }
   }
 }
