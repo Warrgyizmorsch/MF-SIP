@@ -11,6 +11,7 @@ import 'package:my_sip/features/personalization/domain/entity/profile_update_ent
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+import 'package:my_sip/features/cart/presentation/widgets/checkout_bank_selector.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
 
@@ -657,6 +658,12 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
           fundName: 'ITI Flexi Cap Fund Regular - Growth',
         );
     _c.initSipPurchase(args);
+
+    if (Get.isRegistered<PersonalisationController>()) {
+      Get.find<PersonalisationController>().syncDefaultCheckoutBank(
+        isLumpsum: _c.sipInvType.value == InvType.lumpsum,
+      );
+    }
 
     // Animations
     _entryCtrl = AnimationController(
@@ -1624,22 +1631,93 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
         }),
 
         // Payment section
-        _sectionLabel('PAYMENT'),
+        _sectionLabel('PAYMENT DETAILS'),
         const SizedBox(height: 12),
         Obx(() {
-          final user = Get.find<PersonalisationController>().userData.value;
-          final primaryBank =
-              (user?.bankAccounts != null && user!.bankAccounts!.isNotEmpty)
-              ? user.bankAccounts!.first
-              : null;
-          return _DetailTile(
-            icon: Icons.account_balance_rounded,
-            iconColor: _C.success,
-            label: 'Bank Account',
-            value: primaryBank != null
-                ? '${primaryBank.bankName ?? ''}\n${primaryBank.accountNumberEncrypted ?? ''}'
-                : 'No bank linked',
-            badge: const _Chip(label: 'Auto-pay', color: _C.success),
+          final isLumpsum = _c.sipInvType.value == InvType.lumpsum;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CheckoutBankCard(isLumpsum: isLumpsum),
+              const SizedBox(height: 14),
+              Text(
+                'Payment Mode',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _PaymentMethodOption(
+                      title: 'UPI',
+                      subtitle: isLumpsum
+                          ? 'Instant UPI approval'
+                          : 'UPI AutoPay mandate',
+                      icon: Icons.qr_code_rounded,
+                      isSelected: _c.selectedMethod.value == 'upi',
+                      onTap: () => _c.selectMethod('upi'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _PaymentMethodOption(
+                      title: 'Net Banking',
+                      subtitle: isLumpsum
+                          ? 'Bank gateway transfer'
+                          : 'e-Mandate / NetBanking',
+                      icon: Icons.language_rounded,
+                      isSelected: _c.selectedMethod.value == 'netbanking',
+                      onTap: () => _c.selectMethod('netbanking'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Ucolors.primary.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Ucolors.primary.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.shield_outlined,
+                      size: 14,
+                      color: Ucolors.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _c.selectedMethod.value == 'upi'
+                            ? (isLumpsum
+                                  ? 'You will be prompted to approve the transaction in your UPI app.'
+                                  : 'AutoPay mandate will be authenticated via your UPI handle.')
+                            : (isLumpsum
+                                  ? 'You will be redirected securely to your bank portal to authorize payment.'
+                                  : 'Mandate will be authorized via NetBanking e-Mandate.'),
+                        style: TextStyle(
+                          fontFamily: FontFamily.regular,
+                          fontSize: 11,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           );
         }),
 
@@ -2637,7 +2715,7 @@ class _DetailTile extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label, value;
-  final Widget? badge, trailing;
+  final Widget? trailing;
   final VoidCallback? onTap;
 
   const _DetailTile({
@@ -2645,7 +2723,6 @@ class _DetailTile extends StatelessWidget {
     required this.iconColor,
     required this.label,
     required this.value,
-    this.badge,
     this.trailing,
     this.onTap,
   });
@@ -2711,7 +2788,6 @@ class _DetailTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (badge != null) ...[badge!, const SizedBox(width: 8)],
                 if (trailing != null) ...[trailing!, const SizedBox(width: 8)],
               ],
             ),
@@ -3072,6 +3148,101 @@ class _BottomCta extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PaymentMethodOption extends StatelessWidget {
+  const _PaymentMethodOption({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Ucolors.primary.withValues(alpha: 0.05)
+              : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Ucolors.primary : Colors.grey.shade300,
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Ucolors.primary.withValues(alpha: 0.12)
+                    : Colors.grey.shade200,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 15,
+                color: isSelected ? Ucolors.primary : Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? Ucolors.primary : Ucolors.dark,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontFamily: FontFamily.regular,
+                      fontSize: 10,
+                      color: Colors.grey.shade600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
+              size: 16,
+              color: isSelected ? Ucolors.primary : Colors.grey.shade400,
+            ),
+          ],
         ),
       ),
     );

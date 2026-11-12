@@ -416,6 +416,11 @@ class MfuController extends GetxController {
       InvType.lumpsum => sipArgs.value.minLumpsum,
       _ => sipArgs.value.minSip,
     };
+    if (Get.isRegistered<PersonalisationController>()) {
+      Get.find<PersonalisationController>().syncDefaultCheckoutBank(
+        isLumpsum: t == InvType.lumpsum,
+      );
+    }
   }
 
   // ─── Amount ───────────────────────────────────────────────────────────────────
