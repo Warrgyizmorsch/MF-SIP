@@ -57,13 +57,13 @@ class _PortfolioTransactionsSectionState
                       style: _text(
                         9,
                         weight: FontWeight.w700,
-                        color: _dim,
+                        color: Ucolors.portfolioTextMuted,
                       ).copyWith(letterSpacing: 0.9),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Transaction Details',
-                      style: _text(17, weight: FontWeight.w700),
+                      style: UTextStyles.portfolioSectionHeading,
                     ),
                   ],
                 ),
@@ -72,7 +72,7 @@ class _PortfolioTransactionsSectionState
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE9EAF0),
+                  color: Ucolors.portfolioCountBadgeSurface,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -90,7 +90,7 @@ class _PortfolioTransactionsSectionState
             child: Text(
               'No transactions yet',
               textAlign: TextAlign.center,
-              style: _text(12, color: _dim),
+              style: _text(12, color: Ucolors.portfolioTextMuted),
             ),
           )
         else
@@ -116,8 +116,8 @@ class _PortfolioTransactionsSectionState
                 child: TextButton(
                   onPressed: () => setState(() => _expanded = !_expanded),
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFFEFEBF7),
-                    foregroundColor: _purple,
+                    backgroundColor: Ucolors.portfolioSelectedSurface,
+                    foregroundColor: Ucolors.portfolioAccent,
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     padding: const EdgeInsets.symmetric(
@@ -132,7 +132,11 @@ class _PortfolioTransactionsSectionState
                     _expanded
                         ? 'Show fewer transactions'
                         : 'Show more transactions',
-                    style: _text(10, weight: FontWeight.w700, color: _purple),
+                    style: _text(
+                      10,
+                      weight: FontWeight.w700,
+                      color: Ucolors.portfolioAccent,
+                    ),
                   ),
                 ),
               ),
@@ -160,8 +164,8 @@ class _TransactionCard extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 104),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: _line),
+          color: Ucolors.white,
+          border: Border.all(color: Ucolors.portfolioCardBorder),
           borderRadius: BorderRadius.circular(18),
         ),
         child: IntrinsicHeight(
@@ -184,7 +188,9 @@ class _TransactionCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 9),
                   decoration: const BoxDecoration(
-                    border: Border(left: BorderSide(color: Color(0xFFD2D5DA))),
+                    border: Border(
+                      left: BorderSide(color: Ucolors.portfolioDivider),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -194,11 +200,16 @@ class _TransactionCard extends StatelessWidget {
                         style: _text(
                           11,
                           weight: FontWeight.w700,
-                          color: transaction.isDebit ? _negative : _valueBlue,
+                          color: transaction.isDebit
+                              ? Ucolors.portfolioNegative
+                              : Ucolors.portfolioValueBlue,
                         ),
                       ),
                       const SizedBox(height: 3),
-                      Text('Amount', style: _text(8, color: _dim)),
+                      Text(
+                        'Amount',
+                        style: _text(8, color: Ucolors.portfolioTextMuted),
+                      ),
                       const SizedBox(height: 9),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -246,7 +257,7 @@ class _TransactionCard extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 9),
     decoration: divider
         ? const BoxDecoration(
-            border: Border(left: BorderSide(color: Color(0xFFD2D5DA))),
+            border: Border(left: BorderSide(color: Ucolors.portfolioDivider)),
           )
         : null,
     child: Column(
@@ -254,13 +265,17 @@ class _TransactionCard extends StatelessWidget {
         Text(
           primary,
           textAlign: TextAlign.center,
-          style: _text(11, weight: FontWeight.w700, color: _valueBlue),
+          style: _text(
+            11,
+            weight: FontWeight.w700,
+            color: Ucolors.portfolioValueBlue,
+          ),
         ),
         const SizedBox(height: 3),
         Text(
           label,
           textAlign: TextAlign.center,
-          style: _text(8, color: _dim),
+          style: _text(8, color: Ucolors.portfolioTextMuted),
         ),
         const SizedBox(height: 9),
         Text(
@@ -373,31 +388,24 @@ class _TransactionPresentation {
 
   Color get statusColor {
     if (_isFailure) {
-      return _negative;
+      return Ucolors.portfolioNegative;
     }
     if (_isCancelled || _statuses.isEmpty) {
-      return _dim;
+      return Ucolors.portfolioTextMuted;
     }
-    return _isSuccess ? Ucolors.homePositive : const Color(0xFFD97706);
+    return _isSuccess ? Ucolors.homePositive : Ucolors.portfolioWarningText;
   }
 }
-
-const _purple = Color(0xFF441D9E);
-const _dim = Color(0xFF8A8AA0);
-const _line = Color(0xFFE4E6EE);
-const _valueBlue = Color(0xFF2552E6);
-const _negative = Color(0xFFFF383C);
 
 TextStyle _text(
   double size, {
   FontWeight weight = FontWeight.w500,
-  Color color = const Color(0xFF12121A),
-}) => UTextStyles.homeText(
+  Color color = Ucolors.portfolioInk,
+}) => UTextStyles.portfolioText(
   size: size,
   weight: weight,
   color: color,
   height: 1.5,
-  family: FontFamily.plusJakartaSans,
 );
 
 String _money(double value) => value.isFinite

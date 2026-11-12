@@ -94,31 +94,25 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
     required bool cancel,
     required VoidCallback? onPressed,
   }) {
-    const red = Color(0xFFFF383C);
     final busy = _busy && _cancelling == cancel;
-    final foreground = cancel ? red : Colors.white;
+    final foreground = cancel ? Ucolors.portfolioNegative : Ucolors.white;
     final enabled = onPressed != null || busy;
 
     return Opacity(
       opacity: enabled ? 1 : 0.5,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: cancel ? const Color(0x0FFF383C) : null,
-          gradient: cancel
-              ? null
-              : const LinearGradient(
-                  // CSS 163.16-degree gradient at the reference 185 x 56 size.
-                  begin: Alignment(-0.168, -1.83),
-                  end: Alignment(0.168, 1.83),
-                  colors: [Ucolors.homeHeaderEnd, Color(0xFF5B3FE0)],
-                ),
+          color: cancel ? Ucolors.portfolioCancelFill : null,
+          gradient: cancel ? null : Ucolors.portfolioRedeemGradient,
           borderRadius: BorderRadius.circular(999),
-          border: cancel ? Border.all(color: const Color(0x33FF383C)) : null,
+          border: cancel
+              ? Border.all(color: Ucolors.portfolioCancelBorder)
+              : null,
           boxShadow: cancel
               ? null
               : const [
                   BoxShadow(
-                    color: Color(0x617C5CFF),
+                    color: Ucolors.portfolioRedeemShadow,
                     blurRadius: 15,
                     offset: Offset(0, 12),
                   ),
@@ -174,10 +168,7 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
                         child: Text(
                           label,
                           textAlign: TextAlign.center,
-                          style: UTextStyles.homeText(
-                            family: FontFamily.plusJakartaSans,
-                            size: 16,
-                            weight: FontWeight.w700,
+                          style: UTextStyles.portfolioActionLabel.copyWith(
                             color: foreground,
                           ),
                         ),

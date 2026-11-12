@@ -103,10 +103,14 @@ class _PortfolioDetailsPanelsState extends State<PortfolioDetailsPanels> {
       expanded: selected,
       onTap: () => _toggle(panel),
       child: Material(
-        color: selected ? const Color(0xFFEFEBF7) : Colors.white,
+        color: selected ? Ucolors.portfolioSelectedSurface : Ucolors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: selected ? _purple : _line),
+          side: BorderSide(
+            color: selected
+                ? Ucolors.portfolioAccent
+                : Ucolors.portfolioCardBorder,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -137,7 +141,9 @@ class _PortfolioDetailsPanelsState extends State<PortfolioDetailsPanels> {
                       style: _text(
                         11,
                         weight: FontWeight.w700,
-                        color: selected ? _purple : Ucolors.homeHeaderEnd,
+                        color: selected
+                            ? Ucolors.portfolioAccent
+                            : Ucolors.homeHeaderEnd,
                       ),
                     ),
                   ),
@@ -147,7 +153,11 @@ class _PortfolioDetailsPanelsState extends State<PortfolioDetailsPanels> {
                     child: Text(
                       selected ? '−' : '+',
                       textAlign: TextAlign.right,
-                      style: _text(17, weight: FontWeight.w700, color: _dim),
+                      style: _text(
+                        17,
+                        weight: FontWeight.w700,
+                        color: Ucolors.portfolioTextMuted,
+                      ),
                     ),
                   ),
                 ],
@@ -196,92 +206,93 @@ class _PortfolioDetailsPanelsState extends State<PortfolioDetailsPanels> {
     ]);
   }
 
-  Widget _panel(List<(String, String)> cells, {VoidCallback? onViewDetails}) =>
-      Container(
-        constraints: const BoxConstraints(minHeight: 67),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: _line),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var i = 0; i < cells.length; i++)
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: i == 0
-                            ? null
-                            : const BoxDecoration(
-                                border: Border(
-                                  left: BorderSide(color: Color(0xFFD2D5DA)),
-                                ),
-                              ),
-                        child: Column(
-                          children: [
-                            Text(
-                              cells[i].$1,
-                              textAlign: TextAlign.center,
-                              style: _text(8, color: _dim),
+  Widget _panel(
+    List<(String, String)> cells, {
+    VoidCallback? onViewDetails,
+  }) => Container(
+    constraints: const BoxConstraints(minHeight: 67),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Ucolors.white,
+      border: Border.all(color: Ucolors.portfolioCardBorder),
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < cells.length; i++)
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: i == 0
+                        ? null
+                        : const BoxDecoration(
+                            border: Border(
+                              left: BorderSide(color: Ucolors.portfolioDivider),
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              cells[i].$2,
-                              textAlign: TextAlign.center,
-                              style: _text(10, weight: FontWeight.w700),
-                            ),
-                          ],
+                          ),
+                    child: Column(
+                      children: [
+                        Text(
+                          cells[i].$1,
+                          textAlign: TextAlign.center,
+                          style: _text(8, color: Ucolors.portfolioTextMuted),
                         ),
-                      ),
+                        const SizedBox(height: 6),
+                        Text(
+                          cells[i].$2,
+                          textAlign: TextAlign.center,
+                          style: _text(10, weight: FontWeight.w700),
+                        ),
+                      ],
                     ),
-                ],
-              ),
-            ),
-            if (onViewDetails != null) ...[
-              const SizedBox(height: 10),
-              const Divider(height: 1, color: _line),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: onViewDetails,
-                  icon: const Icon(Icons.chevron_right, size: 16),
-                  iconAlignment: IconAlignment.end,
-                  label: Text(
-                    'View all details',
-                    style: _text(10, weight: FontWeight.w700, color: _purple),
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: _purple,
-                    padding: const EdgeInsets.only(top: 6),
                   ),
                 ),
-              ),
             ],
-          ],
+          ),
         ),
-      );
+        if (onViewDetails != null) ...[
+          const SizedBox(height: 10),
+          const Divider(height: 1, color: Ucolors.portfolioCardBorder),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: onViewDetails,
+              icon: const Icon(Icons.chevron_right, size: 16),
+              iconAlignment: IconAlignment.end,
+              label: Text(
+                'View all details',
+                style: _text(
+                  10,
+                  weight: FontWeight.w700,
+                  color: Ucolors.portfolioAccent,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: Ucolors.portfolioAccent,
+                padding: const EdgeInsets.only(top: 6),
+              ),
+            ),
+          ),
+        ],
+      ],
+    ),
+  );
 }
-
-const _purple = Color(0xFF441D9E);
-const _dim = Color(0xFF8A8AA0);
-const _line = Color(0xFFE4E6EE);
 
 TextStyle _text(
   double size, {
   FontWeight weight = FontWeight.w500,
-  Color color = const Color(0xFF12121A),
-}) => UTextStyles.homeText(
+  Color color = Ucolors.portfolioInk,
+}) => UTextStyles.portfolioText(
   size: size,
   weight: weight,
   color: color,
   height: 1.5,
-  family: FontFamily.plusJakartaSans,
 );
 
 String _money(double value, {int decimals = 2}) => value.isFinite

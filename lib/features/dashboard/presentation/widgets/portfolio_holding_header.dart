@@ -18,12 +18,7 @@ class PortfolioDetailsHeader extends StatelessWidget {
   final MfuPortfolioItemEntity fund;
   final VoidCallback onBack;
 
-  static const gradient = LinearGradient(
-    begin: Alignment(-0.086, -1),
-    end: Alignment(0.086, 1),
-    colors: [Ucolors.homeHeaderEnd, Color(0xFF441D9E), Color(0xFF5B3FE0)],
-    stops: [0.08, 0.54, 0.92],
-  );
+  static const gradient = Ucolors.portfolioHeaderGradient;
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +31,9 @@ class PortfolioDetailsHeader extends StatelessWidget {
         child: Row(
           children: [
             Material(
-              color: Colors.white.withValues(alpha: 0.12),
+              color: Ucolors.white.withValues(alpha: 0.12),
               shape: CircleBorder(
-                side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                side: BorderSide(color: Ucolors.white.withValues(alpha: 0.2)),
               ),
               child: IconButton(
                 tooltip: 'Back to portfolio',
@@ -58,7 +53,7 @@ class PortfolioDetailsHeader extends StatelessWidget {
             const SizedBox(width: 14),
             ClipOval(
               child: ColoredBox(
-                color: Colors.white,
+                color: Ucolors.white,
                 child: SizedBox(
                   width: 34,
                   height: 34,
@@ -69,7 +64,7 @@ class PortfolioDetailsHeader extends StatelessWidget {
                             style: _text(
                               10,
                               weight: FontWeight.w800,
-                              color: _purple,
+                              color: Ucolors.portfolioAccent,
                             ),
                           ),
                         )
@@ -88,12 +83,7 @@ class PortfolioDetailsHeader extends StatelessWidget {
               child: Text(
                 metadata.name,
                 softWrap: true,
-                style: _text(
-                  15,
-                  weight: FontWeight.w700,
-                  color: Colors.white,
-                  height: 1.5,
-                ),
+                style: UTextStyles.portfolioHeaderTitle,
               ),
             ),
           ],
@@ -111,14 +101,14 @@ class PortfolioHoldingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gainColor = fund.gainLoss < 0
-        ? const Color(0xFFFF383C)
+        ? Ucolors.portfolioNegative
         : Ucolors.homePositive;
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: _line),
+        color: Ucolors.white,
+        border: Border.all(color: Ucolors.portfolioCardBorder),
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
@@ -141,7 +131,7 @@ class PortfolioHoldingCard extends StatelessWidget {
                   const VerticalDivider(
                     width: 1,
                     thickness: 1,
-                    color: Color(0xFFD2D5DA),
+                    color: Ucolors.portfolioDivider,
                   ),
                   Expanded(
                     flex: 35,
@@ -155,7 +145,7 @@ class PortfolioHoldingCard extends StatelessWidget {
                   const VerticalDivider(
                     width: 1,
                     thickness: 1,
-                    color: Color(0xFFD2D5DA),
+                    color: Ucolors.portfolioDivider,
                   ),
                   Expanded(
                     flex: 30,
@@ -183,7 +173,7 @@ class PortfolioHoldingCard extends StatelessWidget {
                   '${fund.totalUnits.isFinite ? fund.totalUnits.toStringAsFixed(3) : '—'} total units',
                   style: _text(
                     12,
-                    color: _ink,
+                    color: Ucolors.portfolioInk,
                     height: 1.5,
                     weight: FontWeight.w700,
                   ),
@@ -217,25 +207,25 @@ class PortfolioHoldingCard extends StatelessWidget {
     final Color color;
     if (fund.isFullyRedeemed) {
       label = 'Redeemed';
-      color = _dim;
+      color = Ucolors.portfolioTextMuted;
     } else if (fund.isRedemptionPending) {
       label = 'Redemption pending';
-      color = const Color(0xFFB45309);
+      color = Ucolors.portfolioPendingText;
     } else if (fund.isAllotmentPending) {
       label = 'Allotment pending';
-      color = const Color(0xFFB45309);
+      color = Ucolors.portfolioPendingText;
     } else if (fund.hasPendingSipCancellation) {
       label = 'Cancellation pending';
-      color = const Color(0xFFB45309);
+      color = Ucolors.portfolioPendingText;
     } else if (fund.isSipCancelledFlag) {
       label = 'SIP cancelled';
-      color = _dim;
+      color = Ucolors.portfolioTextMuted;
     } else if (fund.isSipActive) {
       label = 'Active SIP';
       color = Ucolors.homePositive;
     } else {
       label = fund.isLumpsum ? 'Lump sum' : 'Holding';
-      color = _purple;
+      color = Ucolors.portfolioAccent;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -253,7 +243,10 @@ class PortfolioHoldingCard extends StatelessWidget {
   Widget _metadata(String label, String value) => Row(
     children: [
       Expanded(
-        child: Text(label, style: _text(10, color: _dim, height: 1.5)),
+        child: Text(
+          label,
+          style: _text(10, color: Ucolors.portfolioTextMuted, height: 1.5),
+        ),
       ),
       const SizedBox(width: 6),
       Flexible(
@@ -265,7 +258,7 @@ class PortfolioHoldingCard extends StatelessWidget {
           style: _text(
             10,
             weight: FontWeight.w700,
-            color: _valueBlue,
+            color: Ucolors.portfolioValueBlue,
             height: 1.5,
           ),
         ),
@@ -286,29 +279,26 @@ class PortfolioHoldingCard extends StatelessWidget {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: _text(9, color: _dim, height: 1.5),
+          style: UTextStyles.portfolioMetricLabel,
         ),
         const SizedBox(height: 7),
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
             value,
-            style: _text(
-              prominent ? 17 : 14,
-              weight: prominent ? FontWeight.w800 : FontWeight.w700,
-              color: color ?? _ink,
-              height: 1.5,
-            ),
+            style:
+                (prominent
+                        ? UTextStyles.portfolioMetricValueProminent
+                        : UTextStyles.portfolioMetricValue)
+                    .copyWith(color: color ?? Ucolors.portfolioInk),
           ),
         ),
         const SizedBox(height: 5),
         Text(
           caption,
           textAlign: TextAlign.center,
-          style: _text(
-            8,
+          style: UTextStyles.portfolioCaption.copyWith(
             color: color ?? Ucolors.homeTextSecondary,
-            height: 1.35,
           ),
         ),
       ],
@@ -348,26 +338,20 @@ class _HoldingMetadata {
   }
 }
 
-const _purple = Color(0xFF441D9E);
-const _ink = Color(0xFF12121A);
-const _dim = Color(0xFF8A8AA0);
-const _line = Color(0xFFE4E6EE);
-const _valueBlue = Color(0xFF2552E6);
 const _band = BoxDecoration(
-  color: Color(0xFFFAFAFD),
-  border: Border(top: BorderSide(color: Color(0xFFEEF0F4))),
+  color: Ucolors.portfolioMetadataSurface,
+  border: Border(top: BorderSide(color: Ucolors.portfolioMetadataBorder)),
 );
 
 TextStyle _text(
   double size, {
   FontWeight weight = FontWeight.w500,
-  Color color = _ink,
+  Color color = Ucolors.portfolioInk,
   double? height,
-}) => UTextStyles.homeText(
+}) => UTextStyles.portfolioText(
   size: size,
   weight: weight,
   color: color,
-  family: FontFamily.plusJakartaSans,
   height: height,
 );
 

@@ -73,6 +73,68 @@ class Ucolors {
   static const homeSupportShadowColor = Color(0x40000000);
   static const homeSelectedNavigationShadowColor = Color(0x1F4361EE);
 
+  // Portfolio Details palette. Exact shared matches keep their existing names:
+  // white, homeBackground, homePositive, homeHeaderEnd, goalPrimary,
+  // homeTextSecondary, homeTileBorder and homePanelShadowFarColor.
+  static const portfolioAccent = Color(0xFF441D9E);
+  static const portfolioInk = Color(0xFF12121A);
+  static const portfolioTextMuted = Color(0xFF8A8AA0);
+  static const portfolioHeading = Color(0xFF1E293B);
+  static const portfolioValueBlue = Color(0xFF2552E6);
+  static const portfolioNegative = Color(0xFFFF383C);
+  static const portfolioCardBorder = Color(0xFFE4E6EE);
+  static const portfolioDivider = Color(0xFFD2D5DA);
+  static const portfolioMetadataSurface = Color(0xFFFAFAFD);
+  static const portfolioMetadataBorder = Color(0xFFEEF0F4);
+  static const portfolioSelectedSurface = Color(0xFFEFEBF7);
+  static const portfolioCountBadgeSurface = Color(0xFFE9EAF0);
+  static const portfolioEmptyBackground = Color(0xFFF8FAFC);
+  static const portfolioPositiveText = Color(0xFF16A34A);
+  static const portfolioPendingText = Color(0xFFB45309);
+  static const portfolioWarningText = Color(0xFFD97706);
+  static const portfolioInfoSurface = Color(0xFFEFF6FF);
+  static const portfolioInfoText = Color(0xFF2563EB);
+  static const portfolioPayoutPendingSurface = Color(0xFFFFFBEB);
+  static const portfolioPayoutPendingBorder = Color(0xFFFDE68A);
+  static const portfolioPayoutSettledSurface = Color(0xFFF0FDF4);
+  static const portfolioPayoutSettledBorder = Color(0xFFBBF7D0);
+  static const portfolioCancelFill = Color(0x0FFF383C);
+  static const portfolioCancelBorder = Color(0x33FF383C);
+  static const portfolioRedeemShadow = Color(0x617C5CFF);
+  static const portfolioHeaderGlow = Color(0x599D85FF);
+  static const portfolioHeaderGlowTransparent = Color(0x009D85FF);
+
+  // Preserve the existing Material shades used by legacy Portfolio states.
+  static const portfolioBodyText = Colors.black87;
+  static final portfolioSecondaryText = Colors.grey.shade600;
+  static final portfolioSubtleText = Colors.grey.shade700;
+  static final portfolioPlaceholder = Colors.grey.shade400;
+  static const portfolioNeutralStatus = Colors.grey;
+  static const portfolioSettledBanner = Colors.green;
+  static const portfolioPendingBanner = Colors.amber;
+  static const portfolioAllotmentBanner = Colors.blue;
+  static final portfolioAuditGain = Colors.green.shade700;
+  static final portfolioAuditGainStrong = Colors.green.shade800;
+  static final portfolioAuditLoss = Colors.red.shade700;
+
+  static const portfolioHeaderGradient = LinearGradient(
+    begin: Alignment(-0.086, -1),
+    end: Alignment(0.086, 1),
+    colors: [homeHeaderEnd, portfolioAccent, goalPrimary],
+    stops: [0.08, 0.54, 0.92],
+  );
+  static const portfolioHeaderGlowGradient = RadialGradient(
+    center: Alignment(0.64, -0.7),
+    radius: 0.22,
+    colors: [portfolioHeaderGlow, portfolioHeaderGlowTransparent],
+    stops: [0, 0.28],
+  );
+  static const portfolioRedeemGradient = LinearGradient(
+    begin: Alignment(-0.168, -1.83),
+    end: Alignment(0.168, 1.83),
+    colors: [homeHeaderEnd, goalPrimary],
+  );
+
   static const homeHeaderGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,

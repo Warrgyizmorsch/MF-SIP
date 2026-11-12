@@ -58,6 +58,67 @@ class UTextStyles {
     color: color,
   );
 
+  /// Opt-in Portfolio typography; existing app and Home defaults are unchanged.
+  /// Height stays nullable so legacy callsites can retain their line metrics.
+  static TextStyle portfolioText({
+    double size = 14,
+    FontWeight weight = FontWeight.w500,
+    Color color = Ucolors.portfolioInk,
+    String family = FontFamily.plusJakartaSans,
+    double? height,
+    double? letterSpacing,
+  }) => homeText(
+    size: size,
+    weight: weight,
+    color: color,
+    family: family,
+    height: height,
+    letterSpacing: letterSpacing,
+  );
+
+  static TextStyle get portfolioHeaderTitle => portfolioText(
+    size: 15,
+    weight: FontWeight.w700,
+    color: Ucolors.white,
+    height: 1.5,
+  );
+
+  static TextStyle get portfolioSectionHeading =>
+      portfolioText(size: 17, weight: FontWeight.w700, height: 1.5);
+
+  static TextStyle get portfolioMetricLabel =>
+      portfolioText(size: 9, color: Ucolors.portfolioTextMuted, height: 1.5);
+
+  static TextStyle get portfolioMetricValue =>
+      portfolioText(size: 14, weight: FontWeight.w700, height: 1.5);
+
+  static TextStyle get portfolioMetricValueProminent =>
+      portfolioText(size: 17, weight: FontWeight.w800, height: 1.5);
+
+  static TextStyle get portfolioCaption =>
+      portfolioText(size: 8, color: Ucolors.homeTextSecondary, height: 1.35);
+
+  static TextStyle get portfolioActionLabel =>
+      portfolioText(size: 16, weight: FontWeight.w700, color: Ucolors.white);
+
+  /// Retains ambient fonts/weights for legacy page and audit text. Unlike
+  /// portfolioText, unspecified properties remain null and inherit as before.
+  static TextStyle portfolioInheritedText({
+    double? size,
+    FontWeight? weight,
+    Color? color,
+    String? family,
+    double? height,
+    double? letterSpacing,
+  }) => TextStyle(
+    fontSize: size,
+    fontWeight: weight,
+    color: color,
+    fontFamily: family,
+    height: height,
+    letterSpacing: letterSpacing,
+  );
+
   static const double _h1 = 28;
   static const double _h2 = 24;
   static const double _body2 = 12;

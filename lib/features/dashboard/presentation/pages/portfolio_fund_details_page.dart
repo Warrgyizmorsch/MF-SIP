@@ -138,25 +138,25 @@ class PortfolioFundDetailsPage extends StatelessWidget {
 
     if (activeFund == null) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: Ucolors.portfolioEmptyBackground,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Ucolors.white,
           elevation: 0.5,
           leading: IconButton(
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Colors.black87,
+              color: Ucolors.portfolioBodyText,
               size: 18,
             ),
             onPressed: () => _handleBack(context),
           ),
-          title: const Text(
+          title: Text(
             'Fund Details',
-            style: TextStyle(
-              fontFamily: FontFamily.medium,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+            style: UTextStyles.portfolioInheritedText(
+              family: FontFamily.medium,
+              size: 16,
+              weight: FontWeight.bold,
+              color: Ucolors.portfolioBodyText,
             ),
           ),
         ),
@@ -169,22 +169,25 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                 Icon(
                   Icons.folder_open_rounded,
                   size: 64,
-                  color: Colors.grey.shade400,
+                  color: Ucolors.portfolioPlaceholder,
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'No Portfolio Fund Selected',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                  style: UTextStyles.portfolioInheritedText(
+                    size: 18,
+                    weight: FontWeight.bold,
+                    color: Ucolors.portfolioHeading,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Please select a fund from your portfolio to view its details.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  style: UTextStyles.portfolioInheritedText(
+                    size: 14,
+                    color: Ucolors.portfolioSecondaryText,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
@@ -201,14 +204,14 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                   onPressed: () => _handleBack(context),
                   icon: const Icon(
                     Icons.arrow_back_rounded,
-                    color: Colors.white,
+                    color: Ucolors.white,
                     size: 18,
                   ),
-                  label: const Text(
+                  label: Text(
                     'Back to Portfolio',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    style: UTextStyles.portfolioInheritedText(
+                      color: Ucolors.white,
+                      weight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -266,12 +269,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                       ),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          gradient: RadialGradient(
-                            center: Alignment(0.64, -0.7),
-                            radius: 0.22,
-                            colors: [Color(0x599D85FF), Color(0x009D85FF)],
-                            stops: [0, 0.28],
-                          ),
+                          gradient: Ucolors.portfolioHeaderGlowGradient,
                         ),
                       ),
                     ),
@@ -387,12 +385,12 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Ucolors.white,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: Ucolors.homeTileBorder),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x08000000),
+                        color: Ucolors.homePanelShadowFarColor,
                         blurRadius: 10,
                         offset: Offset(0, 4),
                       ),
@@ -401,12 +399,12 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Actions',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                        style: UTextStyles.portfolioInheritedText(
+                          size: 16,
+                          weight: FontWeight.bold,
+                          color: Ucolors.portfolioBodyText,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -414,9 +412,9 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                         activeFund.isSipActive
                             ? 'Cancel future SIP installments or redeem available units.'
                             : 'Submit a redemption request to withdraw your invested amount or units.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
+                        style: UTextStyles.portfolioInheritedText(
+                          size: 13,
+                          color: Ucolors.portfolioSecondaryText,
                           height: 1.4,
                         ),
                       ),
@@ -480,17 +478,17 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Additional details',
-                  style: UTextStyles.homeText(
-                    family: FontFamily.plusJakartaSans,
+                  style: UTextStyles.portfolioText(
                     size: 17,
                     weight: FontWeight.w700,
+                    color: Ucolors.black,
                   ),
                 ),
               ),
               IconButton(
                 tooltip: 'Close additional details',
                 onPressed: () => Navigator.of(overlayContext).pop(),
-                icon: const Icon(Icons.close, color: Color(0xFF441D9E)),
+                icon: const Icon(Icons.close, color: Ucolors.portfolioAccent),
               ),
             ],
           ),
@@ -571,7 +569,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           subtitle: activeFund.redemptionMessage.isNotEmpty
               ? activeFund.redemptionMessage
               : 'Redemption payout of ₹${activeFund.redeemedAmount > 0 ? activeFund.redeemedAmount : activeFund.redemptionDetails?.amount ?? 0} has been credited to your bank account.',
-          color: Colors.green,
+          color: Ucolors.portfolioSettledBanner,
         ),
       );
       banners.add(const SizedBox(height: 20));
@@ -583,7 +581,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           subtitle: activeFund.redemptionMessage.isNotEmpty
               ? activeFund.redemptionMessage
               : 'Payout will be credited to your bank account in 1-2 working days.',
-          color: Colors.amber,
+          color: Ucolors.portfolioPendingBanner,
         ),
       );
       banners.add(const SizedBox(height: 20));
@@ -595,7 +593,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           subtitle: activeFund.allotmentMessage.isNotEmpty
               ? activeFund.allotmentMessage
               : 'Order accepted. Unit allotment in progress by AMC (1-2 business days).',
-          color: Colors.blue,
+          color: Ucolors.portfolioAllotmentBanner,
         ),
       );
       banners.add(const SizedBox(height: 20));
@@ -610,12 +608,12 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Ucolors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: Ucolors.homeTileBorder),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x08000000),
+            color: Ucolors.homePanelShadowFarColor,
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
@@ -654,8 +652,8 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             '${is1DProfit ? "+" : "−"}₹${activeFund.oneDayChange.abs().toStringAsFixed(2)} (${activeFund.oneDayChangePercent < 0 ? "−" : "+"}${activeFund.oneDayChangePercent.abs().toStringAsFixed(2)}%)',
             icon: Iconsax.trend_up,
             valueColor: is1DProfit
-                ? Colors.green.shade700
-                : Colors.red.shade700,
+                ? Ucolors.portfolioAuditGain
+                : Ucolors.portfolioAuditLoss,
           ),
           if (activeFund.purchaseDate.isNotEmpty) ...[
             const Divider(height: 24),
@@ -1037,18 +1035,18 @@ class PortfolioFundDetailsPage extends StatelessWidget {
         : 'Monthly';
     final String statusText = isCancelled ? 'Cancelled' : 'Active SIP';
     final Color statusColor = isCancelled
-        ? Colors.grey
-        : const Color(0xFF16A34A);
+        ? Ucolors.portfolioNeutralStatus
+        : Ucolors.portfolioPositiveText;
 
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Ucolors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: Ucolors.homeTileBorder),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x08000000),
+            color: Ucolors.homePanelShadowFarColor,
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
@@ -1069,23 +1067,23 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: Ucolors.portfolioInfoSurface,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Iconsax.calendar_tick,
                       size: 18,
-                      color: Color(0xFF2563EB),
+                      color: Ucolors.portfolioInfoText,
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Flexible(
+                  Flexible(
                     child: Text(
                       'SIP Schedule',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                      style: UTextStyles.portfolioInheritedText(
+                        size: 15,
+                        weight: FontWeight.bold,
+                        color: Ucolors.portfolioBodyText,
                       ),
                     ),
                   ),
@@ -1103,9 +1101,9 @@ class PortfolioFundDetailsPage extends StatelessWidget {
                 ),
                 child: Text(
                   statusText,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+                  style: UTextStyles.portfolioInheritedText(
+                    size: 11,
+                    weight: FontWeight.bold,
                     color: statusColor,
                   ),
                 ),
@@ -1118,7 +1116,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               'Next SIP Date',
               activeFund.nextSipDate,
               icon: Iconsax.calendar_1,
-              valueColor: const Color(0xFF2563EB),
+              valueColor: Ucolors.portfolioInfoText,
             ),
             const Divider(height: 24),
           ],
@@ -1137,7 +1135,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               'Completed Installments',
               '${activeFund.totalInstallments} ${activeFund.totalInstallments == 1 ? "installment" : "installments"}',
               icon: Iconsax.tick_circle,
-              valueColor: Colors.green.shade700,
+              valueColor: Ucolors.portfolioAuditGain,
             ),
           ],
         ],
@@ -1189,13 +1187,13 @@ class PortfolioFundDetailsPage extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: activeFund.hasPendingRedemption
-            ? const Color(0xFFFFFBEB)
-            : const Color(0xFFF0FDF4),
+            ? Ucolors.portfolioPayoutPendingSurface
+            : Ucolors.portfolioPayoutSettledSurface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: activeFund.hasPendingRedemption
-              ? const Color(0xFFFDE68A)
-              : const Color(0xFFBBF7D0),
+              ? Ucolors.portfolioPayoutPendingBorder
+              : Ucolors.portfolioPayoutSettledBorder,
         ),
       ),
       child: Column(
@@ -1216,8 +1214,8 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             displayPayout,
             icon: Iconsax.money_send,
             valueColor: activeFund.hasPendingRedemption
-                ? const Color(0xFFD97706)
-                : Colors.green.shade800,
+                ? Ucolors.portfolioWarningText
+                : Ucolors.portfolioAuditGainStrong,
           ),
           if (estValue > 0 && (volType.toUpperCase() == 'U' || amt == 0)) ...[
             const Divider(height: 20),
@@ -1242,8 +1240,8 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               statusStr,
               icon: Iconsax.verify,
               valueColor: activeFund.hasPendingRedemption
-                  ? const Color(0xFFB45309)
-                  : Colors.green.shade800,
+                  ? Ucolors.portfolioPendingText
+                  : Ucolors.portfolioAuditGainStrong,
             ),
           ],
           if (dtl?.estimatedPayoutDays.isNotEmpty == true) ...[
@@ -1274,9 +1272,9 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Ucolors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: Ucolors.homeTileBorder),
       ),
       child: Column(
         children: [
@@ -1349,17 +1347,16 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: Colors.grey.shade600),
+        Icon(icon, size: 18, color: Ucolors.portfolioSecondaryText),
         const SizedBox(width: 10),
         Expanded(
           flex: 5,
           child: Text(
             label,
-            style: UTextStyles.homeText(
-              family: FontFamily.plusJakartaSans,
+            style: UTextStyles.portfolioText(
               size: 13,
               weight: FontWeight.w500,
-              color: Colors.grey.shade600,
+              color: Ucolors.portfolioSecondaryText,
             ),
           ),
         ),
@@ -1368,11 +1365,10 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           flex: 6,
           child: Text(
             value,
-            style: UTextStyles.homeText(
-              family: FontFamily.plusJakartaSans,
+            style: UTextStyles.portfolioText(
               size: 13,
               weight: FontWeight.w700,
-              color: valueColor ?? Colors.black87,
+              color: valueColor ?? Ucolors.portfolioBodyText,
             ),
             textAlign: TextAlign.right,
           ),
@@ -1412,19 +1408,19 @@ class PortfolioFundDetailsPage extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                  style: UTextStyles.portfolioInheritedText(
+                    size: 14,
+                    weight: FontWeight.bold,
                     color: color.withValues(alpha: 0.9),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: UTextStyles.portfolioInheritedText(
+                    size: 12,
                     height: 1.3,
-                    color: Colors.grey.shade700,
+                    color: Ucolors.portfolioSubtleText,
                   ),
                 ),
               ],

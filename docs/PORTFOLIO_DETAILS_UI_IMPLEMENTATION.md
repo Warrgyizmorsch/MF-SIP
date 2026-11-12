@@ -3,6 +3,10 @@
 Reference: Figma file `Ud1D8521VyPLVwKdFR0VLG`, node `717:4543`, and the three
 `Create a Vesyless UI (Copy)` images under `assets/figma_UI/`.
 
+Current status: the three shared-styling migration phases are complete as of
+12 November 2026. The final migration review appears at the end of this report;
+earlier phase notes retain their intermediate implementation history.
+
 ## Approved scope
 
 Implement the reference screen in phases and pause after each phase. Exclude
@@ -286,3 +290,269 @@ pending-state branches, action eligibility, dependency lookup, routing,
 asset registration and existing request wiring. Asset XML metadata and font
 presence were inspected locally. Device/browser rendering, financial requests
 and interactive behavior remain unverified as described above.
+
+## Portfolio Details shared styling: Phase 1
+
+Completed on 12 November 2026 after approval of the three-phase styling plan.
+This phase adds shared definitions only. Existing Portfolio Details widgets
+still use their current styling; applying these definitions is Phase 2.
+
+### Changed files and purpose
+
+- `lib/core/utils/constant/colors.dart`: add the missing Portfolio colors and
+  exact header/glow/redemption gradients under the existing `Ucolors` class.
+- `lib/core/utils/constant/text_style.dart`: add an opt-in `portfolioText`
+  helper and seven common typography presets under the existing `UTextStyles`
+  class, delegating font creation to `homeText`.
+- This implementation report: document the shared definitions, usage and checks.
+
+No existing constant, gradient, helper default or theme is changed. No widget,
+controller, binding, repository, endpoint, request field, financial calculation,
+route, asset or package changes in Phase 1.
+
+### Color and gradient definitions
+
+All 27 new color values were taken from the current Portfolio UI. Similar
+existing colors were not substituted where their actual values differ.
+
+| Role | Shared source |
+| --- | --- |
+| White/background/positive returns | Existing `white`, `homeBackground`, `homePositive` |
+| Navy and purple gradient endpoints | Existing `homeHeaderEnd` and `goalPrimary` |
+| Secondary text, legacy card border/shadow | Existing `homeTextSecondary`, `homeTileBorder`, `homePanelShadowFarColor` |
+| Portfolio purple/text/heading | `portfolioAccent`, `portfolioInk`, `portfolioTextMuted`, `portfolioHeading`, `portfolioValueBlue` |
+| Loss, positive/pending/warning text | `portfolioNegative`, `portfolioPositiveText`, `portfolioPendingText`, `portfolioWarningText` |
+| Card/divider/metadata | `portfolioCardBorder`, `portfolioDivider`, `portfolioMetadataSurface`, `portfolioMetadataBorder` |
+| Selected panel/count badge/empty state | `portfolioSelectedSurface`, `portfolioCountBadgeSurface`, `portfolioEmptyBackground` |
+| Schedule/info colors | `portfolioInfoSurface`, `portfolioInfoText` |
+| Payout audit surfaces/borders | `portfolioPayoutPendingSurface`, `portfolioPayoutPendingBorder`, `portfolioPayoutSettledSurface`, `portfolioPayoutSettledBorder` |
+| Cancel fill/border and redemption shadow | `portfolioCancelFill`, `portfolioCancelBorder`, `portfolioRedeemShadow` |
+| Header glow | `portfolioHeaderGlow`, `portfolioHeaderGlowTransparent` |
+
+The new `portfolioHeaderGradient`, `portfolioHeaderGlowGradient` and
+`portfolioRedeemGradient` preserve their current color order, alpha values,
+directions, alignment coordinates, stops and radial geometry. Existing Home and
+Goal gradients keep their original definitions and consumers.
+
+### Typography and later usage
+
+`UTextStyles.portfolioText` defaults to Plus Jakarta Sans and the Portfolio ink
+color. It forwards size, weight, color, family, nullable line height and letter
+spacing to `homeText`, preserving its variable-font weight handling. An explicit
+family override remains available for legacy callsites with a different font.
+It does not change the existing Inter helper default or Roboto application theme.
+
+The new presets are `portfolioHeaderTitle`, `portfolioSectionHeading`,
+`portfolioMetricLabel`, `portfolioMetricValue`, `portfolioMetricValueProminent`,
+`portfolioCaption` and `portfolioActionLabel`. Their sizes and weights come from
+the current header, transaction heading, metrics and actions. They are getters
+so callers cannot replace the shared definitions by assigning another style.
+
+Example usage for Phase 2:
+
+```dart
+color: Ucolors.portfolioCardBorder,
+style: UTextStyles.portfolioHeaderTitle,
+```
+
+For a callsite with different typography, use `portfolioText` with its current
+arguments or an appropriate preset override. Do not force different sizes,
+fonts or line heights into one preset. In particular, the metric caption's
+1.35 line height differs from transaction captions using 1.5, and action labels
+currently leave height unspecified.
+
+### Verification and remaining phases
+
+- Targeted `dart format` completed for both shared Dart files.
+- `flutter analyze --no-pub` for both files reported one existing informational
+  lint: `constant_identifier_names` for `Ucolors.Orange` at `colors.dart:8`.
+  The command exits nonzero for that info. It reported no new findings from the
+  added definitions. The existing public identifier is deliberately unchanged.
+- `git diff --check` passed. Source comparison against the start of this phase
+  confirms both files retain every pre-existing definition/default; all changes
+  are additions. Every added color value occurs in the current Portfolio source.
+- No tests, builds, app launches, live APIs or rendered checks ran. These
+  definitions have no screen callsites until the next migration phase.
+
+Phase 2: apply the shared colors/styles to the active page, panels, transaction
+cards, action row, overlays and page states while preserving appearance and
+existing public interfaces. Phase 3: final source/responsive review, targeted
+static checks and documentation. Pause here for approval before Phase 2.
+
+## Portfolio Details shared styling: Phase 2
+
+Completed on 12 November 2026 after approval. The active Portfolio Details page
+and its five presentation widgets now consume the shared Portfolio palette and
+typography added in Phase 1. This is a styling-reference migration; existing
+layout, content, conditions, financial calculations and navigation are retained.
+
+### Changed files and usage
+
+- `portfolio_holding_header.dart`: preserve the public `gradient` name as an
+  alias to `Ucolors.portfolioHeaderGradient`; use the shared header/metric/caption
+  presets and palette. Keep `_text` as a thin forwarding helper for other labels.
+- `portfolio_details_panels.dart`: use shared surface, accent, text, divider and
+  border colors; forward label/value styling to `portfolioText` with the same
+  sizes, weights and 1.5 line height.
+- `portfolio_transactions_section.dart`: use the shared heading, transaction
+  colors and helper while preserving status resolution, ordering and expansion.
+- `portfolio_fund_actions.dart`: use the shared cancellation fill/border, loss
+  color, redemption gradient/shadow and action-label preset. Preserve busy state,
+  eligibility, tap handlers, icon geometry and responsive stacking.
+- `portfolio_additional_details_section.dart`: use shared surface, accent and
+  heading colors with `portfolioText`, preserving its current typography.
+- `portfolio_fund_details_page.dart`: migrate active empty-state, desktop action,
+  overlay, metric/schedule/audit and status-banner styling. Use the shared radial
+  glow and retain the existing header gradient alias and page wiring.
+- `colors.dart`: add exact aliases for existing legacy Material shades used by
+  the page/audits. These include body/secondary/subtitle/placeholder text, neutral
+  status, banner colors and legacy gain/loss shades. Getter-based Material shades
+  remain immutable `static final` colors; existing constant definitions stay intact.
+- `text_style.dart`: add `portfolioInheritedText` for legacy text whose font,
+  size, weight or line height was inherited rather than explicitly specified.
+- This report: record the migration and its static verification limits.
+
+The five widget files are under
+`lib/features/dashboard/presentation/widgets/`; the page is under
+`lib/features/dashboard/presentation/pages/`. Shared files remain under
+`lib/core/utils/constant/`.
+
+### Appearance and compatibility
+
+- All active custom color literals now reference the shared palette. White uses
+  `Ucolors.white`. Framework transparency remains `Colors.transparent`.
+  File-local duplicate color constants are removed; local widget geometry and
+  decoration composition remain in their existing widgets.
+- The header, glow and redemption gradients keep their original endpoints,
+  directions, alignment, stops, alpha and radius. The shared Home/Goal gradients
+  and app color defaults are unchanged.
+- The seven Phase 1 text presets are now used where their values match exactly.
+  Other sizes/colors/heights continue through `portfolioText` or preset
+  `copyWith` overrides. Thin `_text` wrappers preserve existing private callsites.
+- The Additional details title explicitly retains its original black color,
+  rather than adopting the new helper's default Portfolio ink color.
+- `portfolioInheritedText` creates a text style with nullable attributes, matching
+  the original direct `TextStyle` semantics. It does not inject Plus Jakarta Sans,
+  a weight, size or variable-font axis into legacy text that inherited those
+  values. Existing explicit Inter attributes remain explicit. Other Portfolio
+  widgets retain Plus Jakarta Sans through the original `homeText` font handling.
+- Existing `homeText`, `portfolioText`, text presets, primary colors and theme
+  defaults remain unchanged. No unrelated screen is migrated and no package,
+  asset, public widget interface, route, repository, API or session logic changes.
+- The unmounted Exit Load & Redemption Forecast builder is left untouched.
+  Its remaining inline styles are outside the active-screen migration. It is
+  still not mounted; the styling of active payout records remains separate.
+
+### Phase 2 verification
+
+- Targeted `dart format` completed across all eight affected Dart files.
+- `flutter analyze --no-pub` across those eight files reported only the existing
+  `constant_identifier_names` info for `Ucolors.Orange` at `colors.dart:8`.
+  It reported no new findings. The command exits nonzero because of that info;
+  the public identifier was not renamed or suppressed.
+- `git diff --check` passed.
+- Source comparison across all six presentation files resolved the shared color
+  aliases and excluded text-style expressions from the structural comparison;
+  layout, data and color expressions match the starting source. A separate
+  source-parameter review of 57 style expressions found no mapping differences
+  in size, weight, family, color, line height, letter spacing or variable-font
+  handling. This is source inspection, not executed Flutter rendering.
+- The back/navigation/transaction handlers and existing redemption arguments
+  match the start of this phase. The excluded forecast builder matches its
+  original source. No new request or dependency registration was added.
+
+No tests, builds, app launches, live financial API calls or rendered pixel/
+interaction checks ran. Device font rendering, accessibility text scaling and
+responsive appearance remain unverified until an authorized runtime review.
+
+Phase 3 remains: final responsive/source review, targeted static checks and
+documentation. Pause here for approval before that phase.
+
+## Portfolio Details shared styling: Phase 3
+
+Final source review completed on 12 November 2026 within the approved static
+verification scope. This phase updates this report only; it does not modify Dart
+files or alter the current screen layout.
+
+### Migration coverage and compatibility review
+
+- The active page and all five presentation widgets contain no custom inline
+  `Color(0x...)` values, direct `TextStyle(...)` construction or calls to
+  `UTextStyles.homeText`. They use `Ucolors`, the Portfolio text helpers/presets,
+  or thin feature-local forwarding helpers. Framework transparency remains
+  `Colors.transparent`.
+- Remaining inline colors and text styles in the page belong to the retained,
+  unmounted Exit Load & Redemption Forecast builder. Its only reference is its
+  definition. No forecast content was restored by this migration.
+- All six presentation files exactly match the verified Phase 2 source. Shared
+  color/default definitions and existing theme defaults are preserved. The app
+  still uses its existing light theme and Roboto defaults; explicitly selected
+  Inter and Plus Jakarta Sans callsites retain their original behavior.
+- The Phase 2 source comparison covers layout, data/color expressions and 57
+  style expressions. The final review found no additional mapping correction
+  needed. These comparisons do not establish rendered pixel equivalence.
+- Font-family handling, variable weights, metric-caption line height of 1.35,
+  transaction-text line height of 1.5 and nullable action-label height remain
+  distinct where required. The inherited-text helper retains null attributes
+  instead of injecting another font or weight into legacy text.
+- GetX registration, routes, callbacks, API requests/arguments, status predicates,
+  record visibility and financial calculations are unchanged. The migration
+  adds no requests, dependencies, packages or assets.
+
+### Responsive and asset source review
+
+| Area | Preserved source behavior | Runtime follow-up |
+| --- | --- | --- |
+| Page layout | Existing 960-pixel desktop breakpoint, 1140-pixel content maximum, side safe areas and mobile/desktop padding | Device/browser review at narrow, intermediate and wide widths |
+| Header | Full-name wrapping and growing header; current decoration setting retained | Long names and larger text against the fixed-height page gradient band |
+| Holding card | Flexible metric columns, scale-down for large metric values, two-line metadata ellipsis, wrapping units/status strip | Value readability and long folio/goal truncation |
+| Panels/transactions | Existing minimum heights, flexible columns, text wrapping and unchanged expansion state | Larger text, long API values and large transaction lists |
+| Actions | Existing stacking below 340 pixels, scaled text and longer labels; 56-pixel minimum button height | Short screens, safe areas and dialog/navigation interaction |
+| Additional details | Existing scrollable mobile sheet/desktop dialog and 560-pixel dialog maximum | Expansion, scrolling and keyboard/back behavior |
+
+These rows are source observations, not executed viewport scenarios. In
+particular, a very tall header can extend beyond the existing 174-pixel page
+gradient band. That layout condition predates this styling migration and is
+recorded for a separate device review; the current header decoration comment
+and geometry were not changed here.
+
+All six SVG files are nonempty and parse as SVG. Native sizes and callsites
+remain: back 20 by 20, selected/unselected investment/calendar 17 by 17, and
+cancellation 11.6 by 11.6 centered in its 20 by 20 slot. The asset-directory
+registration and Plus Jakarta Sans font registration/file are present. SVG
+artwork, including embedded fills, remains unchanged by Dart color tokens.
+
+### Maintaining the shared styles
+
+- Change Portfolio-specific colors in `Ucolors.portfolio...` when updating this
+  screen's palette. Existing shared Home/Goal/white values also have other app
+  consumers, so changes to those shared values require checking those consumers.
+- Change common Portfolio text roles through the named `UTextStyles.portfolio...`
+  presets. Screen-specific size/color/height overrides continue to take precedence.
+- `portfolioText` owns the default Portfolio font; `portfolioInheritedText`
+  follows ambient text defaults unless a property is supplied. Unifying the app's
+  different font families is a separate visual change, outside this migration.
+- Widget geometry, state-dependent opacity and interaction logic stay in the
+  feature widgets. A future palette change should also consider any SVG fills
+  that need to match the new colors; shared Dart constants do not rewrite SVGs.
+
+### Final static-check results and completion
+
+- `dart format --output=none --set-exit-if-changed` across all eight affected
+  Dart files completed with exit code 0: eight files checked, zero changes.
+- `flutter analyze --no-pub` across those eight files completed with the same
+  single existing informational lint: `constant_identifier_names` for
+  `Ucolors.Orange` at `colors.dart:8`. No new findings were reported. The command
+  exits 1 because of that info; the public name is unchanged and unsuppressed.
+- `git diff --check` passed. Remaining Git LF/CRLF notices describe the existing
+  checkout conversion behavior and are not whitespace errors.
+- Local SVG XML metadata, font presence/registration and icon callsites were
+  inspected. No image or font files were changed.
+- The eight Dart files were not edited in this phase. The only Phase 3 change
+  is this report; the Phase 1/2 changes remain available for user review.
+
+All three shared-styling phases are complete within the approved scope. No
+tests, builds, app launches, live API calls or rendered screenshots ran.
+Rendered appearance, device accessibility and interactive behavior remain
+unverified; the source-level observations above do not replace that runtime
+review. No further implementation phase is pending for this styling migration.
