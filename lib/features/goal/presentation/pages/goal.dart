@@ -457,6 +457,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                                 ),
                               )
                             : CustomCachedImage(
+                              
                                 imageUrl: image,
                                 width: bounds.maxWidth,
                                 height: bounds.maxWidth * 170 / 388,

@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -26,6 +25,7 @@ import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
     hide showCustomToast;
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
@@ -302,7 +302,20 @@ class CartPage extends GetView<CartController> {
                 : const BoxDecoration(),
             persistentFooterButtons: isDesktop
                 ? null
-                : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
+                : [
+                    Obx(() {
+                      final isLumpsumTab = controller.activeTabIndex.value == 1;
+                      final targetItems = isLumpsumTab
+                          ? controller.lumpsumItems
+                          : controller.sipAndStepUpItems;
+                      if (targetItems.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      return const TermAndPolicy(
+                        term: 'By Proceeding I accept the ',
+                      );
+                    }),
+                  ],
             bottomNavigationBar: isDesktop
                 ? null
                 : SafeArea(
@@ -310,6 +323,14 @@ class CartPage extends GetView<CartController> {
                     child: Obx(() {
                       final mfuCtrl = Get.find<MfuController>();
                       final isLumpsumTab = controller.activeTabIndex.value == 1;
+                      final targetItems = isLumpsumTab
+                          ? controller.lumpsumItems
+                          : controller.sipAndStepUpItems;
+
+                      if (targetItems.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+
                       final isSubmitting = isLumpsumTab
                           ? mfuCtrl.isSubmittingLumpsum.value
                           : mfuCtrl.isSubmittingSip.value;
@@ -318,9 +339,6 @@ class CartPage extends GetView<CartController> {
                           (controller.isLoading.value &&
                               controller.items.isEmpty) ||
                           controller.isInitLoading.value;
-                      final targetItems = isLumpsumTab
-                          ? controller.lumpsumItems
-                          : controller.sipAndStepUpItems;
                       final targetAmount = isLumpsumTab
                           ? controller.totalLumpsumAmount
                           : controller.totalSipStepUpAmount;
@@ -405,6 +423,32 @@ class CartPage extends GetView<CartController> {
     );
   }
 
+  void _navigateToExplore(BuildContext context, {required bool isDesktop}) {
+    if (Get.isRegistered<NavigationBarController>()) {
+      final nav = Get.find<NavigationBarController>();
+      nav.isProfileExpanded.value = false;
+      nav.isHelpExpanded.value = false;
+      nav.isInvestExpanded.value = false;
+
+      // 1. Pop all pushed routes (Fund Details, Watchlist, Cart, etc.) down to the main shell
+      nav.returnToMainMenu(targetTab: 1);
+
+      // 2. Ensure tab 1 (Explore) is selected
+      nav.selectedIndex.value = 1;
+
+      // 3. Fallback if Cart was the root route (e.g. browser refresh directly on /cart)
+      if (Get.currentRoute == AppRoutes.cart) {
+        Get.offAllNamed(AppRoutes.navMenuBar);
+        nav.changePage(1, isDesktop: isDesktop);
+      }
+    } else {
+      Get.offAllNamed(AppRoutes.navMenuBar);
+      if (Get.isRegistered<NavigationBarController>()) {
+        Get.find<NavigationBarController>().changePage(1, isDesktop: isDesktop);
+      }
+    }
+  }
+
   Widget _buildTabCartView(
     BuildContext context,
     List<CartItemEntity> items,
@@ -417,13 +461,14 @@ class CartPage extends GetView<CartController> {
     }
 
     // --- EMPTY STATE ---
-    if (items.isEmpty && controller.displayedItems.isEmpty) {
+    if (items.isEmpty) {
       return SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 40),
+            const SizedBox(height: 50),
             Center(
               child: controller.filterGoalId.value != null
                   ? const Text("No funds for this goal")
@@ -437,28 +482,39 @@ class CartPage extends GetView<CartController> {
                       icon: Icons.shopping_cart_outlined,
                     ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             InkWell(
-              onTap: () {
-                Get.toNamed(AppRoutes.explorePage, id: kIsWeb ? 1 : null);
-              },
-              borderRadius: BorderRadius.circular(8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Explore more funds',
-                    style: AppTextStyles.bodyMediumBold().copyWith(
+              onTap: () => _navigateToExplore(context, isDesktop: isDesktop),
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Ucolors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Ucolors.primary.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Explore more funds',
+                      style: AppTextStyles.bodyMediumBold().copyWith(
+                        color: Ucolors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 18,
                       color: Ucolors.primary,
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 18,
-                    color: Ucolors.primary,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -661,17 +717,64 @@ class CartPage extends GetView<CartController> {
                           const Gap(8),
                           if (activeItems.isEmpty)
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 32),
-                              child: Center(
-                                child: Text(
-                                  isLumpsumTab
-                                      ? "No Lumpsum orders in your cart."
-                                      : "No SIP orders in your cart.",
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
+                              padding: const EdgeInsets.symmetric(vertical: 40),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  AnimatedEmptyState(
+                                    title: isLumpsumTab
+                                        ? "No Lumpsum Orders"
+                                        : "No SIP & Step-Up Orders",
+                                    message: isLumpsumTab
+                                        ? "You have no lumpsum investment orders in your cart."
+                                        : "You have no SIP or Step-Up orders in your cart. Go explore!",
+                                    icon: Icons.shopping_cart_outlined,
                                   ),
-                                ),
+                                  const SizedBox(height: 16),
+                                  InkWell(
+                                    onTap: () => _navigateToExplore(
+                                      context,
+                                      isDesktop: true,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Ucolors.primary.withValues(
+                                          alpha: 0.08,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Ucolors.primary.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Explore more funds',
+                                            style:
+                                                AppTextStyles.bodyMediumBold()
+                                                    .copyWith(
+                                                      color: Ucolors.primary,
+                                                    ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          const Icon(
+                                            Icons.arrow_forward_rounded,
+                                            size: 18,
+                                            color: Ucolors.primary,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
                           else
