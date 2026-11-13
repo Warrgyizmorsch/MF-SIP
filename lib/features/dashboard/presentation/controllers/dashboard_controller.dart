@@ -81,17 +81,22 @@ class DashboardController extends GetxController {
             .toList();
         break;
       case 'Redeem':
-        result = allFunds
-            .where(
-              (f) =>
-                  f.isRedeemed ||
-                  f.holdingStatus.toLowerCase() == 'redeemed' ||
-                  f.investmentType.toLowerCase() == 'redeem' ||
-                  f.isRedemptionSettled ||
-                  f.redeemedAmount > 0 ||
-                  f.redeemedUnits > 0,
-            )
-            .toList();
+        result = allFunds.where((f) {
+          final bool isRedemptionFund =
+              f.isRedeemed ||
+              f.holdingStatus.toLowerCase() == 'redeemed' ||
+              f.investmentType.toLowerCase() == 'redeem' ||
+              f.isRedemptionSettled ||
+              f.isRedemptionPending ||
+              f.redeemedAmount > 0 ||
+              f.redeemedUnits > 0;
+
+          // Discard if units and balance are zero
+          final bool hasRemainingBalance =
+              f.totalUnits > 0 || f.currentValue > 0;
+
+          return isRedemptionFund && hasRemainingBalance;
+        }).toList();
         break;
       case 'Cancelled SIP':
         result = allFunds.where((f) => f.isSipCancelledFlag).toList();
