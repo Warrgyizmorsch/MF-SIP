@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -329,16 +330,16 @@ class _SplashScreenState extends State<SplashScreen>
                               TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: 'MF SIP by ',
+                                    text: 'MFSIP by ',
                                     style: TextStyle(
                                       color: _logoNavy,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   TextSpan(
-                                    text: 'Ridit Finworld',
+                                    text: 'Kriti Hinger',
                                     style: TextStyle(
-                                      color: _logoBlue,
+                                      color: Ucolors.primary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

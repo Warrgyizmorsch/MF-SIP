@@ -14,6 +14,7 @@ import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.da
 import 'package:flutter/material.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/core/utils/helper/app_notice_manager.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -719,6 +720,9 @@ class AuthController extends GetxController {
     otpController.clear();
     if (Get.isRegistered<NotificationService>()) {
       Get.find<NotificationService>().deleteTokenOnLogout();
+    }
+    if (Get.isRegistered<MutualFundController>()) {
+      Get.find<MutualFundController>().clearRecentlyViewed();
     }
     SessionManager.instance.clearSession();
 

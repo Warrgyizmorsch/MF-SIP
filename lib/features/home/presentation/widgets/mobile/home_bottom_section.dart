@@ -29,22 +29,29 @@ class MobileHomeBottomSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30 * scale),
-            child: Obx(
-              () => HomePopularFunds(
-                funds: mutualController.searchFund.toList(),
-                scale: scale,
-                isLoading: mutualController.isLoading.value,
-                errorMessage: mutualController.errorMessage.value,
-                onFundTap: (fund) =>
-                    HomeFundNavigation.open(fund, controller: mutualController),
-                onViewAll: onViewAllFunds,
-                onRetry: () => mutualController.retryFetch(),
-              ),
-            ),
-          ),
-          SizedBox(height: 10 * scale),
+          Obx(() {
+            final recentFunds = mutualController.recentlyViewedFunds;
+            if (recentFunds.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                HomePopularFunds(
+                  funds: recentFunds.toList(),
+                  scale: scale,
+                  isLoading: false,
+                  onFundTap: (fund) => HomeFundNavigation.open(
+                    fund,
+                    controller: mutualController,
+                  ),
+                  onRetry: () {},
+                ),
+                SizedBox(height: 14 * scale),
+              ],
+            );
+          }),
           HomeVideos(scale: scale),
           SizedBox(height: 20 * scale),
           Padding(

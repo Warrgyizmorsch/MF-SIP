@@ -560,6 +560,15 @@ class SessionManager extends GetxService {
     }
   }
 
+  Future<void> clearRecentFunds() async {
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await _prefs!.remove('recent_viewed_list');
+    } else {
+      await _secureStorage!.delete(key: 'recent_viewed_list');
+    }
+  }
+
   Future<void> clearSession() async {
     log("🚨 WARNING: CLEAR SESSION CALLED! Wiping all data! 🚨");
     debugPrint(StackTrace.current.toString());
@@ -596,6 +605,7 @@ class SessionManager extends GetxService {
         _prefs!.remove('kyc_verified'),
         _prefs!.remove('kyc_pending'),
         _prefs!.remove('kyc_error'),
+        _prefs!.remove('recent_viewed_list'),
       ]);
     } else {
       await Future.wait([
@@ -609,6 +619,7 @@ class SessionManager extends GetxService {
         _secureStorage!.delete(key: 'kyc_verified'),
         _secureStorage!.delete(key: 'kyc_pending'),
         _secureStorage!.delete(key: 'kyc_error'),
+        _secureStorage!.delete(key: 'recent_viewed_list'),
       ]);
     }
 

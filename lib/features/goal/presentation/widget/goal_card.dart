@@ -90,7 +90,8 @@ class GoalCard extends StatelessWidget {
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: FittedBox(
-                                fit: BoxFit.scaleDown,
+                                
+                                fit: BoxFit.cover,
                                 child: Text(invested, style: _labelStyle),
                               ),
                             ),

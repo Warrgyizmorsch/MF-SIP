@@ -76,7 +76,6 @@ class FundDetailsController extends GetxController
           .toList() ??
       [];
 
-  
   FundDetailsController({required this.fundDetailsUsecases}) {
     final Map<String, dynamic> navArgs = FundDetailsScreen.navData == null
         ? {}
@@ -126,7 +125,8 @@ class FundDetailsController extends GetxController
     isin =
         _firstValid([navArgs['isin'], getArgs['isin'], params['isin']]) ?? '--';
 
-    rtaAmcCode = _firstValid([
+    rtaAmcCode =
+        _firstValid([
           navArgs['rta_amc_code'],
           navArgs['amc_code'],
           getArgs['rta_amc_code'],
@@ -135,32 +135,41 @@ class FundDetailsController extends GetxController
         ]) ??
         '';
 
-    amcName = _firstValid([
+    amcName =
+        _firstValid([
           navArgs['amc_name'],
           getArgs['amc_name'],
           params['amc_name'],
         ]) ??
         '';
 
-    // Fallback: lookup in MutualFundController if rtaAmcCode is empty
-    if (rtaAmcCode.isEmpty && Get.isRegistered<MutualFundController>()) {
+    // Fallback: lookup in MutualFundController if rtaAmcCode or isin is empty
+    if (Get.isRegistered<MutualFundController>()) {
       final mfCtrl = Get.find<MutualFundController>();
-      final match = mfCtrl.mutualfund.firstWhereOrNull(
+      final match =
+          mfCtrl.mutualfund.firstWhereOrNull(
             (f) =>
                 (schemeCode.isNotEmpty && f.schemeCode == schemeCode) ||
-                (isin.isNotEmpty && f.isin == isin),
+                (isin.isNotEmpty && isin != '--' && f.isin == isin),
           ) ??
           mfCtrl.searchFund.firstWhereOrNull(
             (f) =>
                 (schemeCode.isNotEmpty && f.schemeCode == schemeCode) ||
-                (isin.isNotEmpty && f.isin == isin),
+                (isin.isNotEmpty && isin != '--' && f.isin == isin),
           );
       if (match != null) {
-        if (match.rtaAmcCode != null && match.rtaAmcCode!.isNotEmpty) {
+        if (rtaAmcCode.isEmpty &&
+            match.rtaAmcCode != null &&
+            match.rtaAmcCode!.isNotEmpty) {
           rtaAmcCode = match.rtaAmcCode!;
         }
         if (amcName.isEmpty && match.amc?.amcName != null) {
           amcName = match.amc!.amcName!;
+        }
+        if ((isin.isEmpty || isin == '--' || !_isValidIsin(isin)) &&
+            match.isin != null &&
+            match.isin!.isNotEmpty) {
+          isin = match.isin!;
         }
       }
     }
@@ -185,7 +194,8 @@ class FundDetailsController extends GetxController
 
     final allowedSipDatesVal =
         navArgs['allowed_sip_dates'] ?? getArgs['allowed_sip_dates'];
-    if (allowedSipDatesVal != null && allowedSipDatesVal.toString().isNotEmpty) {
+    if (allowedSipDatesVal != null &&
+        allowedSipDatesVal.toString().isNotEmpty) {
       allowedSipDates.value = allowedSipDatesVal.toString();
     }
 
@@ -204,10 +214,17 @@ class FundDetailsController extends GetxController
       return;
     }
 
-    final String targetIsin = (isin.isNotEmpty && isin != '--')
+    final String targetIsin =
+        (isin.isNotEmpty && isin != '--' && _isValidIsin(isin))
         ? isin
         : schemeName;
     fetchAllData(scheme: schemeName, id: schemeCode, isin: targetIsin);
+  }
+
+  static bool _isValidIsin(String value) {
+    final trimmed = value.trim();
+    if (trimmed.length != 12) return false;
+    return RegExp(r'^[A-Z]{2}[A-Z0-9]{9}[0-9]$').hasMatch(trimmed);
   }
 
   bool get hasNoFundInfo {
@@ -257,7 +274,6 @@ class FundDetailsController extends GetxController
 
     return null;
   }
-
 
   //   Future<void> handleAddToCart() async {
   //   final fund = fundDetail.value;
@@ -351,9 +367,13 @@ class FundDetailsController extends GetxController
   @override
   void onInit() {
     super.onInit();
-    final args = Get.arguments is Map ? Get.arguments as Map : FundDetailsScreen.navData ?? {};
+    final args = Get.arguments is Map
+        ? Get.arguments as Map
+        : FundDetailsScreen.navData ?? {};
     final rawDates = args['allowed_sip_dates']?.toString();
-    if ((allowedSipDates.value.isEmpty) && rawDates != null && rawDates.isNotEmpty) {
+    if ((allowedSipDates.value.isEmpty) &&
+        rawDates != null &&
+        rawDates.isNotEmpty) {
       allowedSipDates.value = rawDates;
     }
     // Initialize Controllers
@@ -612,31 +632,40 @@ class FundDetailsController extends GetxController
     if (benchmarkPerf != null) {
       switch (period.toUpperCase()) {
         case '1W':
-          if (benchmarkPerf.oneWeekReturn != 0) return benchmarkPerf.oneWeekReturn;
+          if (benchmarkPerf.oneWeekReturn != 0)
+            return benchmarkPerf.oneWeekReturn;
           break;
         case '1M':
-          if (benchmarkPerf.oneMonthReturn != 0) return benchmarkPerf.oneMonthReturn;
+          if (benchmarkPerf.oneMonthReturn != 0)
+            return benchmarkPerf.oneMonthReturn;
           break;
         case '3M':
-          if (benchmarkPerf.threeMonthReturn != 0) return benchmarkPerf.threeMonthReturn;
+          if (benchmarkPerf.threeMonthReturn != 0)
+            return benchmarkPerf.threeMonthReturn;
           break;
         case '6M':
-          if (benchmarkPerf.sixMonthReturn != 0) return benchmarkPerf.sixMonthReturn;
+          if (benchmarkPerf.sixMonthReturn != 0)
+            return benchmarkPerf.sixMonthReturn;
           break;
         case '1Y':
-          if (benchmarkPerf.oneYearReturn != 0) return benchmarkPerf.oneYearReturn;
+          if (benchmarkPerf.oneYearReturn != 0)
+            return benchmarkPerf.oneYearReturn;
           break;
         case '2Y':
-          if (benchmarkPerf.twoYearReturn != 0) return benchmarkPerf.twoYearReturn;
+          if (benchmarkPerf.twoYearReturn != 0)
+            return benchmarkPerf.twoYearReturn;
           break;
         case '3Y':
-          if (benchmarkPerf.threeYearReturn != 0) return benchmarkPerf.threeYearReturn;
+          if (benchmarkPerf.threeYearReturn != 0)
+            return benchmarkPerf.threeYearReturn;
           break;
         case '5Y':
-          if (benchmarkPerf.fiveYearReturn != 0) return benchmarkPerf.fiveYearReturn;
+          if (benchmarkPerf.fiveYearReturn != 0)
+            return benchmarkPerf.fiveYearReturn;
           break;
         case 'ALL':
-          if (fund.benchmarkInceptionReturn != 0) return fund.benchmarkInceptionReturn;
+          if (fund.benchmarkInceptionReturn != 0)
+            return fund.benchmarkInceptionReturn;
           break;
       }
     }

@@ -492,7 +492,7 @@ class MutualFundController extends GetxController {
     }
   }
 
-  // 1. Convert Entity -> Minimal Map -> JSON String -> Save
+  // 1. Convert Entity -> Map -> JSON String -> Save
   Future<void> _saveRecentlyViewed() async {
     try {
       final List<Map<String, dynamic>> simplifiedList = recentlyViewedFunds.map(
@@ -500,11 +500,23 @@ class MutualFundController extends GetxController {
           return {
             'schemeCode': fund.schemeCode,
             'baseSchemeName': fund.baseSchemeName,
+            'nav': fund.nav,
+            'isin': fund.isin,
+            'rtaAmcCode': fund.rtaAmcCode,
+            'schemecategory': fund.schemecategory,
+            'amcName': fund.amc?.amcName,
             'amcLogoUrl': fund.amc?.amcLogoUrl,
             'email': fund.amc?.email,
             'contact': fund.amc?.contact,
             'address': fund.amc?.address,
             'threeYear': fund.returnsEntity?.threeYear,
+            'isPurchaseAllowed': fund.isPurchaseAllowed,
+            'isSipAllowed': fund.isSipAllowed,
+            'isLumpsumAllowed': fund.isLumpsumAllowed,
+            'allowedSipDates': fund.allowedSipDates,
+            'minSipAmount': fund.minSipAmount,
+            'minLumpsum': fund.minLumpsum,
+            'riskLevel': fund.riskLevel,
           };
         },
       ).toList();
@@ -516,7 +528,7 @@ class MutualFundController extends GetxController {
     }
   }
 
-  // 2. Load -> Parse JSON -> Map -> Rebuild Minimal Entity
+  // 2. Load -> Parse JSON -> Map -> Rebuild Entity
   Future<void> _loadRecentlyViewed() async {
     final String? jsonString = await SessionManager.instance.getRecentFunds();
 
@@ -525,29 +537,55 @@ class MutualFundController extends GetxController {
         final List<dynamic> decodedList = jsonDecode(jsonString);
 
         recentlyViewedFunds.value = decodedList.map((item) {
-          // Rebuild the Entity with ONLY the data the UI needs
-          // Everything else is left as null or empty to save memory
+          final rawNav = item['nav'];
+          final double? nav = rawNav is num
+              ? rawNav.toDouble()
+              : double.tryParse(rawNav?.toString() ?? '');
+
+          final rawSip = item['minSipAmount'];
+          final int? minSip = rawSip is num
+              ? rawSip.toInt()
+              : int.tryParse(rawSip?.toString() ?? '');
+
+          final rawLump = item['minLumpsum'];
+          final int? minLump = rawLump is num
+              ? rawLump.toInt()
+              : int.tryParse(rawLump?.toString() ?? '');
+
           return MutualFundListEntity(
-            nav: null,
-            schemecategory: null,
+            nav: nav,
+            schemecategory: item['schemecategory']?.toString() ?? '',
             minTopUp: null,
-            schemeCode: item['schemeCode'],
-            baseSchemeName: item['baseSchemeName'],
+            schemeCode: item['schemeCode']?.toString(),
+            baseSchemeName: item['baseSchemeName']?.toString(),
             schemeType: null,
-            riskLevel: null,
-            isin: null,
-            minSipAmount: null,
-            minLumpsum: null,
-            variants: const [], // Empty list for required field
+            riskLevel: item['riskLevel']?.toString(),
+            isin: item['isin']?.toString(),
+            minSipAmount: minSip,
+            minLumpsum: minLump,
+            variants: const [],
+            rtaAmcCode: item['rtaAmcCode']?.toString(),
+            isPurchaseAllowed: item['isPurchaseAllowed'] is bool
+                ? item['isPurchaseAllowed'] as bool
+                : null,
+            isSipAllowed: item['isSipAllowed'] is bool
+                ? item['isSipAllowed'] as bool
+                : null,
+            isLumpsumAllowed: item['isLumpsumAllowed'] is bool
+                ? item['isLumpsumAllowed'] as bool
+                : null,
+            allowedSipDates: item['allowedSipDates']?.toString(),
             amc: AmcEntity(
               id: null,
-              amcName: null,
-              amcLogoUrl: item['amcLogoUrl'],
-              email: item['email'],
-              contact: item['contact'],
-              address: item['address'],
+              amcName: item['amcName']?.toString(),
+              amcLogoUrl: item['amcLogoUrl']?.toString(),
+              email: item['email']?.toString(),
+              contact: item['contact']?.toString(),
+              address: item['address']?.toString(),
             ),
-            returnsEntity: ReturnsEntity(threeYear: item['threeYear']),
+            returnsEntity: ReturnsEntity(
+              threeYear: item['threeYear']?.toString(),
+            ),
           );
         }).toList();
       } catch (e) {
@@ -581,6 +619,10 @@ class MutualFundController extends GetxController {
     );
 
     _saveRecentlyViewed();
+  }
+
+  void clearRecentlyViewed() {
+    recentlyViewedFunds.clear();
   }
 
   // 🚀 Call this to instantly move to the next group of 4

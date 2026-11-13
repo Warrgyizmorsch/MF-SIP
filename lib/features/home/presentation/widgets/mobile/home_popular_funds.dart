@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
@@ -22,154 +20,96 @@ class HomePopularFunds extends StatelessWidget {
     required this.scale,
     required this.isLoading,
     required this.onFundTap,
-    required this.onViewAll,
+    this.onViewAll,
     required this.onRetry,
+    this.title = 'Recently Viewed',
     this.errorMessage = '',
   });
 
+  final String title;
   final List<MutualFundListEntity> funds;
   final double scale;
   final bool isLoading;
   final String errorMessage;
   final ValueChanged<MutualFundListEntity> onFundTap;
-  final VoidCallback onViewAll;
+  final VoidCallback? onViewAll;
   final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final visible = funds.take(3).toList(growable: false);
-    final height = (HomeMetrics.popularCardHeight * scale)
-        .clamp(128.0, 168.0)
+    if (funds.isEmpty && !isLoading) {
+      return const SizedBox.shrink();
+    }
+
+    final cardHeight = (HomeMetrics.popularCardHeight * scale)
+        .clamp(130.0, 168.0)
         .toDouble();
+    final cardWidth = (180.0 * scale).clamp(160.0, 220.0).toDouble();
+
+    if (isLoading) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 30 * scale),
+            child: HomeSectionHeader(title: title, scale: scale),
+          ),
+          SizedBox(height: 6 * scale),
+          SizedBox(
+            height: cardHeight,
+            child: ListView.separated(
+              padding: EdgeInsets.symmetric(horizontal: 30 * scale),
+              clipBehavior: Clip.none,
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemCount: 3,
+              separatorBuilder: (context, index) => SizedBox(width: 12 * scale),
+              itemBuilder: (context, index) => SizedBox(
+                width: cardWidth,
+                height: cardHeight,
+                child: UShimmerEffect(
+                  width: cardWidth,
+                  height: cardHeight,
+                  radius: USizes.homeCardRadius * scale,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        HomeSectionHeader(
-          title: 'Popular Funds',
-          action: 'View all',
-          onAction: onViewAll,
-          scale: scale,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30 * scale),
+          child: HomeSectionHeader(title: title, scale: scale),
         ),
-        SizedBox(height: scale),
-        if (visible.isEmpty && !isLoading)
-          SizedBox(
-            height: height,
-            child: Center(
-              child: errorMessage.isNotEmpty
-                  ? TextButton.icon(
-                      onPressed: onRetry,
-                      icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Unable to load funds. Retry'),
-                    )
-                  : Text(
-                      'No funds available',
-                      style: UTextStyles.homeText(
-                        size: 12,
-                        color: Ucolors.homeTextSecondary,
-                      ),
-                    ),
-            ),
-          )
-        else
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = (constraints.maxWidth - 12 * scale) / 2;
-              final titleStyle = UTextStyles.homeText(
-                size: (14 * scale).clamp(12.0, 16.0).toDouble(),
-                height: 20 / 14,
-                letterSpacing: -0.15,
-              );
-              final valueStyle = UTextStyles.homeText(
-                size: (13 * scale).clamp(12.0, 15.0).toDouble(),
-                height: 20 / 13,
-              );
-              var titleHeight = 31 * scale;
-              for (final fund in visible) {
-                titleHeight = math.max(
-                  titleHeight,
-                  HomeTextLayout.measure(
-                    context,
-                    fund.baseSchemeName ?? 'Mutual fund',
-                    style: titleStyle,
-                    maxWidth: width - 67.72 * scale,
-                    maxLines: 2,
-                  ).height,
-                );
-              }
-              final valueHeight = HomeTextLayout.measure(
-                context,
-                'Ag',
-                style: valueStyle,
-              ).height;
-              final returnHeight = math.max(
-                valueHeight,
-                HomeTextLayout.measure(
-                  context,
-                  'Ag',
-                  style: titleStyle.copyWith(
-                    fontFamily: FontFamily.regular,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ).height,
-              );
-              final moreHeight = HomeTextLayout.measure(
-                context,
-                'See more',
-                style: valueStyle,
-                maxWidth: width - 40.22 * scale,
-                maxLines: 2,
-              ).height;
-              final cardHeight = math.max(
-                height,
-                math.max(
-                  25 * scale +
-                      titleHeight +
-                      16 * scale +
-                      valueHeight +
-                      4 * scale +
-                      returnHeight,
-                  26.72 * scale + 78 * scale + 8 * scale + moreHeight,
+        SizedBox(height: 6 * scale),
+        SizedBox(
+          height: cardHeight,
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: 30 * scale),
+            clipBehavior: Clip.none,
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            itemCount: funds.length,
+            separatorBuilder: (context, index) => SizedBox(width: 12 * scale),
+            itemBuilder: (context, index) {
+              final fund = funds[index];
+              return SizedBox(
+                width: cardWidth,
+                height: cardHeight,
+                child: _PopularFundCard(
+                  fund: fund,
+                  scale: scale,
+                  onTap: () => onFundTap(fund),
                 ),
-              );
-              final count = visible.isEmpty ? 3 : visible.length;
-              return GridView(
-                shrinkWrap: true,
-                primary: false,
-                clipBehavior: Clip.none,
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12 * scale,
-                  mainAxisSpacing: 12 * scale,
-                  mainAxisExtent: cardHeight,
-                ),
-                children: [
-                  for (var index = 0; index < count; index++)
-                    SizedBox(
-                      width: width,
-                      height: cardHeight,
-                      child: visible.isEmpty
-                          ? UShimmerEffect(
-                              width: width,
-                              height: cardHeight,
-                              radius: USizes.homeCardRadius * scale,
-                            )
-                          : _PopularFundCard(
-                              fund: visible[index],
-                              scale: scale,
-                              onTap: () => onFundTap(visible[index]),
-                            ),
-                    ),
-                  SizedBox(
-                    width: width,
-                    height: cardHeight,
-                    child: _MoreFundsCard(scale: scale, onTap: onViewAll),
-                  ),
-                ],
               );
             },
           ),
+        ),
       ],
     );
   }

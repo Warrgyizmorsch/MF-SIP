@@ -17,16 +17,27 @@ class FundDetailRemoteDataSource {
 
   FundDetailRemoteDataSource(this._servicesApi);
 
+  static bool _isValidIsin(String value) {
+    final trimmed = value.trim();
+    if (trimmed.length != 12) return false;
+    return RegExp(r'^[A-Z]{2}[A-Z0-9]{9}[0-9]$').hasMatch(trimmed);
+  }
+
   Map<String, String> _buildQueryParams(Map<String, dynamic> data) {
     final Map<String, String> params = {
       'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
     };
-    final String? isin = data['isin']?.toString();
-    final String? scheme = data['scheme']?.toString();
+    final String? isin = data['isin']?.toString().trim();
+    final String? scheme = data['scheme']?.toString().trim();
 
     if (isin != null && isin.isNotEmpty && isin != '--') {
-      params['isin'] = isin;
-    } else if (scheme != null && scheme.isNotEmpty) {
+      if (_isValidIsin(isin)) {
+        params['isin'] = isin;
+      } else {
+        // If not a valid 12-char ISIN, pass as scheme name instead of isin!
+        params['scheme'] = isin;
+      }
+    } else if (scheme != null && scheme.isNotEmpty && scheme != '--') {
       params['scheme'] = scheme;
     }
 

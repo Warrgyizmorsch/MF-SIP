@@ -9,15 +9,15 @@ class HomeSectionHeader extends StatelessWidget {
   const HomeSectionHeader({
     super.key,
     required this.title,
-    required this.action,
-    required this.onAction,
+    this.action,
+    this.onAction,
     required this.scale,
     this.actionSize = 13,
   });
 
   final String title;
-  final String action;
-  final VoidCallback onAction;
+  final String? action;
+  final VoidCallback? onAction;
   final double scale;
   final double actionSize;
 
@@ -37,36 +37,37 @@ class HomeSectionHeader extends StatelessWidget {
             ),
           ),
         ),
-        TextButton(
-          onPressed: onAction,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.only(left: 12 * scale),
-            minimumSize: const Size(64, 44),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            foregroundColor: Ucolors.homeTextMuted,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                action,
-                style: UTextStyles.homeText(
-                  size: (actionSize * scale)
-                      .clamp(actionSize - 1, actionSize + 2)
-                      .toDouble(),
-                  color: Ucolors.homeTextMuted,
-                  height: 24 / actionSize,
+        if (action != null && onAction != null)
+          TextButton(
+            onPressed: onAction,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.only(left: 12 * scale),
+              minimumSize: const Size(64, 44),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              foregroundColor: Ucolors.homeTextMuted,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  action!,
+                  style: UTextStyles.homeText(
+                    size: (actionSize * scale)
+                        .clamp(actionSize - 1, actionSize + 2)
+                        .toDouble(),
+                    color: Ucolors.homeTextMuted,
+                    height: 24 / actionSize,
+                  ),
                 ),
-              ),
-              SizedBox(width: 7 * scale),
-              SvgPicture.asset(
-                UImages.homeSectionChevron,
-                width: 4.5 * scale,
-                height: 8 * scale,
-              ),
-            ],
+                SizedBox(width: 7 * scale),
+                SvgPicture.asset(
+                  UImages.homeSectionChevron,
+                  width: 4.5 * scale,
+                  height: 8 * scale,
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     ),
   );

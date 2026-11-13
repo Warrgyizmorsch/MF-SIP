@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/video/custom_inline_youtube_player.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
@@ -220,16 +219,21 @@ class _WebDashboardLayout extends StatelessWidget {
         const SizedBox(height: 24),
         _buildSmartActionRow(),
         const SizedBox(height: 24),
-        _buildRecentlyViewedPanel(),
-        const SizedBox(height: 24),
         _buildExploreCategories(),
         const SizedBox(height: 24),
         const HomeActiveGoalsSection(isDesktop: true),
         _buildGoalsPanel(),
         const SizedBox(height: 24),
         _buildFinancialToolsPanel(),
-        const SizedBox(height: 24),
-        _buildPopularFunds(),
+        Obx(() {
+          if (mutualController.recentlyViewedFunds.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [const SizedBox(height: 24), _buildPopularFunds()],
+          );
+        }),
         const SizedBox(height: 24),
         _buildLearnGrow(),
       ],
@@ -248,8 +252,15 @@ class _WebDashboardLayout extends StatelessWidget {
         _buildSmartActionRow(),
         const SizedBox(height: 24),
         _buildExploreCategories(),
-        const SizedBox(height: 24),
-        _buildPopularFunds(),
+        Obx(() {
+          if (mutualController.recentlyViewedFunds.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [const SizedBox(height: 24), _buildPopularFunds()],
+          );
+        }),
         const SizedBox(height: 24),
         _buildLearnGrow(),
       ],
@@ -258,10 +269,9 @@ class _WebDashboardLayout extends StatelessWidget {
 
   Widget _buildRightColumn(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildInvestNowPanel(context),
-        const SizedBox(height: 24),
-        _buildRecentlyViewedPanel(),
         const SizedBox(height: 24),
         const HomeActiveGoalsSection(isDesktop: true),
         _buildGoalsPanel(),
@@ -1114,159 +1124,141 @@ class _WebDashboardLayout extends StatelessWidget {
   }
 
   // =========================================================
-  // POPULAR FUNDS
+  // RECENTLY VIEWED FUNDS
   // =========================================================
 
   Widget _buildPopularFunds() {
     return Obx(() {
-      final bool isLoading = mutualController.isLoading.value;
-      final funds = mutualController.searchFund;
+      final funds = mutualController.recentlyViewedFunds;
+
+      if (funds.isEmpty) {
+        return const SizedBox.shrink();
+      }
 
       return _panel(
-        title: 'Popular Funds',
-        trailing: _viewAllButton(() {
-          navController.changePage(1, isDesktop: true);
-        }),
-        child: isLoading
-            ? const Padding(
-                padding: EdgeInsets.symmetric(vertical: 40),
-                child: Center(
-                  child: CircularProgressIndicator(color: Ucolors.primary),
-                ),
-              )
-            : funds.isEmpty
-            ? _emptyMiniState(
-                icon: Iconsax.folder_open,
-                title: 'No funds found',
-                subtitle: 'Explore funds will appear here.',
-              )
-            : LayoutBuilder(
-                builder: (context, constraints) {
-                  // final bool compact = constraints.maxWidth < 700;
-                  // final int crossAxisCount = compact ? 1 : 3;
-                  final double width = constraints.maxWidth;
+        title: 'Recently Viewed',
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // final bool compact = constraints.maxWidth < 700;
+            // final int crossAxisCount = compact ? 1 : 3;
+            final double width = constraints.maxWidth;
 
-                  final bool compact = width < 700;
-                  final bool laptopTight = width < 960;
-                  final bool mediumTight = width < 920;
+            final bool compact = width < 700;
+            final bool laptopTight = width < 960;
+            final bool mediumTight = width < 920;
 
-                  final int crossAxisCount = compact
-                      ? 2
-                      : laptopTight
-                      ? 3
-                      : 4;
-                  final double aspectRatio = width < 700
-                      ? 2.1
-                      : width < 850
-                      ? 1.6
-                      : width < 960
-                      ? 1.9
-                      : width < 1200
-                      ? 1.6
-                      : 2.2;
-                  return GridView.builder(
-                    itemCount: funds.length > 8 ? 8 : funds.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+            final int crossAxisCount = compact
+                ? 2
+                : laptopTight
+                ? 3
+                : 4;
+            final double aspectRatio = width < 700
+                ? 2.1
+                : width < 850
+                ? 1.6
+                : width < 960
+                ? 1.9
+                : width < 1200
+                ? 1.6
+                : 2.2;
+            return GridView.builder(
+              itemCount: funds.length > 8 ? 8 : funds.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
 
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: aspectRatio,
-                    ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: aspectRatio,
+              ),
 
-                    itemBuilder: (context, index) {
-                      final fund = funds[index];
-                      final rawLogo = fund.amc?.amcLogoUrl ?? '';
-                      final img = rawLogo.startsWith('http')
-                          ? rawLogo
-                          : '${Appurl.baseUrl}$rawLogo';
+              itemBuilder: (context, index) {
+                final fund = funds[index];
+                final rawLogo = fund.amc?.amcLogoUrl ?? '';
+                final img = rawLogo.startsWith('http')
+                    ? rawLogo
+                    : '${Appurl.baseUrl}$rawLogo';
 
-                      return _popularFundTile(
-                        logo: img,
-                        name: fund.baseSchemeName ?? 'Unknown Fund',
-                        subtitle: fund.schemecategory ?? "",
-                        threeYear:
-                            fund.returnsEntity?.threeYear?.toString() ?? '--',
+                return _popularFundTile(
+                  logo: img,
+                  name: fund.baseSchemeName ?? 'Unknown Fund',
+                  subtitle: fund.schemecategory ?? "",
+                  threeYear: fund.returnsEntity?.threeYear?.toString() ?? '--',
 
-                        onTap: () {
-                          final schemeName = fund.baseSchemeName?.trim() ?? '';
-                          final schemeCode =
-                              fund.schemeCode?.toString().trim() ?? '';
+                  onTap: () {
+                    final schemeName = fund.baseSchemeName?.trim() ?? '';
+                    final schemeCode = fund.schemeCode?.toString().trim() ?? '';
 
-                          if (schemeName.isEmpty || schemeCode.isEmpty) {
-                            debugPrint(
-                              'Fund details missing: scheme=$schemeName code=$schemeCode',
-                            );
-                            return;
+                    if (schemeName.isEmpty || schemeCode.isEmpty) {
+                      debugPrint(
+                        'Fund details missing: scheme=$schemeName code=$schemeCode',
+                      );
+                      return;
+                    }
+
+                    mutualController.addToLocalRecentlyViewed(fund);
+
+                    if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+                      final navController = Get.find<NavigationBarController>();
+
+                      navController.fundDetailsParentIndex = 0; // Home parent
+
+                      navController.openNestedRoute(
+                        AppRoutes.funddetails,
+                        navIndex: 0,
+                        queryParameters: {
+                          'scheme': schemeName,
+                          'scheme_code': schemeCode,
+                          'isin': fund.isin ?? '',
+                          'rta_amc_code': fund.rtaAmcCode ?? '',
+                          'amc_name': fund.amc?.amcName ?? '',
+                        },
+                        arguments: {
+                          'scheme': schemeName,
+                          'imgUrl': img,
+                          'scheme_code': schemeCode,
+                          'isin': fund.isin ?? '',
+                          'rta_amc_code': fund.rtaAmcCode ?? '',
+                          'amc_name': fund.amc?.amcName ?? '',
+                        },
+                        beforeOpen: () {
+                          if (Get.isRegistered<FundDetailsController>()) {
+                            Get.delete<FundDetailsController>();
                           }
 
-                          mutualController.addToLocalRecentlyViewed(fund);
-
-                          if (kIsWeb &&
-                              Get.isRegistered<NavigationBarController>()) {
-                            final navController =
-                                Get.find<NavigationBarController>();
-
-                            navController.fundDetailsParentIndex =
-                                0; // Home parent
-
-                            navController.openNestedRoute(
-                              AppRoutes.funddetails,
-                              navIndex: 0,
-                              queryParameters: {
-                                'scheme': schemeName,
-                                'scheme_code': schemeCode,
-                                'isin': fund.isin ?? '',
-                                'rta_amc_code': fund.rtaAmcCode ?? '',
-                                'amc_name': fund.amc?.amcName ?? '',
-                              },
-                              arguments: {
-                                'scheme': schemeName,
-                                'imgUrl': img,
-                                'scheme_code': schemeCode,
-                                'isin': fund.isin ?? '',
-                                'rta_amc_code': fund.rtaAmcCode ?? '',
-                                'amc_name': fund.amc?.amcName ?? '',
-                              },
-                              beforeOpen: () {
-                                if (Get.isRegistered<FundDetailsController>()) {
-                                  Get.delete<FundDetailsController>();
-                                }
-
-                                FundDetailsScreen.navData = {
-                                  'scheme': schemeName,
-                                  'imgUrl': img,
-                                  'scheme_code': schemeCode,
-                                  'isin': fund.isin ?? '',
-                                  'rta_amc_code': fund.rtaAmcCode,
-                                  'amc_name': fund.amc?.amcName,
-                                };
-                              },
-                            );
-                          } else {
-                            if (Get.isRegistered<FundDetailsController>()) {
-                              Get.delete<FundDetailsController>();
-                            }
-
-                            FundDetailsScreen.navData = {
-                              'scheme': schemeName,
-                              'imgUrl': img,
-                              'scheme_code': schemeCode,
-                              'isin': fund.isin ?? '',
-                              'rta_amc_code': fund.rtaAmcCode,
-                              'amc_name': fund.amc?.amcName,
-                            };
-
-                            Get.toNamed(AppRoutes.funddetails);
-                          }
+                          FundDetailsScreen.navData = {
+                            'scheme': schemeName,
+                            'imgUrl': img,
+                            'scheme_code': schemeCode,
+                            'isin': fund.isin ?? '',
+                            'rta_amc_code': fund.rtaAmcCode,
+                            'amc_name': fund.amc?.amcName,
+                          };
                         },
                       );
-                    },
-                  );
-                },
-              ),
+                    } else {
+                      if (Get.isRegistered<FundDetailsController>()) {
+                        Get.delete<FundDetailsController>();
+                      }
+
+                      FundDetailsScreen.navData = {
+                        'scheme': schemeName,
+                        'imgUrl': img,
+                        'scheme_code': schemeCode,
+                        'isin': fund.isin ?? '',
+                        'rta_amc_code': fund.rtaAmcCode,
+                        'amc_name': fund.amc?.amcName,
+                      };
+
+                      Get.toNamed(AppRoutes.funddetails);
+                    }
+                  },
+                );
+              },
+            );
+          },
+        ),
       );
     });
   }
@@ -1619,92 +1611,83 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _buildRecentlyViewedPanel() {
     return Obx(() {
       final recentList = mutualController.recentlyViewedFunds;
+      if (recentList.isEmpty) {
+        return const SizedBox.shrink();
+      }
 
       return _panel(
         title: 'Recently Viewed',
-        trailing: _viewAllButton(() {}),
-        child: recentList.isEmpty
-            ? SizedBox(
-                height: 166,
-                child: _emptyMiniState(
-                  icon: Icons.visibility_outlined,
-                  title: 'No recently viewed funds',
-                  subtitle: 'Your viewed funds will appear here.',
-                ),
-              )
-            : Column(
-                children: recentList.take(3).map((fund) {
-                  final rawLogo = fund.amc?.amcLogoUrl ?? '';
-                  final img = rawLogo.startsWith('http')
-                      ? rawLogo
-                      : '${Appurl.baseUrl}$rawLogo';
+        child: Column(
+          children: recentList.take(3).map((fund) {
+            final rawLogo = fund.amc?.amcLogoUrl ?? '';
+            final img = rawLogo.startsWith('http')
+                ? rawLogo
+                : '${Appurl.baseUrl}$rawLogo';
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _miniFundRow(
-                      logo: img,
-                      title: fund.baseSchemeName ?? 'Unknown Fund',
-                      value:
-                          '${fund.returnsEntity?.threeYear?.toString() ?? '--'}%',
-                      onTap: () {
-                        final schemeName = fund.baseSchemeName ?? '';
-                        final schemeCode = fund.schemeCode?.toString() ?? '';
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _miniFundRow(
+                logo: img,
+                title: fund.baseSchemeName ?? 'Unknown Fund',
+                value: '${fund.returnsEntity?.threeYear?.toString() ?? '--'}%',
+                onTap: () {
+                  final schemeName = fund.baseSchemeName ?? '';
+                  final schemeCode = fund.schemeCode?.toString() ?? '';
 
-                        navController.openNestedRoute(
-                          AppRoutes.funddetails,
-                          queryParameters: {
-                            'scheme_code': schemeCode,
-                            'scheme': schemeName,
-                            'isin': fund.isin ?? '',
-                            'rta_amc_code': fund.rtaAmcCode ?? '',
-                            'amc_name': fund.amc?.amcName ?? '',
-                            'is_purchase_allowed':
-                                fund.isPurchaseAllowed?.toString() ?? '',
-                            'is_sip_allowed':
-                                fund.isSipAllowed?.toString() ?? '',
-                            'is_lumpsum_allowed':
-                                fund.isLumpsumAllowed?.toString() ?? '',
-                          },
-                          arguments: {
-                            'scheme': schemeName,
-                            'imgUrl': img,
-                            'scheme_code': schemeCode,
-                            'isin': fund.isin ?? '',
-                            'rta_amc_code': fund.rtaAmcCode,
-                            'amc_name': fund.amc?.amcName,
-                            'email': fund.amc?.email,
-                            'address': fund.amc?.address,
-                            'contact': fund.amc?.contact,
-                            'is_purchase_allowed': fund.isPurchaseAllowed,
-                            'is_sip_allowed': fund.isSipAllowed,
-                            'is_lumpsum_allowed': fund.isLumpsumAllowed,
-                          },
-                          beforeOpen: () {
-                            if (Get.isRegistered<FundDetailsController>()) {
-                              Get.delete<FundDetailsController>();
-                            }
+                  navController.openNestedRoute(
+                    AppRoutes.funddetails,
+                    queryParameters: {
+                      'scheme_code': schemeCode,
+                      'scheme': schemeName,
+                      'isin': fund.isin ?? '',
+                      'rta_amc_code': fund.rtaAmcCode ?? '',
+                      'amc_name': fund.amc?.amcName ?? '',
+                      'is_purchase_allowed':
+                          fund.isPurchaseAllowed?.toString() ?? '',
+                      'is_sip_allowed': fund.isSipAllowed?.toString() ?? '',
+                      'is_lumpsum_allowed':
+                          fund.isLumpsumAllowed?.toString() ?? '',
+                    },
+                    arguments: {
+                      'scheme': schemeName,
+                      'imgUrl': img,
+                      'scheme_code': schemeCode,
+                      'isin': fund.isin ?? '',
+                      'rta_amc_code': fund.rtaAmcCode,
+                      'amc_name': fund.amc?.amcName,
+                      'email': fund.amc?.email,
+                      'address': fund.amc?.address,
+                      'contact': fund.amc?.contact,
+                      'is_purchase_allowed': fund.isPurchaseAllowed,
+                      'is_sip_allowed': fund.isSipAllowed,
+                      'is_lumpsum_allowed': fund.isLumpsumAllowed,
+                    },
+                    beforeOpen: () {
+                      if (Get.isRegistered<FundDetailsController>()) {
+                        Get.delete<FundDetailsController>();
+                      }
 
-                            FundDetailsScreen.navData = {
-                              'scheme': schemeName,
-                              'imgUrl': img,
-                              'scheme_code': schemeCode,
-                              'isin': fund.isin ?? '',
-                              'rta_amc_code': fund.rtaAmcCode,
-                              'amc_name': fund.amc?.amcName,
-                              'email': fund.amc?.email,
-                              'address': fund.amc?.address,
-                              'contact': fund.amc?.contact,
-                              'is_purchase_allowed': fund.isPurchaseAllowed,
-                              'is_sip_allowed': fund.isSipAllowed,
-                              'is_lumpsum_allowed': fund.isLumpsumAllowed,
-                            };
-                          },
-                        );
-                      },
-                    ),
+                      FundDetailsScreen.navData = {
+                        'scheme': schemeName,
+                        'imgUrl': img,
+                        'scheme_code': schemeCode,
+                        'isin': fund.isin ?? '',
+                        'rta_amc_code': fund.rtaAmcCode,
+                        'amc_name': fund.amc?.amcName,
+                        'email': fund.amc?.email,
+                        'address': fund.amc?.address,
+                        'contact': fund.amc?.contact,
+                        'is_purchase_allowed': fund.isPurchaseAllowed,
+                        'is_sip_allowed': fund.isSipAllowed,
+                        'is_lumpsum_allowed': fund.isLumpsumAllowed,
+                      };
+                    },
                   );
-                }).toList(),
+                },
               ),
+            );
+          }).toList(),
+        ),
       );
     });
   }
