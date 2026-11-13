@@ -491,11 +491,12 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              _behind(goal)
-                                  ? 'Needs Attention'
-                                  : (goal.goalHealthStatus == 'ahead'
-                                        ? 'Ahead'
-                                        : 'On Track'),
+                              switch (goal.goalHealthStatus) {
+                                'completed' => 'Completed',
+                                'behind' => 'Needs Attention',
+                                'ahead' => 'Ahead',
+                                _ => 'On Track',
+                              },
                               style: _text(
                                 11,
                                 color: Colors.white,
