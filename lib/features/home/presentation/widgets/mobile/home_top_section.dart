@@ -72,12 +72,22 @@ class MobileHomeTopSection extends StatelessWidget {
                 );
               }),
               actions: [
-                HomeQuickAction(
-                  label: 'Mutual Funds',
-                  asset: UImages.homeMutualFunds,
-                  iconSize: const Size(35, 35),
-                  onTap: _openExplore,
+                // HomeQuickAction(
+                //   label: 'Mutual Funds',
+                //   asset: UImages.homeMutualFunds,
+                //   iconSize: const Size(35, 35),
+                //   onTap: _openExplore,
+                // ),
+                  HomeQuickAction(
+                  label: 'Start SIP',
+                  asset: UImages.homeSip,
+                  iconSize: const Size(27, 31),
+                  onTap: () => Get.toNamed(
+                    AppRoutes.startSipScreen,
+                    arguments: {'isLumpsum': false},
+                  ),
                 ),
+              
                 HomeQuickAction(
                   label: 'Lumpsum',
                   asset: UImages.homeLumpsum,
@@ -87,14 +97,12 @@ class MobileHomeTopSection extends StatelessWidget {
                     arguments: {'isLumpsum': true},
                   ),
                 ),
-                HomeQuickAction(
-                  label: 'Start SIP',
-                  asset: UImages.homeSip,
-                  iconSize: const Size(27, 31),
-                  onTap: () => Get.toNamed(
-                    AppRoutes.startSipScreen,
-                    arguments: {'isLumpsum': false},
-                  ),
+              
+                     HomeQuickAction(
+                  label: 'NFO',
+                  asset: UImages.homeNfo,
+                  iconSize: const Size(34, 34),
+                  onTap: () => Get.toNamed(AppRoutes.nfolist),
                 ),
                 HomeQuickAction(
                   label: 'Index Funds',
@@ -106,11 +114,17 @@ class MobileHomeTopSection extends StatelessWidget {
                     ),
                   ),
                 ),
+                // HomeQuickAction(
+                //   label: 'NFO',
+                //   asset: UImages.homeNfo,
+                //   iconSize: const Size(34, 34),
+                //   onTap: () => Get.toNamed(AppRoutes.nfolist),
+                // ),
                 HomeQuickAction(
-                  label: 'NFO',
-                  asset: UImages.homeNfo,
-                  iconSize: const Size(34, 34),
-                  onTap: () => Get.toNamed(AppRoutes.nfolist),
+                  label: 'Mutual Funds',
+                  asset: UImages.homeMutualFunds,
+                  iconSize: const Size(35, 35),
+                  onTap: _openExplore,
                 ),
                 HomeQuickAction(
                   label: 'Compare Funds',
