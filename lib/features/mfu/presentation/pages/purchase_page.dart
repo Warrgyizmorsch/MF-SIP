@@ -1006,6 +1006,12 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
   }
 
   void _onInvestClicked() {
+    if (_c.sipInvType.value != InvType.lumpsum &&
+        _c.sipFreq.value == SipFrequency.monthly &&
+        _c.sipDay.value == null) {
+      _pickSipDate();
+      return;
+    }
     if (!_c.validateSipInputs()) return;
 
     final opt = (_c.sipArgs.value.divoption ?? '').trim().toUpperCase();
@@ -1375,7 +1381,8 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
       "[SIPPurchasePage] Active allowed SIP dates for ${_c.sipArgs.value.schemeCode}: $allowedDates",
     );
     final currentDay = _c.sipDay.value;
-    final validCurrentDay = allowedDates.contains(currentDay)
+    final validCurrentDay =
+        (currentDay != null && allowedDates.contains(currentDay))
         ? currentDay
         : (allowedDates.isNotEmpty ? allowedDates.first : 1);
 
@@ -1604,10 +1611,16 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                     icon: Icons.calendar_month_rounded,
                     iconColor: _C.primary,
                     label: 'SIP Date',
-                    value: 'Monthly on ${_c.sipDay.value}th',
+                    value: _c.sipDay.value != null
+                        ? 'Monthly on ${_c.sipDay.value}th'
+                        : 'Select SIP date',
                     trailing: _Chip(
-                      label: '${_c.sipDay.value}th',
-                      color: _C.primary,
+                      label: _c.sipDay.value != null
+                          ? '${_c.sipDay.value}th'
+                          : 'Select',
+                      color: _c.sipDay.value != null
+                          ? _C.primary
+                          : Colors.orange,
                     ),
                   )
                 else
@@ -2188,7 +2201,12 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
               _summaryRow('Frequency', _c.sipFreq.value.label),
             if (type != InvType.lumpsum &&
                 _c.sipFreq.value == SipFrequency.monthly)
-              _summaryRow('Date', '${_c.sipDay.value}th of every month'),
+              _summaryRow(
+                'Date',
+                _c.sipDay.value != null
+                    ? '${_c.sipDay.value}th of every month'
+                    : 'Not selected',
+              ),
             if (type != InvType.lumpsum &&
                 _c.sipFreq.value == SipFrequency.weekly)
               _summaryRow('Day', _weekDays[_c.sipWeekDay.value - 1]),

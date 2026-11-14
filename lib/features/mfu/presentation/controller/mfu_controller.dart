@@ -312,7 +312,7 @@ class MfuController extends GetxController {
 
   final Rx<InvType> sipInvType = Rx<InvType>(InvType.sip);
   final RxInt sipAmount = 500.obs;
-  final RxInt sipDay = 16.obs;
+  final Rx<int?> sipDay = Rx<int?>(null);
   final Rx<SipFrequency> sipFreq = Rx<SipFrequency>(SipFrequency.monthly);
   final RxInt sipWeekDay = 1.obs; // 1 = Monday
 
@@ -391,12 +391,10 @@ class MfuController extends GetxController {
     sipFreq.value = args.initialFrequency ?? SipFrequency.monthly;
     final List<int> allowedDates =
         args.allowedSipDates ?? List.generate(28, (i) => i + 1);
-    final int candidateDay =
-        args.initialSipDay ??
-        (allowedDates.contains(16) ? 16 : allowedDates.first);
-    sipDay.value = allowedDates.contains(candidateDay)
+    final int? candidateDay = args.initialSipDay;
+    sipDay.value = (candidateDay != null && allowedDates.contains(candidateDay))
         ? candidateDay
-        : allowedDates.first;
+        : null;
     sipWeekDay.value = args.initialWeekDay ?? 1;
     sipStepByPct.value = false;
     sipStepUpPct.value = 10;
@@ -526,7 +524,7 @@ class MfuController extends GetxController {
 
       case SipFrequency.monthly:
         // MFU Rule: Pass the day number as a string, e.g. "10", "15"
-        return sipDay.value.toString();
+        return (sipDay.value ?? 1).toString();
     }
   }
 
@@ -566,6 +564,15 @@ class MfuController extends GetxController {
         title: 'Step-Up SIP Coming Soon 🚀',
         message:
             'Step-Up SIP is currently unavailable. Please select Normal SIP or Lump Sum to proceed.',
+      );
+      return false;
+    }
+    if (sipInvType.value != InvType.lumpsum &&
+        sipFreq.value == SipFrequency.monthly &&
+        sipDay.value == null) {
+      CustomSnackbar.warning(
+        title: 'Select SIP Date',
+        message: 'Please choose your preferred monthly SIP date.',
       );
       return false;
     }
