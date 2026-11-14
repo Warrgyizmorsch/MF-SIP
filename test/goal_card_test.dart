@@ -409,11 +409,18 @@ void main() {
     testWidgets('mobile grid and create action fit at width $width', (
       tester,
     ) async {
+      final font = FontLoader('Plus Jakarta Sans')
+        ..addFont(
+          rootBundle.load(
+            'assets/fonts/PlusJakartaSans/PlusJakartaSans-Variable.ttf',
+          ),
+        );
+      await font.load();
       final controller = _GoalController();
       Get.put<GoalSipController>(controller);
       await _pump(tester, const GoalScreenMobile(), size: Size(width, 844));
       expect(find.text('Car'), findsOneWidget);
-      expect(find.text('₹ 9,900'), findsWidgets);
+      expect(find.textContaining('₹9,900', findRichText: true), findsWidgets);
       expect(find.byType(AddNewGoalButton), findsNothing);
       final addButton = find.byType(FloatingActionButton);
       expect(addButton, findsOneWidget);

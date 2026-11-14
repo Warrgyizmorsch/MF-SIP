@@ -115,6 +115,15 @@ class GoalScreenMobile extends GetView<GoalSipController> {
     }
     return Scaffold(
       backgroundColor: _background,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Add new goal',
+        backgroundColor: _purple,
+        foregroundColor: Colors.white,
+        shape: const CircleBorder(),
+        onPressed: _createGoal,
+        child: const Icon(Icons.add),
+      ),
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
@@ -202,7 +211,10 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                 ),
               ),
               SliverToBoxAdapter(
-                child: Container(height: 36, color: Colors.white),
+                child: Container(
+                  height: 88 + MediaQuery.paddingOf(context).bottom,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
@@ -457,7 +469,6 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                                 ),
                               )
                             : CustomCachedImage(
-                              
                                 imageUrl: image,
                                 width: bounds.maxWidth,
                                 height: bounds.maxWidth * 170 / 388,
