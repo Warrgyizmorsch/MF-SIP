@@ -392,6 +392,31 @@ class CartPage extends GetView<CartController> {
                     }),
                   ),
 
+            floatingActionButton: isDesktop
+                ? null
+                : Obx(() {
+                    final isLumpsumTab = controller.activeTabIndex.value == 1;
+                    final targetItems = isLumpsumTab
+                        ? controller.lumpsumItems
+                        : controller.sipAndStepUpItems;
+
+                    if (targetItems.isEmpty) return const SizedBox.shrink();
+
+                    return FloatingActionButton(
+                      onPressed: () =>
+                          _navigateToExplore(context, isDesktop: false),
+                      backgroundColor: Ucolors.primary,
+                      elevation: 4,
+                      shape: const CircleBorder(),
+                      tooltip: 'Add More Funds',
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    );
+                  }),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             body: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
               behavior: HitTestBehavior.translucent,
@@ -447,6 +472,52 @@ class CartPage extends GetView<CartController> {
         Get.find<NavigationBarController>().changePage(1, isDesktop: isDesktop);
       }
     }
+  }
+
+  Widget _buildAddMoreFundsButton(
+    BuildContext context, {
+    required bool isDesktop,
+  }) {
+    return InkWell(
+      onTap: () => _navigateToExplore(context, isDesktop: isDesktop),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Ucolors.primary.withValues(alpha: 0.35),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.add_circle_outline_rounded,
+              color: Ucolors.primary,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Add More Funds',
+              style: AppTextStyles.bodyMediumBold().copyWith(
+                color: Ucolors.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildTabCartView(
@@ -691,22 +762,65 @@ class CartPage extends GetView<CartController> {
                                 ),
                               ),
                               const Spacer(),
+                              InkWell(
+                                onTap: () => _navigateToExplore(
+                                  context,
+                                  isDesktop: true,
+                                ),
+                                borderRadius: BorderRadius.circular(999),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Ucolors.primary.withValues(
+                                      alpha: 0.08,
+                                    ),
+                                    borderRadius: BorderRadius.circular(999),
+                                    border: Border.all(
+                                      color: Ucolors.primary.withValues(
+                                        alpha: 0.25,
+                                      ),
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.add_rounded,
+                                        size: 15,
+                                        color: Ucolors.primary,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Add More Funds',
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.medium,
+                                          color: Ucolors.primary,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Ucolors.primary.withValues(
-                                    alpha: 0.08,
-                                  ),
+                                  color: Colors.grey.shade100,
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Text(
                                   '${activeItems.length} Items',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontFamily: FontFamily.medium,
-                                    color: Ucolors.primary,
+                                    color: Colors.grey.shade700,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -788,6 +902,17 @@ class CartPage extends GetView<CartController> {
                                 ),
                                 index: index,
                                 itemEntity: activeItems[index],
+                              ),
+                            ),
+                          if (activeItems.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 10,
+                                bottom: 6,
+                              ),
+                              child: _buildAddMoreFundsButton(
+                                context,
+                                isDesktop: true,
                               ),
                             ),
                           DistributionRemainderCard(),
