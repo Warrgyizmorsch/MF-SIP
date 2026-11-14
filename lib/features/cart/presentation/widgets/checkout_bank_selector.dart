@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart';
@@ -328,6 +330,102 @@ void showCheckoutBankSelectorModal(
                 );
               }),
             ),
+            const Gap(16),
+            const Divider(height: 1),
+            const Gap(12),
+            InkWell(
+              onTap: () async {
+                if (personalisationController.isCanPendingApproval) {
+                  ULoaders.warning(
+                    title: "Account Modification Locked",
+                    message:
+                        "Your investment account (CAN) is currently under verification. Bank account changes cannot be made until CAN is approved.",
+                  );
+                  return;
+                }
+                final banks =
+                    personalisationController.linkedBankAccounts.isNotEmpty
+                    ? personalisationController.linkedBankAccounts
+                    : (personalisationController.userData.value?.bankAccounts ??
+                          <BankAccountEntity>[]);
+                if (banks.length >= 3) {
+                  ULoaders.warning(
+                    title: "Limit Reached",
+                    message:
+                        "You can only link a maximum of 3 bank accounts per CAN. Please remove an unused account to add a new one.",
+                  );
+                  return;
+                }
+                Navigator.of(context).pop();
+                personalisationController.clearBankFields();
+                await Get.toNamed(AppRoutes.addanotherbank);
+                personalisationController.syncDefaultCheckoutBank(
+                  isLumpsum: isLumpsum,
+                );
+              },
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Ucolors.primary.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: Ucolors.primary.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Ucolors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.add_rounded,
+                        color: Ucolors.primary,
+                        size: 22,
+                      ),
+                    ),
+                    const Gap(12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Add Another Bank Account',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Ucolors.primary,
+                            ),
+                          ),
+                          const Gap(2),
+                          Text(
+                            'Link up to 3 bank accounts for investments',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 11,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 13,
+                      color: Ucolors.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       );
@@ -388,130 +486,213 @@ class CheckoutBankCard extends StatelessWidget {
 
       final hasMultipleBanks = banks.length > 1;
 
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade50,
+      if (banks.isEmpty) {
+        return InkWell(
+          onTap: () async {
+            personalisationCtrl.clearBankFields();
+            await Get.toNamed(AppRoutes.addanotherbank);
+            personalisationCtrl.syncDefaultCheckoutBank(isLumpsum: isLumpsum);
+          },
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: Ucolors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.account_balance_rounded,
-                size: 20,
-                color: Ucolors.primary,
-              ),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.amber.shade50.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.amber.shade200),
             ),
-            const Gap(12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade100,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.account_balance_rounded,
+                    size: 20,
+                    color: Colors.amber.shade900,
+                  ),
+                ),
+                const Gap(12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          bank?.bankName ?? 'Select Bank Account',
-                          style: const TextStyle(
-                            fontFamily: FontFamily.medium,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Ucolors.dark,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      Text(
+                        'No Bank Account Linked',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.amber.shade900,
                         ),
                       ),
-                      if (hasMultipleBanks)
-                        InkWell(
-                          onTap: () => showCheckoutBankSelectorModal(
-                            context,
-                            isLumpsum: isLumpsum,
-                            isMandateFlow: isMandateFlow,
-                          ),
-                          borderRadius: BorderRadius.circular(6),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            child: Text(
-                              'Change',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Ucolors.primary,
-                              ),
-                            ),
-                          ),
+                      const Gap(2),
+                      Text(
+                        'Tap to link a bank account to invest',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          color: Colors.grey.shade700,
                         ),
+                      ),
                     ],
                   ),
-                  const Gap(2),
-                  Text(
-                    bank != null
-                        ? '${bank.accountType ?? "Savings"} • ${bank.maskedAccountNumber}'
-                        : 'No bank linked',
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    '+ Add Bank',
                     style: TextStyle(
                       fontFamily: FontFamily.medium,
                       fontSize: 12,
-                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
-                  if (bank != null) ...[
-                    const Gap(6),
-                    _buildEligibilityChip(
-                      label: isMandateFlow
-                          ? ((bank.hasActiveMandate == true ||
-                                    bank.canInvestSip == true)
-                                ? 'AutoPay Active ✓'
-                                : ((bank.isCanVerified == true ||
-                                          bank.canInvestLumpsum == true ||
-                                          bank.isFullyApproved)
-                                      ? 'Ready for Mandate ✓'
-                                      : 'CAN Pending'))
-                          : (isLumpsum
-                                ? ((bank.canInvestLumpsum == true ||
-                                          bank.isCanVerified == true ||
-                                          bank.isFullyApproved)
-                                      ? 'CAN Verified ✓'
-                                      : 'CAN Pending')
-                                : ((bank.canInvestSip == true ||
-                                          bank.hasActiveMandate == true ||
-                                          (bank.approvedMandates?.isNotEmpty ??
-                                              false))
-                                      ? 'AutoPay Active ✓'
-                                      : 'No Active Mandate')),
-                      isSuccess: isMandateFlow
-                          ? (bank.isCanVerified == true ||
-                                bank.canInvestLumpsum == true ||
-                                bank.isFullyApproved)
-                          : (isLumpsum
-                                ? (bank.canInvestLumpsum == true ||
-                                      bank.isCanVerified == true ||
-                                      bank.isFullyApproved)
-                                : (bank.canInvestSip == true ||
-                                      bank.hasActiveMandate == true ||
-                                      (bank.approvedMandates?.isNotEmpty ??
-                                          false))),
-                    ),
-                  ],
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
+        );
+      }
+
+      return InkWell(
+        onTap: () => showCheckoutBankSelectorModal(
+          context,
+          isLumpsum: isLumpsum,
+          isMandateFlow: isMandateFlow,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Ucolors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.account_balance_rounded,
+                  size: 20,
+                  color: Ucolors.primary,
+                ),
+              ),
+              const Gap(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            bank?.bankName ?? 'Select Bank Account',
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Ucolors.dark,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          child: Text(
+                            hasMultipleBanks ? 'Change' : 'Change / Add',
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Ucolors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(2),
+                    Text(
+                      bank != null
+                          ? '${bank.accountType ?? "Savings"} • ${bank.maskedAccountNumber}'
+                          : 'No bank linked',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    if (bank != null) ...[
+                      const Gap(6),
+                      _buildEligibilityChip(
+                        label: isMandateFlow
+                            ? ((bank.hasActiveMandate == true ||
+                                      bank.canInvestSip == true)
+                                  ? 'AutoPay Active ✓'
+                                  : ((bank.isCanVerified == true ||
+                                            bank.canInvestLumpsum == true ||
+                                            bank.isFullyApproved)
+                                        ? 'Ready for Mandate ✓'
+                                        : 'CAN Pending'))
+                            : (isLumpsum
+                                  ? ((bank.canInvestLumpsum == true ||
+                                            bank.isCanVerified == true ||
+                                            bank.isFullyApproved)
+                                        ? 'CAN Verified ✓'
+                                        : 'CAN Pending')
+                                  : ((bank.canInvestSip == true ||
+                                            bank.hasActiveMandate == true ||
+                                            (bank
+                                                    .approvedMandates
+                                                    ?.isNotEmpty ??
+                                                false))
+                                        ? 'AutoPay Active ✓'
+                                        : 'No Active Mandate')),
+                        isSuccess: isMandateFlow
+                            ? (bank.isCanVerified == true ||
+                                  bank.canInvestLumpsum == true ||
+                                  bank.isFullyApproved)
+                            : (isLumpsum
+                                  ? (bank.canInvestLumpsum == true ||
+                                        bank.isCanVerified == true ||
+                                        bank.isFullyApproved)
+                                  : (bank.canInvestSip == true ||
+                                        bank.hasActiveMandate == true ||
+                                        (bank.approvedMandates?.isNotEmpty ??
+                                            false))),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       );
     });
