@@ -451,6 +451,63 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
   }
 }
 
+class _CompareFundAction extends StatelessWidget {
+  const _CompareFundAction({required this.controller});
+
+  final FundDetailsController controller;
+
+  void _openComparison() {
+    final fund = controller.fundDetail.value;
+    if (fund == null ||
+        controller.isLoading.value ||
+        controller.hasError.value) {
+      return;
+    }
+    final name = fund.schemeName.trim();
+    final isin = controller.isin.trim();
+    final arguments = <String, dynamic>{
+      'name': name.isNotEmpty && name != '--' ? name : controller.schemeName,
+      'isin': isin.isNotEmpty && isin != '--' ? isin : fund.isinNo,
+      'imgUrl': controller.imgUrl,
+      'schemeCode': controller.schemeCode,
+      'rtaAmcCode': controller.rtaAmcCode,
+      'amcName': controller.amcName.isNotEmpty
+          ? controller.amcName
+          : fund.schemeCompany,
+      'riskLevel': fund.riskometerValue,
+      'schemecategory': fund.schemeCategory,
+      'minSipAmount': fund.sipMinimumAmount,
+      'minLumpsum': fund.minimumInvestment.toInt(),
+      'minTopUp': fund.minimumTopup.toInt(),
+      'allowedSipDates': controller.allowedSipDates.value.isNotEmpty
+          ? controller.allowedSipDates.value
+          : fund.allowedSipDates,
+      'divoption': fund.isDividendScheme ? 'BOTH' : 'GR',
+      'isPurchaseAllowed': controller.isPurchaseAllowed.value,
+      'isSipAllowed': controller.isSipAllowed.value,
+      'isLumpsumAllowed': controller.isLumpsumAllowed.value,
+    };
+    if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+      Get.find<NavigationBarController>().openNestedRoute(
+        AppRoutes.comparefund,
+        arguments: arguments,
+        queryParameters: arguments.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
+      );
+    } else {
+      Get.toNamed(AppRoutes.comparefund, arguments: arguments);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: 'Compare funds',
+    onPressed: _openComparison,
+    icon: const Icon(Icons.compare_arrows_rounded, color: Ucolors.darkgrey),
+  );
+}
+
 class _DesktopFundDetailsLayout extends StatelessWidget {
   final FundDetailsController controller;
   final CartController cartController;
@@ -512,6 +569,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
         },
 
         action: [
+          _CompareFundAction(controller: controller),
           const SizedBox(width: 8),
 
           Obx(() {
@@ -4312,6 +4370,7 @@ class _MobileFundDetailsLayout extends StatelessWidget {
         actionsPadding: 10,
         title: 'Fund Details',
         action: [
+          _CompareFundAction(controller: controller),
           // Obx(
           //   () => Stack(
           //     children: [

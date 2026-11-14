@@ -27,6 +27,15 @@ import '../../../../../common/widget/animated/custom_footer.dart';
 import '../../../../dashboard/presentation/pages/comparison_screen.dart';
 import '../../../../mfu/presentation/pages/purchase_page.dart';
 
+String _compareLogoUrl(String? raw) {
+  final value = raw?.trim() ?? '';
+  if (value.isEmpty || value == '--') return '';
+  if (Uri.tryParse(value)?.hasScheme == true) return value;
+  return Uri.parse(
+    '${Appurl.baseUrl.replaceFirst(RegExp(r'/+$'), '')}/',
+  ).resolve(value).toString();
+}
+
 class CompareFundsPage extends GetView<CompareFundController> {
   CompareFundsPage({super.key});
 
@@ -38,6 +47,15 @@ class CompareFundsPage extends GetView<CompareFundController> {
 
   @override
   Widget build(BuildContext context) {
+    final route = ModalRoute.of(context);
+    final comparisonController = controller;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted || route?.isCurrent == false) return;
+      comparisonController.initializeForRoute(
+        route ?? this,
+        route != null ? route.settings.arguments : Get.arguments,
+      );
+    });
     return Scaffold(
       backgroundColor: Colors.white.withValues(alpha: 0.985),
       appBar: CustomAppBarNormal(
@@ -80,7 +98,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                         onTap: () => _openSearchSheet(context, 1),
                         onRemove: () => controller.removeFund(1),
                         onAddToCart: () async {
-                          if (f1Basic != null) {
+                          if (f1Basic != null && !f1Basic.isPurchasePaused) {
                             await cartController.addToCart(
                               f1Basic.schemeCode ?? '',
                               f1Basic.baseSchemeName ?? '',
@@ -108,7 +126,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                         onTap: () => _openSearchSheet(context, 2),
                         onRemove: () => controller.removeFund(2),
                         onAddToCart: () async {
-                          if (f2Basic != null) {
+                          if (f2Basic != null && !f2Basic.isPurchasePaused) {
                             await cartController.addToCart(
                               f2Basic.schemeCode ?? '',
                               f2Basic.baseSchemeName ?? '',
@@ -181,22 +199,31 @@ class CompareFundsPage extends GetView<CompareFundController> {
             SafeArea(
               top: false,
               child: BottomBarButtonGoalDetails(
-                firstButton: fund1 != null ? 'Invest Now' : '',
-                secondButton: fund2 != null ? 'Invest Now' : '',
+                firstButton: fund1 == null
+                    ? ''
+                    : fund1.isPurchasePaused
+                    ? 'Purchase paused'
+                    : 'Invest Now',
+                secondButton: fund2 == null
+                    ? ''
+                    : fund2.isPurchasePaused
+                    ? 'Purchase paused'
+                    : 'Invest Now',
 
-                firstButtonP: fund1 == null
+                firstButtonP: fund1 == null || fund1.isPurchasePaused
                     ? null
                     : () async {
                         final purchaseArgs = SipPurchaseArgs(
                           schemeCode: fund1.schemeCode ?? '',
                           fundName: fund1.baseSchemeName ?? '',
+                          amcCode: fund1.rtaAmcCode,
                           amcName: fund1.amc?.amcName,
-                          riskLabel: '',
+                          riskLabel: fund1.riskLevel ?? '',
                           minSip: fund1.minSipAmount ?? 1000,
                           minLumpsum: fund1.minLumpsum?.toInt() ?? 5000,
-                          minTopup: 5000,
+                          minTopup: fund1.minTopUp ?? 5000,
                           folio: null,
-                          imgUrl: '${Appurl.baseUrl}${fund1.amc?.amcLogoUrl}',
+                          imgUrl: _compareLogoUrl(fund1.amc?.amcLogoUrl),
                           divoption: fund1.divoption,
                           allowedSipDates: parseAllowedSipDates(
                             fund1.allowedSipDates,
@@ -209,19 +236,20 @@ class CompareFundsPage extends GetView<CompareFundController> {
                         );
                       },
 
-                secondButtonP: fund2 == null
+                secondButtonP: fund2 == null || fund2.isPurchasePaused
                     ? null
                     : () async {
                         final purchaseArgs = SipPurchaseArgs(
                           schemeCode: fund2.schemeCode ?? '',
                           fundName: fund2.baseSchemeName ?? '',
+                          amcCode: fund2.rtaAmcCode,
                           amcName: fund2.amc?.amcName,
-                          riskLabel: '',
+                          riskLabel: fund2.riskLevel ?? '',
                           minSip: fund2.minSipAmount ?? 1000,
                           minLumpsum: fund2.minLumpsum?.toInt() ?? 5000,
-                          minTopup: 5000,
+                          minTopup: fund2.minTopUp ?? 5000,
                           folio: null,
-                          imgUrl: '${Appurl.baseUrl}${fund2.amc?.amcLogoUrl}',
+                          imgUrl: _compareLogoUrl(fund2.amc?.amcLogoUrl),
                           divoption: fund2.divoption,
                           allowedSipDates: parseAllowedSipDates(
                             fund2.allowedSipDates,
@@ -980,7 +1008,7 @@ class CompareCardOption extends StatelessWidget {
                       width: 40,
                       color: Colors.grey.shade50,
                       child: CustomCachedImage(
-                        imageUrl: '${Appurl.baseUrl}${fund?.amc?.amcLogoUrl}',
+                        imageUrl: _compareLogoUrl(fund?.amc?.amcLogoUrl),
                       ),
                     ),
                   ),

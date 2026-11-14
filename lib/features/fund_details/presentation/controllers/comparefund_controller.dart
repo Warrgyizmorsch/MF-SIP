@@ -23,33 +23,58 @@ class CompareFundController extends GetxController {
   final fund2Portfolio = Rxn<SchemeDetailsEntity>();
   final isFund2Loading = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    _handleInitialArguments();
+  Object? _initializedRoute;
+  int _fund1Request = 0;
+  int _fund2Request = 0;
+
+  int? _amount(Object? value) =>
+      value is num ? value.toInt() : num.tryParse('$value')?.toInt();
+
+  bool? _permission(Object? value) => switch (value) {
+    true || 'true' => true,
+    false || 'false' => false,
+    _ => null,
+  };
+
+  /// A page's own route arguments also work inside the nested web navigator.
+  void initializeForRoute(Object route, Object? arguments) {
+    if (identical(_initializedRoute, route)) return;
+    _initializedRoute = route;
+    removeFund(1);
+    removeFund(2);
+    final args = arguments is Map ? Map<String, dynamic>.from(arguments) : null;
+    _handleInitialArguments(args);
   }
 
   // 1. Handle navigation from "Fund Details" page
-  void _handleInitialArguments() {
-    final args = Get.arguments as Map<String, dynamic>?;
-
+  void _handleInitialArguments(Map<String, dynamic>? args) {
     // If we passed a fund name/isin, pre-fill Slot 1
     if (args != null && (args['name'] != null || args['isin'] != null)) {
       final String passedImgUrl = args['imgUrl'] ?? ''; // Get the URL from args
       final String passedIsin = args['isin'] ?? '';
       final initialFund = MutualFundListEntity(
         nav: null,
-        schemecategory: null,
-        minTopUp: 0,
+        schemecategory: args['schemecategory'],
+        minTopUp: _amount(args['minTopUp']),
         returnsEntity: ReturnsEntity(),
-        schemeCode: '',
+        schemeCode: args['schemeCode'] ?? '',
+        rtaAmcCode: args['rtaAmcCode'],
         baseSchemeName: args['name'],
         schemeType: '',
-        riskLevel: '',
+        riskLevel: args['riskLevel'] ?? '',
         isin: passedIsin,
-        amc: AmcEntity(id: 0, amcName: '', amcLogoUrl: passedImgUrl),
-        minSipAmount: 0,
-        minLumpsum: 0,
+        amc: AmcEntity(
+          id: null,
+          amcName: args['amcName'],
+          amcLogoUrl: passedImgUrl,
+        ),
+        minSipAmount: _amount(args['minSipAmount']),
+        minLumpsum: _amount(args['minLumpsum']),
+        allowedSipDates: args['allowedSipDates'],
+        divoption: args['divoption'],
+        isPurchaseAllowed: _permission(args['isPurchaseAllowed']),
+        isSipAllowed: _permission(args['isSipAllowed']),
+        isLumpsumAllowed: _permission(args['isLumpsumAllowed']),
         variants: [],
       );
 
@@ -85,6 +110,7 @@ class CompareFundController extends GetxController {
         ? fund.isin!
         : (fund.baseSchemeName ?? '');
 
+    removeFund(slot);
     if (slot == 1) {
       fund1Basic.value = fund;
       _fetchAllDetails(1, targetIsin, schemeName: fund.baseSchemeName ?? '');
@@ -97,10 +123,14 @@ class CompareFundController extends GetxController {
   // 3. Remove Fund (Called from 'X' button)
   void removeFund(int slot) {
     if (slot == 1) {
+      _fund1Request++;
+      isFund1Loading.value = false;
       fund1Basic.value = null;
       fund1Detail.value = null;
       fund1Portfolio.value = null;
     } else {
+      _fund2Request++;
+      isFund2Loading.value = false;
       fund2Basic.value = null;
       fund2Detail.value = null;
       fund2Portfolio.value = null;
@@ -116,6 +146,9 @@ class CompareFundController extends GetxController {
     final loadingState = slot == 1 ? isFund1Loading : isFund2Loading;
     final detailState = slot == 1 ? fund1Detail : fund2Detail;
     final portfolioState = slot == 1 ? fund1Portfolio : fund2Portfolio;
+    final request = slot == 1 ? ++_fund1Request : ++_fund2Request;
+    bool isCurrent() =>
+        !isClosed && request == (slot == 1 ? _fund1Request : _fund2Request);
 
     try {
       loadingState.value = true;
@@ -131,26 +164,24 @@ class CompareFundController extends GetxController {
         fundDetailsUsecases.fundDetailUseCase
             .getSchemeInfo(requestPayload)
             .then(
-              (result) => result.fold(
-                (success) => detailState.value = success.data,
-                (error) => createLog("Error Detail Slot $slot: $error"),
-              ),
+              (result) => result.fold((success) {
+                if (isCurrent()) detailState.value = success.data;
+              }, (error) => createLog("Error Detail Slot $slot: $error")),
             ),
 
         // B. Get Portfolio (Holdings)
         fundDetailsUsecases.portfolioAnalysisUsecases
             .getPortfolioAnlysis(requestPayload)
             .then(
-              (result) => result.fold(
-                (success) => portfolioState.value = success.data,
-                (error) => createLog("Error Portfolio Slot $slot: $error"),
-              ),
+              (result) => result.fold((success) {
+                if (isCurrent()) portfolioState.value = success.data;
+              }, (error) => createLog("Error Portfolio Slot $slot: $error")),
             ),
       ]);
     } catch (e) {
       createLog("Compare Exception: $e");
     } finally {
-      loadingState.value = false;
+      if (isCurrent()) loadingState.value = false;
     }
   }
 }

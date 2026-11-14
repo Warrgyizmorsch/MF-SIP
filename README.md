@@ -33,6 +33,16 @@ The package name is `my_sip`, and the current application version is `1.0.0+1`. 
 | Profile and servicing | Personal details, risk assessment, bank accounts, nominees, KYC/documents, capital-gain and account-statement requests, app lock, and support/legal WebViews. |
 | Cross-platform UX | Mobile bottom navigation, web sidebar/header with path-based URLs, responsive breakpoints, network-loss overlay, cached images, video/YouTube content, push notifications, and optional biometric/device-credential app lock. |
 
+Fund Details has a **Compare funds** action beside the wishlist icon on mobile,
+tablet, and desktop. It opens the existing comparison page with the current fund
+in the first slot and the second slot available for search. The shortcut carries
+the scheme code, ISIN, logo, available investment minimums, and purchase
+permissions. Paused funds keep their investment action disabled. On web it uses the
+nested navigation helper and includes the fund data in the URL for refresh.
+The comparison page still supports the existing Home and peer-comparison entry
+points. API failures currently rely mainly on logging; comparison loading and
+error feedback remains an area for further work.
+
 ## Architecture
 
 The repository uses feature-oriented modules with a Clean Architecture-style separation. Most complete features contain `data`, `domain`, and `presentation` layers; smaller or prototype features may contain only presentation code.
