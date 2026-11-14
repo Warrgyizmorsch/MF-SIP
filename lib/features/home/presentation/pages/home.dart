@@ -1010,11 +1010,11 @@ class _WebDashboardLayout extends StatelessWidget {
         ),
       },
       {
-        'title': 'Index Funds',
+        'title': 'Better Than FD',
         'img': UImages.indexfund,
         'tap': () => navController.navigateToExploreWithFilter(
-          () => funds.applyCustomSearch('index'),
-          filter: 'index-fund',
+          () => funds.applyBetterThanFdFilter(),
+          filter: 'better-than-fd',
         ),
       },
       {

@@ -32,6 +32,7 @@ class FundhouseController extends GetxController {
   final bestSipValue = RxnInt();
   final commodityFilter = false.obs;
   final highReturnFilter = false.obs;
+  final betterThanFdFilter = false.obs;
   final selectedFundCount = 0.obs;
 
   RxBool isLoading = false.obs;
@@ -67,6 +68,7 @@ class FundhouseController extends GetxController {
     if (bestSipValue.value != null) count++;
     if (commodityFilter.value != false) count++;
     if (highReturnFilter.value != false) count++;
+    if (betterThanFdFilter.value) count++;
     if (isReturnRangeActive.value) count++;
 
     return count;
@@ -104,6 +106,7 @@ class FundhouseController extends GetxController {
     // 5. Quick Collections
     if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
     if (commodityFilter.value) params['asset_class'] = 'commodity';
+    if (betterThanFdFilter.value) params['is_better_than_fd'] = 1;
 
     // 6. Sorting Logic
     final mutualController = Get.find<MutualFundController>();
@@ -325,6 +328,12 @@ class FundhouseController extends GetxController {
     });
   }
 
+  void applyBetterThanFdFilter() {
+    _clearStatesOnly();
+    betterThanFdFilter.value = true;
+    Get.find<MutualFundController>().applyFreshFilter({'is_better_than_fd': 1});
+  }
+
   // ---------- Quick Collection: International Funds ----------
   Future<void> applyInternationalFilter() async {
     // 1. Clear all existing filters
@@ -419,6 +428,7 @@ class FundhouseController extends GetxController {
       bestSipValue.value != null ||
       commodityFilter.value ||
       highReturnFilter.value ||
+      betterThanFdFilter.value ||
       indexFundOnly.value ||
       isReturnRangeActive.value;
 
@@ -434,6 +444,7 @@ class FundhouseController extends GetxController {
     bestSipValue.value = null;
     commodityFilter.value = false;
     highReturnFilter.value = false;
+    betterThanFdFilter.value = false;
     returnRange.value = const RangeValues(0, 100);
     isReturnRangeActive.value = false;
     minReturnController.text = '0';

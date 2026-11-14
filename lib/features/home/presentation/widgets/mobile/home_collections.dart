@@ -13,7 +13,7 @@ enum HomeCollection {
   bestSip,
   highReturns,
   international,
-  indexFunds,
+  betterThanFd,
   commodities,
   equity,
 }
@@ -48,8 +48,8 @@ class HomeCollections extends StatelessWidget {
       Size(32, 32),
     ),
     (
-      HomeCollection.indexFunds,
-      'Index Funds',
+      HomeCollection.betterThanFd,
+      'Better than\nFD',
       UImages.homeIndexFunds,
       Size(32, 35),
     ),

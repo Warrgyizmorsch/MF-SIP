@@ -40,8 +40,8 @@ class MobileHomeMiddleSection extends StatelessWidget {
         case HomeCollection.international:
           funds.applyInternationalFilter();
           break;
-        case HomeCollection.indexFunds:
-          funds.applyCustomSearch('index');
+        case HomeCollection.betterThanFd:
+          funds.applyBetterThanFdFilter();
           break;
         case HomeCollection.commodities:
           funds.applyCommodityFilter();
