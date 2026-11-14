@@ -87,7 +87,7 @@ class HomeFundTicker extends StatelessWidget {
       return SizedBox(
         height: height + 8,
         child: ListView.separated(
-          key: const PageStorageKey('home-fund-ticker'),
+          key: ValueKey('home-fund-ticker-${funds.length}'),
           padding: const EdgeInsets.only(bottom: 8),
           scrollDirection: Axis.horizontal,
           itemCount: showLoading ? 3 : funds.length,

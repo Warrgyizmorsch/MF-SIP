@@ -5,6 +5,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -78,7 +79,7 @@ class MobileHomeTopSection extends StatelessWidget {
                 //   iconSize: const Size(35, 35),
                 //   onTap: _openExplore,
                 // ),
-                  HomeQuickAction(
+                HomeQuickAction(
                   label: 'Start SIP',
                   asset: UImages.homeSip,
                   iconSize: const Size(27, 31),
@@ -87,7 +88,7 @@ class MobileHomeTopSection extends StatelessWidget {
                     arguments: {'isLumpsum': false},
                   ),
                 ),
-              
+
                 HomeQuickAction(
                   label: 'Lumpsum',
                   asset: UImages.homeLumpsum,
@@ -97,8 +98,8 @@ class MobileHomeTopSection extends StatelessWidget {
                     arguments: {'isLumpsum': true},
                   ),
                 ),
-              
-                     HomeQuickAction(
+
+                HomeQuickAction(
                   label: 'NFO',
                   asset: UImages.homeNfo,
                   iconSize: const Size(34, 34),
@@ -135,16 +136,24 @@ class MobileHomeTopSection extends StatelessWidget {
               ],
             ),
             SizedBox(height: 16 * scale),
-            Obx(
-              () => HomeFundTicker(
-                funds: mutualController.searchFund.toList(),
-                isLoading: mutualController.isLoading.value,
-                errorMessage: mutualController.errorMessage.value,
+            Obx(() {
+              final hasPopular = mutualController.popularFunds.isNotEmpty;
+              final funds = hasPopular
+                  ? mutualController.popularFunds.toList()
+                  : (mutualController.isPopularLoading.value
+                        ? <MutualFundListEntity>[]
+                        : mutualController.searchFund.toList());
+
+              return HomeFundTicker(
+                funds: funds,
+                isLoading:
+                    mutualController.isPopularLoading.value && !hasPopular,
+                errorMessage: mutualController.popularErrorMessage.value,
                 onFundTap: (fund) =>
                     HomeFundNavigation.open(fund, controller: mutualController),
-                onRetry: () => mutualController.retryFetch(),
-              ),
-            ),
+                onRetry: () => mutualController.fetchPopularFunds(),
+              );
+            }),
             Padding(
               // The ticker's 8px shadow allowance is part of this visual gap.
               padding: EdgeInsets.fromLTRB(

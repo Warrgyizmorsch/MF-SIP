@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
@@ -24,6 +25,11 @@ class MutualFundController extends GetxController {
   // The SINGLE master list used by the UI (ExploreScreen)
   final searchFund = <MutualFundListEntity>[].obs;
   final mutualfund = <MutualFundListEntity>[].obs;
+
+  // Popular Funds (for Home Screen HomeFundTicker with is_popular=1)
+  final popularFunds = <MutualFundListEntity>[].obs;
+  final isPopularLoading = false.obs;
+  final popularErrorMessage = ''.obs;
 
   // Total count for the header (e.g., "450 funds found")
   final selectedFundCount = 0.obs;
@@ -70,6 +76,7 @@ class MutualFundController extends GetxController {
     super.onInit();
     // resetToDefaultStateOnly(); // Wipes memory without calling API
     fetchData();
+    fetchPopularFunds();
     _loadRecentlyViewed();
     // _startPopularFundsCarousel();
   }
@@ -427,6 +434,40 @@ class MutualFundController extends GetxController {
   }
 
   Future<void> _resetAndFetch() => fetchData();
+
+  /// Dedicated fetch for Home Screen Popular Funds (is_popular=1)
+  Future<void> fetchPopularFunds() async {
+    try {
+      isPopularLoading.value = true;
+      popularErrorMessage.value = '';
+      final result = await _getMutualFundListUsecases.call({
+        'is_popular': 1,
+        'page': 1,
+      });
+      result.fold(
+        (success) {
+          if (success.isSuccess && success.data?.data != null) {
+            popularFunds.assignAll(success.data!.data);
+            createLog(
+              '[PopularFunds] Assigned ${popularFunds.length} popular funds',
+            );
+          }
+        },
+        (failure) {
+          popularErrorMessage.value =
+              failure.message ?? 'Failed to load popular funds';
+          createLog(
+            '[PopularFunds] Error loading popular funds: ${failure.message}',
+          );
+        },
+      );
+    } catch (e) {
+      popularErrorMessage.value = e.toString();
+      createLog('[PopularFunds] Exception in fetchPopularFunds: $e');
+    } finally {
+      isPopularLoading.value = false;
+    }
+  }
 
   /// Helper for Filter Page (Gets count without affecting main list)
   Future<int> fetchFundCount(Map<String, dynamic> params) async {
