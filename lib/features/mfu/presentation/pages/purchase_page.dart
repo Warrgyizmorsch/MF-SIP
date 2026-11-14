@@ -12,6 +12,8 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/cart/presentation/widgets/checkout_bank_selector.dart';
+import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
+import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
 
@@ -581,6 +583,8 @@ class SipPurchaseArgs {
   final List<int>? allowedSipDates;
   final String? initialEndMonth;
   final String? initialEndYear;
+  final int? initialGoalId;
+  final String? initialGoalName;
 
   const SipPurchaseArgs({
     required this.schemeCode,
@@ -602,6 +606,8 @@ class SipPurchaseArgs {
     this.allowedSipDates,
     this.initialEndMonth,
     this.initialEndYear,
+    this.initialGoalId,
+    this.initialGoalName,
   });
 }
 
@@ -667,6 +673,14 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
       Get.find<PersonalisationController>().syncDefaultCheckoutBank(
         isLumpsum: _c.sipInvType.value == InvType.lumpsum,
       );
+    }
+
+    if (Get.isRegistered<GoalSipController>()) {
+      final goalCtrl = Get.find<GoalSipController>();
+      if (goalCtrl.goalResponse.value == null &&
+          !goalCtrl.isLoadingGoals.value) {
+        goalCtrl.getAllGoals();
+      }
     }
 
     // Animations
@@ -1549,6 +1563,350 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     );
   }
 
+  void _showGoalPickerModal() {
+    HapticFeedback.lightImpact();
+    final isDesktop = _isDesktop(context);
+    final goalCtrl = Get.isRegistered<GoalSipController>()
+        ? Get.find<GoalSipController>()
+        : null;
+
+    if (goalCtrl != null &&
+        goalCtrl.goalResponse.value == null &&
+        !goalCtrl.isLoadingGoals.value) {
+      goalCtrl.getAllGoals();
+    }
+
+    Widget contentBuilder(BuildContext ctx) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.flag_rounded, color: _C.primary, size: 22),
+                      SizedBox(width: 8),
+                      Text(
+                        'Link to a Financial Goal',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _C.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: _C.textSec),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Tag this investment to track accumulated progress towards your target.',
+                style: TextStyle(fontSize: 13, color: _C.textSec, height: 1.4),
+              ),
+              const SizedBox(height: 16),
+              if (goalCtrl == null)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text('Goal service unavailable.'),
+                  ),
+                )
+              else
+                Obx(() {
+                  if (goalCtrl.isLoadingGoals.value) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 36),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 12),
+                            Text(
+                              'Loading goals...',
+                              style: TextStyle(fontSize: 13, color: _C.textSec),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  final userGoals =
+                      goalCtrl.goalResponse.value?.goal ??
+                      goalCtrl.goalResponse.value?.data ??
+                      <UserGoalEntity>[];
+
+                  if (userGoals.isEmpty) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 24,
+                        horizontal: 16,
+                      ),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.flag_outlined,
+                            size: 40,
+                            color: Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'No Goals Found',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: _C.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'You have not created any financial goals yet.\nYou can continue investing without linking.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: _C.textSec,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          OutlinedButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: _C.primary),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Continue Without Linking',
+                              style: TextStyle(color: _C.primary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.sizeOf(ctx).height * 0.55,
+                    ),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        // Option: None
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            color: _c.selectedGoalId.value == null
+                                ? _C.primary.withValues(alpha: 0.06)
+                                : Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: _c.selectedGoalId.value == null
+                                  ? _C.primary
+                                  : Colors.grey.shade200,
+                              width: _c.selectedGoalId.value == null ? 1.5 : 1,
+                            ),
+                          ),
+                          child: ListTile(
+                            leading: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.link_off_rounded,
+                                color: Colors.black54,
+                                size: 20,
+                              ),
+                            ),
+                            title: const Text(
+                              'None (Do not link)',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: _C.textPrimary,
+                              ),
+                            ),
+                            subtitle: const Text(
+                              'Invest as a standard mutual fund',
+                              style: TextStyle(fontSize: 11, color: _C.textSec),
+                            ),
+                            trailing: _c.selectedGoalId.value == null
+                                ? const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: _C.primary,
+                                  )
+                                : const Icon(
+                                    Icons.radio_button_off_rounded,
+                                    color: Colors.grey,
+                                  ),
+                            onTap: () {
+                              _c.clearGoal();
+                              Navigator.pop(ctx);
+                            },
+                          ),
+                        ),
+                        // Goal List
+                        ...userGoals.map((g) {
+                          final isSelected = _c.selectedGoalId.value == g.id;
+                          final progress = g.progressPercent.clamp(0.0, 100.0);
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? _C.primary.withValues(alpha: 0.06)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: isSelected
+                                    ? _C.primary
+                                    : Colors.grey.shade200,
+                                width: isSelected ? 1.5 : 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _C.shadow.withValues(alpha: 0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              leading: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? _C.primary.withValues(alpha: 0.15)
+                                      : Ucolors.skyblue1,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.track_changes_rounded,
+                                  color: isSelected
+                                      ? _C.primary
+                                      : Ucolors.primary,
+                                  size: 20,
+                                ),
+                              ),
+                              title: Text(
+                                g.goalName,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: isSelected
+                                      ? _C.primary
+                                      : _C.textPrimary,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Target: ₹${_formatAmount(g.targetAmount.toInt())} • ${progress.toStringAsFixed(0)}% achieved',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: _C.textSec,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: LinearProgressIndicator(
+                                      value: progress / 100.0,
+                                      minHeight: 4,
+                                      backgroundColor: Colors.grey.shade200,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        isSelected
+                                            ? _C.primary
+                                            : Ucolors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: isSelected
+                                  ? const Icon(
+                                      Icons.check_circle_rounded,
+                                      color: _C.primary,
+                                    )
+                                  : const Icon(
+                                      Icons.radio_button_off_rounded,
+                                      color: Colors.grey,
+                                    ),
+                              onTap: () {
+                                _c.setGoal(id: g.id, name: g.goalName);
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  );
+                }),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (isDesktop) {
+      showDialog(
+        context: context,
+        builder: (ctx) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: contentBuilder(ctx),
+          ),
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (ctx) => contentBuilder(ctx),
+      );
+    }
+  }
+
   Future<void> _pickSipDate() async {
     final now = DateTime.now();
     final allowedDates =
@@ -1837,6 +2195,50 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
             ],
           );
         }),
+
+        // Goal Linking section (Optional for both SIP and Lumpsum)
+        _sectionLabel('GOAL LINKING (OPTIONAL)'),
+        const SizedBox(height: 12),
+        Obx(() {
+          final isLinked = _c.selectedGoalId.value != null;
+          final goalName =
+              _c.selectedGoalName.value ?? 'Goal #${_c.selectedGoalId.value}';
+          return _DetailTile(
+            onTap: _showGoalPickerModal,
+            icon: isLinked ? Icons.track_changes_rounded : Icons.flag_outlined,
+            iconColor: isLinked ? _C.primary : _C.textSec,
+            label: isLinked ? 'Linked Goal' : 'Link to a Goal',
+            value: isLinked ? goalName : 'Not linked (Tap to assign to a goal)',
+            trailing: isLinked
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const _Chip(label: 'Linked', color: _C.primary),
+                      const SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          _c.clearGoal();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : const _Chip(label: 'Optional', color: _C.textSec),
+          );
+        }),
+        const SizedBox(height: 24),
 
         // Payment section
         _sectionLabel('PAYMENT DETAILS'),
@@ -2419,6 +2821,9 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                     ? '${_c.sipStepUpPct.value}% every ${_c.sipFrequency.value == '6' ? '6 months' : 'year'}'
                     : '₹${_formatAmount(_c.sipStepUpAmt.value)} every ${_c.sipFrequency.value == '6' ? '6 months' : 'year'}',
               ),
+            if (_c.selectedGoalName.value != null &&
+                _c.selectedGoalName.value!.isNotEmpty)
+              _summaryRow('Linked Goal', _c.selectedGoalName.value!),
             const SizedBox(height: 18),
             Divider(color: _C.border.withValues(alpha: 0.8)),
             const SizedBox(height: 18),

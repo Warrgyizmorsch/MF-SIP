@@ -341,6 +341,20 @@ class MfuController extends GetxController {
     sipEndYear.value = null;
   }
 
+  // Optional Goal Linking
+  final Rx<int?> selectedGoalId = Rx<int?>(null);
+  final Rx<String?> selectedGoalName = Rx<String?>(null);
+
+  void setGoal({int? id, String? name}) {
+    selectedGoalId.value = id;
+    selectedGoalName.value = name;
+  }
+
+  void clearGoal() {
+    selectedGoalId.value = null;
+    selectedGoalName.value = null;
+  }
+
   // ─── Validation Errors ────────────────────────────────────────────────────────
 
   final Rx<String?> sipAmountError = Rx<String?>(null);
@@ -417,6 +431,8 @@ class MfuController extends GetxController {
     sipCapDate.value = null;
     sipEndMonth.value = args.initialEndMonth;
     sipEndYear.value = args.initialEndYear;
+    selectedGoalId.value = args.initialGoalId;
+    selectedGoalName.value = args.initialGoalName;
   }
 
   // ─── Type Changed ─────────────────────────────────────────────────────────────
@@ -609,6 +625,7 @@ class MfuController extends GetxController {
     final amount = sipAmount.value.toDouble();
     final day = formatMfuSipDay();
     final folio = effectiveFolio;
+    final goalId = selectedGoalId.value;
 
     final bool isLumpsum = sipInvType.value == InvType.lumpsum;
 
@@ -616,7 +633,12 @@ class MfuController extends GetxController {
       isLumpsum: isLumpsum,
       onSuccess: () {
         if (isLumpsum) {
-          executeLumpsum(schemeCode: schemeCode, amount: amount, folio: folio);
+          executeLumpsum(
+            schemeCode: schemeCode,
+            amount: amount,
+            folio: folio,
+            goalId: goalId,
+          );
         } else if (sipInvType.value == InvType.sip) {
           executeSip(
             schemeCode: schemeCode,
@@ -624,6 +646,7 @@ class MfuController extends GetxController {
             day: day,
             frequency: formatMfuSipFrequency(),
             folio: folio,
+            goalId: goalId,
           );
         } else if (sipInvType.value == InvType.stepup) {
           executeStepUp(
