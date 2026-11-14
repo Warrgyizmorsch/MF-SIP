@@ -264,7 +264,9 @@ class GoalScreenMobile extends GetView<GoalSipController> {
 
   Widget _summary(List<UserGoalEntity> goals) {
     final behind = goals.where(_behind).length;
-    final onTrack = goals.where(_onTrack).length;
+    final completed = goals
+        .where((goal) => goal.effectiveProgressPercent >= 100)
+        .length;
     final monthly = goals.fold<double>(
       0,
       (sum, g) => sum + g.effectiveMonthlySip,
@@ -320,7 +322,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                         child: TweenAnimationBuilder<double>(
                           tween: Tween(
                             begin: 0,
-                            end: goals.isEmpty ? 0 : onTrack / goals.length,
+                            end: goals.isEmpty ? 0 : completed / goals.length,
                           ),
                           duration: const Duration(milliseconds: 500),
                           curve: Curves.easeOut,
@@ -334,15 +336,15 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                         ),
                       ),
                       Text(
-                        '$onTrack/${goals.length}',
+                        '$completed/${goals.length}',
                         style: _text(13, weight: FontWeight.w800),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('On track', style: _text(13, weight: FontWeight.w700)),
-                Text('Goals this month', style: _text(8, color: _muted)),
+                Text('Completed', style: _text(13, weight: FontWeight.w700)),
+                Text('Total goals', style: _text(8, color: _muted)),
               ],
             ),
           ),
