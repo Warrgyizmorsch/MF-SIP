@@ -258,6 +258,8 @@ class HomeActiveGoalCard extends StatelessWidget {
       emoji: emoji,
       fallbackIcon: fallbackIcon,
       maskImage: false,
+      animateMarker: true,
+      duration: const Duration(milliseconds: 1000),
     ),
   );
 
