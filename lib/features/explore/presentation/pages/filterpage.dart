@@ -413,17 +413,106 @@ class _FilterpageState extends State<Filterpage>
 }
 
 // ─── Categories Panel ─────────────────────────────────────────────────────────
-class CategoriesPanel extends StatelessWidget {
-  CategoriesPanel({super.key});
+class CategoriesPanel extends StatefulWidget {
+  const CategoriesPanel({super.key});
+
+  @override
+  State<CategoriesPanel> createState() => _CategoriesPanelState();
+}
+
+class _CategoriesPanelState extends State<CategoriesPanel> {
   final FundhouseController controller = Get.find();
+  late final TextEditingController _searchController;
+  Worker? _clearWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: controller.categorySearchQuery.value,
+    );
+    _clearWorker = ever(controller.categorySearchQuery, (val) {
+      if (val.isEmpty && _searchController.text.isNotEmpty) {
+        _searchController.clear();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _clearWorker?.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Category Search Bar
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+          child: Obx(() {
+            final hasQuery = controller.categorySearchQuery.value.isNotEmpty;
+            return TextField(
+              controller: _searchController,
+              onChanged: controller.searchCategory,
+              style: const TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 14,
+                color: _T.text1,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Search category (e.g. Small Cap, Liquid)...',
+                hintStyle: const TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 14,
+                  color: _T.text3,
+                ),
+                prefixIcon: const Icon(
+                  Icons.search_rounded,
+                  color: _T.text3,
+                  size: 20,
+                ),
+                suffixIcon: hasQuery
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: _T.text3,
+                          size: 18,
+                        ),
+                        onPressed: () {
+                          _searchController.clear();
+                          controller.clearCategorySearch();
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: _T.surface,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _T.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _T.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _T.primary, width: 1.5),
+                ),
+              ),
+            );
+          }),
+        ),
+
         // Index Fund toggle card
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
           child: Container(
             padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
             decoration: BoxDecoration(
@@ -473,10 +562,9 @@ class CategoriesPanel extends StatelessWidget {
                 ),
                 Obx(
                   () => Switch.adaptive(
-                    // inactiveThumbColor: Colors.white,
                     value: controller.indexFundOnly.value,
                     onChanged: (v) => controller.toggleIndexFund(v),
-                    activeColor: _T.primary,
+                    activeTrackColor: _T.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
@@ -502,18 +590,52 @@ class CategoriesPanel extends StatelessWidget {
             }
 
             final rawList = controller.categoryList.first.categories;
-            final grouped = _groupCategories(rawList);
+            final query = controller.categorySearchQuery.value
+                .trim()
+                .toLowerCase();
+            final filteredList = query.isEmpty
+                ? rawList
+                : rawList
+                      .where((cat) => cat.toLowerCase().contains(query))
+                      .toList();
+
+            final grouped = _groupCategories(filteredList);
             final sortedEntries = grouped.entries.toList()
               ..sort((a, b) => a.key.compareTo(b.key));
 
+            if (sortedEntries.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.search_off_rounded,
+                      size: 40,
+                      color: _T.text3,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No categories match "$query"',
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 14,
+                        color: _T.text2,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: sortedEntries.map((entry) {
                 final subs = entry.value..sort();
                 return _ExpandGroup(
                   controller: controller,
                   groupName: entry.key,
                   subItems: subs,
+                  initiallyOpen: query.isNotEmpty,
                 );
               }).toList(),
             );
@@ -527,16 +649,17 @@ class CategoriesPanel extends StatelessWidget {
     final Map<String, List<String>> groups = {};
     for (var item in rawList) {
       String key = 'Others';
-      if (item.startsWith('Equity:'))
+      if (item.startsWith('Equity:')) {
         key = 'Equity';
-      else if (item.startsWith('Debt:'))
+      } else if (item.startsWith('Debt:')) {
         key = 'Debt';
-      else if (item.startsWith('Hybrid:'))
+      } else if (item.startsWith('Hybrid:')) {
         key = 'Hybrid';
-      else if (item.contains('Gold') || item.contains('Silver'))
+      } else if (item.contains('Gold') || item.contains('Silver')) {
         key = 'Commodities';
-      else if (item.startsWith('Fund of Funds'))
+      } else if (item.startsWith('Fund of Funds')) {
         key = 'Fund of Funds';
+      }
       groups.putIfAbsent(key, () => []).add(item);
     }
     return groups;
@@ -548,10 +671,13 @@ class _ExpandGroup extends StatefulWidget {
   final FundhouseController controller;
   final String groupName;
   final List<String> subItems;
+  final bool initiallyOpen;
+
   const _ExpandGroup({
     required this.controller,
     required this.groupName,
     required this.subItems,
+    this.initiallyOpen = false,
   });
 
   @override
@@ -560,19 +686,35 @@ class _ExpandGroup extends StatefulWidget {
 
 class _ExpandGroupState extends State<_ExpandGroup>
     with SingleTickerProviderStateMixin {
-  bool _open = false;
+  late bool _open;
   late final AnimationController _anim;
   late final Animation<double> _expand, _rotate;
 
   @override
   void initState() {
     super.initState();
+    _open = widget.initiallyOpen;
     _anim = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 260),
+      value: _open ? 1.0 : 0.0,
     );
     _expand = CurvedAnimation(parent: _anim, curve: Curves.easeInOutCubic);
     _rotate = Tween<double>(begin: 0, end: 0.5).animate(_expand);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ExpandGroup oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initiallyOpen != oldWidget.initiallyOpen) {
+      if (widget.initiallyOpen && !_open) {
+        setState(() => _open = true);
+        _anim.forward();
+      } else if (!widget.initiallyOpen && _open) {
+        setState(() => _open = false);
+        _anim.reverse();
+      }
+    }
   }
 
   @override
@@ -1724,7 +1866,6 @@ class _CustomThumb extends RangeSliderThumbShape {
 //               rawList,
 //             );
 
-           
 //             return ListView(
 //               padding: const EdgeInsets.symmetric(horizontal: 16),
 //               children: () {
@@ -1931,8 +2072,6 @@ class _CustomThumb extends RangeSliderThumbShape {
 //     );
 //   }
 // }
-
-
 
 // class FundHousePanel extends StatelessWidget {
 //   FundHousePanel({super.key});

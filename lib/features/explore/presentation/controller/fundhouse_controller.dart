@@ -39,6 +39,7 @@ class FundhouseController extends GetxController {
   final fundlist = <FundHouseItemEntity>[].obs;
   final filteredFundlist = <FundHouseItemEntity>[].obs;
   final categoryList = <FundCategoryEntity>[].obs;
+  final categorySearchQuery = ''.obs;
   RxString searchQuery = ''.obs;
 
   final returnRange = const RangeValues(0, 100).obs;
@@ -396,6 +397,14 @@ class FundhouseController extends GetxController {
     );
   }
 
+  void searchCategory(String query) {
+    categorySearchQuery.value = query;
+  }
+
+  void clearCategorySearch() {
+    categorySearchQuery.value = '';
+  }
+
   bool isAmcSelected(dynamic amcId) {
     final int id = int.tryParse(amcId.toString()) ?? 0;
     return selectedAmcIds.contains(id);
@@ -419,6 +428,7 @@ class FundhouseController extends GetxController {
     selectedRisks.clear();
     selectedRating.value = null;
     indexFundOnly.value = false;
+    categorySearchQuery.value = '';
 
     customGlobalSearch.value = null;
     bestSipValue.value = null;
