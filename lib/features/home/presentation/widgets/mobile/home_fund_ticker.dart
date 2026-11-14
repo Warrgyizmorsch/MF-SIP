@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.
 
 import 'home_design.dart';
 
-class HomeFundTicker extends StatelessWidget {
+class HomeFundTicker extends StatefulWidget {
   const HomeFundTicker({
     super.key,
     required this.funds,
@@ -26,6 +27,80 @@ class HomeFundTicker extends StatelessWidget {
   final String errorMessage;
   final ValueChanged<MutualFundListEntity> onFundTap;
   final VoidCallback onRetry;
+
+  @override
+  State<HomeFundTicker> createState() => _HomeFundTickerState();
+}
+
+class _HomeFundTickerState extends State<HomeFundTicker> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isUserInteracting = false;
+  bool _isDisposed = false;
+  static const double _marqueeSpeed = 32.0; // pixels per second
+
+  @override
+  void initState() {
+    super.initState();
+    _startMarquee();
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeFundTicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.funds.length != oldWidget.funds.length ||
+        widget.isLoading != oldWidget.isLoading) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0.0);
+      }
+      _startMarquee();
+    }
+  }
+
+  @override
+  void dispose() {
+    _isUserInteracting = true;
+    _isDisposed = true;
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _startMarquee() {
+    if (widget.funds.length <= 1 || widget.isLoading) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      while (!_isDisposed &&
+          mounted &&
+          !_isUserInteracting &&
+          _scrollController.hasClients) {
+        final maxScroll = _scrollController.position.maxScrollExtent;
+        final currentOffset = _scrollController.offset;
+        final remainingDistance = maxScroll - currentOffset;
+
+        if (remainingDistance <= 1.0) {
+          _scrollController.jumpTo(0.0);
+          continue;
+        }
+
+        final durationMs = (remainingDistance / _marqueeSpeed * 1000).round();
+        try {
+          await _scrollController.animateTo(
+            maxScroll,
+            duration: Duration(milliseconds: durationMs),
+            curve: Curves.linear,
+          );
+        } catch (_) {
+          // Interrupted by user drag or widget disposal
+          break;
+        }
+      }
+    });
+  }
+
+  void _stopMarquee() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.offset);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -57,11 +132,11 @@ class HomeFundTicker extends StatelessWidget {
           .clamp(138.0, 185.0)
           .toDouble();
 
-      if (funds.isEmpty && !isLoading) {
+      if (widget.funds.isEmpty && !widget.isLoading) {
         return SizedBox(
           height: height,
           child: Center(
-            child: errorMessage.isEmpty
+            child: widget.errorMessage.isEmpty
                 ? Text(
                     'No funds available',
                     style: UTextStyles.homeText(
@@ -70,7 +145,7 @@ class HomeFundTicker extends StatelessWidget {
                     ),
                   )
                 : TextButton.icon(
-                    onPressed: onRetry,
+                    onPressed: widget.onRetry,
                     icon: const Icon(Icons.refresh_rounded, size: 16),
                     label: const Text('Unable to load funds. Retry'),
                     style: TextButton.styleFrom(
@@ -82,34 +157,63 @@ class HomeFundTicker extends StatelessWidget {
         );
       }
 
-      final showLoading = funds.isEmpty;
+      final showLoading = widget.funds.isEmpty;
+      final itemCount = showLoading
+          ? 3
+          : (widget.funds.length > 1
+                ? widget.funds.length * 500
+                : widget.funds.length);
+
       // Space for the reference shadow sits outside the measured card height.
       return SizedBox(
         height: height + 8,
-        child: ListView.separated(
-          key: ValueKey('home-fund-ticker-${funds.length}'),
-          padding: const EdgeInsets.only(bottom: 8),
-          scrollDirection: Axis.horizontal,
-          itemCount: showLoading ? 3 : funds.length,
-          separatorBuilder: (_, _) =>
-              SizedBox(width: HomeMetrics.tickerGap * scale),
-          itemBuilder: (context, index) {
-            if (showLoading) {
-              return UShimmerEffect(
-                width: cardWidth,
-                height: height,
-                radius: 8 * scale,
-              );
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification is ScrollStartNotification) {
+              if (notification.dragDetails != null) {
+                _isUserInteracting = true;
+                _stopMarquee();
+              }
+            } else if (notification is ScrollEndNotification) {
+              if (_isUserInteracting) {
+                _isUserInteracting = false;
+                Future.delayed(const Duration(milliseconds: 1000), () {
+                  if (!_isDisposed && mounted && !_isUserInteracting) {
+                    _startMarquee();
+                  }
+                });
+              }
             }
-            final fund = funds[index];
-            return _TickerCard(
-              key: ValueKey('ticker-${fund.schemeCode ?? fund.fundId}'),
-              fund: fund,
-              scale: scale,
-              width: cardWidth,
-              onTap: () => onFundTap(fund),
-            );
+            return false;
           },
+          child: ListView.separated(
+            controller: _scrollController,
+            key: ValueKey('home-fund-ticker-${widget.funds.length}'),
+            padding: const EdgeInsets.only(bottom: 8),
+            scrollDirection: Axis.horizontal,
+            itemCount: itemCount,
+            separatorBuilder: (_, _) =>
+                SizedBox(width: HomeMetrics.tickerGap * scale),
+            itemBuilder: (context, index) {
+              if (showLoading) {
+                return UShimmerEffect(
+                  width: cardWidth,
+                  height: height,
+                  radius: 8 * scale,
+                );
+              }
+              final fund = widget.funds[index % widget.funds.length];
+              return _TickerCard(
+                key: ValueKey(
+                  'ticker-${fund.schemeCode ?? fund.fundId}-$index',
+                ),
+                fund: fund,
+                scale: scale,
+                width: cardWidth,
+                onTap: () => widget.onFundTap(fund),
+              );
+            },
+          ),
         ),
       );
     },

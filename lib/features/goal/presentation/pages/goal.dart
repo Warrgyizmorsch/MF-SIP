@@ -521,29 +521,30 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                         ),
                       ),
                     ),
-                    if (goal.effectiveMonthlySip > 0)
-                      Positioned(
-                        bottom: 12,
-                        right: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.65),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            'SIP · ${_money(goal.effectiveMonthlySip)}/mo',
-                            style: _text(
-                              11,
-                              color: Colors.white,
-                              weight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
+                    // if (goal.effectiveMonthlySip > 0)
+                    //   Positioned(
+                    //     bottom: 12,
+                    //     right: 12,
+                    //     child: Container(
+                    //       padding: const EdgeInsets.symmetric(
+                    //         horizontal: 10,
+                    //         vertical: 5,
+                    //       ),
+                    //       decoration: BoxDecoration(
+                    //         color: Colors.black.withValues(alpha: 0.65),
+                    //         borderRadius: BorderRadius.circular(999),
+                    //       ),
+                    //       child: Text(
+                    //         'SIP · ${_money(goal.effectiveMonthlySip)}/mo',
+                    //         style: _text(
+                    //           11,
+                    //           color: Colors.white,
+                    //           weight: FontWeight.w700,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                
                   ],
                 ),
               ),
