@@ -270,17 +270,35 @@ class CartPage extends GetView<CartController> {
                 ? null
                 : CustomAppBarNormal(
                     title: 'Cart',
-                    bottom: TabBar(
-                      onTap: (index) {
-                        controller.activeTabIndex.value = index;
-                      },
-                      labelColor: Ucolors.primary,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Ucolors.primary,
-                      tabs: const [
-                        Tab(text: 'SIP & Step-Up'),
-                        Tab(text: 'Lumpsum Orders'),
-                      ],
+                    bottom: PreferredSize(
+                      preferredSize: const Size.fromHeight(48),
+                      child: Obx(() {
+                        final sipCount = controller.sipAndStepUpItems.length;
+                        final lumpsumCount = controller.lumpsumItems.length;
+                        final activeIndex = controller.activeTabIndex.value;
+
+                        return TabBar(
+                          onTap: (index) {
+                            controller.activeTabIndex.value = index;
+                          },
+                          labelColor: Ucolors.primary,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorColor: Ucolors.primary,
+                          indicatorWeight: 2.5,
+                          tabs: [
+                            _buildTabWithBadge(
+                              title: 'SIP & Step-Up',
+                              count: sipCount,
+                              isSelected: activeIndex == 0,
+                            ),
+                            _buildTabWithBadge(
+                              title: 'Lumpsum Orders',
+                              count: lumpsumCount,
+                              isSelected: activeIndex == 1,
+                            ),
+                          ],
+                        );
+                      }),
                     ),
                   ),
 
@@ -507,6 +525,56 @@ class CartPage extends GetView<CartController> {
     );
   }
 
+  Widget _buildTabWithBadge({
+    required String title,
+    required int count,
+    required bool isSelected,
+  }) {
+    return Tab(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (count > 0) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Ucolors.primary.withValues(alpha: 0.12)
+                    : Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isSelected
+                      ? Ucolors.primary.withValues(alpha: 0.3)
+                      : Colors.grey.shade300,
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                count.toString(),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? Ucolors.primary : Colors.grey.shade600,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildTabCartView(
     BuildContext context,
     List<CartItemEntity> items,
@@ -702,15 +770,15 @@ class CartPage extends GetView<CartController> {
                     Row(
                       children: [
                         _buildDesktopTabPill(
-                          title:
-                              'SIP & Step-Up (${controller.sipAndStepUpItems.length})',
+                          title: 'SIP & Step-Up',
+                          count: controller.sipAndStepUpItems.length,
                           isSelected: !isLumpsumTab,
                           onTap: () => controller.activeTabIndex.value = 0,
                         ),
                         const Gap(12),
                         _buildDesktopTabPill(
-                          title:
-                              'Lumpsum Orders (${controller.lumpsumItems.length})',
+                          title: 'Lumpsum Orders',
+                          count: controller.lumpsumItems.length,
                           isSelected: isLumpsumTab,
                           onTap: () => controller.activeTabIndex.value = 1,
                         ),
@@ -922,6 +990,7 @@ class CartPage extends GetView<CartController> {
     required String title,
     required bool isSelected,
     required VoidCallback onTap,
+    int? count,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -944,14 +1013,45 @@ class CartPage extends GetView<CartController> {
                 ]
               : null,
         ),
-        child: Text(
-          title,
-          style: TextStyle(
-            fontFamily: FontFamily.medium,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : Colors.grey.shade700,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : Colors.grey.shade700,
+              ),
+            ),
+            if (count != null && count > 0) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.white.withValues(alpha: 0.25)
+                      : Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.white.withValues(alpha: 0.4)
+                        : Colors.grey.shade300,
+                  ),
+                ),
+                child: Text(
+                  count.toString(),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: isSelected ? Colors.white : Colors.grey.shade700,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
