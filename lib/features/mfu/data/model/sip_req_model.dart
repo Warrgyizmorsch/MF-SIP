@@ -7,6 +7,8 @@ class SipFundItemModel {
   final String frequency;
   final String day;
   final String? devopt;
+  final String? endMonth;
+  final String? endYear;
 
   SipFundItemModel({
     required this.schemeCode,
@@ -15,6 +17,8 @@ class SipFundItemModel {
     this.frequency = 'M',
     required this.day,
     this.devopt,
+    this.endMonth,
+    this.endYear,
   });
 
   Map<String, dynamic> toJson() {
@@ -27,6 +31,8 @@ class SipFundItemModel {
       'day': day,
     };
     if (devopt != null) data['devopt'] = devopt;
+    if (endMonth != null && endMonth!.isNotEmpty) data['end_month'] = endMonth;
+    if (endYear != null && endYear!.isNotEmpty) data['end_year'] = endYear;
     return data;
   }
 
@@ -38,6 +44,8 @@ class SipFundItemModel {
       frequency: json['frequency']?.toString() ?? 'M',
       day: json['sip_day']?.toString() ?? json['day']?.toString() ?? '25',
       devopt: json['devopt']?.toString(),
+      endMonth: json['end_month']?.toString(),
+      endYear: json['end_year']?.toString(),
     );
   }
 }
@@ -54,6 +62,8 @@ class SipReqModel {
   final String? schemeCode;
   final num? amount;
   final String? folio;
+  final String? endMonth;
+  final String? endYear;
 
   SipReqModel({
     this.funds,
@@ -67,6 +77,8 @@ class SipReqModel {
     this.schemeCode,
     this.amount,
     this.folio,
+    this.endMonth,
+    this.endYear,
   });
 
   Map<String, dynamic> toJson() {
@@ -93,6 +105,12 @@ class SipReqModel {
     if (goalId != null) {
       data['goal_id'] = goalId;
     }
+    if (endMonth != null && endMonth!.isNotEmpty) {
+      data['end_month'] = endMonth;
+    }
+    if (endYear != null && endYear!.isNotEmpty) {
+      data['end_year'] = endYear;
+    }
 
     if (funds != null && funds!.isNotEmpty) {
       if (funds!.length == 1 && (schemeCode == null || schemeCode!.isEmpty)) {
@@ -104,6 +122,16 @@ class SipReqModel {
         data['frequency'] = single.frequency;
         data['sip_day'] = int.tryParse(single.day) ?? single.day;
         if (single.devopt != null) data['devopt'] = single.devopt;
+        if (single.endMonth != null && single.endMonth!.isNotEmpty) {
+          data['end_month'] = single.endMonth;
+        } else if (endMonth != null && endMonth!.isNotEmpty) {
+          data['end_month'] = endMonth;
+        }
+        if (single.endYear != null && single.endYear!.isNotEmpty) {
+          data['end_year'] = single.endYear;
+        } else if (endYear != null && endYear!.isNotEmpty) {
+          data['end_year'] = endYear;
+        }
       } else {
         // Multiple funds support
         data['funds'] = funds!.map((e) => e.toJson()).toList();
@@ -115,6 +143,12 @@ class SipReqModel {
       if (frequency != null) data['frequency'] = frequency;
       if (sipDay != null) {
         data['sip_day'] = int.tryParse(sipDay.toString()) ?? sipDay;
+      }
+      if (endMonth != null && endMonth!.isNotEmpty) {
+        data['end_month'] = endMonth;
+      }
+      if (endYear != null && endYear!.isNotEmpty) {
+        data['end_year'] = endYear;
       }
     }
 
@@ -133,6 +167,8 @@ class SipReqModel {
       schemeCode: json.parse<String>('scheme_code'),
       amount: json.parse<num>('amount'),
       folio: json.parse<String>('folio'),
+      endMonth: json.parse<String>('end_month'),
+      endYear: json.parse<String>('end_year'),
       funds:
           (json['funds'] as List<dynamic>?)
               ?.map((e) => SipFundItemModel.fromJson(e as Map<String, dynamic>))

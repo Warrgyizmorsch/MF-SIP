@@ -327,6 +327,20 @@ class MfuController extends GetxController {
   final Rx<DateTime?> sipCapDate = Rx<DateTime?>(null);
   final RxInt sipCapAmount = 0.obs;
 
+  // Optional SIP End Month & Year (e.g. "12", "2036")
+  final Rx<String?> sipEndMonth = Rx<String?>(null);
+  final Rx<String?> sipEndYear = Rx<String?>(null);
+
+  void setSipEndDate({String? month, String? year}) {
+    sipEndMonth.value = month;
+    sipEndYear.value = year;
+  }
+
+  void clearSipEndDate() {
+    sipEndMonth.value = null;
+    sipEndYear.value = null;
+  }
+
   // ─── Validation Errors ────────────────────────────────────────────────────────
 
   final Rx<String?> sipAmountError = Rx<String?>(null);
@@ -401,6 +415,8 @@ class MfuController extends GetxController {
     sipFrequency.value = '6';
     sipCapByDate.value = true;
     sipCapDate.value = null;
+    sipEndMonth.value = args.initialEndMonth;
+    sipEndYear.value = args.initialEndYear;
   }
 
   // ─── Type Changed ─────────────────────────────────────────────────────────────
@@ -1851,6 +1867,8 @@ class MfuController extends GetxController {
               frequency: frequency,
               day: day,
               devopt: formatDevoptPayload,
+              endMonth: sipEndMonth.value,
+              endYear: sipEndYear.value,
             ),
         ];
 
@@ -1870,6 +1888,8 @@ class MfuController extends GetxController {
           : schemeCode,
       amount: (sipFunds.length == 1) ? sipFunds.first.amount : amount,
       folio: (sipFunds.length == 1) ? sipFunds.first.folio : folio,
+      endMonth: sipEndMonth.value,
+      endYear: sipEndYear.value,
     );
 
     final res = await mfuUseCases.postSipUseCase(req);

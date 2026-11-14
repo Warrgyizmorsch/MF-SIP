@@ -579,6 +579,8 @@ class SipPurchaseArgs {
   final int? initialSipDay;
   final int? initialWeekDay;
   final List<int>? allowedSipDates;
+  final String? initialEndMonth;
+  final String? initialEndYear;
 
   const SipPurchaseArgs({
     required this.schemeCode,
@@ -598,6 +600,8 @@ class SipPurchaseArgs {
     this.initialSipDay,
     this.initialWeekDay,
     this.allowedSipDates,
+    this.initialEndMonth,
+    this.initialEndYear,
   });
 }
 
@@ -1373,6 +1377,178 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     );
   }
 
+  String _formatMonthYear(String month, String year) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final mInt = int.tryParse(month) ?? 1;
+    final name = (mInt >= 1 && mInt <= 12) ? months[mInt - 1] : month;
+    return '$name $year';
+  }
+
+  void _showSipEndDateModal() {
+    FocusScope.of(context).unfocus();
+    final now = DateTime.now();
+    final currentM = _c.sipEndMonth.value;
+    final currentY = _c.sipEndYear.value;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: _C.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'SIP Duration / End Date',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: _C.textPrimary,
+                      ),
+                    ),
+                  ),
+                  if (currentM != null && currentY != null)
+                    TextButton(
+                      onPressed: () {
+                        _c.clearSipEndDate();
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text(
+                        'Reset',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Optional. By default, your SIP continues until you cancel (up to 10 years).',
+                style: TextStyle(fontSize: 13, color: _C.textSec, height: 1.4),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(
+                  Icons.all_inclusive_rounded,
+                  color: _C.primary,
+                ),
+                title: const Text(
+                  'Until I cancel (Default)',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                    color: _C.textPrimary,
+                  ),
+                ),
+                subtitle: const Text('Runs for 10 years or until stopped'),
+                trailing: (currentM == null || currentY == null)
+                    ? const Icon(Icons.check_circle_rounded, color: _C.primary)
+                    : null,
+                onTap: () {
+                  _c.clearSipEndDate();
+                  Navigator.pop(ctx);
+                },
+              ),
+              const Divider(height: 16),
+              ...[1, 3, 5, 10].map((years) {
+                final targetYear = (now.year + years).toString();
+                final targetMonth = now.month.toString().padLeft(2, '0');
+                final isSelected =
+                    currentM == targetMonth && currentY == targetYear;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(
+                    Icons.timelapse_rounded,
+                    color: _C.primary,
+                  ),
+                  title: Text(
+                    '$years ${years == 1 ? 'Year' : 'Years'} (${_formatMonthYear(targetMonth, targetYear)})',
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontWeight: FontWeight.w600,
+                      color: _C.textPrimary,
+                    ),
+                  ),
+                  trailing: isSelected
+                      ? const Icon(
+                          Icons.check_circle_rounded,
+                          color: _C.primary,
+                        )
+                      : null,
+                  onTap: () {
+                    _c.setSipEndDate(month: targetMonth, year: targetYear);
+                    Navigator.pop(ctx);
+                  },
+                );
+              }),
+              const Divider(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(
+                  Icons.calendar_month_rounded,
+                  color: _C.primary,
+                ),
+                title: const Text(
+                  'Choose Specific Month & Year...',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                    color: _C.primary,
+                  ),
+                ),
+                trailing: const Icon(
+                  Icons.chevron_right_rounded,
+                  color: _C.primary,
+                ),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime(now.year + 3, now.month, 1),
+                    firstDate: DateTime(now.year, now.month + 1, 1),
+                    lastDate: DateTime(now.year + 30, 12, 31),
+                    helpText: 'SELECT SIP END DATE',
+                  );
+                  if (picked != null) {
+                    final m = picked.month.toString().padLeft(2, '0');
+                    final y = picked.year.toString();
+                    _c.setSipEndDate(month: m, year: y);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickSipDate() async {
     final now = DateTime.now();
     final allowedDates =
@@ -1638,6 +1814,25 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                     ),
                   ),
               ],
+              const SizedBox(height: 10),
+              _DetailTile(
+                onTap: _showSipEndDateModal,
+                icon: Icons.event_repeat_rounded,
+                iconColor: _C.primary,
+                label: 'SIP End Date',
+                value:
+                    _c.sipEndMonth.value != null && _c.sipEndYear.value != null
+                    ? 'Ends on ${_formatMonthYear(_c.sipEndMonth.value!, _c.sipEndYear.value!)}'
+                    : 'Until cancelled (Default 10 yrs)',
+                trailing: _Chip(
+                  label:
+                      _c.sipEndMonth.value != null &&
+                          _c.sipEndYear.value != null
+                      ? '${_c.sipEndMonth.value}/${_c.sipEndYear.value}'
+                      : 'Optional',
+                  color: _c.sipEndMonth.value != null ? _C.primary : _C.textSec,
+                ),
+              ),
               const SizedBox(height: 24),
             ],
           );
@@ -2206,6 +2401,13 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                 _c.sipDay.value != null
                     ? '${_c.sipDay.value}th of every month'
                     : 'Not selected',
+              ),
+            if (type != InvType.lumpsum)
+              _summaryRow(
+                'End Date',
+                _c.sipEndMonth.value != null && _c.sipEndYear.value != null
+                    ? '${_formatMonthYear(_c.sipEndMonth.value!, _c.sipEndYear.value!)} (${_c.sipEndMonth.value}/${_c.sipEndYear.value})'
+                    : 'Until cancelled',
               ),
             if (type != InvType.lumpsum &&
                 _c.sipFreq.value == SipFrequency.weekly)
