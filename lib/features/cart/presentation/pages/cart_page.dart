@@ -2487,6 +2487,16 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                     ],
                     onChanged: (val) {
                       if (val != null && val != currentType) {
+                        final bool isMovingToLumpsum = val == 'lumpsum';
+                        final bool isSourceLumpsum = currentType == 'lumpsum';
+                        final bool isTabSwitch =
+                            (isSourceLumpsum && !isMovingToLumpsum) ||
+                            (!isSourceLumpsum && isMovingToLumpsum);
+
+                        final int sourceCount = isSourceLumpsum
+                            ? controller.lumpsumItems.length
+                            : controller.sipAndStepUpItems.length;
+
                         int newDefaultAmount = minSip;
                         if (val == 'lumpsum') {
                           newDefaultAmount = minLumpsum;
@@ -2510,6 +2520,16 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                           topUpAmount: newTopUp,
                           frequency: newFrequency,
                         );
+
+                        if (isTabSwitch && sourceCount == 1) {
+                          final int targetTab = isMovingToLumpsum ? 1 : 0;
+                          controller.activeTabIndex.value = targetTab;
+                          try {
+                            DefaultTabController.of(
+                              context,
+                            ).animateTo(targetTab);
+                          } catch (_) {}
+                        }
                       }
                     },
                   ),
