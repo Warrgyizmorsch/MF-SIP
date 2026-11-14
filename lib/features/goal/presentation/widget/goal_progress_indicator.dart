@@ -32,6 +32,7 @@ class GoalProgressIndicator extends StatelessWidget {
     this.compact = false,
     this.color = defaultColor,
     this.duration = const Duration(milliseconds: 500),
+    this.maskImage = true,
   });
 
   static const defaultColor = Color(0xFF213C73);
@@ -53,6 +54,7 @@ class GoalProgressIndicator extends StatelessWidget {
   final bool compact;
   final Color color;
   final Duration duration;
+  final bool maskImage;
 
   String _percentage(double value) {
     final percent = value * 100;
@@ -101,28 +103,37 @@ class GoalProgressIndicator extends StatelessWidget {
                             child: Container(
                               width: 71,
                               height: 71,
+                              clipBehavior: Clip.antiAlias,
                               decoration: const BoxDecoration(
                                 color: Color(0xFFEDEDED),
                                 shape: BoxShape.circle,
                               ),
                               padding: EdgeInsets.all(
-                                compactIllustration ? 10 : 14,
+                                (!maskImage &&
+                                        (iconUrl?.trim().isNotEmpty ?? false))
+                                    ? 0
+                                    : (compactIllustration ? 10 : 14),
                               ),
-                              child: ShaderMask(
-                                blendMode: BlendMode.srcIn,
-                                shaderCallback: (bounds) => LinearGradient(
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                  colors: [
-                                    color,
-                                    color,
-                                    const Color(0xFFBDBDBD),
-                                    const Color(0xFFBDBDBD),
-                                  ],
-                                  stops: [0, value, value, 1],
-                                ).createShader(bounds),
-                                child: image,
-                              ),
+                              child:
+                                  (!maskImage &&
+                                      (iconUrl?.trim().isNotEmpty ?? false))
+                                  ? image
+                                  : ShaderMask(
+                                      blendMode: BlendMode.srcIn,
+                                      shaderCallback: (bounds) =>
+                                          LinearGradient(
+                                            begin: Alignment.bottomCenter,
+                                            end: Alignment.topCenter,
+                                            colors: [
+                                              color,
+                                              color,
+                                              const Color(0xFFBDBDBD),
+                                              const Color(0xFFBDBDBD),
+                                            ],
+                                            stops: [0, value, value, 1],
+                                          ).createShader(bounds),
+                                      child: image,
+                                    ),
                             ),
                           ),
                         ),
@@ -206,12 +217,15 @@ class GoalProgressIndicator extends StatelessWidget {
     final source = iconUrl?.trim() ?? '';
     final fallback = Icon(fallbackIcon, size: size, color: Colors.black);
     if (source.isEmpty) return fallback;
-    final url = source.startsWith('http')
-        ? source
-        : '${Appurl.baseUrl.replaceFirst(RegExp(r'/+$'), '')}/${source.replaceFirst(RegExp(r'^/+'), '')}';
+    final cleanSource = source.replaceAll('\\', '/');
+    final url = cleanSource.startsWith('http')
+        ? cleanSource
+        : '${Appurl.baseUrl.replaceFirst(RegExp(r'/+$'), '')}/${cleanSource.replaceFirst(RegExp(r'^/+'), '')}';
     return Image.network(
       url,
-      fit: BoxFit.contain,
+      fit: !maskImage ? BoxFit.cover : BoxFit.contain,
+      width: !maskImage ? 71 : null,
+      height: !maskImage ? 71 : null,
       errorBuilder: (_, __, ___) => fallback,
     );
   }

@@ -257,6 +257,7 @@ class HomeActiveGoalCard extends StatelessWidget {
       iconUrl: summary.cover,
       emoji: emoji,
       fallbackIcon: fallbackIcon,
+      maskImage: false,
     ),
   );
 
