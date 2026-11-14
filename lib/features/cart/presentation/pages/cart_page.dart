@@ -35,19 +35,6 @@ class CartPage extends GetView<CartController> {
   const CartPage({super.key});
 
   void _processInlineCartPayment() {
-    final paymentCtrl = Get.find<MfuController>();
-
-    if (paymentCtrl.selectedMethod.value == 'upi' &&
-        paymentCtrl.upiId.value.trim().isEmpty) {
-      showCustomToast(
-        title: 'Enter UPI Id',
-        message: '',
-        backgroundColor: Colors.red,
-        icon: Icons.warning,
-      );
-      return;
-    }
-
     CustomSnackbar.info(
       title: 'Processing',
       message: 'Initializing secure cart checkout...',
@@ -1649,105 +1636,46 @@ class _CheckoutUpiPanel extends StatelessWidget {
         ),
         const Gap(12),
         _CheckoutPanelCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              const Text(
-                'Enter UPI ID',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Ucolors.dark,
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Ucolors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Ucolors.primary,
+                  size: 22,
                 ),
               ),
-              const Gap(10),
-              Obx(
-                () => Row(
+              const Gap(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: textController,
-                        onChanged: (value) {
-                          controller.upiId.value = value;
-                          controller.isVerified.value = false;
-                        },
-                        style: const TextStyle(
-                          fontFamily: FontFamily.medium,
-                          fontSize: 14,
-                          color: Ucolors.dark,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'yourname@upi',
-                          hintStyle: TextStyle(
-                            fontFamily: FontFamily.medium,
-                            color: Colors.grey.shade400,
-                            fontSize: 13,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF6F7FB),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 13,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          suffixIcon: controller.isVerified.value
-                              ? const Icon(
-                                  Icons.check_circle_rounded,
-                                  color: Ucolors.success,
-                                )
-                              : null,
-                        ),
+                    const Text(
+                      'Pay via UPI',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Ucolors.dark,
                       ),
                     ),
-                    const Gap(10),
-                    if (!controller.isVerified.value)
-                      GestureDetector(
-                        onTap: controller.isVerifying.value
-                            ? null
-                            : controller.verifyUpi,
-                        child: Container(
-                          height: 48,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            gradient: Ucolors.backgroundGradient,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: controller.isVerifying.value
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Verify',
-                                    style: TextStyle(
-                                      fontFamily: FontFamily.medium,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                          ),
-                        ),
+                    const Gap(2),
+                    Text(
+                      'Complete payment via your UPI app (GPay, PhonePe, Paytm) or QR code on checkout confirmation.',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        height: 1.3,
                       ),
+                    ),
                   ],
-                ),
-              ),
-              const Gap(5),
-              Text(
-                'e.g. mobilenumber@upi, name@oksbi',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 11,
-                  color: Colors.grey.shade400,
                 ),
               ),
             ],

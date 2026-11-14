@@ -126,6 +126,7 @@ class PaymentScreen extends StatelessWidget {
                         textController: upiController,
                         bankName: bankName,
                         maskedAccount: maskedAccount,
+                        isMandateFlow: isMandateFlow,
                       )
                     : _NetBankingPanel(
                         key: const ValueKey('netbanking'),
@@ -296,12 +297,14 @@ class _UpiPanel extends StatelessWidget {
     required this.textController,
     required this.bankName,
     required this.maskedAccount,
+    this.isMandateFlow = false,
   });
 
   final MfuController controller;
   final TextEditingController textController;
   final String bankName;
   final String maskedAccount;
+  final bool isMandateFlow;
 
   @override
   Widget build(BuildContext context) {
@@ -375,125 +378,174 @@ class _UpiPanel extends StatelessWidget {
         ),
         const Gap(16),
 
-        // ── Manual UPI Entry ────────────────────────────────
-        _PanelCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Or enter UPI ID manually',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF4A4E6A),
+        if (isMandateFlow)
+          // ── Manual UPI Entry (For AutoPay Mandates) ──────────────────
+          _PanelCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Enter UPI ID for AutoPay Mandate',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF4A4E6A),
+                  ),
                 ),
-              ),
-              const Gap(12),
-              Obx(
-                () => Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: textController,
-                        onChanged: (v) {
-                          controller.upiId.value = v;
-                          controller.isVerified.value = false;
-                        },
-                        style: const TextStyle(
+                const Gap(12),
+                Obx(
+                  () => Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: textController,
+                          onChanged: (v) {
+                            controller.upiId.value = v;
+                            controller.isVerified.value = false;
+                          },
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 15,
+                            color: Color(0xFF1A1D2E),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'yourname@upi',
+                            hintStyle: const TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Color(0xFFBCC0D0),
+                              fontSize: 14,
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFFF6F7FB),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            suffixIcon: controller.isVerified.value
+                                ? const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Color(0xFF10B981),
+                                  )
+                                : null,
+                          ),
+                        ),
+                      ),
+                      const Gap(10),
+                      Obx(
+                        () => GestureDetector(
+                          onTap: controller.isVerifying.value
+                              ? null
+                              : controller.verifyUpi,
+                          child: controller.isVerified.value
+                              ? const SizedBox.shrink()
+                              : AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  height: 52,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: controller.isVerified.value
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFF4F46E5),
+                                    gradient: controller.isVerified.value
+                                        ? Ucolors.modernFintechGradient
+                                        : Ucolors.backgroundGradient,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Center(
+                                    child: controller.isVerifying.value
+                                        ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : Text(
+                                            controller.isVerified.value
+                                                ? 'Verified ✓'
+                                                : 'Verify',
+                                            style: const TextStyle(
+                                              fontFamily: FontFamily.medium,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Gap(4),
+                const Text(
+                  'e.g. mobilenumber@upi, name@oksbi',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                    color: Color(0xFFBCC0D0),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          // ── UPI Gateway Notice (For Cart & Non-Mandate Flows) ────────
+          _PanelCard(
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.qr_code_scanner_rounded,
+                    color: Ucolors.primary,
+                    size: 22,
+                  ),
+                ),
+                const Gap(14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Pay via UPI',
+                        style: TextStyle(
                           fontFamily: FontFamily.medium,
-                          fontSize: 15,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
                           color: Color(0xFF1A1D2E),
                         ),
-                        decoration: InputDecoration(
-                          hintText: 'yourname@upi',
-                          hintStyle: const TextStyle(
-                            fontFamily: FontFamily.medium,
-                            color: Color(0xFFBCC0D0),
-                            fontSize: 14,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF6F7FB),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          suffixIcon: controller.isVerified.value
-                              ? const Icon(
-                                  Icons.check_circle_rounded,
-                                  color: Color(0xFF10B981),
-                                )
-                              : null,
+                      ),
+                      Gap(3),
+                      Text(
+                        'Proceed to pay securely using any UPI app (GPay, PhonePe, Paytm, BHIM) or QR code on the next screen.',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          color: Color(0xFF8A8FA8),
+                          height: 1.3,
                         ),
                       ),
-                    ),
-                    const Gap(10),
-                    Obx(
-                      () => GestureDetector(
-                        onTap: controller.isVerifying.value
-                            ? null
-                            : controller.verifyUpi,
-                        child: controller.isVerified.value
-                            ? SizedBox.shrink()
-                            : AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                height: 52,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: controller.isVerified.value
-                                      ? const Color(0xFF10B981)
-                                      : const Color(0xFF4F46E5),
-                                  gradient: controller.isVerified.value
-                                      ? Ucolors.modernFintechGradient
-                                      : Ucolors.backgroundGradient,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Center(
-                                  child: controller.isVerifying.value
-                                      ? const SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : Text(
-                                          controller.isVerified.value
-                                              ? 'Verified ✓'
-                                              : 'Verify',
-                                          style: const TextStyle(
-                                            fontFamily: FontFamily.medium,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Gap(4),
-              const Text(
-                'e.g. mobilenumber@upi, name@oksbi',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 11,
-                  color: Color(0xFFBCC0D0),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
       ],
     );
   }
@@ -659,11 +711,13 @@ class _BottomBar extends StatelessWidget {
                 onPressed: () {
                   if (isSubmitting) return;
 
-                  if (mfuCtrl.upiId.isEmpty &&
+                  if (isMandateFlow &&
+                      mfuCtrl.upiId.isEmpty &&
                       mfuCtrl.selectedMethod.value == 'upi') {
                     showCustomToast(
                       title: 'Enter UPI Id',
-                      message: '',
+                      message:
+                          'Please enter a UPI ID to set up AutoPay mandate',
                       backgroundColor: Colors.red,
                       icon: Icons.warning,
                     );
