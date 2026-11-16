@@ -9,6 +9,7 @@ import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 
 import '../../../../config/routes/app_routes.dart';
+import '../helper/portfolio_reinvest_helper.dart';
 import '../pages/portfolio_fund_details_page.dart';
 import 'sip_cancel_otp_modal.dart';
 
@@ -339,126 +340,33 @@ class PortfolioFundDetailsModal extends StatelessWidget {
           const SizedBox(height: 16),
 
           // ── 6. Bottom Action Buttons ───────────────────
-          Row(
+          Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(color: Ucolors.primary),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    PortfolioFundDetailsPage.navFund = fund;
-                    if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
-                      Get.find<NavigationBarController>().openNestedRoute(
-                        AppRoutes.portfolioDetails,
-                        arguments: fund,
-                      );
-                    } else {
-                      Get.toNamed(AppRoutes.portfolioDetails, arguments: fund);
-                    }
-                  },
-                  icon: const Icon(
-                    Iconsax.eye,
-                    size: 16,
-                    color: Ucolors.primary,
-                  ),
-                  label: const Text(
-                    'View Details',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: Ucolors.primary,
-                    ),
-                  ),
-                ),
-              ),
-              if (!fund.isAllotmentPending &&
-                  !fund.isRedemptionPending &&
-                  !fund.isFullyRedeemed &&
-                  fund.totalUnits > 0) ...[
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
+              if (!fund.isFullyRedeemed) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Ucolors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 2,
                     ),
-                    onPressed: () async {
-                      if (fund.isSipActive) {
-                        Navigator.pop(context);
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          final targetContext = Get.context;
-                          if (targetContext != null) {
-                            SipCancelOtpModal.show(targetContext, fund);
-                          }
-                        });
-                      } else {
-                        final shouldProceed =
-                            await confirmGoalLinkedRedeemIfNeeded(
-                              context,
-                              fund,
-                            );
-                        if (!shouldProceed) return;
-
-                        if (!context.mounted) return;
-                        Navigator.pop(context);
-                        final redeemArgs = RedeemArgs(
-                          mfuOrderFundId: fund.mfuOrderFundId,
-                          amcLogo: fund.amcLogo,
-                          schemeCode: fund.schemeCode,
-                          schemeName: fund.fundName,
-                          folioNumber: fund.folioNo,
-                          folioType: 'Individual',
-                          totalUnits: fund.totalUnits,
-                          totalValue: fund.currentValue,
-                          lockedUnits: 0.0,
-                          lockedValue: 0,
-                          freeUnits: fund.totalUnits,
-                          freeValue: fund.currentValue,
-                          investedAmt: fund.investedAmount,
-                          hasPendingRedemption: fund.hasPendingRedemption,
-                          redemptionMessage: fund.redemptionMessage,
-                          orderRefNo: fund.redemptionDetails?.orderRefNo ?? '',
-                          pendingRedemptionAmount:
-                              fund.redemptionDetails?.amount ??
-                              fund.redeemedAmount,
-                          pendingRedemptionUnits: fund.redeemedUnits,
-                          exitLoad: fund.exitLoad,
-                          goalId: fund.goalId,
-                          goalName: fund.goalName,
-                        );
-
-                        RedeemPage.navArgs = redeemArgs;
-
-                        if (kIsWeb &&
-                            Get.isRegistered<NavigationBarController>()) {
-                          Get.find<NavigationBarController>().openNestedRoute(
-                            AppRoutes.redeemPage,
-                            arguments: redeemArgs,
-                          );
-                        } else {
-                          Get.toNamed(
-                            AppRoutes.redeemPage,
-                            arguments: redeemArgs,
-                          );
-                        }
-                      }
+                    onPressed: () {
+                      Navigator.pop(context);
+                      PortfolioReinvestHelper.navigateToPurchase(context, fund);
                     },
-                    child: Text(
-                      fund.isSipActive
-                          ? 'Cancel SIP'
-                          : (fund.isPartiallyRedeemed
-                                ? 'Redeem Remaining'
-                                : 'Redeem'),
-                      style: const TextStyle(
+                    icon: const Icon(
+                      Iconsax.repeat,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Reinvest',
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -466,7 +374,150 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
               ],
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Ucolors.primary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        PortfolioFundDetailsPage.navFund = fund;
+                        if (kIsWeb &&
+                            Get.isRegistered<NavigationBarController>()) {
+                          Get.find<NavigationBarController>().openNestedRoute(
+                            AppRoutes.portfolioDetails,
+                            arguments: fund,
+                          );
+                        } else {
+                          Get.toNamed(
+                            AppRoutes.portfolioDetails,
+                            arguments: fund,
+                          );
+                        }
+                      },
+                      icon: const Icon(
+                        Iconsax.eye,
+                        size: 16,
+                        color: Ucolors.primary,
+                      ),
+                      label: const Text(
+                        'View Details',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Ucolors.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (!fund.isAllotmentPending &&
+                      !fund.isRedemptionPending &&
+                      !fund.isFullyRedeemed &&
+                      fund.totalUnits > 0) ...[
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(
+                            color: fund.isSipActive
+                                ? Ucolors.portfolioNegative
+                                : Ucolors.primary,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (fund.isSipActive) {
+                            Navigator.pop(context);
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              final targetContext = Get.context;
+                              if (targetContext != null) {
+                                SipCancelOtpModal.show(targetContext, fund);
+                              }
+                            });
+                          } else {
+                            final shouldProceed =
+                                await confirmGoalLinkedRedeemIfNeeded(
+                                  context,
+                                  fund,
+                                );
+                            if (!shouldProceed) return;
+
+                            if (!context.mounted) return;
+                            Navigator.pop(context);
+                            final redeemArgs = RedeemArgs(
+                              mfuOrderFundId: fund.mfuOrderFundId,
+                              amcLogo: fund.amcLogo,
+                              schemeCode: fund.schemeCode,
+                              schemeName: fund.fundName,
+                              folioNumber: fund.folioNo,
+                              folioType: 'Individual',
+                              totalUnits: fund.totalUnits,
+                              totalValue: fund.currentValue,
+                              lockedUnits: 0.0,
+                              lockedValue: 0,
+                              freeUnits: fund.totalUnits,
+                              freeValue: fund.currentValue,
+                              investedAmt: fund.investedAmount,
+                              hasPendingRedemption: fund.hasPendingRedemption,
+                              redemptionMessage: fund.redemptionMessage,
+                              orderRefNo:
+                                  fund.redemptionDetails?.orderRefNo ?? '',
+                              pendingRedemptionAmount:
+                                  fund.redemptionDetails?.amount ??
+                                  fund.redeemedAmount,
+                              pendingRedemptionUnits: fund.redeemedUnits,
+                              exitLoad: fund.exitLoad,
+                              goalId: fund.goalId,
+                              goalName: fund.goalName,
+                            );
+
+                            RedeemPage.navArgs = redeemArgs;
+
+                            if (kIsWeb &&
+                                Get.isRegistered<NavigationBarController>()) {
+                              Get.find<NavigationBarController>()
+                                  .openNestedRoute(
+                                    AppRoutes.redeemPage,
+                                    arguments: redeemArgs,
+                                  );
+                            } else {
+                              Get.toNamed(
+                                AppRoutes.redeemPage,
+                                arguments: redeemArgs,
+                              );
+                            }
+                          }
+                        },
+                        child: Text(
+                          fund.isSipActive
+                              ? 'Cancel SIP'
+                              : (fund.isPartiallyRedeemed
+                                    ? 'Redeem Remaining'
+                                    : 'Redeem'),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: fund.isSipActive
+                                ? Ucolors.portfolioNegative
+                                : Ucolors.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
         ],

@@ -85,6 +85,7 @@
 //   }
 // }
 import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 
 class MfuPortfolioModel {
   final bool? success;
@@ -504,6 +505,15 @@ class MfuPortfolioItemModel {
   final String? nextSipDate;
   final int? totalInstallments;
   final List<MfuFundTransactionModel>? transactions;
+  final String? category;
+  final String? riskLabel;
+  final num? minSip;
+  final num? minLumpsum;
+  final num? minTopup;
+  final List<int>? allowedSipDates;
+  final bool? isSipAllowed;
+  final bool? isLumpsumAllowed;
+  final String? divoption;
 
   MfuPortfolioItemModel({
     this.schemeCode,
@@ -571,6 +581,15 @@ class MfuPortfolioItemModel {
     this.nextSipDate,
     this.totalInstallments,
     this.transactions,
+    this.category,
+    this.riskLabel,
+    this.minSip,
+    this.minLumpsum,
+    this.minTopup,
+    this.allowedSipDates,
+    this.isSipAllowed,
+    this.isLumpsumAllowed,
+    this.divoption,
   });
 
   static MfuRedemptionDetailsModel? _parseRedemptionDetails(dynamic raw) {
@@ -737,6 +756,45 @@ class MfuPortfolioItemModel {
           ?.whereType<Map<String, dynamic>>()
           .map((e) => MfuFundTransactionModel.fromJson(e))
           .toList(),
+      category:
+          json.parse<String>('category') ??
+          json.parse<String>('scheme_category'),
+      riskLabel:
+          json.parse<String>('risk_label') ??
+          json.parse<String>('risk') ??
+          json.parse<String>('risk_level'),
+      minSip:
+          json.parse<num>('sip_minimum_amount') ??
+          json.parse<num>('min_sip_amount') ??
+          json.parse<num>('min_sip'),
+      minLumpsum:
+          json.parse<num>('lumpsum_minimum_amount') ??
+          json.parse<num>('min_lumpsum_amount') ??
+          json.parse<num>('min_lumpsum'),
+      minTopup:
+          json.parse<num>('minimum_topup') ??
+          json.parse<num>('min_topup') ??
+          json.parse<num>('min_additional_investment'),
+      allowedSipDates: parseAllowedSipDates(
+        json['allowed_sip_dates'] ??
+            json['sip_dates'] ??
+            json['available_sip_dates'],
+      ),
+      isSipAllowed:
+          json.parse<bool>('is_sip_allowed') ?? json.parse<bool>('sip_allowed'),
+      isLumpsumAllowed:
+          json.parse<bool>('is_lumpsum_allowed') ??
+          json.parse<bool>('lumpsum_allowed'),
+      divoption:
+          json.parse<String>('divoption') ??
+          json.parse<String>('div_opt') ??
+          json.parse<String>('dividend_option') ??
+          json.parse<String>('devopt') ??
+          (json.parse<bool>('is_dividend_scheme') == true
+              ? 'BOTH'
+              : (json.parse<bool>('is_dividend_scheme') == false
+                    ? 'GR'
+                    : null)),
     );
   }
 }

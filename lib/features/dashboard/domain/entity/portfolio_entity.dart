@@ -571,6 +571,16 @@ class MfuPortfolioItemEntity extends Equatable {
   final String nextSipDate;
   final int totalInstallments;
   final List<MfuFundTransactionEntity> transactions;
+  final String amcCode;
+  final String category;
+  final String riskLabel;
+  final int minSip;
+  final int minLumpsum;
+  final int minTopup;
+  final List<int> allowedSipDates;
+  final bool isSipAllowed;
+  final bool isLumpsumAllowed;
+  final String? divoption;
 
   const MfuPortfolioItemEntity({
     required this.schemeCode,
@@ -635,6 +645,16 @@ class MfuPortfolioItemEntity extends Equatable {
     this.nextSipDate = '',
     this.totalInstallments = 0,
     this.transactions = const [],
+    this.amcCode = '',
+    this.category = 'Equity • Flexi Cap',
+    this.riskLabel = 'Very High Risk',
+    this.minSip = 500,
+    this.minLumpsum = 1000,
+    this.minTopup = 500,
+    this.allowedSipDates = const [],
+    this.isSipAllowed = true,
+    this.isLumpsumAllowed = true,
+    this.divoption,
   });
 
   /// Identifier used by the existing portfolio-to-goal link endpoint integration.
@@ -714,6 +734,16 @@ class MfuPortfolioItemEntity extends Equatable {
       nextSipDate: nextSipDate,
       totalInstallments: totalInstallments,
       transactions: transactions,
+      amcCode: amcCode,
+      category: category,
+      riskLabel: riskLabel,
+      minSip: minSip,
+      minLumpsum: minLumpsum,
+      minTopup: minTopup,
+      allowedSipDates: allowedSipDates,
+      isSipAllowed: isSipAllowed,
+      isLumpsumAllowed: isLumpsumAllowed,
+      divoption: divoption,
     );
   }
 
@@ -855,6 +885,20 @@ class MfuPortfolioItemEntity extends Equatable {
     return 'Return';
   }
 
+  /// Resolves the dividend option code used by MFU / SipPurchaseArgs:
+  /// 'GR' (Growth), 'PAYOUT', 'REINV', or 'BOTH' (show choice modal).
+  String get resolvedDivOption {
+    final opt = (divoption ?? '').trim().toUpperCase();
+    if (opt.isNotEmpty) return opt;
+    final name = fundName.toUpperCase();
+    if (name.contains('IDCW') || name.contains('DIVIDEND')) {
+      if (name.contains('REINVEST')) return 'REINV';
+      if (name.contains('PAYOUT')) return 'PAYOUT';
+      return 'BOTH';
+    }
+    return 'GR';
+  }
+
   @override
   List<Object?> get props => [
     schemeCode,
@@ -917,6 +961,16 @@ class MfuPortfolioItemEntity extends Equatable {
     nextSipDate,
     totalInstallments,
     transactions,
+    amcCode,
+    category,
+    riskLabel,
+    minSip,
+    minLumpsum,
+    minTopup,
+    allowedSipDates,
+    isSipAllowed,
+    isLumpsumAllowed,
+    divoption,
   ];
 }
 
@@ -1080,6 +1134,22 @@ extension MfuPortfolioItemMapper on MfuPortfolioItemModel {
       nextSipDate: nextSipDate ?? '',
       totalInstallments: totalInstallments ?? 0,
       transactions: transactions?.map((e) => e.toEntity()).toList() ?? const [],
+      amcCode: amcCode ?? '',
+      category: (category?.trim().isNotEmpty ?? false)
+          ? category!.trim()
+          : 'Equity • Flexi Cap',
+      riskLabel: (riskLabel?.trim().isNotEmpty ?? false)
+          ? riskLabel!.trim()
+          : 'Very High Risk',
+      minSip: (minSip != null && minSip! > 0) ? minSip!.toInt() : 500,
+      minLumpsum: (minLumpsum != null && minLumpsum! > 0)
+          ? minLumpsum!.toInt()
+          : 1000,
+      minTopup: (minTopup != null && minTopup! > 0) ? minTopup!.toInt() : 500,
+      allowedSipDates: allowedSipDates ?? const [],
+      isSipAllowed: isSipAllowed ?? true,
+      isLumpsumAllowed: isLumpsumAllowed ?? true,
+      divoption: divoption,
     );
   }
 }
