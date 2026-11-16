@@ -4,10 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -24,6 +22,50 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+class _ProfileOverviewStyle {
+  static const background = Color(0xFFF7F7FC);
+  static const border = Color(0xFFE7E8EE);
+  static const ink = Color(0xFF202A3A);
+  static const muted = Color(0xFF8B8BA4);
+  static const blue = Color(0xFF357CFF);
+  static const blueSurface = Color(0xFFEDF4FF);
+
+  static TextStyle text(
+    double size, {
+    Color color = ink,
+    FontWeight weight = FontWeight.w400,
+  }) => TextStyle(
+    fontFamily: FontFamily.regular,
+    fontSize: size,
+    height: 1.4,
+    color: color,
+    fontWeight: weight,
+  );
+}
+
+class _ProfileOverviewCard extends StatelessWidget {
+  const _ProfileOverviewCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(24),
+    this.color = Colors.white,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: color,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(26),
+      side: const BorderSide(color: _ProfileOverviewStyle.border),
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: Padding(padding: padding, child: child),
+  );
+}
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -35,11 +77,13 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDesktop
           ? const Color(0xFFF5F7FA)
-          : null, // Professional Web Grey
+          : _ProfileOverviewStyle.background, // Professional Web Grey
       appBar: CustomAppBarNormal(
         title: 'Profile',
         backIcon: !isDesktop ? false : !isDesktop,
-        backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : null,
+        backgroundColor: isDesktop
+            ? const Color(0xFFF5F7FA)
+            : _ProfileOverviewStyle.background,
       ),
       body: isDesktop ? const _WebProfileDashboard() : _MobileProfileLayout(),
     );
@@ -56,55 +100,79 @@ class _MobileProfileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: UPadding.screenPadding,
-      child: SingleChildScrollView(
+    return SizedBox.expand(
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_ProfileOverviewStyle.background, Colors.white],
+          ),
+        ),
         child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: kToolbarHeight / 2),
-              // ProfileHeader(
-              //   onTap: () =>  controller.pickImage,
-              //   name: user?.name,
-              //   img: UImages.avatar,
-              //   subtitle: user?.email ?? '',
-              //   icon: Icons.edit,
-              // ),
-              Obx(() {
-                final reactiveUser = SessionManager.instance.userObs.value;
-                final canNumber =
-                    (controller.userData.value?.canNumber ??
-                            reactiveUser?.canNumber ??
-                            '')
-                        .trim();
+          top: false,
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                constraints.maxWidth < 360 ? 16 : 24,
+                20,
+                constraints.maxWidth < 360 ? 16 : 24,
+                28,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ProfileHeader(
+                      //   onTap: () =>  controller.pickImage,
+                      //   name: user?.name,
+                      //   img: UImages.avatar,
+                      //   subtitle: user?.email ?? '',
+                      //   icon: Icons.edit,
+                      // ),
+                      Obx(() {
+                        final reactiveUser =
+                            SessionManager.instance.userObs.value;
+                        final canNumber =
+                            (controller.userData.value?.canNumber ??
+                                    reactiveUser?.canNumber ??
+                                    '')
+                                .trim();
 
-                String displayImage = controller.imagePath.isNotEmpty
-                    ? controller.imagePath.value
-                    : (reactiveUser?.img ?? UImages.mfsiplogo);
+                        String displayImage = controller.imagePath.isNotEmpty
+                            ? controller.imagePath.value
+                            : (reactiveUser?.img ?? UImages.avatar);
 
-                return ProfileHeader(
-                  onTap: () => Get.toNamed(AppRoutes.personaldetails),
-                  img: displayImage,
-                  name: reactiveUser?.name,
-                  subtitle:
-                      reactiveUser?.email ??
-                      reactiveUser?.mobile?.toString() ??
-                      '',
-                  canNumber: canNumber,
-                  icon: Icons.edit,
-                );
-              }),
-              const SizedBox(height: 20),
-              const Upgradebanner(),
-              const SizedBox(height: 20),
-              ActivityGeneralSectionMobile(),
-              const SizedBox(height: 20),
-              const LogoutButton(),
-              const Gap(15),
-              const FooterSection(),
-              const SizedBox(height: 20),
-            ],
+                        return ProfileHeader(
+                          overview: true,
+                          onTap: () => Get.toNamed(AppRoutes.personaldetails),
+                          img: displayImage,
+                          name: reactiveUser?.name,
+                          subtitle:
+                              reactiveUser?.email ??
+                              reactiveUser?.mobile?.toString() ??
+                              '',
+                          canNumber: canNumber,
+                          icon: Icons.edit,
+                        );
+                      }),
+                      const SizedBox(height: 12),
+                      const Upgradebanner(overview: true),
+                      const SizedBox(height: 12),
+                      ActivityGeneralSectionMobile(),
+                      const SizedBox(height: 24),
+                      const Center(child: LogoutButton(overview: true)),
+                      const Gap(24),
+                      const FooterSection(),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -409,12 +477,51 @@ class _GridItem {
 
 class LogoutButton extends StatelessWidget {
   final bool compact;
-  const LogoutButton({super.key, this.compact = false, this.web = false});
+  const LogoutButton({
+    super.key,
+    this.compact = false,
+    this.web = false,
+    this.overview = false,
+  });
   final bool web;
+  final bool overview;
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AuthController>();
+    if (overview) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 190, minHeight: 54),
+          child: OutlinedButton.icon(
+            onPressed: () => controller.logOut(),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFFE21D2B),
+              backgroundColor: const Color(0xFFFFF6F6),
+              side: const BorderSide(color: Color(0xFFFFD6DA)),
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+              textStyle: _ProfileOverviewStyle.text(
+                14,
+                weight: FontWeight.w500,
+              ),
+            ),
+            icon: const Icon(Icons.logout_rounded, size: 18),
+            label: const Text('Logout'),
+          ),
+        ),
+      );
+    }
     return SizedBox(
       width: double.infinity,
       height: compact ? 45 : Get.height * 0.063,
@@ -479,140 +586,150 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
   final PersonalisationController controller = Get.find();
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Ucolors.light,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 16),
-          const Row(
-            children: [
-              SizedBox(width: 16),
-              SectionHeading(
-                sectionTitle: 'Activity',
-                fontWeight: FontWeight.w700,
-              ),
-            ],
-          ),
-          // Listtilecustom(
-          //   // onTap: () => Get.to(() => const KycDetailsScreen()),
-          //   onTap: () => Get.toNamed(AppRoutes.kycDeatailScreen),
-          //   title: 'KYC Details',
-          //   images: UImages.archiveadd,
-          // ),
-          Listtilecustom(
-            onTap: () => Get.toNamed(AppRoutes.personaldetails),
-            title: 'Personal Details',
-            images: UImages.verify,
-          ),
-          Listtilecustom(
-            onTap: () => Get.to(() => const BankDetailsScreen()),
-            title: 'Bank Account',
-            images: UImages.arrow,
-          ),
-          Listtilecustom(
-            onTap: () => Get.toNamed(AppRoutes.nomineeList),
-            title: 'Nominee Details',
-            images: UImages.verify,
-          ),
-          Listtilecustom(
-            onTap: () => Get.toNamed(AppRoutes.watchlist),
-            title: 'Wishlist',
-            icon: Icons.favorite_border_rounded,
-          ),
-          // Listtilecustom(
-          //   onTap: () => Get.to(() => const DocumentScreen()),
-          //   title: 'Documents',
-          //   images: UImages.cardtick,
-          // ),
-          Divider(thickness: 5, color: Colors.grey.shade200),
-
-          const Row(
-            children: [
-              SizedBox(width: 16),
-              SectionHeading(
-                sectionTitle: 'Reports',
-                fontWeight: FontWeight.w700,
-              ),
-            ],
-          ),
-          Listtilecustom(
-            onTap: () {
-              Get.find<PersonalisationController>().setStatementMode(
-                isCapital: false,
-              );
-              DownloadStatementsScreen.forcedIsCapitalMode = false;
-              Get.to(() => DownloadStatementsScreen());
-            },
-            title: 'Account Statement',
-            icon: Icons.sip_outlined,
-          ),
-          Listtilecustom(
-            onTap: () {
-              Get.find<PersonalisationController>().setStatementMode(
-                isCapital: true,
-              );
-              DownloadStatementsScreen.forcedIsCapitalMode = true;
-              Get.to(() => DownloadStatementsScreen());
-            },
-            title: 'ElSS Report',
-            // images: UImages.likedislike,
-          ),
-          Divider(thickness: 5, color: Colors.grey.shade200),
-          const Row(
-            children: [
-              SizedBox(width: 16),
-              SectionHeading(
-                sectionTitle: 'General',
-                fontWeight: FontWeight.w700,
-              ),
-            ],
-          ),
-
-          Listtilecustom(
-            isLock: true,
-            title: 'Applock',
-            images: UImages.setting,
-            onTap: () {},
-          ),
-          Listtilecustom(
-            title: 'Support & Helpdesk Tickets',
-            icon: Icons.confirmation_number_outlined,
-            onTap: () => Get.to(() => const TicketsListPage()),
-          ),
-          Listtilecustom(
-            title: 'Help & Support',
-            images: UImages.eye,
-            onTap: () => Get.to(() => const HelpSupportScreen()),
-          ),
-          Listtilecustom(
-            title: 'About Us',
-            images: UImages.msgques,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HtmlWebViewPage(
-                  title: 'About us',
-                  url: 'https://sip.londonstreetstore.com/about-us?mobile=true',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _ProfileMenuSection(
+          title: 'Activity',
+          children: [
+            // Listtilecustom(
+            //   // onTap: () => Get.to(() => const KycDetailsScreen()),
+            //   onTap: () => Get.toNamed(AppRoutes.kycDeatailScreen),
+            //   title: 'KYC Details',
+            //   images: UImages.archiveadd,
+            // ),
+            Listtilecustom(
+              onTap: () => Get.toNamed(AppRoutes.personaldetails),
+              title: 'Personal Details',
+              icon: Icons.thumb_up_outlined,
+            ),
+            Listtilecustom(
+              onTap: () => Get.to(() => const BankDetailsScreen()),
+              title: 'Bank Account',
+              icon: Icons.description_outlined,
+            ),
+            Listtilecustom(
+              onTap: () => Get.toNamed(AppRoutes.nomineeList),
+              title: 'Nominee Details',
+              icon: Icons.info_outline_rounded,
+            ),
+            Listtilecustom(
+              onTap: () => Get.toNamed(AppRoutes.watchlist),
+              title: 'Wishlist',
+              icon: Icons.chat_bubble_outline_rounded,
+            ),
+            // Listtilecustom(
+            //   onTap: () => Get.to(() => const DocumentScreen()),
+            //   title: 'Documents',
+            //   images: UImages.cardtick,
+            // ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _ProfileMenuSection(
+          title: 'Reports',
+          children: [
+            Listtilecustom(
+              onTap: () {
+                Get.find<PersonalisationController>().setStatementMode(
+                  isCapital: false,
+                );
+                DownloadStatementsScreen.forcedIsCapitalMode = false;
+                Get.to(() => DownloadStatementsScreen());
+              },
+              title: 'Account Statement',
+              icon: Icons.receipt_long_outlined,
+            ),
+            Listtilecustom(
+              onTap: () {
+                Get.find<PersonalisationController>().setStatementMode(
+                  isCapital: true,
+                );
+                DownloadStatementsScreen.forcedIsCapitalMode = true;
+                Get.to(() => DownloadStatementsScreen());
+              },
+              title: 'ELSS Report',
+              icon: Icons.description_outlined,
+              // images: UImages.likedislike,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _ProfileMenuSection(
+          title: 'General',
+          children: [
+            Listtilecustom(
+              isLock: true,
+              title: 'Applock',
+              icon: Icons.lock_outline_rounded,
+              onTap: () {},
+            ),
+            Listtilecustom(
+              title: 'Support & Helpdesk Tickets',
+              icon: Icons.confirmation_number_outlined,
+              onTap: () => Get.to(() => const TicketsListPage()),
+            ),
+            Listtilecustom(
+              title: 'Help & Support',
+              icon: Icons.help_outline_rounded,
+              onTap: () => Get.to(() => const HelpSupportScreen()),
+            ),
+            Listtilecustom(
+              title: 'About Us',
+              icon: Icons.chat_bubble_outline_rounded,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HtmlWebViewPage(
+                    title: 'About us',
+                    url:
+                        'https://sip.londonstreetstore.com/about-us?mobile=true',
+                  ),
                 ),
               ),
             ),
-          ),
-          Listtilecustom(
-            onTap: () {},
-            title: 'Rate Us',
-            images: UImages.likedislike,
-          ),
-          Listtilecustom(
-            title: 'AMCs, SEBI & AMFI',
-            icon: Icons.account_balance_outlined,
-            onTap: () => Get.to(() => const AmcListScreen()),
-          ),
-        ],
-      ),
+            Listtilecustom(
+              onTap: () {},
+              title: 'Rate Us',
+              icon: Icons.star_outline_rounded,
+            ),
+            Listtilecustom(
+              title: 'AMCs, SEBI & AMFI',
+              icon: Icons.verified_user_outlined,
+              iconColor: Ucolors.homePositive,
+              onTap: () => Get.to(() => const AmcListScreen()),
+            ),
+          ],
+        ),
+      ],
     );
   }
+}
+
+class _ProfileMenuSection extends StatelessWidget {
+  const _ProfileMenuSection({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => _ProfileOverviewCard(
+    padding: const EdgeInsets.fromLTRB(20, 24, 20, 18),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            title,
+            style: _ProfileOverviewStyle.text(18, weight: FontWeight.w600),
+          ),
+        ),
+        const SizedBox(height: 16),
+        ...children,
+      ],
+    ),
+  );
 }
 
 class Listtilecustom extends StatelessWidget {
@@ -623,55 +740,71 @@ class Listtilecustom extends StatelessWidget {
     required this.onTap,
     this.isLock = false,
     this.icon = Icons.bar_chart,
+    this.iconColor = _ProfileOverviewStyle.blue,
   });
   final String title;
   final String? images;
   final VoidCallback onTap;
   final bool isLock;
   final IconData icon;
+  final Color iconColor;
   // final PersonalisationController controller =
   //     Get.find<PersonalisationController>();
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-      visualDensity: const VisualDensity(vertical: -1),
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
       onTap: onTap,
-      leading: images != null ? Image.asset(images!) : Icon(icon),
-      title: Text(
-        title,
-        style: UTextStyles.bodyMedium.copyWith(
-          color: Ucolors.dark,
-          fontSize: 12,
-          // fontWeight: FontWeight.w500,
-          fontFamily: UTextStyles.font,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: iconColor == _ProfileOverviewStyle.blue
+                    ? _ProfileOverviewStyle.blueSurface
+                    : iconColor.withValues(alpha: 0.10),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: images != null
+                  ? Image.asset(images!, width: 20, height: 20)
+                  : Icon(icon, color: iconColor, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(title, style: _ProfileOverviewStyle.text(16))),
+            const SizedBox(width: 8),
+            !isLock
+                ? const Icon(
+                    Icons.open_in_new_rounded,
+                    color: Color(0xFF98A2B3),
+                    size: 18,
+                  )
+                : Obx(
+                    () => Switch(
+                      activeThumbColor: Ucolors.primary,
+                      // value: controller.applock.value,
+                      value: SessionManager.instance.isAppLockEnabled.value,
+                      onChanged: (bool value) async {
+                        // controller.applock.toggle();
+                        await SessionManager.instance.toggleAppLock(value);
+                      },
+                    ),
+                  ),
+          ],
         ),
       ),
-      trailing: !isLock
-          ? const Icon(
-              Icons.arrow_forward_ios,
-              color: Ucolors.darkgrey,
-              size: 14,
-            )
-          : Obx(
-              () => Switch(
-                activeThumbColor: Ucolors.primary,
-                // value: controller.applock.value,
-                value: SessionManager.instance.isAppLockEnabled.value,
-                onChanged: (bool value) async {
-                  // controller.applock.toggle();
-                  await SessionManager.instance.toggleAppLock(value);
-                },
-              ),
-            ),
     );
   }
 }
 
 class Upgradebanner extends StatelessWidget {
-  const Upgradebanner({super.key});
+  const Upgradebanner({super.key, this.overview = false});
+
+  final bool overview;
 
   @override
   Widget build(BuildContext context) {
@@ -683,6 +816,105 @@ class Upgradebanner extends StatelessWidget {
     return Obx(() {
       // Accessing the reactive getter triggers the listener
       final riskData = session.getRiskScore;
+
+      if (overview) {
+        void openAssessment() => Get.toNamed(AppRoutes.riskProfile);
+        return _ProfileOverviewCard(
+          padding: EdgeInsets.zero,
+          child: InkWell(
+            onTap: openAssessment,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 16, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.speed_outlined,
+                        size: 20,
+                        color: _ProfileOverviewStyle.ink,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Your Risk Profile',
+                          style: _ProfileOverviewStyle.text(
+                            14,
+                            color: _ProfileOverviewStyle.muted,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: riskData == null
+                            ? 'Assess risk profile'
+                            : 'Retake risk assessment',
+                        onPressed: openAssessment,
+                        icon: const Icon(
+                          Icons.refresh_rounded,
+                          color: _ProfileOverviewStyle.muted,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  if (riskData == null)
+                    TextButton(
+                      onPressed: openAssessment,
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        foregroundColor: Ucolors.primary,
+                        alignment: Alignment.centerLeft,
+                      ),
+                      child: Text(
+                        'Check Your Risk Profile Now!',
+                        style: _ProfileOverviewStyle.text(
+                          16,
+                          color: Ucolors.primary,
+                          weight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  else
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 12,
+                      runSpacing: 8,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '${riskData.totalScore}',
+                                style: const TextStyle(
+                                  color: Ucolors.homeProgress,
+                                ),
+                              ),
+                              const TextSpan(text: ' / 150'),
+                            ],
+                          ),
+                          style: _ProfileOverviewStyle.text(
+                            40,
+                            color: Colors.black,
+                            weight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          riskData.profileName.toUpperCase(),
+                          style: _ProfileOverviewStyle.text(
+                            14,
+                            color: Colors.black,
+                            weight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
 
       return riskData == null
           ? UElevatedBUtton(
@@ -759,6 +991,7 @@ class ProfileHeader extends StatelessWidget {
     required this.icon,
     required this.onTap,
     this.iconColor = Colors.black,
+    this.overview = false,
   });
 
   final String img;
@@ -768,9 +1001,11 @@ class ProfileHeader extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final Color iconColor;
+  final bool overview;
 
   @override
   Widget build(BuildContext context) {
+    if (overview) return _buildOverview(context);
     return Column(
       children: [
         Stack(
@@ -853,12 +1088,129 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
+  Widget _buildOverview(BuildContext context) => _ProfileOverviewCard(
+    color: const Color(0xFFF8F9FB),
+    padding: const EdgeInsets.all(20),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final stacked =
+            constraints.maxWidth < 270 ||
+            MediaQuery.textScalerOf(context).scale(16) > 24;
+        final avatarSize = stacked ? 76.0 : 100.0;
+        final avatar = Tooltip(
+          message: 'Edit profile',
+          child: InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: SizedBox.square(
+              dimension: avatarSize,
+              child: ClipOval(child: _buildImage()),
+            ),
+          ),
+        );
+        final edit = IconButton(
+          tooltip: 'Edit personal details',
+          visualDensity: VisualDensity.compact,
+          onPressed: onTap,
+          icon: const Icon(
+            Icons.edit_outlined,
+            size: 18,
+            color: Color(0xFF526581),
+          ),
+        );
+        final details = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    name?.trim().isNotEmpty == true ? name! : 'Profile',
+                    style: _ProfileOverviewStyle.text(
+                      20,
+                      color: const Color(0xFF303030),
+                      weight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                if (!stacked) edit,
+              ],
+            ),
+            if (subtitle?.trim().isNotEmpty == true) ...[
+              const SizedBox(height: 4),
+              Text(
+                subtitle!,
+                style: _ProfileOverviewStyle.text(
+                  14,
+                  color: const Color(0xFF425675),
+                ),
+              ),
+            ],
+            if (canNumber?.trim().isNotEmpty == true) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEEF2FF),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: _ProfileOverviewStyle.border),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.verified_outlined,
+                      size: 16,
+                      color: _ProfileOverviewStyle.blue,
+                    ),
+                    const SizedBox(width: 7),
+                    Flexible(
+                      child: Text(
+                        'CAN: $canNumber',
+                        style: _ProfileOverviewStyle.text(
+                          12,
+                          color: _ProfileOverviewStyle.blue,
+                          weight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        );
+        if (stacked) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [avatar, const Spacer(), edit]),
+              const SizedBox(height: 16),
+              details,
+            ],
+          );
+        }
+        return Row(
+          children: [
+            avatar,
+            const SizedBox(width: 16),
+            Expanded(child: details),
+          ],
+        );
+      },
+    ),
+  );
+
   //
   Widget _buildImage() {
     // 1. Agar image empty/null hai
     if (img.isEmpty || img == 'null') {
       return Image.asset(
-        'assets/images/avatar.png',
+        UImages.avatar,
         fit: BoxFit.cover,
         width: 120,
         height: 120,
