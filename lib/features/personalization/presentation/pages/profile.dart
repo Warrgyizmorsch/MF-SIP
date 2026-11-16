@@ -824,91 +824,99 @@ class Upgradebanner extends StatelessWidget {
           child: InkWell(
             onTap: openAssessment,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 16, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.speed_outlined,
-                        size: 20,
-                        color: _ProfileOverviewStyle.ink,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Your Risk Profile',
-                          style: _ProfileOverviewStyle.text(
-                            14,
-                            color: _ProfileOverviewStyle.muted,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: riskData == null
-                            ? 'Assess risk profile'
-                            : 'Retake risk assessment',
-                        onPressed: openAssessment,
-                        icon: const Icon(
-                          Icons.refresh_rounded,
-                          color: _ProfileOverviewStyle.muted,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  if (riskData == null)
-                    TextButton(
-                      onPressed: openAssessment,
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        foregroundColor: Ucolors.primary,
-                        alignment: Alignment.centerLeft,
-                      ),
-                      child: Text(
-                        'Check Your Risk Profile Now!',
-                        style: _ProfileOverviewStyle.text(
-                          16,
-                          color: Ucolors.primary,
-                          weight: FontWeight.w600,
-                        ),
-                      ),
-                    )
-                  else
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 12,
-                      runSpacing: 8,
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '${riskData.totalScore}',
-                                style: const TextStyle(
-                                  color: Ucolors.homeProgress,
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.speed_outlined,
+                              size: 20,
+                              color: _ProfileOverviewStyle.ink,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Your Risk Profile',
+                                style: _ProfileOverviewStyle.text(
+                                  14,
+                                  color: _ProfileOverviewStyle.muted,
                                 ),
                               ),
-                              const TextSpan(text: ' / 150'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        if (riskData == null)
+                          TextButton(
+                            onPressed: openAssessment,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              foregroundColor: Ucolors.primary,
+                              alignment: Alignment.centerLeft,
+                            ),
+                            child: Text(
+                              'Check Your Risk Profile Now!',
+                              style: _ProfileOverviewStyle.text(
+                                16,
+                                color: Ucolors.primary,
+                                weight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        else
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 10,
+                            runSpacing: 8,
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '${riskData.totalScore}',
+                                      style: const TextStyle(
+                                        color: Ucolors.homeProgress,
+                                      ),
+                                    ),
+                                    const TextSpan(text: ' / 150'),
+                                  ],
+                                ),
+                                style: _ProfileOverviewStyle.text(
+                                  28,
+                                  color: Colors.black,
+                                  weight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                riskData.profileName.toUpperCase(),
+                                style: _ProfileOverviewStyle.text(
+                                  12,
+                                  color: Colors.black,
+                                  weight: FontWeight.w600,
+                                ),
+                              ),
                             ],
                           ),
-                          style: _ProfileOverviewStyle.text(
-                            40,
-                            color: Colors.black,
-                            weight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          riskData.profileName.toUpperCase(),
-                          style: _ProfileOverviewStyle.text(
-                            14,
-                            color: Colors.black,
-                            weight: FontWeight.w600,
-                          ),
-                        ),
                       ],
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    tooltip: riskData == null
+                        ? 'Assess risk profile'
+                        : 'Retake risk assessment',
+                    onPressed: openAssessment,
+                    icon: const Icon(
+                      Icons.refresh_rounded,
+                      color: _ProfileOverviewStyle.muted,
+                    ),
+                  ),
                 ],
               ),
             ),
