@@ -171,12 +171,15 @@ class _PortfolioDetailsPanelsState extends State<PortfolioDetailsPanels> {
 
   Widget _investment() {
     final fund = widget.fund;
+    final annReturn = fund.annualizedReturn;
     return _panel([
       ('Invested amount', _money(fund.investedAmount)),
       (
         'Purchase NAV',
         fund.purchaseNav > 0 ? _money(fund.purchaseNav, decimals: 4) : '—',
       ),
+      if (annReturn != null)
+        ('${fund.annualizedReturnLabel} (Annualized)', _percentage(annReturn)),
       ('First invested', _date(fund.firstInvestedDate)),
     ], onViewDetails: widget.onViewInvestmentDetails);
   }
@@ -301,6 +304,10 @@ String _money(double value, {int decimals = 2}) => value.isFinite
         symbol: '₹',
         decimalDigits: decimals,
       ).format(value)
+    : '—';
+
+String _percentage(double value) => value.isFinite
+    ? '${value < 0 ? '−' : '+'}${value.abs().toStringAsFixed(2)}%'
     : '—';
 
 String _date(String value) {

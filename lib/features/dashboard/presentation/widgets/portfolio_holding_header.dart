@@ -152,7 +152,9 @@ class PortfolioHoldingCard extends StatelessWidget {
                     child: _metric(
                       'Total gain',
                       _signedMoney(fund.gainLoss),
-                      '${_percentage(fund.gainLossPercent)} return',
+                      fund.annualizedReturn != null
+                          ? '${_percentage(fund.annualizedReturn!)} ${fund.annualizedReturnLabel}'
+                          : '${_percentage(fund.gainLossPercent)} return',
                       color: gainColor,
                     ),
                   ),

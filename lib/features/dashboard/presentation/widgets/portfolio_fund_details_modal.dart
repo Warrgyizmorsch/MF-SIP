@@ -640,6 +640,20 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                 'Total Invested',
                 '₹${fund.investedAmount.toStringAsFixed(2)}',
               ),
+              if (fund.annualizedReturn != null) ...[
+                const Divider(
+                  height: 20,
+                  thickness: 1,
+                  color: Color(0xFFE2E8F0),
+                ),
+                _detailRow(
+                  '${fund.annualizedReturnLabel} (Annualized)',
+                  '${fund.annualizedReturn! >= 0 ? "+" : ""}${fund.annualizedReturn!.toStringAsFixed(2)}%',
+                  valueColor: fund.annualizedReturn! >= 0
+                      ? Colors.green.shade700
+                      : Colors.red.shade700,
+                ),
+              ],
               const Divider(height: 20, thickness: 1, color: Color(0xFFE2E8F0)),
               _detailRow('Total Units', fund.totalUnits.toStringAsFixed(3)),
               const Divider(height: 20, thickness: 1, color: Color(0xFFE2E8F0)),

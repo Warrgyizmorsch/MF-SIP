@@ -128,6 +128,7 @@
 //   }
 // }
 import 'package:equatable/equatable.dart';
+import 'package:my_sip/core/utils/calculator/return_calculators.dart';
 import 'package:my_sip/features/dashboard/data/model/portfolio_model.dart';
 
 class MfuPortfolioEntity extends Equatable {
@@ -165,6 +166,24 @@ class MfuPortfolioEntity extends Equatable {
 
   List<MfuPortfolioItemEntity> get lumpsumFunds =>
       portfolio.where((f) => f.isLumpsum).toList();
+
+  /// Computes the overall portfolio XIRR across all fund transactions and total current value.
+  double? get portfolioXirr {
+    final flows = <CashFlow>[];
+
+    for (final fund in portfolio) {
+      flows.addAll(fund.cashFlows);
+    }
+
+    if (summary.totalCurrentValue > 0) {
+      flows.add((
+        date: DateTime.now().toUtc(),
+        amount: summary.totalCurrentValue,
+      ));
+    }
+
+    return FinancialCalculators.calculateXirr(flows);
+  }
 
   @override
   List<Object?> get props => [success, portfolio, summary, user, pagination];
@@ -758,6 +777,83 @@ class MfuPortfolioItemEntity extends Equatable {
   bool get isExitLoadFree =>
       (exitLoadData?.daysRemainingForNil ?? exitLoadDaysRemaining) <= 0 &&
       (exitLoadData?.exitLoadAmount ?? exitLoadAmount) <= 0;
+
+  /// Extracts all dated cash flows for this fund.
+  List<CashFlow> get cashFlows {
+    final flows = <CashFlow>[];
+
+    for (final tx in transactions) {
+      if (!tx.isSuccess || tx.amount <= 0) continue;
+      final txDate = FinancialCalculators.parseDate(tx.date);
+      if (txDate == null) continue;
+
+      if (tx.isCredit) {
+        // Investor invested money into the fund (cash outflow)
+        flows.add((date: txDate, amount: -tx.amount));
+      } else if (tx.isDebit) {
+        // Investor received money back from redemption (cash inflow)
+        flows.add((date: txDate, amount: tx.amount));
+      }
+    }
+
+    // Fallback if transactions list was not returned by API: use purchaseDate & investedAmount
+    if (flows.isEmpty && investedAmount > 0) {
+      final pDate = FinancialCalculators.parseDate(
+        purchaseDate.isNotEmpty ? purchaseDate : firstInvestedDate,
+      );
+      if (pDate != null) {
+        flows.add((date: pDate, amount: -investedAmount));
+      }
+    }
+
+    return flows;
+  }
+
+  /// Calculates annualized return: XIRR for SIPs, CAGR for Lump-sum (>= 1 year), or Absolute Return (< 1 year).
+  double? get annualizedReturn {
+    final valDate =
+        FinancialCalculators.parseDate(navDate) ?? DateTime.now().toUtc();
+
+    if (isSip) {
+      final flows = [...cashFlows];
+      if (currentValue > 0) {
+        flows.add((date: valDate, amount: currentValue));
+      }
+      final xirr = FinancialCalculators.calculateXirr(flows);
+      if (xirr != null) return xirr;
+    }
+
+    // Lump-sum or fallback when transactions are single
+    final pDate = FinancialCalculators.parseDate(
+      purchaseDate.isNotEmpty ? purchaseDate : firstInvestedDate,
+    );
+    if (pDate != null && investedAmount > 0) {
+      return FinancialCalculators.calculateLumpsumReturn(
+        initialInvested: investedAmount,
+        currentValue: currentValue,
+        investmentDate: pDate,
+        valuationDate: valDate,
+      );
+    }
+
+    return null;
+  }
+
+  /// Label indicating the return calculation type: 'XIRR', 'CAGR', or 'Return'
+  String get annualizedReturnLabel {
+    if (isSip && transactions.length > 1) {
+      return 'XIRR';
+    }
+    final pDate = FinancialCalculators.parseDate(
+      purchaseDate.isNotEmpty ? purchaseDate : firstInvestedDate,
+    );
+    final valDate =
+        FinancialCalculators.parseDate(navDate) ?? DateTime.now().toUtc();
+    if (pDate != null && valDate.difference(pDate).inDays >= 365) {
+      return 'CAGR';
+    }
+    return 'Return';
+  }
 
   @override
   List<Object?> get props => [
