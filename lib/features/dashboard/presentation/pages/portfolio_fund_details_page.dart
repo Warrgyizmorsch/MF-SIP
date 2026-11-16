@@ -12,6 +12,7 @@ import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_con
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 
+import '../helper/portfolio_reinvest_helper.dart';
 import '../widgets/portfolio_fund_details_modal.dart';
 import '../widgets/portfolio_holding_header.dart';
 import '../widgets/portfolio_details_panels.dart';
@@ -50,7 +51,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
         : null;
     if (dashboard?.isLoadingPortfolio.value ?? false) return;
     var activeFund = _latestFund(selectedFund);
-    if (!_canTransact(activeFund)) return;
+    if (!_canRedeemOrCancel(activeFund)) return;
     if (!redeem) {
       if (!activeFund.isSipActive || activeFund.hasPendingSipCancellation) {
         return;
@@ -64,7 +65,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
           );
       if (!shouldProceed || !context.mounted) return;
       activeFund = _latestFund(selectedFund);
-      if (!_canTransact(activeFund) ||
+      if (!_canRedeemOrCancel(activeFund) ||
           (dashboard?.isLoadingPortfolio.value ?? false)) {
         return;
       }
@@ -107,13 +108,15 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     }
   }
 
-  bool _canTransact(MfuPortfolioItemEntity activeFund) =>
+  bool _canRedeemOrCancel(MfuPortfolioItemEntity activeFund) =>
       !activeFund.isAllotmentPending &&
       !activeFund.isRedemptionPending &&
       !activeFund.isFullyRedeemed &&
       activeFund.totalUnits > 0 &&
       (int.tryParse(activeFund.mfuOrderFundId?.toString().trim() ?? '') ?? 0) >
           0;
+
+  bool _canTransact(MfuPortfolioItemEntity activeFund) => true;
 
   MfuPortfolioItemEntity _latestFund(MfuPortfolioItemEntity selectedFund) {
     if (!Get.isRegistered<DashboardController>()) return selectedFund;
@@ -1333,6 +1336,8 @@ class PortfolioFundDetailsPage extends StatelessWidget {
   }) => PortfolioFundActions(
     fund: activeFund,
     isRefreshing: isRefreshing,
+    onReinvest: () =>
+        PortfolioReinvestHelper.navigateToPurchase(context, activeFund),
     onCancelSip: () =>
         _handleRedeemOrCancel(context, activeFund, redeem: false),
     onRedeem: () => _handleRedeemOrCancel(context, activeFund, redeem: true),

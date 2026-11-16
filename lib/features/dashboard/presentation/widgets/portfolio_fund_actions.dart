@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
@@ -12,12 +13,14 @@ class PortfolioFundActions extends StatefulWidget {
     required this.fund,
     required this.onCancelSip,
     required this.onRedeem,
+    this.onReinvest,
     this.isRefreshing = false,
   });
 
   final MfuPortfolioItemEntity fund;
   final Future<void> Function() onCancelSip;
   final Future<void> Function() onRedeem;
+  final VoidCallback? onReinvest;
   final bool isRefreshing;
 
   @override
@@ -44,6 +47,21 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
   @override
   Widget build(BuildContext context) {
     final canAct = !_busy && !widget.isRefreshing;
+    final canRedeem =
+        widget.fund.totalUnits > 0 && !widget.fund.isFullyRedeemed;
+
+    final reinvest = _button(
+      label: 'Reinvest',
+      cancel: false,
+      isReinvest: true,
+      onPressed: canAct && widget.onReinvest != null ? widget.onReinvest : null,
+    );
+
+    // If holding has 0 units or is fully redeemed, allow Reinvesting only
+    if (!canRedeem) {
+      return reinvest;
+    }
+
     final cancel = _button(
       label: widget.fund.hasPendingSipCancellation
           ? 'Cancellation pending'
@@ -59,7 +77,21 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
       onPressed: canAct ? () => _run(cancel: false) : null,
     );
 
-    if (!widget.fund.isSipActive) return redeem;
+    if (!widget.fund.isSipActive) {
+      if (widget.onReinvest != null) {
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: reinvest),
+              const SizedBox(width: 14),
+              Expanded(child: redeem),
+            ],
+          ),
+        );
+      }
+      return redeem;
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -71,19 +103,38 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
             widget.fund.isPartiallyRedeemed;
         if (stack) {
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [cancel, const SizedBox(height: 12), redeem],
-          );
-        }
-        return IntrinsicHeight(
-          child: Row(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(child: cancel),
-              const SizedBox(width: 18),
-              Expanded(child: redeem),
+              if (widget.onReinvest != null) ...[
+                reinvest,
+                const SizedBox(height: 12),
+              ],
+              cancel,
+              const SizedBox(height: 12),
+              redeem,
             ],
-          ),
+          );
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.onReinvest != null) ...[
+              reinvest,
+              const SizedBox(height: 12),
+            ],
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: cancel),
+                  const SizedBox(width: 18),
+                  Expanded(child: redeem),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );
@@ -92,9 +143,10 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
   Widget _button({
     required String label,
     required bool cancel,
+    bool isReinvest = false,
     required VoidCallback? onPressed,
   }) {
-    final busy = _busy && _cancelling == cancel;
+    final busy = _busy && _cancelling == cancel && !isReinvest;
     final foreground = cancel ? Ucolors.portfolioNegative : Ucolors.white;
     final enabled = onPressed != null || busy;
 
@@ -102,8 +154,12 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
       opacity: enabled ? 1 : 0.5,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: cancel ? Ucolors.portfolioCancelFill : null,
-          gradient: cancel ? null : Ucolors.portfolioRedeemGradient,
+          color: cancel
+              ? Ucolors.portfolioCancelFill
+              : (isReinvest ? Ucolors.primary : null),
+          gradient: (cancel || isReinvest)
+              ? null
+              : Ucolors.portfolioRedeemGradient,
           borderRadius: BorderRadius.circular(999),
           border: cancel
               ? Border.all(color: Ucolors.portfolioCancelBorder)
@@ -163,6 +219,13 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
                           ),
                         ),
                         const SizedBox(width: 4),
+                      ] else if (isReinvest) ...[
+                        const Icon(
+                          Iconsax.repeat,
+                          size: 16,
+                          color: Ucolors.white,
+                        ),
+                        const SizedBox(width: 6),
                       ],
                       Flexible(
                         child: Text(

@@ -343,39 +343,39 @@ class PortfolioFundDetailsModal extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (!fund.isFullyRedeemed) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Ucolors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 2,
+              // Reinvest is always available so the investor can invest more,
+              // even if units are 0 or balance is 0 or holding is fully redeemed.
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Ucolors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      PortfolioReinvestHelper.navigateToPurchase(context, fund);
-                    },
-                    icon: const Icon(
-                      Iconsax.repeat,
-                      size: 18,
+                    elevation: 2,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    PortfolioReinvestHelper.navigateToPurchase(context, fund);
+                  },
+                  icon: const Icon(
+                    Iconsax.repeat,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    'Reinvest',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
-                    ),
-                    label: const Text(
-                      'Reinvest',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-              ],
+              ),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Expanded(
