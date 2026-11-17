@@ -124,6 +124,33 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     if (mounted) setState(() {});
   }
 
+  int minRequired(MutualFundListEntity f) {
+    final isLumpsum = c.savedInvestmentType.value == 'lumpsum';
+    if (isLumpsum) {
+      return (f.minLumpsum != null && f.minLumpsum! > 0) ? f.minLumpsum! : 1000;
+    } else {
+      return (f.minSipAmount != null && f.minSipAmount! > 0)
+          ? f.minSipAmount!
+          : 500;
+    }
+  }
+
+  String? _getFundAmountError(MutualFundListEntity f) {
+    final amt = amount(f);
+    final min = minRequired(f);
+
+    if (amt <= 0) {
+      return 'Please enter an amount';
+    }
+    if (amt < min) {
+      return 'Min investment: ₹${NumberFormat.decimalPattern('en_IN').format(min)}';
+    }
+    if ((amt.round() % 100) != 0) {
+      return 'Amount must be a multiple of ₹100';
+    }
+    return null;
+  }
+
   Widget svg(String name, double width, double height) => SvgPicture.asset(
     'assets/home/figma/$name.svg',
     width: width,
@@ -212,6 +239,14 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                               ? null
                               : () async {
                                   FocusScope.of(context).unfocus();
+                                  final hasValidationError = selected.any(
+                                    (fund) => _getFundAmountError(fund) != null,
+                                  );
+                                  if (hasValidationError) {
+                                    setState(() {});
+                                    return;
+                                  }
+
                                   final goalAmount = _expectedGoalAmount;
                                   final hasMismatch =
                                       goalAmount > 0 &&
@@ -439,191 +474,237 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     );
   }
 
-  Widget fundCard(MutualFundListEntity f) => Container(
-    constraints: const BoxConstraints(minHeight: 104),
-    padding: const EdgeInsets.all(16),
-    decoration: box(22),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        fundLogo(f),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                f.baseSchemeName ?? '',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: text(14, weight: FontWeight.w700),
-              ),
-              const SizedBox(height: 7),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Risk: ',
-                      style: text(10, color: muted),
-                    ),
-                    TextSpan(
-                      text: f.riskLevel ?? '—',
-                      style: text(10, color: const Color(0xFFFF383C)),
-                    ),
-                    TextSpan(
-                      text: ' • Return: ${f.returnsEntity?.threeYear ?? '—'}',
-                      style: text(10, color: muted),
-                    ),
-                  ],
+  Widget fundCard(MutualFundListEntity f) {
+    final fundError = _getFundAmountError(f);
+    return Container(
+      constraints: const BoxConstraints(minHeight: 104),
+      padding: const EdgeInsets.all(16),
+      decoration: box(22),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          fundLogo(f),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  f.baseSchemeName ?? '',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: text(14, weight: FontWeight.w700),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: [
-                  SizedBox(
-                    width: 100,
-                    height: 20,
-                    child: Focus(
-                      onFocusChange: (hasFocus) {
-                        if (!hasFocus) {
-                          _commitFundAmount(
-                            f.schemeCode ?? '',
-                            c.getAmountController(f.schemeCode ?? '').text,
-                          );
-                        }
-                      },
-                      child: TextField(
-                        controller: c.getAmountController(f.schemeCode ?? ''),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        style: text(11, weight: FontWeight.w800),
-                        decoration: InputDecoration(
-                          prefixText: '₹ ',
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            borderSide: const BorderSide(color: line),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ),
-                        onSubmitted: (v) =>
-                            _commitFundAmount(f.schemeCode ?? '', v),
+                const SizedBox(height: 7),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Risk: ',
+                        style: text(10, color: muted),
                       ),
-                    ),
+                      TextSpan(
+                        text: f.riskLevel ?? '—',
+                        style: text(10, color: const Color(0xFFFF383C)),
+                      ),
+                      TextSpan(
+                        text: ' • Return: ${f.returnsEntity?.threeYear ?? '—'}',
+                        style: text(10, color: muted),
+                      ),
+                    ],
                   ),
-                  if (c.savedInvestmentType.value != 'lumpsum')
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 5,
+                  runSpacing: 5,
+                  children: [
                     SizedBox(
                       width: 100,
                       height: 20,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          side: const BorderSide(color: line),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ),
-                        onPressed: () => frequency(f),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _frequency(f),
-                              style: text(10, weight: FontWeight.w800),
-                            ),
-                            svg('goal_basket_chevron', 3.5, 6),
+                      child: Focus(
+                        onFocusChange: (hasFocus) {
+                          if (!hasFocus) {
+                            _commitFundAmount(
+                              f.schemeCode ?? '',
+                              c.getAmountController(f.schemeCode ?? '').text,
+                            );
+                          }
+                        },
+                        child: TextField(
+                          controller: c.getAmountController(f.schemeCode ?? ''),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
                           ],
+                          style: text(11, weight: FontWeight.w800),
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            prefixText: '₹ ',
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: BorderSide(
+                                color: fundError != null
+                                    ? const Color(0xFFE11D48)
+                                    : line,
+                                width: fundError != null ? 1.2 : 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: BorderSide(
+                                color: fundError != null
+                                    ? const Color(0xFFE11D48)
+                                    : purple,
+                                width: fundError != null ? 1.2 : 1.5,
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: BorderSide(
+                                color: fundError != null
+                                    ? const Color(0xFFE11D48)
+                                    : line,
+                              ),
+                            ),
+                          ),
+                          onSubmitted: (v) =>
+                              _commitFundAmount(f.schemeCode ?? '', v),
                         ),
                       ),
                     ),
+                    if (c.savedInvestmentType.value != 'lumpsum')
+                      SizedBox(
+                        width: 100,
+                        height: 20,
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            side: const BorderSide(color: line),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          onPressed: () => frequency(f),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _frequency(f),
+                                style: text(10, weight: FontWeight.w800),
+                              ),
+                              svg('goal_basket_chevron', 3.5, 6),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                if (fundError != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 13,
+                        color: Color(0xFFE11D48),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          fundError,
+                          style: text(
+                            11,
+                            color: const Color(0xFFE11D48),
+                            weight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        SizedBox(
-          width: 20,
-          height: 24,
-          child: PopupMenuButton<String>(
-            padding: EdgeInsets.zero,
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-              side: const BorderSide(color: line),
-            ),
-            popUpAnimationStyle: const AnimationStyle(
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            ),
-            icon: svg('goal_basket_more', 3.66667, 17),
-            onSelected: (v) async {
-              if (v == 'detail') {
-                Get.toNamed(
-                  AppRoutes.funddetails,
-                  arguments: {
-                    'scheme': f.baseSchemeName,
-                    'scheme_code': f.schemeCode,
-                    'isin': f.isin,
-                  },
-                );
-              } else if (v == 'swap') {
-                final before = funds.map((e) => e.schemeCode).toSet();
-                await widget.onAdd();
-                if (funds.any((e) => !before.contains(e.schemeCode))) {
+          SizedBox(
+            width: 20,
+            height: 24,
+            child: PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: const BorderSide(color: line),
+              ),
+              popUpAnimationStyle: const AnimationStyle(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              ),
+              icon: svg('goal_basket_more', 3.66667, 17),
+              onSelected: (v) async {
+                if (v == 'detail') {
+                  Get.toNamed(
+                    AppRoutes.funddetails,
+                    arguments: {
+                      'scheme': f.baseSchemeName,
+                      'scheme_code': f.schemeCode,
+                      'isin': f.isin,
+                    },
+                  );
+                } else if (v == 'swap') {
+                  final before = funds.map((e) => e.schemeCode).toSet();
+                  await widget.onAdd();
+                  if (funds.any((e) => !before.contains(e.schemeCode))) {
+                    c.toggleFund(f.baseSchemeName ?? '');
+                    if (c.savedInvestmentType.value == 'lumpsum') {
+                      await c.distributeMonthlyAmount();
+                    } else {
+                      await c.distributeSipAmount();
+                    }
+                  }
+                } else {
+                  final id = c.getGoalFundId(f.schemeCode ?? '');
+                  if (id != null) {
+                    await c.deleteGoalFund(
+                      id: id,
+                      isEdit: false,
+                      schemeName: f.schemeCode,
+                    );
+                  }
                   c.toggleFund(f.baseSchemeName ?? '');
+                  c.amountControllers.remove(f.schemeCode);
                   if (c.savedInvestmentType.value == 'lumpsum') {
                     await c.distributeMonthlyAmount();
                   } else {
                     await c.distributeSipAmount();
                   }
                 }
-              } else {
-                final id = c.getGoalFundId(f.schemeCode ?? '');
-                if (id != null) {
-                  await c.deleteGoalFund(
-                    id: id,
-                    isEdit: false,
-                    schemeName: f.schemeCode,
-                  );
-                }
-                c.toggleFund(f.baseSchemeName ?? '');
-                c.amountControllers.remove(f.schemeCode);
-                if (c.savedInvestmentType.value == 'lumpsum') {
-                  await c.distributeMonthlyAmount();
-                } else {
-                  await c.distributeSipAmount();
-                }
-              }
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                value: 'detail',
-                child: Text('Fund Detail', style: text(12, color: muted)),
-              ),
-              PopupMenuItem(
-                value: 'swap',
-                child: Text('Swap', style: text(12, color: purple)),
-              ),
-              PopupMenuItem(
-                value: 'delete',
-                child: Text('Delete', style: text(12, color: Colors.red)),
-              ),
-            ],
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: 'detail',
+                  child: Text('Fund Detail', style: text(12, color: muted)),
+                ),
+                PopupMenuItem(
+                  value: 'swap',
+                  child: Text('Swap', style: text(12, color: purple)),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Delete', style: text(12, color: Colors.red)),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 
   void frequency(MutualFundListEntity f) {
     showMenu<String>(
