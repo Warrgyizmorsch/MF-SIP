@@ -569,13 +569,17 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
               final amount = double.tryParse(amountText) ?? 0.0;
 
               if (schemeCode.isNotEmpty && amount > 0) {
+                final basketState = _basketKey.currentState;
+                final freq = basketState?.getFrequencyCode(fund) ?? "M";
+                final day = basketState?.getMfuDay(fund) ?? selectedDay;
+
                 sipFunds.add(
                   SipFundItemModel(
                     schemeCode: schemeCode,
                     amount: amount,
                     folio: "NEW",
-                    frequency: "M",
-                    day: selectedDay,
+                    frequency: freq,
+                    day: day,
                   ),
                 );
               }

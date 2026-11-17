@@ -33,10 +33,69 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
   bool review = false, consent = false;
   bool _amountMismatchConfirmed = false;
   final Map<String, String> _frequencies = {};
+  final Map<String, String> _sipDays = {};
   String _frequencyKey(MutualFundListEntity fund) =>
       fund.schemeCode ?? fund.baseSchemeName ?? '';
   String _frequency(MutualFundListEntity fund) =>
       _frequencies[_frequencyKey(fund)] ?? 'Monthly';
+  String _sipDay(MutualFundListEntity fund) =>
+      _sipDays[_frequencyKey(fund)] ??
+      (c.selectedSipDay.value > 0 ? c.selectedSipDay.value.toString() : '10');
+
+  String getFrequencyCode(MutualFundListEntity fund) {
+    final freq = _frequency(fund);
+    switch (freq) {
+      case 'Daily':
+        return 'D';
+      case 'Weekly':
+        return 'W';
+      case 'Monthly':
+      default:
+        return 'M';
+    }
+  }
+
+  String getMfuDay(MutualFundListEntity fund) {
+    final freq = _frequency(fund);
+    switch (freq) {
+      case 'Daily':
+        return 'NA';
+      case 'Weekly':
+        final dayName = _sipDay(fund);
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        final idx = days.indexOf(dayName);
+        return (idx >= 0 ? idx + 1 : 1).toString();
+      case 'Monthly':
+      default:
+        final dayStr = _sipDay(fund);
+        final parsed = int.tryParse(dayStr) ?? c.selectedSipDay.value;
+        return (parsed > 0 ? parsed : 10).toString();
+    }
+  }
+
+  String getFrequencyDisplayLabel(MutualFundListEntity fund) {
+    final freq = _frequency(fund);
+    if (freq == 'Daily') return 'Daily';
+    if (freq == 'Weekly') {
+      final day = _sipDay(fund);
+      final short = day.length >= 3 ? day.substring(0, 3) : day;
+      return 'Weekly • $short';
+    }
+    final day = _sipDay(fund);
+    final intDay =
+        int.tryParse(day) ??
+        (c.selectedSipDay.value > 0 ? c.selectedSipDay.value : 10);
+    String suffix = 'th';
+    if (intDay % 10 == 1 && intDay != 11) {
+      suffix = 'st';
+    } else if (intDay % 10 == 2 && intDay != 12) {
+      suffix = 'nd';
+    } else if (intDay % 10 == 3 && intDay != 13) {
+      suffix = 'rd';
+    }
+    return 'Monthly • $intDay$suffix';
+  }
+
   GoalSipController get c => widget.controller;
   // Search results are transient: closing or searching the picker replaces them.
   // Retain fund details independently; selection remains owned by GetX.
@@ -268,18 +327,6 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                                   }
 
                                   if (review) {
-                                    if (c.savedInvestmentType.value !=
-                                            'lumpsum' &&
-                                        selected.any(
-                                          (fund) =>
-                                              _frequency(fund) != 'Monthly',
-                                        )) {
-                                      Get.snackbar(
-                                        'Frequency unavailable',
-                                        'Daily and Weekly orders are not supported by this checkout yet. Select Monthly to continue.',
-                                      );
-                                      return;
-                                    }
                                     await widget.onCheckout();
                                   } else {
                                     setState(() => review = true);
@@ -580,7 +627,6 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                     ),
                     if (c.savedInvestmentType.value != 'lumpsum')
                       SizedBox(
-                        width: 100,
                         height: 20,
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
@@ -592,12 +638,13 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                           ),
                           onPressed: () => frequency(f),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                _frequency(f),
+                                getFrequencyDisplayLabel(f),
                                 style: text(10, weight: FontWeight.w800),
                               ),
+                              const SizedBox(width: 4),
                               svg('goal_basket_chevron', 3.5, 6),
                             ],
                           ),
@@ -707,6 +754,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
   }
 
   void frequency(MutualFundListEntity f) {
+    final current = _frequency(f);
     showMenu<String>(
       context: context,
       position: const RelativeRect.fromLTRB(195, 275, 40, 0),
@@ -719,17 +767,130 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
         for (final label in ['Daily', 'Weekly', 'Monthly'])
           PopupMenuItem(
             value: label,
-            child: Text(
-              label,
-              style: text(12, color: purple, weight: FontWeight.w700),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  label,
+                  style: text(
+                    12,
+                    color: label == current ? purple : const Color(0xFF12121A),
+                    weight: label == current
+                        ? FontWeight.w700
+                        : FontWeight.w500,
+                  ),
+                ),
+                if (label == current)
+                  const Icon(Icons.check, color: purple, size: 16),
+              ],
             ),
           ),
       ],
     ).then((value) {
       if (!mounted || value == null) return;
       setState(() => _frequencies[_frequencyKey(f)] = value);
-      if (value == 'Monthly') calendar(f);
+      if (value == 'Monthly') {
+        calendar(f);
+      } else if (value == 'Weekly') {
+        _pickWeekDay(f);
+      } else if (value == 'Daily') {
+        setState(() => _sipDays[_frequencyKey(f)] = 'NA');
+      }
     });
+  }
+
+  void _pickWeekDay(MutualFundListEntity f) {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    final currentDay = _sipDays[_frequencyKey(f)] ?? 'Monday';
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Close SIP weekday',
+      barrierColor: const Color(0x66000000),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, a, b) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'SIP day of week',
+                      style: text(16, weight: FontWeight.w700),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, size: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...days.map((day) {
+                final isSelected = day == currentDay;
+                return InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () {
+                    setState(() => _sipDays[_frequencyKey(f)] = day);
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFFF3EFFF)
+                          : const Color(0xFFF8F9FD),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: isSelected ? purple : line),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Every $day',
+                          style: text(
+                            14,
+                            color: isSelected
+                                ? purple
+                                : const Color(0xFF12121A),
+                            weight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                        ),
+                        if (isSelected)
+                          const Icon(
+                            Icons.check_circle,
+                            color: purple,
+                            size: 18,
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 12),
+              Text(
+                'Weekly SIP order executes every week on this day.',
+                style: text(11, color: muted),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void calendar(MutualFundListEntity f) {
@@ -789,6 +950,10 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                             ? null
                             : () {
                                 c.selectedSipDay.value = day;
+                                setState(
+                                  () => _sipDays[_frequencyKey(f)] = day
+                                      .toString(),
+                                );
                                 Navigator.of(context).pop();
                               },
                         child: AnimatedContainer(
