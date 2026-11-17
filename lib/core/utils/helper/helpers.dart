@@ -620,6 +620,7 @@ class ProfileUtils {
     return sqlDate;
   }
 }
+
 /// Parses comma-separated, space-separated, or range-based allowed SIP dates (e.g. "1,5,10,15,20,25" or "1-28")
 /// into a sorted list of unique day integers clamped to 1..28.
 List<int> parseAllowedSipDates(dynamic rawInput) {
@@ -638,7 +639,13 @@ List<int> parseAllowedSipDates(dynamic rawInput) {
   }
 
   // Strip brackets, quotes, parentheses: e.g. "[1, 2, 3, 4, 5]" -> " 1, 2, 3, 4, 5 "
-  raw = raw.replaceAll('[', ' ').replaceAll(']', ' ').replaceAll('"', ' ').replaceAll("'", ' ').replaceAll('(', ' ').replaceAll(')', ' ');
+  raw = raw
+      .replaceAll('[', ' ')
+      .replaceAll(']', ' ')
+      .replaceAll('"', ' ')
+      .replaceAll("'", ' ')
+      .replaceAll('(', ' ')
+      .replaceAll(')', ' ');
 
   final Set<int> dates = {};
   // Split by commas, slashes, semicolons, pipe, or whitespace (MFU uses slashes "1/2/3/4/5")
@@ -671,6 +678,8 @@ List<int> parseAllowedSipDates(dynamic rawInput) {
   }
 
   final sorted = dates.toList()..sort();
-  createLog("[parseAllowedSipDates] Input: '$rawInput' => Parsed dates: $sorted");
+  createLog(
+    "[parseAllowedSipDates] Input: '$rawInput' => Parsed dates: $sorted",
+  );
   return sorted;
 }

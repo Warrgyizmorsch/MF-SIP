@@ -3,9 +3,7 @@ import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 class ExecutePOIStep2Model {
   final ResultPOIStep2Model result;
 
-  ExecutePOIStep2Model({
-    required this.result,
-  });
+  ExecutePOIStep2Model({required this.result});
 
   factory ExecutePOIStep2Model.fromJson(Map<String, dynamic> json) {
     return ExecutePOIStep2Model(
@@ -13,14 +11,12 @@ class ExecutePOIStep2Model {
     );
   }
 }
+
 class ResultPOIStep2Model {
   final String type;
   final PoiOutputModel output;
 
-  ResultPOIStep2Model({
-    required this.type,
-    required this.output,
-  });
+  ResultPOIStep2Model({required this.type, required this.output});
 
   factory ResultPOIStep2Model.fromJson(Map<String, dynamic> json) {
     return ResultPOIStep2Model(
@@ -29,6 +25,7 @@ class ResultPOIStep2Model {
     );
   }
 }
+
 class PoiOutputModel {
   final String uid;
   final String name;
@@ -60,6 +57,7 @@ class PoiOutputModel {
     );
   }
 }
+
 class SplitAddressModel {
   final String district;
   final String state;

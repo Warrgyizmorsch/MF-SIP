@@ -1,11 +1,8 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-
 
 class TextFormFieldCustom extends StatelessWidget {
   final Widget method;
@@ -57,18 +54,19 @@ class TextFormFieldCustom extends StatelessWidget {
                   style: TextStyle(
                     fontSize: hintTextSize ?? 14,
                     color: hintTextColor ?? Ucolors.primary,
-                    fontFamily: hintTextStyle ??  FontFamily.medium,
+                    fontFamily: hintTextStyle ?? FontFamily.medium,
                   ),
                 ).paddingOnly(left: 5, bottom: 5),
-                isRequired==true?
-                Text(
-                  "*",
-                  style: TextStyle(
-                    fontSize: hintTextSize ?? 14,
-                    color:  Ucolors.red,
-                    fontFamily: FontFamily.medium,
-                  ),
-                ).paddingOnly(left: 5, ):SizedBox.shrink(),
+                isRequired == true
+                    ? Text(
+                        "*",
+                        style: TextStyle(
+                          fontSize: hintTextSize ?? 14,
+                          color: Ucolors.red,
+                          fontFamily: FontFamily.medium,
+                        ),
+                      ).paddingOnly(left: 5)
+                    : SizedBox.shrink(),
               ],
             ),
           Container(
@@ -88,11 +86,13 @@ class TextFormFieldCustom extends StatelessWidget {
     );
   }
 }
+
 class UsNumberTextInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
     String formatted = "";
 
@@ -102,10 +102,10 @@ class UsNumberTextInputFormatter extends TextInputFormatter {
       formatted = "(${digits.substring(0, 3)}) ${digits.substring(3)}";
     } else if (digits.length <= 10) {
       formatted =
-      "(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6)}";
+          "(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6)}";
     } else {
       formatted =
-      "(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 10)}";
+          "(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 10)}";
     }
 
     return TextEditingValue(
@@ -207,7 +207,7 @@ class TextFieldCustom extends StatelessWidget {
         onFieldSubmitted: onSubmitted,
         style: TextStyle(
           fontSize: hintTextSize ?? 15,
-          fontFamily: hintTextStyle ??  FontFamily.medium,
+          fontFamily: hintTextStyle ?? FontFamily.medium,
           color: Ucolors.darkgrey,
         ),
         onChanged: onChanged,
@@ -218,16 +218,18 @@ class TextFieldCustom extends StatelessWidget {
           hintText: hintText,
           errorText: errorText,
           counterText: "",
-          contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding:
+              contentPadding ??
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           errorStyle: TextStyle(
             fontSize: 12,
-              fontFamily: FontFamily.medium,
-            color: Ucolors.red
+            fontFamily: FontFamily.medium,
+            color: Ucolors.red,
           ),
           hintStyle: TextStyle(
-            color: hintTextColor ??Ucolors.darkgrey,
+            color: hintTextColor ?? Ucolors.darkgrey,
             fontSize: hintTextSize ?? 14,
-            fontFamily: hintTextStyle ??  FontFamily.medium,
+            fontFamily: hintTextStyle ?? FontFamily.medium,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
@@ -246,7 +248,7 @@ class TextFieldCustom extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(
-              color:  borderColor ?? Colors.transparent,
+              color: borderColor ?? Colors.transparent,
               width: borderWidth ?? 1.0,
             ),
           ),
@@ -260,7 +262,7 @@ class TextFieldCustom extends StatelessWidget {
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(
-              color:Ucolors.red,
+              color: Ucolors.red,
               width: borderWidth ?? 1.0,
             ),
           ),

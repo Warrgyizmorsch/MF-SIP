@@ -47,19 +47,19 @@ class TicketEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        ticketNumber,
-        subject,
-        priority,
-        status,
-        category,
-        relatedType,
-        relatedId,
-        unreadMessages,
-        latestMessage,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    ticketNumber,
+    subject,
+    priority,
+    status,
+    category,
+    relatedType,
+    relatedId,
+    unreadMessages,
+    latestMessage,
+    createdAt,
+    updatedAt,
+  ];
 }
 
 class TicketListSummaryEntity extends Equatable {
@@ -93,5 +93,11 @@ class TicketListResultEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [summary, tickets, currentPage, totalPages, hasMore];
+  List<Object?> get props => [
+    summary,
+    tickets,
+    currentPage,
+    totalPages,
+    hasMore,
+  ];
 }

@@ -4,10 +4,7 @@ class AppConfigResponseModel {
   final bool success;
   final AppConfigData data;
 
-  const AppConfigResponseModel({
-    required this.success,
-    required this.data,
-  });
+  const AppConfigResponseModel({required this.success, required this.data});
 
   factory AppConfigResponseModel.fromJson(Map<String, dynamic> json) {
     return AppConfigResponseModel(
@@ -18,10 +15,7 @@ class AppConfigResponseModel {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'success': success,
-    'data': data.toJson(),
-  };
+  Map<String, dynamic> toJson() => {'success': success, 'data': data.toJson()};
 }
 
 class AppConfigData {
@@ -153,7 +147,8 @@ class AppConfigData {
   bool get isRedeemEnabled => isFeatureEnabled('redeem_enabled');
   bool get isPaymentEnabled => isFeatureEnabled('payment_enabled');
   bool get isNewInvestmentEnabled => isFeatureEnabled('new_investment_enabled');
-  bool get isAnnouncementActive => announcement.enabled && announcement.message.trim().isNotEmpty;
+  bool get isAnnouncementActive =>
+      announcement.enabled && announcement.message.trim().isNotEmpty;
 }
 
 class PlatformStoreConfig {
@@ -186,10 +181,7 @@ class WebConfig {
   final String? buildId;
   final bool reloadRecommended;
 
-  const WebConfig({
-    this.buildId,
-    required this.reloadRecommended,
-  });
+  const WebConfig({this.buildId, required this.reloadRecommended});
 
   factory WebConfig.fromJson(Map<String, dynamic> json) {
     return WebConfig(
@@ -224,7 +216,8 @@ class MaintenanceConfig {
   factory MaintenanceConfig.empty() => const MaintenanceConfig(
     enabled: false,
     title: 'MFSIP is under maintenance',
-    message: 'We are currently improving our services. Please try again shortly.',
+    message:
+        'We are currently improving our services. Please try again shortly.',
     retryAfterSeconds: 180,
   );
 
@@ -232,7 +225,8 @@ class MaintenanceConfig {
     return MaintenanceConfig(
       enabled: json['enabled'] == true,
       title: json['title']?.toString() ?? 'MFSIP is under maintenance',
-      message: json['message']?.toString() ??
+      message:
+          json['message']?.toString() ??
           'We are currently improving our services. Please try again shortly.',
       startsAt: json['starts_at']?.toString(),
       endsAt: json['ends_at']?.toString(),
@@ -296,6 +290,7 @@ class AnnouncementConfig {
     if (actionText != null) 'action_text': actionText,
   };
 }
+
 class ClientEvaluationConfig {
   final String platform;
   final String installedVersion;

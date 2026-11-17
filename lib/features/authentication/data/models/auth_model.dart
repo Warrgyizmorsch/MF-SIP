@@ -134,12 +134,15 @@ class UserModel {
       ),
       folios: userData['raw_folios'] != null
           ? (userData['raw_folios'] as List?)?.map((e) => e.toString()).toList()
-          : (userData['folios'] as List?)?.map((e) {
-              if (e is Map) {
-                return (e['folio_number'] ?? e['folio'] ?? '').toString();
-              }
-              return e.toString();
-            }).where((s) => s.isNotEmpty).toList(),
+          : (userData['folios'] as List?)
+                ?.map((e) {
+                  if (e is Map) {
+                    return (e['folio_number'] ?? e['folio'] ?? '').toString();
+                  }
+                  return e.toString();
+                })
+                .where((s) => s.isNotEmpty)
+                .toList(),
     );
   }
 

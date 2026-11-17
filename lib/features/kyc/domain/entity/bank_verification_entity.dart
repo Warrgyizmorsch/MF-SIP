@@ -27,25 +27,17 @@ class BankVerificationEntity extends Equatable {
   ];
 }
 
-
 class AuditTrailEntity extends Equatable {
   final String? nature;
   final String? value;
   final String? timestamp;
 
-  const AuditTrailEntity({
-    this.nature,
-    this.value,
-    this.timestamp,
-  });
+  const AuditTrailEntity({this.nature, this.value, this.timestamp});
 
   @override
-  List<Object?> get props => [
-    nature,
-    value,
-    timestamp,
-  ];
+  List<Object?> get props => [nature, value, timestamp];
 }
+
 extension BankVerificationModelMapper on BankVerificationModel {
   BankVerificationEntity toEntity() {
     return BankVerificationEntity(
@@ -57,12 +49,9 @@ extension BankVerificationModelMapper on BankVerificationModel {
     );
   }
 }
+
 extension AuditTrailModelMapper on AuditTrailModel {
   AuditTrailEntity toEntity() {
-    return AuditTrailEntity(
-      nature: nature,
-      value: value,
-      timestamp: timestamp,
-    );
+    return AuditTrailEntity(nature: nature, value: value, timestamp: timestamp);
   }
 }

@@ -14,17 +14,26 @@ class WishlistBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<WishlistRmDs>(
       () => WishlistRmDs(Get.find<NetworkServicesApi>()),
-      fenix: true
+      fenix: true,
     );
 
     Get.lazyPut<WishlistAbsRepo>(
       () => WishlistRepoImplement(Get.find<WishlistRmDs>()),
-      fenix: true
+      fenix: true,
     );
 
-    Get.lazyPut(() => FetchwishlistUsecases(Get.find<WishlistAbsRepo>()), fenix: true);
-    Get.lazyPut(() => AddwishlistUsecases(Get.find<WishlistAbsRepo>()), fenix: true);
-    Get.lazyPut(() => DeleteWishlistUsecase(Get.find<WishlistAbsRepo>()), fenix: true);
+    Get.lazyPut(
+      () => FetchwishlistUsecases(Get.find<WishlistAbsRepo>()),
+      fenix: true,
+    );
+    Get.lazyPut(
+      () => AddwishlistUsecases(Get.find<WishlistAbsRepo>()),
+      fenix: true,
+    );
+    Get.lazyPut(
+      () => DeleteWishlistUsecase(Get.find<WishlistAbsRepo>()),
+      fenix: true,
+    );
 
     Get.lazyPut(
       () => WishlistUsecases(

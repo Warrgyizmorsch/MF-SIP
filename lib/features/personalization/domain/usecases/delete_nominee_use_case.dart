@@ -8,7 +8,9 @@ class DeleteNomineeUseCase {
 
   DeleteNomineeUseCase({required this.personalisationRepository});
 
-  Future<Either<Result<String>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<String>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await personalisationRepository.deleteNominee(data);
   }
 }

@@ -8,7 +8,9 @@ class CreatePdfUseCase {
   final KycRepository kycRepository;
   CreatePdfUseCase({required this.kycRepository});
 
-  Future<Either<Result<CreatePdfEntity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<CreatePdfEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await kycRepository.createPdf(data);
   }
 }

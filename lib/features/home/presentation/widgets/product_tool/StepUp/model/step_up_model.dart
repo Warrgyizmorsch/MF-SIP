@@ -1,4 +1,3 @@
-
 enum StepUpType { percentage, amount }
 
 class ChartRow {
@@ -6,11 +5,7 @@ class ChartRow {
   final double invested;
   final double value;
 
-  ChartRow({
-    required this.year,
-    required this.invested,
-    required this.value,
-  });
+  ChartRow({required this.year, required this.invested, required this.value});
 }
 
 class DetailRow {
@@ -36,11 +31,7 @@ class Compare {
   final double value;
   final double profit;
 
-  Compare({
-    required this.invested,
-    required this.value,
-    required this.profit,
-  });
+  Compare({required this.invested, required this.value, required this.profit});
 }
 
 class StepUpSipResult {

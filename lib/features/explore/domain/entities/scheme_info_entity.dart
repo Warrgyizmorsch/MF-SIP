@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/explore/data/model/scheme_info_model.dart';
+
 class SchemeDetailEntity extends Equatable {
   final int status;
   final String statusMsg;
@@ -104,16 +105,15 @@ class SchemeDetailEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        schemeAmfiCode,
-        nav,
-        ratingValue,
-        schemeAssets,
-        schemePerformanceList,
-        riskStatisticsList,
-        schemePeerComparisonList,
-      ];
+    schemeAmfiCode,
+    nav,
+    ratingValue,
+    schemeAssets,
+    schemePerformanceList,
+    riskStatisticsList,
+    schemePeerComparisonList,
+  ];
 }
-
 
 class SchemePerformanceEntity extends Equatable {
   final String schemeName;
@@ -131,10 +131,14 @@ class SchemePerformanceEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [schemeName, oneYearReturn, threeYearReturn, fiveYearReturn, tenYearReturn];
+  List<Object?> get props => [
+    schemeName,
+    oneYearReturn,
+    threeYearReturn,
+    fiveYearReturn,
+    tenYearReturn,
+  ];
 }
-
 
 class RiskStatisticsEntity extends Equatable {
   final String schemeCategory;
@@ -152,10 +156,13 @@ class RiskStatisticsEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [schemeCategory, volatilityCm3Year, yieldToMaturity, averageMaturity];
+  List<Object?> get props => [
+    schemeCategory,
+    volatilityCm3Year,
+    yieldToMaturity,
+    averageMaturity,
+  ];
 }
-
 
 class SchemePeerComparisonEntity extends Equatable {
   final String schemeName;
@@ -173,10 +180,13 @@ class SchemePeerComparisonEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [schemeName, oneYearReturn, threeYearReturn, ratingValue];
+  List<Object?> get props => [
+    schemeName,
+    oneYearReturn,
+    threeYearReturn,
+    ratingValue,
+  ];
 }
-
 
 extension SchemeDetailModelX on SchemeDetailModel {
   SchemeDetailEntity toEntity() {
@@ -220,16 +230,16 @@ extension SchemeDetailModelX on SchemeDetailModel {
       marketCapLargecapPercent: marketCapLargecapPercent ?? 0.0,
       marketCapMidcapPercent: marketCapMidcapPercent ?? 0.0,
       marketCapSmallcapPercent: marketCapSmallcapPercent ?? 0.0,
-      schemePerformanceList:
-          schemePerformanceList.map((e) => e.toEntity()).toList(),
-      riskStatisticsList:
-          riskStatisticsList.map((e) => e.toEntity()).toList(),
-      schemePeerComparisonList:
-          schemePeerComparisonList.map((e) => e.toEntity()).toList(),
+      schemePerformanceList: schemePerformanceList
+          .map((e) => e.toEntity())
+          .toList(),
+      riskStatisticsList: riskStatisticsList.map((e) => e.toEntity()).toList(),
+      schemePeerComparisonList: schemePeerComparisonList
+          .map((e) => e.toEntity())
+          .toList(),
     );
   }
 }
-
 
 extension SchemePerformanceModelX on SchemePerformanceModel {
   SchemePerformanceEntity toEntity() {
@@ -243,7 +253,6 @@ extension SchemePerformanceModelX on SchemePerformanceModel {
   }
 }
 
-
 extension RiskStatisticsModelX on RiskStatisticsModel {
   RiskStatisticsEntity toEntity() {
     return RiskStatisticsEntity(
@@ -256,13 +265,11 @@ extension RiskStatisticsModelX on RiskStatisticsModel {
   }
 }
 
-
 extension SchemePeerComparisonModelX on SchemePeerComparisonModel {
   SchemePeerComparisonEntity toEntity() {
     return SchemePeerComparisonEntity(
       schemeName: schemeName ?? '',
-      schemeInceptionDateString:
-          schemeInceptionDateString ?? '',
+      schemeInceptionDateString: schemeInceptionDateString ?? '',
       oneYearReturn: oneYearReturn ?? 0.0,
       threeYearReturn: threeYearReturn ?? 0.0,
       ratingValue: ratingValue ?? 0,

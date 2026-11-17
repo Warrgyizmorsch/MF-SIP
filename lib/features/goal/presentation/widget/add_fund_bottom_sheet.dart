@@ -73,7 +73,8 @@ class AddFundBottomSheet extends StatefulWidget {
 }
 
 class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
-  int _activeTabIndex = 0; // 0 = Monthly SIP, 1 = One-Time Lumpsum, 2 = Link from Portfolio
+  int _activeTabIndex =
+      0; // 0 = Monthly SIP, 1 = One-Time Lumpsum, 2 = Link from Portfolio
   String _selectedCategory = 'Equity';
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _fundsScrollController = ScrollController();
@@ -173,8 +174,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
     String schemeCode,
     int? defaultMin,
   ) {
-    final targetMin =
-        (defaultMin != null && defaultMin > 0) ? defaultMin : 1000;
+    final targetMin = (defaultMin != null && defaultMin > 0)
+        ? defaultMin
+        : 1000;
     if (!_amountControllers.containsKey(schemeCode)) {
       _amountControllers[schemeCode] = TextEditingController(
         text: targetMin.toString(),
@@ -248,7 +250,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
             for (final fund in selectedFunds) {
               final schemeCode = fund.schemeCode?.toString() ?? '';
               final amount =
-                  double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
+                  double.tryParse(
+                    _amountControllers[schemeCode]?.text ?? '0',
+                  ) ??
                   0.0;
               if (schemeCode.isNotEmpty && amount > 0) {
                 lumpsumFunds.add(
@@ -272,7 +276,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
             for (final fund in selectedFunds) {
               final schemeCode = fund.schemeCode?.toString() ?? '';
               final amount =
-                  double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
+                  double.tryParse(
+                    _amountControllers[schemeCode]?.text ?? '0',
+                  ) ??
                   0.0;
               if (schemeCode.isNotEmpty && amount > 0) {
                 sipFunds.add(
@@ -708,10 +714,10 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                       ),
                       onPressed:
                           _isSubmitting ||
-                          _selectedSchemeCodes.isEmpty ||
-                          _hasInvalidAmounts()
-                              ? null
-                              : _handleInvest,
+                              _selectedSchemeCodes.isEmpty ||
+                              _hasInvalidAmounts()
+                          ? null
+                          : _handleInvest,
                       child: _isSubmitting
                           ? const SizedBox(
                               width: 20,
@@ -852,13 +858,14 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                     height: 42,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                      color: _mutualController.currentSortLabel.value !=
-                              "1Y,3Y,5Y"
+                      color:
+                          _mutualController.currentSortLabel.value != "1Y,3Y,5Y"
                           ? Ucolors.primary.withValues(alpha: 0.1)
                           : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: _mutualController.currentSortLabel.value !=
+                        color:
+                            _mutualController.currentSortLabel.value !=
                                 "1Y,3Y,5Y"
                             ? Ucolors.primary
                             : const Color(0xFFE2E8F0),
@@ -870,7 +877,8 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                         Icon(
                           Icons.sort_rounded,
                           size: 16,
-                          color: _mutualController.currentSortLabel.value !=
+                          color:
+                              _mutualController.currentSortLabel.value !=
                                   "1Y,3Y,5Y"
                               ? Ucolors.primary
                               : const Color(0xFF64748B),
@@ -881,7 +889,8 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: _mutualController.currentSortLabel.value !=
+                            color:
+                                _mutualController.currentSortLabel.value !=
                                     "1Y,3Y,5Y"
                                 ? Ucolors.primary
                                 : const Color(0xFF475569),
@@ -914,7 +923,9 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                       _selectedCategory = cat;
                     });
                     if (cat == 'All') {
-                      _mutualController.applyFilters({'scheme_category': 'All'});
+                      _mutualController.applyFilters({
+                        'scheme_category': 'All',
+                      });
                     } else {
                       _mutualController.applyFilters({'scheme_category': cat});
                     }
@@ -992,7 +1003,8 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
               );
             }
 
-            final int itemCount = fundsList.length +
+            final int itemCount =
+                fundsList.length +
                 (_mutualController.isMoreLoading.value ? 1 : 0);
 
             return ListView.separated(
@@ -1056,8 +1068,10 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                       _selectedSchemeCodes.add(schemeCode);
                       _selectedFundsMap[schemeCode] = fund;
                       final currentMin = _getMinAmountForFund(fund);
-                      final ctrl =
-                          _getControllerForScheme(schemeCode, currentMin);
+                      final ctrl = _getControllerForScheme(
+                        schemeCode,
+                        currentMin,
+                      );
                       ctrl.text = currentMin.toString();
                     }
                   });
@@ -1187,170 +1201,174 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                           ),
                         ),
 
-                    // When Selected: Amount Input & Quick Chips
-                      if (isSelected) ...[
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          child: Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: Color(0xFFF1F5F9),
+                        // When Selected: Amount Input & Quick Chips
+                        if (isSelected) ...[
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Color(0xFFF1F5F9),
+                            ),
                           ),
-                        ),
-                        Builder(
-                          builder: (context) {
-                            final currentAmount =
-                                double.tryParse(amountCtrl.text) ?? 0.0;
-                            final isAmountBelowMin = currentAmount < minAllowed;
-                            final modeLabel = _isLumpsum ? 'Lumpsum' : 'SIP';
+                          Builder(
+                            builder: (context) {
+                              final currentAmount =
+                                  double.tryParse(amountCtrl.text) ?? 0.0;
+                              final isAmountBelowMin =
+                                  currentAmount < minAllowed;
+                              final modeLabel = _isLumpsum ? 'Lumpsum' : 'SIP';
 
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text(
-                                      "Amount:",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF1E293B),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Container(
-                                      width: 120,
-                                      height: 32,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: isAmountBelowMin
-                                              ? Colors.red.shade400
-                                              : const Color(0xFFE2E8F0),
-                                          width: 1.0,
-                                        ),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: TextFormField(
-                                        controller: amountCtrl,
-                                        keyboardType: TextInputType.number,
-                                        textAlignVertical:
-                                            TextAlignVertical.center,
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        "Amount:",
                                         style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: isAmountBelowMin
-                                              ? Colors.red.shade700
-                                              : const Color(0xFF1E293B),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1E293B),
                                         ),
-                                        onChanged: (_) => setState(() {}),
-                                        decoration: InputDecoration(
-                                          prefixText: "₹ ",
-                                          prefixStyle: TextStyle(
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Container(
+                                        width: 120,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          border: Border.all(
+                                            color: isAmountBelowMin
+                                                ? Colors.red.shade400
+                                                : const Color(0xFFE2E8F0),
+                                            width: 1.0,
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: TextFormField(
+                                          controller: amountCtrl,
+                                          keyboardType: TextInputType.number,
+                                          textAlignVertical:
+                                              TextAlignVertical.center,
+                                          style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold,
                                             color: isAmountBelowMin
                                                 ? Colors.red.shade700
                                                 : const Color(0xFF1E293B),
                                           ),
-                                          isDense: true,
-                                          border: InputBorder.none,
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 7,
+                                          onChanged: (_) => setState(() {}),
+                                          decoration: InputDecoration(
+                                            prefixText: "₹ ",
+                                            prefixStyle: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                              color: isAmountBelowMin
+                                                  ? Colors.red.shade700
+                                                  : const Color(0xFF1E293B),
+                                            ),
+                                            isDense: true,
+                                            border: InputBorder.none,
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 7,
+                                                ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                if (isAmountBelowMin)
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.only(top: 6, bottom: 2),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.error_outline,
-                                          size: 13,
-                                          color: Colors.red.shade600,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          "Minimum $modeLabel amount is ₹$minAllowed",
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.red.shade700,
+                                    ],
+                                  ),
+                                  if (isAmountBelowMin)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 6,
+                                        bottom: 2,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.error_outline,
+                                            size: 13,
+                                            color: Colors.red.shade600,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Quick increment chips (Matching Figma)
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [500, 1000, 2000, 5000].map((step) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(8),
-                                  onTap: () {
-                                    final current =
-                                        int.tryParse(amountCtrl.text) ?? 0;
-                                    final updated =
-                                        (current < minAllowed
-                                            ? minAllowed
-                                            : current) +
-                                        step;
-                                    amountCtrl.text = updated.toString();
-                                    setState(() {});
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: const Color(0xFFE2E8F0),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            "Minimum $modeLabel amount is ₹$minAllowed",
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red.shade700,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    child: Text(
-                                      "+₹$step",
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF1E293B),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                ],
                               );
-                            }).toList(),
+                            },
                           ),
-                        ),
+                          const SizedBox(height: 8),
+                          // Quick increment chips (Matching Figma)
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [500, 1000, 2000, 5000].map((step) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () {
+                                      final current =
+                                          int.tryParse(amountCtrl.text) ?? 0;
+                                      final updated =
+                                          (current < minAllowed
+                                              ? minAllowed
+                                              : current) +
+                                          step;
+                                      amountCtrl.text = updated.toString();
+                                      setState(() {});
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: const Color(0xFFE2E8F0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        "+₹$step",
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1E293B),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
             );
           }),
         ),
       ],
     );
   }
-
 }

@@ -9,24 +9,16 @@ class GoalFundResponseModel {
     required this.data,
   });
 
-  factory GoalFundResponseModel.fromJson(
-      Map<String, dynamic> json,
-      ) {
+  factory GoalFundResponseModel.fromJson(Map<String, dynamic> json) {
     return GoalFundResponseModel(
       status: json['status'] ?? false,
       message: json['message'] ?? '',
-      data: GoalFundOrderModel.fromJson(
-        json['data'] ?? {},
-      ),
+      data: GoalFundOrderModel.fromJson(json['data'] ?? {}),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'status': status,
-      'message': message,
-      'data': data.toJson(),
-    };
+    return {'status': status, 'message': message, 'data': data.toJson()};
   }
 }
 
@@ -67,9 +59,7 @@ class GoalFundOrderModel {
     this.capingDate,
   });
 
-  factory GoalFundOrderModel.fromJson(
-      Map<String, dynamic> json,
-      ) {
+  factory GoalFundOrderModel.fromJson(Map<String, dynamic> json) {
     return GoalFundOrderModel(
       id: json['id'] ?? 0,
       goalId: json['goal_id'] ?? 0,

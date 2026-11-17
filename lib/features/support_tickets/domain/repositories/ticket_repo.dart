@@ -23,7 +23,9 @@ abstract class TicketRepo {
     List<File>? attachments,
   });
 
-  Future<Either<Result<TicketDetailEntity>, ApiError>> getTicketDetail(int ticketId);
+  Future<Either<Result<TicketDetailEntity>, ApiError>> getTicketDetail(
+    int ticketId,
+  );
 
   Future<Either<Result<TicketMessageEntity>, ApiError>> replyTicket({
     required int ticketId,
@@ -31,7 +33,13 @@ abstract class TicketRepo {
     List<File>? attachments,
   });
 
-  Future<Either<Result<bool>, ApiError>> closeTicket(int ticketId, {String? reason});
+  Future<Either<Result<bool>, ApiError>> closeTicket(
+    int ticketId, {
+    String? reason,
+  });
 
-  Future<Either<Result<bool>, ApiError>> reopenTicket(int ticketId, {String? reason});
+  Future<Either<Result<bool>, ApiError>> reopenTicket(
+    int ticketId, {
+    String? reason,
+  });
 }

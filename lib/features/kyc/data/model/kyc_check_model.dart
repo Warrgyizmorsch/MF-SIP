@@ -1,4 +1,3 @@
-
 class KycCheckModel {
   final bool? status;
   final String? message;
@@ -135,4 +134,3 @@ class PanItemModel {
     );
   }
 }
-

@@ -9,7 +9,9 @@ class ExecuteVerifyAmountUseCase {
 
   ExecuteVerifyAmountUseCase({required this.kycRepository});
 
-  Future<Either<Result<VerifyAmountEntity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<VerifyAmountEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await kycRepository.executeVerifyAmount(data);
   }
 }

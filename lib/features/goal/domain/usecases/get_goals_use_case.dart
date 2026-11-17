@@ -10,7 +10,7 @@ class GetGoalsUseCase {
 
   GetGoalsUseCase({required this.goalRepository});
 
-  Future<Either<Result<GoalResponseEntity>,ApiError>>call() async {
+  Future<Either<Result<GoalResponseEntity>, ApiError>> call() async {
     return await goalRepository.getGoals();
   }
 }

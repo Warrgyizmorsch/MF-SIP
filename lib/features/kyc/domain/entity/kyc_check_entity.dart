@@ -22,10 +22,7 @@ class KycCheckDataEntity extends Equatable {
   final RespHeaderEntity? respHeader;
   final RespBodyEntity? respBody;
 
-  const KycCheckDataEntity({
-    this.respHeader,
-    this.respBody,
-  });
+  const KycCheckDataEntity({this.respHeader, this.respBody});
 
   @override
   List<Object?> get props => [respHeader, respBody];
@@ -69,14 +66,14 @@ class RespBodyEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        panVerifyRefNo,
-        canAvailFlg,
-        can,
-        errorCode,
-        errorMsg,
-        txnEligFlg,
-        panList,
-      ];
+    panVerifyRefNo,
+    canAvailFlg,
+    can,
+    errorCode,
+    errorMsg,
+    txnEligFlg,
+    panList,
+  ];
 }
 
 class PanItemEntity extends Equatable {
@@ -100,16 +97,15 @@ class PanItemEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        pan,
-        panValFlg,
-        panName,
-        panKycSt,
-        mfuKycStatus,
-        panAppStatus,
-        panAppUpdtStatus,
-      ];
+    pan,
+    panValFlg,
+    panName,
+    panKycSt,
+    mfuKycStatus,
+    panAppStatus,
+    panAppUpdtStatus,
+  ];
 }
-
 
 // ==========================================
 // MAPPERS (Model -> Entity)

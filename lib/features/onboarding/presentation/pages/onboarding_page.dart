@@ -76,7 +76,7 @@ class OnboardingPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha:0.12),
+                          color: Colors.black.withValues(alpha: 0.12),
                           blurRadius: 20,
                           spreadRadius: 2,
                           offset: const Offset(
@@ -164,7 +164,6 @@ class OnboardingPage extends StatelessWidget {
                             ),
                           ),
 
-                    
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 600),
                             transitionBuilder: (child, animation) {
@@ -184,7 +183,6 @@ class OnboardingPage extends StatelessWidget {
                             ),
                           ),
 
-                        
                           SmoothPageIndicator(
                             effect: ExpandingDotsEffect(
                               activeDotColor: Ucolors.blue,
@@ -226,7 +224,6 @@ class OnboardingPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                         
                         ],
                       ),
                     ),
@@ -350,7 +347,7 @@ class RichTypewriterText extends StatefulWidget {
 
 class _RichTypewriterTextState extends State<RichTypewriterText> {
   int _charCount = 0;
-  late  List<_SpanChar> _characters;
+  late List<_SpanChar> _characters;
 
   @override
   void initState() {

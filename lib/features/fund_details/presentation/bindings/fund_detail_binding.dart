@@ -6,6 +6,7 @@ import 'package:my_sip/features/fund_details/data/repositories/fund_detail_repos
 import 'package:my_sip/features/fund_details/domain/repositories/fund_detail_repository.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/fund_details_usecases.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/get_fund_detail_usecase.dart';
+import 'package:my_sip/features/fund_details/domain/usecases/get_funds_by_manager_usecase.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/nav_history_usecases.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/portfolio_analysis_usecases.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/comparefund_controller.dart';
@@ -32,6 +33,7 @@ class FundDetailBinding extends Bindings {
         fundDetailUseCase: Get.find<GetFundDetailUseCase>(),
         portfolioAnalysisUsecases: Get.find<PortfolioAnalysisUsecases>(),
         navHistoryUsecases: Get.find<NavHistoryUsecases>(),
+        getFundsByManagerUseCase: Get.find<GetFundsByManagerUseCase>(),
       ),
       fenix: true,
     );
@@ -43,6 +45,10 @@ class FundDetailBinding extends Bindings {
     );
 
     Get.lazyPut(() => NavHistoryUsecases(Get.find<FundDetailRepository>()));
+
+    Get.lazyPut(
+      () => GetFundsByManagerUseCase(Get.find<FundDetailRepository>()),
+    );
 
     // 4. Wrapper Use Case (Depends on LoginUseCase)
     // Get.lazyPut(
@@ -71,7 +77,6 @@ class FundDetailBinding extends Bindings {
       () => FundDetailsController(fundDetailsUsecases: Get.find()),
       fenix: true,
     );
-
 
     Get.lazyPut(() => CompareFundController(fundDetailsUsecases: Get.find()));
   }

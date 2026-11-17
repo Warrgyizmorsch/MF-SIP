@@ -56,11 +56,14 @@ class UTextFormField extends StatelessWidget {
             fontFamily: FontFamily.medium,
             fontSize: (Get.width * 0.035).clamp(12, 14),
           ),
-          floatingLabelStyle: TextStyle(color: Ucolors.textFormEnabled, fontFamily: FontFamily.medium,),
+          floatingLabelStyle: TextStyle(
+            color: Ucolors.textFormEnabled,
+            fontFamily: FontFamily.medium,
+          ),
           hintText: hintText,
           hintStyle: TextStyle(
             fontFamily: FontFamily.medium,
-            color: Ucolors.darkgrey.withValues(alpha:0.8),
+            color: Ucolors.darkgrey.withValues(alpha: 0.8),
             fontSize: (Get.width * 0.035).clamp(12, 14),
           ),
           prefixIcon: prefixIcon != null

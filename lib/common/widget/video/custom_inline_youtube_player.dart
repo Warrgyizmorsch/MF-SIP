@@ -194,18 +194,14 @@ class _InlineYouTubePlayerState extends State<InlineYouTubePlayer> {
   }
 }
 
-
-
-
 class ClickableYoutubeThumbnail extends StatelessWidget {
-
   final String videoUrl;
   final double width;
 
   const ClickableYoutubeThumbnail({
     super.key,
     required this.videoUrl,
-    this.width = 300, 
+    this.width = 300,
   });
 
   String? _extractVideoId(String url) {
@@ -214,14 +210,16 @@ class ClickableYoutubeThumbnail extends StatelessWidget {
       caseSensitive: false,
     );
     final Match? match = regExp.firstMatch(url);
-    return (match != null && match.groupCount >= 1 && match.group(1)!.length == 11) 
-        ? match.group(1) 
+    return (match != null &&
+            match.groupCount >= 1 &&
+            match.group(1)!.length == 11)
+        ? match.group(1)
         : null;
   }
 
   Future<void> _launchYoutubeVideo() async {
     final Uri url = Uri.parse(videoUrl);
-    
+
     // LaunchMode.externalApplication forces it to try opening the YouTube app first
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       debugPrint('Could not launch $url');
@@ -238,7 +236,9 @@ class ClickableYoutubeThumbnail extends StatelessWidget {
           color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
+        child: const Center(
+          child: Icon(Icons.broken_image, color: Colors.grey),
+        ),
       );
     }
     return GestureDetector(
@@ -249,13 +249,15 @@ class ClickableYoutubeThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
-            )
+            ),
           ],
           image: DecorationImage(
-            image: NetworkImage("https://img.youtube.com/vi/$videoId/hqdefault.jpg"),
+            image: NetworkImage(
+              "https://img.youtube.com/vi/$videoId/hqdefault.jpg",
+            ),
             fit: BoxFit.cover,
           ),
         ),
@@ -263,9 +265,14 @@ class ClickableYoutubeThumbnail extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha:0.6), // Dark translucent background
+              color: Colors.black.withValues(
+                alpha: 0.6,
+              ), // Dark translucent background
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha:0.5), width: 1.5),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.5),
+                width: 1.5,
+              ),
             ),
             child: const Icon(
               Icons.play_arrow_rounded,

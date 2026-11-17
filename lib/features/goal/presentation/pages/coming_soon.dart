@@ -87,7 +87,8 @@ class ComingSoon extends StatelessWidget {
                         Text(
                           "COMING\nSOON",
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontFamily: FontFamily.medium,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
 
                             fontWeight: FontWeight.w900,
                             fontSize: isDesktop ? 80 : 48,
@@ -103,7 +104,8 @@ class ComingSoon extends StatelessWidget {
                         Text(
                           "Get ready! Something really cool is coming!",
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontFamily: FontFamily.medium,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontSize: isDesktop ? 18 : 16,
                             fontWeight: FontWeight.w300,
                             color: Colors.white,
@@ -135,7 +137,10 @@ class ComingSoon extends StatelessWidget {
                                         // Navigator.pop(context),
                                         child: Text(
                                           'Back',
-                                          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.medium,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                   ],
@@ -157,7 +162,10 @@ class ComingSoon extends StatelessWidget {
                                             Navigator.maybePop(context),
                                         child: Text(
                                           'Back',
-                                          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.medium,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -184,11 +192,17 @@ class ComingSoon extends StatelessWidget {
   // Input Field Widget
   Widget _buildEmailInput() {
     return TextField(
-      style: const TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
+      style: const TextStyle(
+        fontFamily: FontFamily.medium,
+        color: Colors.white,
+      ),
       cursorColor: const Color(0xFFFDC02F),
       decoration: InputDecoration(
         hintText: "Your Email",
-        hintStyle: TextStyle(fontFamily: FontFamily.medium,color: Colors.white.withValues(alpha:0.7)),
+        hintStyle: TextStyle(
+          fontFamily: FontFamily.medium,
+          color: Colors.white.withValues(alpha: 0.7),
+        ),
         filled: true,
         fillColor: Colors.transparent,
         contentPadding: const EdgeInsets.symmetric(
@@ -221,7 +235,11 @@ class ComingSoon extends StatelessWidget {
       ),
       child: const Text(
         "Notify Me",
-        style: TextStyle(fontFamily: FontFamily.medium,fontSize: 16, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontFamily: FontFamily.medium,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -321,7 +339,7 @@ class _WavyCloudPainter extends CustomPainter {
     _drawWave(
       canvas,
       size,
-      const Color(0xA2B9C6).withValues(alpha:1),
+      const Color(0xA2B9C6).withValues(alpha: 1),
       0.45,
       2.0,
       1.5,

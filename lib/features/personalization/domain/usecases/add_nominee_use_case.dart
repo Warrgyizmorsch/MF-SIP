@@ -8,7 +8,9 @@ class AddNomineeUseCase {
   final PersonalisationRepository personalisationRepository;
 
   AddNomineeUseCase({required this.personalisationRepository});
-  Future<Either<Result<String>, ApiError>> call(Map<String, dynamic> data,) async {
+  Future<Either<Result<String>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await personalisationRepository.addNominee(data);
   }
 }

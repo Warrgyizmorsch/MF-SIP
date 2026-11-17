@@ -90,9 +90,7 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
               sideTitles: SideTitles(showTitles: false),
             ),
             bottomTitles: AxisTitles(
-              
               sideTitles: SideTitles(
-
                 // showTitles: isDesktop,
                 showTitles: true,
 
@@ -101,7 +99,6 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
                     ? (schemeSpots.length / 5).ceilToDouble()
                     : 1,
                 getTitlesWidget: (value, meta) {
-
                   final index = value.toInt();
                   if (index >= 0 && index < widget.navData.length) {
                     final date = widget.navData[index].navDate ?? "";

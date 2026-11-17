@@ -5,9 +5,9 @@
 // class uElevatedButtonTheme {
 //    /* -- Light Theme -- */
 //   static final lightElevatedButtonTheme  = ElevatedButtonThemeData(
-    
+
 //     style: ElevatedButton.styleFrom(
-    
+
 //       elevation: 0,
 //       foregroundColor: Ucolors.light,
 //       backgroundColor: Ucolors.primary,

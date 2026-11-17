@@ -115,7 +115,8 @@ class PercentageBar extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style:  TextStyle(fontFamily: FontFamily.medium,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: isDesktop ? 15 : 12,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey.shade800,
@@ -124,7 +125,8 @@ class PercentageBar extends StatelessWidget {
             ),
             Text(
               '${percentage.toStringAsFixed(2)}%',
-              style:  TextStyle(fontFamily: FontFamily.medium,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: isDesktop ? 15 : 12,
                 fontWeight: FontWeight.w600,
                 color: color,
@@ -139,7 +141,7 @@ class PercentageBar extends StatelessWidget {
           height: isDesktop ? 10 : 8,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(isDesktop ? 12 : 10),
-            color: color.withValues(alpha:0.1),
+            color: color.withValues(alpha: 0.1),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(isDesktop ? 12 : 10),
@@ -159,7 +161,7 @@ class PercentageBar extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [color, color.withValues(alpha:0.8)],
+                            colors: [color, color.withValues(alpha: 0.8)],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),

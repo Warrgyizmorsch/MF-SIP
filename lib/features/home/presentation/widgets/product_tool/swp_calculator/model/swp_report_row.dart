@@ -12,7 +12,6 @@
 //   });
 // }
 
-
 // class SwpYearReport {
 //   final int year;
 //   final double totalWithdrawn;
@@ -40,4 +39,3 @@ class SwpYearReport {
     required this.profit,
   });
 }
-

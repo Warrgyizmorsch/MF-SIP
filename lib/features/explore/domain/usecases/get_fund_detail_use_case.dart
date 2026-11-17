@@ -1,5 +1,3 @@
-
-
 class GetSchemeInfousecase {
   // final MutualFundRepository _mutualFundRepository;
   //

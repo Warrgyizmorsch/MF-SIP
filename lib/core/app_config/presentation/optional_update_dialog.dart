@@ -16,7 +16,8 @@ class OptionalUpdateDialog extends StatelessWidget {
 
   static Future<void> show(BuildContext context) async {
     final service = AppConfigService.instance;
-    final latestVer = service.currentConfig.value?.currentLatestVersion ?? 'New';
+    final latestVer =
+        service.currentConfig.value?.currentLatestVersion ?? 'New';
 
     await showGeneralDialog(
       context: context,

@@ -150,7 +150,12 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                             controller.currentGoalDetail.value!.goalTenure,
                         investedAmount:
                             controller.currentGoalDetail.value!.savedAmount,
-                        status: controller.currentGoalDetail.value!.status.isNotEmpty
+                        status:
+                            controller
+                                .currentGoalDetail
+                                .value!
+                                .status
+                                .isNotEmpty
                             ? controller.currentGoalDetail.value!.status
                             : 'pending',
                         mfuOrderStatus: '',
@@ -184,7 +189,12 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                             controller.currentGoalDetail.value!.goalTenure,
                         investedAmount:
                             controller.currentGoalDetail.value!.savedAmount,
-                        status: controller.currentGoalDetail.value!.status.isNotEmpty
+                        status:
+                            controller
+                                .currentGoalDetail
+                                .value!
+                                .status
+                                .isNotEmpty
                             ? controller.currentGoalDetail.value!.status
                             : 'pending',
                         mfuOrderStatus: '',
@@ -825,8 +835,7 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                                     fontFamily:
                                                         FontFamily.medium,
                                                     fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w600,
+                                                    fontWeight: FontWeight.w600,
                                                     color: Ucolors.primary,
                                                   ),
                                                 ),
@@ -940,7 +949,8 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                               /// Lumpsum Transaction (Latest postLumpsum API)
                               if (controller.savedInvestmentType.value ==
                                   'lumpsum') {
-                                final List<LumpsumFundItemModel> lumpsumFunds = [];
+                                final List<LumpsumFundItemModel> lumpsumFunds =
+                                    [];
 
                                 for (final fund in selectedFunds) {
                                   final schemeCode =
@@ -987,8 +997,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                               else if (controller.savedInvestmentType.value ==
                                   "sip") {
                                 final List<SipFundItemModel> sipFunds = [];
-                                final String selectedDay =
-                                    controller.selectedSipDay.value.toString();
+                                final String selectedDay = controller
+                                    .selectedSipDay
+                                    .value
+                                    .toString();
 
                                 for (final fund in selectedFunds) {
                                   final schemeCode =
@@ -996,7 +1008,8 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                   final amountText = controller
                                       .getAmountController(schemeCode)
                                       .text;
-                                  final amount = double.tryParse(amountText) ?? 0.0;
+                                  final amount =
+                                      double.tryParse(amountText) ?? 0.0;
 
                                   if (schemeCode.isNotEmpty && amount > 0) {
                                     sipFunds.add(
@@ -1051,11 +1064,11 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                           amount:
                               controller.savedInvestmentType.value == 'lumpsum'
                               ? ((controller.lumpsumAmount.value / 100).ceil() *
-                                      100)
-                                  .toString()
+                                        100)
+                                    .toString()
                               : ((controller.monthlySip.value / 100).ceil() *
-                                      100)
-                                  .toString(),
+                                        100)
+                                    .toString(),
                           amountColor: Ucolors.blue,
                         ),
                       ),
@@ -1955,30 +1968,29 @@ class PopularAndSelectedFund extends StatelessWidget {
                                 schemeName: fund.schemeCode?.toString() ?? '',
                               );
                             }
-                              goalSipController.toggleFund(name);
-                              final schemeCode =
-                                  fund.schemeCode?.toString() ?? '';
-                              goalSipController.amountControllers[schemeCode]
-                                  ?.clear();
-                              goalSipController.amountControllers
-                                  .remove(schemeCode);
+                            goalSipController.toggleFund(name);
+                            final schemeCode =
+                                fund.schemeCode?.toString() ?? '';
+                            goalSipController.amountControllers[schemeCode]
+                                ?.clear();
+                            goalSipController.amountControllers.remove(
+                              schemeCode,
+                            );
 
-                              if (goalSipController
-                                  .selectedPopularFund
-                                  .isNotEmpty) {
-                                if (goalSipController
-                                        .savedInvestmentType
-                                        .value ==
-                                    "lumpsum")
-                                  await goalSipController
-                                      .distributeMonthlyAmount();
-                                else if (goalSipController
-                                        .savedInvestmentType
-                                        .value ==
-                                    "sip")
-                                  await goalSipController.distributeSipAmount();
-                              }
-                              return;
+                            if (goalSipController
+                                .selectedPopularFund
+                                .isNotEmpty) {
+                              if (goalSipController.savedInvestmentType.value ==
+                                  "lumpsum")
+                                await goalSipController
+                                    .distributeMonthlyAmount();
+                              else if (goalSipController
+                                      .savedInvestmentType
+                                      .value ==
+                                  "sip")
+                                await goalSipController.distributeSipAmount();
+                            }
+                            return;
                           }
 
                           goalSipController.toggleFund(name);
@@ -2581,8 +2593,8 @@ class _TabButton extends StatelessWidget {
                     color: isSelected
                         ? Ucolors.primary
                         : (isLocked
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade500),
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade500),
                   ),
                 ),
               ],

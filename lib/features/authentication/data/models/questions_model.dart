@@ -2,7 +2,7 @@
 class Option {
   final String label;
 
-  Option({required this.label,});
+  Option({required this.label});
 }
 
 // models/question_model.dart

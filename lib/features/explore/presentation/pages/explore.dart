@@ -1733,6 +1733,8 @@ class WebFundListCard extends StatelessWidget {
           'allowed_sip_dates': entity.allowedSipDates,
           'rta_amc_code': entity.rtaAmcCode,
           'amc_name': entity.amc?.amcName,
+          'fund_manager_id': entity.fundManagerId,
+          'fund_managers': entity.fundManagers,
         },
         beforeOpen: () {
           if (Get.isRegistered<FundDetailsController>()) {
@@ -1753,6 +1755,8 @@ class WebFundListCard extends StatelessWidget {
             'allowed_sip_dates': entity.allowedSipDates,
             'rta_amc_code': entity.rtaAmcCode,
             'amc_name': entity.amc?.amcName,
+            'fund_manager_id': entity.fundManagerId,
+            'fund_managers': entity.fundManagers,
           };
         },
       );
@@ -1775,6 +1779,8 @@ class WebFundListCard extends StatelessWidget {
         'allowed_sip_dates': entity.allowedSipDates,
         'rta_amc_code': entity.rtaAmcCode,
         'amc_name': entity.amc?.amcName,
+        'fund_manager_id': entity.fundManagerId,
+        'fund_managers': entity.fundManagers,
       };
 
       Get.toNamed(AppRoutes.funddetails);
@@ -3247,6 +3253,8 @@ class MutualFundCard extends StatelessWidget {
               'allowed_sip_dates': entity.allowedSipDates,
               'rta_amc_code': entity.rtaAmcCode,
               'amc_name': entity.amc?.amcName,
+              'fund_manager_id': entity.fundManagerId,
+              'fund_managers': entity.fundManagers,
             };
             Get.toNamed(
               AppRoutes.funddetails,

@@ -20,10 +20,8 @@ class GrowthSchemeScreen extends StatefulWidget {
 }
 
 class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
-
   final mutualFundController = Get.find<MutualFundController>();
-   late final growthSchemes = mutualFundController.mutualfund;
-
+  late final growthSchemes = mutualFundController.mutualfund;
 
   final list = [
     "Motilal Ostwal Small Cap Fund",
@@ -31,7 +29,7 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
     "Parag Parikh Flexi Cap Fund",
     "SBI Banking & Financial Services",
     "HDFC Top 100 Fund",
-    "ICICI Prudential Bluechip Fund"
+    "ICICI Prudential Bluechip Fund",
   ];
   final risk = [
     "Very High Risk",
@@ -39,16 +37,22 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
     "Very High Risk",
     "Very High Risk",
     "High Risk",
-    "High Risk"
+    "High Risk",
   ];
   final returns = ["29.89%", "29.89%", "29.89%", "29.89%", "15.5%", "14.2%"];
-  final ageList = ["27 Year", "27 Year", "27 Year", "27 Year", "10 Year", "15 Year"];
+  final ageList = [
+    "27 Year",
+    "27 Year",
+    "27 Year",
+    "27 Year",
+    "10 Year",
+    "15 Year",
+  ];
 
   int _selectedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
-
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
@@ -59,7 +63,6 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Row(
@@ -70,11 +73,10 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                   Text(
                     UText.freedomSipTitle,
                     style: AppTextStyles.bodyLarge(color: Colors.white),
-                  )
+                  ),
                 ],
               ),
             ),
-
 
             Expanded(
               child: Padding(
@@ -85,12 +87,13 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     Expanded(
                       flex: 3,
                       child: Container(
                         width: double.infinity,
-                        margin: isDesktop ? const EdgeInsets.only(right: 20) : EdgeInsets.zero,
+                        margin: isDesktop
+                            ? const EdgeInsets.only(right: 20)
+                            : EdgeInsets.zero,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(25.0),
@@ -104,22 +107,25 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                      UText.growthSchemeScreenTitle,
-                                      style: AppTextStyles.bodyLargeBold()
+                                    UText.growthSchemeScreenTitle,
+                                    style: AppTextStyles.bodyLargeBold(),
                                   ),
                                   const SizedBox(height: 5),
                                   RichText(
                                     text: TextSpan(
                                       text: UText.growthSchemeScreenKnowMore,
-                                      style: AppTextStyles.bodySmall(color: Colors.grey),
+                                      style: AppTextStyles.bodySmall(
+                                        color: Colors.grey,
+                                      ),
                                       children: [
                                         TextSpan(
                                           text: "Know More",
                                           style: AppTextStyles.bodySmall(
                                             color: Ucolors.primary,
-                                            decoration: TextDecoration.underline,
+                                            decoration:
+                                                TextDecoration.underline,
                                           ),
-                                        )
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -127,15 +133,11 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                               ),
                             ),
                             const SizedBox(height: 15),
-                            Expanded(
-
-                              child: _buildSchemeList(),
-                            ),
+                            Expanded(child: _buildSchemeList()),
                           ],
                         ),
                       ),
                     ),
-
 
                     if (isDesktop)
                       SizedBox(
@@ -150,7 +152,7 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha:0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     blurRadius: 10,
                                     offset: const Offset(0, 5),
                                   ),
@@ -165,7 +167,8 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                                       child: Text(
                                         'Proceed',
                                         style: AppTextStyles.bodyMedium(
-                                            color: Colors.white),
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -177,7 +180,8 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                                       child: Text(
                                         'Back',
                                         style: AppTextStyles.bodyMedium(
-                                            color: Ucolors.primary),
+                                          color: Ucolors.primary,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -197,9 +201,7 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
     );
   }
 
-
   Widget _buildSchemeList() {
-
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       itemCount: growthSchemes.length.clamp(0, 4),
@@ -221,7 +223,9 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? Ucolors.primary.withValues(alpha:0.2) : Colors.white,
+          color: isSelected
+              ? Ucolors.primary.withValues(alpha: 0.2)
+              : Colors.white,
           border: Border.all(
             color: isSelected ? Ucolors.primary : Colors.grey.shade300,
             width: isSelected ? 1.5 : 1.0,
@@ -232,7 +236,9 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
           children: [
             Row(
               children: [
-                CustomCachedImage(imageUrl: growthSchemes[index].amc?.amcLogoUrl),
+                CustomCachedImage(
+                  imageUrl: growthSchemes[index].amc?.amcLogoUrl,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -240,20 +246,18 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                     style: AppTextStyles.bodyMediumSemiBold(),
                     overflow: TextOverflow.ellipsis,
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 10),
             DashedLine(color: Colors.grey.shade400),
             const SizedBox(height: 10),
 
-
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   Row(
                     children: [
                       const Icon(Icons.circle, color: Colors.red, size: 8),
@@ -261,67 +265,76 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                       Text(
                         risk[index],
                         style: AppTextStyles.bodySmall(
-                            color: Colors.grey, size: 11),
+                          color: Colors.grey,
+                          size: 11,
+                        ),
                       ),
                     ],
                   ),
 
-
                   const SizedBox(width: 12),
-
 
                   Row(
                     children: [
-                      Text("SIP Returns: ",
-                          style: AppTextStyles.bodySmall(
-                              color: Colors.grey, size: 11)),
+                      Text(
+                        "SIP Returns: ",
+                        style: AppTextStyles.bodySmall(
+                          color: Colors.grey,
+                          size: 11,
+                        ),
+                      ),
                       Text(
                         returns[index],
                         style: AppTextStyles.bodySmall(
-                            color: Colors.green, size: 11),
+                          color: Colors.green,
+                          size: 11,
+                        ),
                       ),
                       Text(
                         " pa",
                         style: AppTextStyles.bodySmall(color: Colors.grey),
-                      )
+                      ),
                     ],
                   ),
 
                   const SizedBox(width: 12),
 
-
                   Row(
                     children: [
-                      Text("Fund Age: ",
-                          style: AppTextStyles.bodySmall(
-                              color: Colors.grey, size: 11)),
+                      Text(
+                        "Fund Age: ",
+                        style: AppTextStyles.bodySmall(
+                          color: Colors.grey,
+                          size: 11,
+                        ),
+                      ),
                       Text(
                         ageList[index],
                         style: AppTextStyles.bodySmall(
-                            color: Colors.black, size: 11),
+                          color: Colors.black,
+                          size: 11,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-
   void _onProceed() {
     if (_selectedIndex == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please select a scheme to proceed"))
+        const SnackBar(content: Text("Please select a scheme to proceed")),
       );
       return;
     }
     Get.toNamed(AppRoutes.accumulationanddistributionscreen);
   }
-
 
   Widget _buildMobileBottomBar(BuildContext context) {
     return Container(
@@ -330,7 +343,7 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),

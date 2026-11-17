@@ -60,12 +60,15 @@ class TicketModel {
 
   factory TicketModel.fromJson(Map<String, dynamic> json) {
     return TicketModel(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       ticketNumber: json['ticket_number']?.toString() ?? '',
       subject: json['subject']?.toString() ?? '',
       priority: json['priority']?.toString() ?? 'MEDIUM',
       status: json['status']?.toString() ?? 'OPEN',
-      category: json['category'] != null && json['category'] is Map<String, dynamic>
+      category:
+          json['category'] != null && json['category'] is Map<String, dynamic>
           ? TicketCategoryModel.fromJson(json['category'])
           : null,
       relatedType: json['related_type']?.toString(),
@@ -73,7 +76,9 @@ class TicketModel {
       unreadMessages: json['unread_messages'] is int
           ? json['unread_messages']
           : int.tryParse(json['unread_messages']?.toString() ?? '0') ?? 0,
-      latestMessage: json['latest_message'] != null && json['latest_message'] is Map<String, dynamic>
+      latestMessage:
+          json['latest_message'] != null &&
+              json['latest_message'] is Map<String, dynamic>
           ? TicketLatestMessageModel.fromJson(json['latest_message'])
           : null,
       createdAt: json['created_at']?.toString() ?? '',

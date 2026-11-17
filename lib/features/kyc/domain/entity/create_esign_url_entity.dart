@@ -12,8 +12,6 @@ class CreateEsignUrlEntity extends Equatable {
 
 extension CreateEsignUrlModelMapper on CreateEsignUrlModel {
   CreateEsignUrlEntity toEntity() {
-    return CreateEsignUrlEntity(
-      esignUrl: esignUrl ?? '',
-    );
+    return CreateEsignUrlEntity(esignUrl: esignUrl ?? '');
   }
 }

@@ -315,7 +315,6 @@ class AmountChipList extends StatelessWidget {
   }
 }
 
-
 // class AmountChipList extends StatelessWidget {
 //   final List<double> amountList = const [1000, 2000, 5000, 10000];
 //   final ValueChanged<double> onSelected;

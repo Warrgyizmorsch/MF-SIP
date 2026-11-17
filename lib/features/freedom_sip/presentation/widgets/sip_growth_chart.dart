@@ -48,17 +48,11 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
               show: true,
               drawVerticalLine: true,
               horizontalInterval: 2,
-              getDrawingVerticalLine: (value){
-                return const FlLine(
-                  color: Color(0xffe7e8ec),
-                  strokeWidth: 1,
-                );
+              getDrawingVerticalLine: (value) {
+                return const FlLine(color: Color(0xffe7e8ec), strokeWidth: 1);
               },
               getDrawingHorizontalLine: (value) {
-                return const FlLine(
-                  color: Color(0xffe7e8ec),
-                  strokeWidth: 1,
-                );
+                return const FlLine(color: Color(0xffe7e8ec), strokeWidth: 1);
               },
             ),
             titlesData: FlTitlesData(
@@ -86,9 +80,7 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
                 ),
               ),
             ),
-            borderData: FlBorderData(
-              show: false,
-            ),
+            borderData: FlBorderData(show: false),
             minX: 0,
             maxX: 5,
             minY: 0,
@@ -111,9 +103,7 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
                 color: Colors.green,
                 barWidth: 4,
                 isStrokeCapRound: true,
-                dotData: const FlDotData(
-                  show: false,
-                ),
+                dotData: const FlDotData(show: false),
                 // belowBarData: BarAreaData(
                 //   show: true,
                 //   color: Colors.green.withOpacity(0.1),
@@ -128,8 +118,11 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
                     final isInvested = barSpot.barIndex == 0;
                     return LineTooltipItem(
                       '${isInvested ? "Invested" : "Value"}: ${barSpot.y}L\n',
-                      TextStyle(fontFamily: FontFamily.medium,
-                        color: isInvested ? Colors.grey[300] : Colors.greenAccent,
+                      TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: isInvested
+                            ? Colors.grey[300]
+                            : Colors.greenAccent,
                         fontWeight: FontWeight.bold,
                       ),
                     );
@@ -144,7 +137,8 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
   }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(fontFamily: FontFamily.medium,
+    const style = TextStyle(
+      fontFamily: FontFamily.medium,
       fontWeight: FontWeight.bold,
       fontSize: 12,
       color: Colors.grey,
@@ -156,7 +150,8 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(fontFamily: FontFamily.medium,
+    const style = TextStyle(
+      fontFamily: FontFamily.medium,
       fontWeight: FontWeight.bold,
       fontSize: 12,
       color: Colors.grey,

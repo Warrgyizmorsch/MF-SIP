@@ -60,8 +60,6 @@ extension JsonMapParser on Map<String, dynamic> {
     return null;
   }
 
-
-
   /// Parse a nested object from a map key.
   T? parseNested<T>(String key, T Function(Map<String, dynamic>) parser) {
     final value = this[key];
@@ -73,7 +71,9 @@ extension JsonMapParser on Map<String, dynamic> {
         if (decoded is Map<String, dynamic>) return parser(decoded);
       }
     } catch (e) {
-      createLog("[JsonParser Error] Failed nested parsing key: $key, value: $value, error: $e");
+      createLog(
+        "[JsonParser Error] Failed nested parsing key: $key, value: $value, error: $e",
+      );
     }
     return null;
   }
@@ -101,12 +101,16 @@ extension JsonMapParser on Map<String, dynamic> {
           // Assuming parser returns T, not T?
           list.add(parsed);
         } catch (e) {
-          createLog("[JsonParser Error] Failed parsing list element key: $key, element: $e, error: $e");
+          createLog(
+            "[JsonParser Error] Failed parsing list element key: $key, element: $e, error: $e",
+          );
         }
       }
       return list.isEmpty ? null : list;
     } catch (e) {
-      createLog("[JsonParser Error] Failed parsing list key: $key, value: $value, error: $e");
+      createLog(
+        "[JsonParser Error] Failed parsing list key: $key, value: $value, error: $e",
+      );
       return null;
     }
   }

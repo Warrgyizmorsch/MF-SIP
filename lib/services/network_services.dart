@@ -18,7 +18,7 @@ class NetworkService {
   /// Listen Internet Changes
   Stream<bool> get onNetworkChanged {
     return _connectivity.onConnectivityChanged.map(
-          (results) => !results.contains(ConnectivityResult.none),
+      (results) => !results.contains(ConnectivityResult.none),
     );
   }
 }

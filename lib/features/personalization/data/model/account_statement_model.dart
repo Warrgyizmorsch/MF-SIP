@@ -6,11 +6,11 @@ class AccountStatementModel {
   final bool? success;
   final String? message;
   final String? type;
-  
+
   // Email specific fields
   final bool? emailSent;
   final String? emailTo;
-  
+
   // Download specific fields
   final String? downloadUrl;
   final int? expiresInMinutes;

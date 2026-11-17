@@ -16,7 +16,9 @@ class TicketAttachmentModel {
 
   factory TicketAttachmentModel.fromJson(Map<String, dynamic> json) {
     return TicketAttachmentModel(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       name: json['name']?.toString() ?? '',
       url: json['url']?.toString() ?? '',
       type: json['type']?.toString() ?? 'file',
@@ -24,12 +26,7 @@ class TicketAttachmentModel {
   }
 
   TicketAttachmentEntity toEntity() {
-    return TicketAttachmentEntity(
-      id: id,
-      name: name,
-      url: url,
-      type: type,
-    );
+    return TicketAttachmentEntity(id: id, name: name, url: url, type: type);
   }
 }
 
@@ -56,7 +53,9 @@ class TicketMessageModel {
     final rawAttachments = json['attachments'] as List<dynamic>? ?? [];
 
     return TicketMessageModel(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       senderType: json['sender_type']?.toString() ?? 'USER',
       senderName: json['sender_name']?.toString() ?? '',
       message: json['message']?.toString() ?? '',
@@ -117,12 +116,15 @@ class TicketDetailModel {
     final rawMessages = json['messages'] as List<dynamic>? ?? [];
 
     return TicketDetailModel(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       ticketNumber: json['ticket_number']?.toString() ?? '',
       subject: json['subject']?.toString() ?? '',
       priority: json['priority']?.toString() ?? 'MEDIUM',
       status: json['status']?.toString() ?? 'OPEN',
-      category: json['category'] != null && json['category'] is Map<String, dynamic>
+      category:
+          json['category'] != null && json['category'] is Map<String, dynamic>
           ? TicketCategoryModel.fromJson(json['category'])
           : null,
       relatedType: json['related_type']?.toString(),

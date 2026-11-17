@@ -65,6 +65,7 @@ class UpdateGoalFundEntity extends Equatable {
     updatedAt,
   ];
 }
+
 extension UpdateGoalFundMapper on UpdateGoalFundModel {
   UpdateGoalFundEntity toEntity() {
     return UpdateGoalFundEntity(

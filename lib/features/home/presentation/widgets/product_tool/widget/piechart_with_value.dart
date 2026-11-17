@@ -10,7 +10,9 @@ class PieChartWithValue extends StatelessWidget {
     required this.piechartvalue1,
     required this.piechartvalue2,
     required this.piechartcolor1,
-    required this.piechartcolor2, required this.title1, required this.title2,
+    required this.piechartcolor2,
+    required this.title1,
+    required this.title2,
   });
   final List<Widget> list;
 
@@ -24,8 +26,7 @@ class PieChartWithValue extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min
-      ,
+      mainAxisSize: MainAxisSize.min,
       children: [
         ...list,
 

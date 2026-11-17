@@ -25,30 +25,26 @@ class TicketDetailController extends GetxController {
     ReplyTicketUseCase? replyTicketUseCase,
     CloseTicketUseCase? closeTicketUseCase,
     ReopenTicketUseCase? reopenTicketUseCase,
-  })  : getDetailUseCase = detailUseCase ??
-            GetTicketDetailUseCase(
-              TicketRepoImpl(
-                TicketRemoteDs(NetworkServicesApi()),
-              ),
-            ),
-        replyUseCase = replyTicketUseCase ??
-            ReplyTicketUseCase(
-              TicketRepoImpl(
-                TicketRemoteDs(NetworkServicesApi()),
-              ),
-            ),
-        closeUseCase = closeTicketUseCase ??
-            CloseTicketUseCase(
-              TicketRepoImpl(
-                TicketRemoteDs(NetworkServicesApi()),
-              ),
-            ),
-        reopenUseCase = reopenTicketUseCase ??
-            ReopenTicketUseCase(
-              TicketRepoImpl(
-                TicketRemoteDs(NetworkServicesApi()),
-              ),
-            );
+  }) : getDetailUseCase =
+           detailUseCase ??
+           GetTicketDetailUseCase(
+             TicketRepoImpl(TicketRemoteDs(NetworkServicesApi())),
+           ),
+       replyUseCase =
+           replyTicketUseCase ??
+           ReplyTicketUseCase(
+             TicketRepoImpl(TicketRemoteDs(NetworkServicesApi())),
+           ),
+       closeUseCase =
+           closeTicketUseCase ??
+           CloseTicketUseCase(
+             TicketRepoImpl(TicketRemoteDs(NetworkServicesApi())),
+           ),
+       reopenUseCase =
+           reopenTicketUseCase ??
+           ReopenTicketUseCase(
+             TicketRepoImpl(TicketRemoteDs(NetworkServicesApi())),
+           );
 
   final isLoading = false.obs;
   final isSendingReply = false.obs;
@@ -163,7 +159,10 @@ class TicketDetailController extends GetxController {
 
     try {
       final picker = ImagePicker();
-      final photo = await picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+      final photo = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
       if (photo != null) {
         final file = File(photo.path);
         final size = await file.length();
@@ -199,7 +198,9 @@ class TicketDetailController extends GetxController {
     final result = await replyUseCase(
       ticketId: ticketId,
       message: text,
-      attachments: replyAttachments.isNotEmpty ? replyAttachments.toList() : null,
+      attachments: replyAttachments.isNotEmpty
+          ? replyAttachments.toList()
+          : null,
     );
 
     isSendingReply.value = false;
@@ -261,9 +262,14 @@ class TicketDetailController extends GetxController {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade600),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Close Ticket', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Close Ticket',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -271,7 +277,10 @@ class TicketDetailController extends GetxController {
 
     if (confirmed == true) {
       isActionInProgress.value = true;
-      final result = await closeUseCase(ticketId, reason: reasonController.text.trim());
+      final result = await closeUseCase(
+        ticketId,
+        reason: reasonController.text.trim(),
+      );
       isActionInProgress.value = false;
 
       result.fold(
@@ -331,7 +340,10 @@ class TicketDetailController extends GetxController {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Ucolors.primary),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Reopen Ticket', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Reopen Ticket',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -339,7 +351,10 @@ class TicketDetailController extends GetxController {
 
     if (confirmed == true) {
       isActionInProgress.value = true;
-      final result = await reopenUseCase(ticketId, reason: reasonController.text.trim());
+      final result = await reopenUseCase(
+        ticketId,
+        reason: reasonController.text.trim(),
+      );
       isActionInProgress.value = false;
 
       result.fold(

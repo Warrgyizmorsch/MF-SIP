@@ -402,8 +402,10 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                       /// SIP Transaction (Latest postSip API)
                       else if (controller.savedInvestmentType.value == "sip") {
                         final List<SipFundItemModel> sipFunds = [];
-                        final String selectedDay =
-                            controller.selectedSipDay.value.toString();
+                        final String selectedDay = controller
+                            .selectedSipDay
+                            .value
+                            .toString();
 
                         for (final fund in selectedFunds) {
                           final schemeCode = fund.schemeCode?.toString() ?? '';
@@ -461,9 +463,9 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                   },
                   amount: controller.savedInvestmentType.value == 'lumpsum'
                       ? ((controller.lumpsumAmount.value / 100).ceil() * 100)
-                          .toString()
+                            .toString()
                       : ((controller.monthlySip.value / 100).ceil() * 100)
-                          .toString(),
+                            .toString(),
                   amountColor: Ucolors.blue,
                 ),
               ),
@@ -1495,15 +1497,12 @@ class PopularAndSelectedFund extends StatelessWidget {
 
                         goalSipController.toggleFund(name);
 
-                        final schemeCode =
-                            fund.schemeCode?.toString() ?? '';
+                        final schemeCode = fund.schemeCode?.toString() ?? '';
                         goalSipController.amountControllers[schemeCode]
                             ?.clear();
                         goalSipController.amountControllers.remove(schemeCode);
 
-                        if (goalSipController
-                            .selectedPopularFund
-                            .isNotEmpty) {
+                        if (goalSipController.selectedPopularFund.isNotEmpty) {
                           if (goalSipController.savedInvestmentType.value ==
                               "lumpsum") {
                             await goalSipController.distributeMonthlyAmount();
@@ -2168,8 +2167,8 @@ class _TabButton extends StatelessWidget {
                     color: isSelected
                         ? Ucolors.primary
                         : (isLocked
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade500),
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade500),
                   ),
                 ),
               ],

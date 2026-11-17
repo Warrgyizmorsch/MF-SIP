@@ -8,10 +8,7 @@ import 'network_services.dart';
 class NoInternetWidget extends StatefulWidget {
   final Widget child;
 
-  const NoInternetWidget({
-    super.key,
-    required this.child,
-  });
+  const NoInternetWidget({super.key, required this.child});
 
   @override
   State<NoInternetWidget> createState() => _NoInternetWidgetState();
@@ -45,14 +42,15 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
       setState(() {});
     }
 
-    _subscription =
-        NetworkService.instance.onNetworkChanged.listen((isConnected) {
-          if (mounted) {
-            setState(() {
-              _hasInternet = isConnected;
-            });
-          }
+    _subscription = NetworkService.instance.onNetworkChanged.listen((
+      isConnected,
+    ) {
+      if (mounted) {
+        setState(() {
+          _hasInternet = isConnected;
         });
+      }
+    });
   }
 
   Future<void> _retryConnection() async {
@@ -98,10 +96,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
                     height: 90,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color:Ucolors.primary,
-                        width: 3,
-                      ),
+                      border: Border.all(color: Ucolors.primary, width: 3),
                     ),
                   ),
                 ),
@@ -118,7 +113,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
             child: const Icon(
               Icons.wifi_off_rounded,
               size: 48,
-              color:Ucolors.primary,
+              color: Ucolors.primary,
             ),
           ),
         ],
@@ -137,10 +132,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
             child: Material(
               color: Colors.transparent,
               child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: 6,
-                  sigmaY: 6,
-                ),
+                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
                 child: Container(
                   color: Colors.black.withOpacity(.35),
                   child: Center(
@@ -149,10 +141,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
                       curve: Curves.easeOutBack,
                       tween: Tween(begin: .8, end: 1),
                       builder: (_, value, child) {
-                        return Transform.scale(
-                          scale: value,
-                          child: child,
-                        );
+                        return Transform.scale(scale: value, child: child);
                       },
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -189,10 +178,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
                             const Text(
                               "Please check your internet connection and try again.",
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.grey,
-                                height: 1.5,
-                              ),
+                              style: TextStyle(color: Colors.grey, height: 1.5),
                             ),
 
                             const SizedBox(height: 24),
@@ -201,30 +187,28 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
                               width: double.infinity,
                               height: 52,
                               child: ElevatedButton.icon(
-                                onPressed:
-                                _isRetrying ? null : _retryConnection,
+                                onPressed: _isRetrying
+                                    ? null
+                                    : _retryConnection,
                                 icon: _isRetrying
                                     ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
                                     : const Icon(Icons.refresh),
                                 label: Text(
-                                  _isRetrying
-                                      ? "Checking..."
-                                      : "Retry",
+                                  _isRetrying ? "Checking..." : "Retry",
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Ucolors.primary ,
+                                  backgroundColor: Ucolors.primary,
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                    BorderRadius.circular(100),
+                                    borderRadius: BorderRadius.circular(100),
                                   ),
                                 ),
                               ),

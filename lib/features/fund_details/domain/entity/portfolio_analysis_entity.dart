@@ -44,14 +44,14 @@ class SchemeDetailsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        schemeName,
-        isin,
-        schemePortfolioHoldings, // Note: Maps in Equatable only compare by reference unless wrapped
-        sectorAllocation,
-        assetAllocation,
-        mcapAllocation,
-      ];
+    status,
+    schemeName,
+    isin,
+    schemePortfolioHoldings, // Note: Maps in Equatable only compare by reference unless wrapped
+    sectorAllocation,
+    assetAllocation,
+    mcapAllocation,
+  ];
 }
 
 class McapAllocationEntity extends Equatable {
@@ -67,10 +67,10 @@ class McapAllocationEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        marketCapLargecapPercent,
-        marketCapMidcapPercent,
-        marketCapSmallcapPercent,
-      ];
+    marketCapLargecapPercent,
+    marketCapMidcapPercent,
+    marketCapSmallcapPercent,
+  ];
 }
 
 extension SchemeDetailsModelX on SchemeDetailsModel {
@@ -81,25 +81,28 @@ extension SchemeDetailsModelX on SchemeDetailsModel {
       msg: msg ?? '',
       isin: isin ?? '',
       schemeName: schemeName ?? '',
-      
-      schemePortfolioHoldingsNamesString: schemePortfolioHoldingsNamesString ?? [],
-      schemePortfolioHoldingsValuesString: schemePortfolioHoldingsValuesString ?? [],
+
+      schemePortfolioHoldingsNamesString:
+          schemePortfolioHoldingsNamesString ?? [],
+      schemePortfolioHoldingsValuesString:
+          schemePortfolioHoldingsValuesString ?? [],
       schemePortfolioHoldings: schemePortfolioHoldings ?? {},
-      
+
       sectorNamesString: sectorNamesString ?? [],
       sectorValuesString: sectorValuesString ?? [],
       sectorAllocation: sectorAllocation ?? {},
-      
+
       assetAllocationNamesString: assetAllocationNamesString ?? [],
       assetAllocationValuesString: assetAllocationValuesString ?? [],
       assetAllocation: assetAllocation ?? {},
-      
+
       // Handle nested nullability safely
-      mcapAllocation: mcapAllocationResponse?.toEntity() ?? 
+      mcapAllocation:
+          mcapAllocationResponse?.toEntity() ??
           const McapAllocationEntity(
-            marketCapLargecapPercent: 0.0, 
-            marketCapMidcapPercent: 0.0, 
-            marketCapSmallcapPercent: 0.0
+            marketCapLargecapPercent: 0.0,
+            marketCapMidcapPercent: 0.0,
+            marketCapSmallcapPercent: 0.0,
           ),
     );
   }

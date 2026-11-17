@@ -10,7 +10,7 @@ class CartRepoImp extends CartRepo {
 
   CartRepoImp(this.cartRemoteDs);
 
-  /// Add to cart 
+  /// Add to cart
   @override
   Future<Either<Result<String>, ApiError>> addToCart(
     Map<String, dynamic> data,
@@ -35,11 +35,11 @@ class CartRepoImp extends CartRepo {
     }
   }
 
-
-  // Get cart details 
+  // Get cart details
   @override
-  Future<Either<Result<CartResponseEntity>, ApiError>> getCartItems(Map<String, dynamic> data)async {
-
+  Future<Either<Result<CartResponseEntity>, ApiError>> getCartItems(
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await cartRemoteDs.getCartItems(data);
       return result.fold(
@@ -52,21 +52,19 @@ class CartRepoImp extends CartRepo {
           }
         },
         (error) {
-          return Right(
-            ApiError(message: 'Gcart item list  Failed $error'),
-          );
+          return Right(ApiError(message: 'Gcart item list  Failed $error'));
         },
       );
     } catch (e) {
       return Right(ApiError(message: 'cart items  list  Failed $e'));
     }
-   
   }
-  
-  //// Update Items 
-  @override
-  Future<Either<Result<String>, ApiError>> updateCart(Map<String, dynamic> data) async{
 
+  //// Update Items
+  @override
+  Future<Either<Result<String>, ApiError>> updateCart(
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await cartRemoteDs.updateCart(data);
       return result.fold(
@@ -79,20 +77,19 @@ class CartRepoImp extends CartRepo {
           }
         },
         (error) {
-          return Right(
-            ApiError(message: 'Gcart item list  Failed $error'),
-          );
+          return Right(ApiError(message: 'Gcart item list  Failed $error'));
         },
       );
     } catch (e) {
       return Right(ApiError(message: 'cart items  list  Failed $e'));
     }
-   
   }
 
-  /// Delete cart Items 
+  /// Delete cart Items
   @override
-  Future<Either<Result<String>, ApiError>> deleteCartItem(Map<String, dynamic> data) async {
+  Future<Either<Result<String>, ApiError>> deleteCartItem(
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await cartRemoteDs.deleteCartItem(data);
       return result.fold(

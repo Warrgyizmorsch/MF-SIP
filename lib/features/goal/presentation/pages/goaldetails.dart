@@ -36,12 +36,13 @@ extension GoalLinkedFundMapper on GoalLinkedFundEntity {
     final String formattedLogo = amcLogo.isNotEmpty
         ? (amcLogo.startsWith('http') ? amcLogo : "${Appurl.baseUrl}/$amcLogo")
         : (amcImageUrl.isNotEmpty
-            ? (amcImageUrl.startsWith('http')
-                ? amcImageUrl
-                : "${Appurl.baseUrl}/$amcImageUrl")
-            : '');
+              ? (amcImageUrl.startsWith('http')
+                    ? amcImageUrl
+                    : "${Appurl.baseUrl}/$amcImageUrl")
+              : '');
 
-    final bool isSipBool = isSip ||
+    final bool isSipBool =
+        isSip ||
         investmentType.toLowerCase() == 'sip' ||
         type.toLowerCase() == 'sip';
 
@@ -56,8 +57,9 @@ extension GoalLinkedFundMapper on GoalLinkedFundEntity {
     final double unitsVal = totalUnits > 0 ? totalUnits : units;
     final double navVal = currentNav > 0 ? currentNav : nav;
     final double oneDChange = oneDayReturn != 0 ? oneDayReturn : dayChange;
-    final double oneDChangePct =
-        oneDayChangePercent != 0 ? oneDayChangePercent : dayChangePercent;
+    final double oneDChangePct = oneDayChangePercent != 0
+        ? oneDayChangePercent
+        : dayChangePercent;
 
     String resolvedExitLoad = exitLoad;
     if (resolvedExitLoad.isEmpty && Get.isRegistered<DashboardController>()) {
@@ -126,8 +128,9 @@ extension GoalLinkedFundMapper on GoalLinkedFundEntity {
       sipStatus: sipStatus ?? '',
       isSipCancelled: isSipCancelled,
       hasPendingSipCancellation: hasPendingSipCancellation,
-      latestOrderStatus:
-          latestOrderStatus.isNotEmpty ? latestOrderStatus : orderStatus,
+      latestOrderStatus: latestOrderStatus.isNotEmpty
+          ? latestOrderStatus
+          : orderStatus,
       latestOrderStatusLabel: latestOrderStatusLabel,
       exitLoad: resolvedExitLoad,
     );
@@ -161,8 +164,9 @@ extension LegacyGoalFundMapper on GoalFundEntity {
       fundName: mutualFund?.schemeName ?? 'Unknown Fund',
       amcName: mutualFund?.amc?.amcName ?? '',
       amcLogo: formattedLogo,
-      investmentType:
-          orderType.isNotEmpty ? orderType : (isSipBool ? 'sip' : 'lumpsum'),
+      investmentType: orderType.isNotEmpty
+          ? orderType
+          : (isSipBool ? 'sip' : 'lumpsum'),
       investedAmount: invAmt,
       totalUnits: 0.0,
       currentNav: 0.0,
@@ -277,7 +281,8 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             )
           : (initialGoal ?? matchedGoal);
 
-      final String effectiveType = (isCurrentGoalMatch && liveDetail.goalName.isNotEmpty)
+      final String effectiveType =
+          (isCurrentGoalMatch && liveDetail.goalName.isNotEmpty)
           ? liveDetail.goalName
           : (goal?.goalType?.typeName ?? goal?.goalName ?? '');
       final double liveProgress = isCurrentGoalMatch
@@ -309,8 +314,8 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
       final String rawName =
           isCurrentGoalMatch && liveDetail.goalName.isNotEmpty
-              ? liveDetail.goalName
-              : (goal?.goalName ?? 'Goal Details');
+          ? liveDetail.goalName
+          : (goal?.goalName ?? 'Goal Details');
       final String title = rawName.trim().isNotEmpty
           ? '${rawName.trim()[0].toUpperCase()}${rawName.trim().substring(1)}'
           : rawName;
@@ -1850,7 +1855,8 @@ class GoalOverviewCard extends StatelessWidget {
                       ? "${rawPercent.toStringAsFixed(1)}%"
                       : "${rawPercent.toStringAsFixed(0)}%"));
       final String effectiveGoalType = goal?.goalType?.typeName ?? '';
-      final String effectiveGoalName = (isMatch && liveDetail.goalName.isNotEmpty)
+      final String effectiveGoalName =
+          (isMatch && liveDetail.goalName.isNotEmpty)
           ? liveDetail.goalName
           : (goal?.goalName ?? '');
       final Color rawColor = controller.getGoalColor(
@@ -3506,10 +3512,7 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
         ),
       ),
       Expanded(
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: value,
-        ),
+        child: Align(alignment: Alignment.centerLeft, child: value),
       ),
     ],
   );
@@ -3538,7 +3541,9 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
 
   int _fundCount(List<GoalLinkedFundEntity> funds) {
     if (funds.isNotEmpty) return funds.length;
-    final fresh = c.goalResponse.value?.data.firstWhereOrNull((goal) => goal.id == widget.goal?.id);
+    final fresh = c.goalResponse.value?.data.firstWhereOrNull(
+      (goal) => goal.id == widget.goal?.id,
+    );
     return (fresh ?? widget.goal)?.goalFunds.length ?? 0;
   }
 
@@ -3592,23 +3597,58 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
           Wrap(
             alignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 8, runSpacing: 4,
+            spacing: 8,
+            runSpacing: 4,
             children: [
-              Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center,
+              Wrap(
+                spacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text('Linked Mutual Funds', style: _TrackingStyle.text(14, weight: FontWeight.w600)),
-                  Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: const Color(0xFFF3EFFF), borderRadius: BorderRadius.circular(999)),
-                    child: Text('${_fundCount(funds)}', style: _TrackingStyle.text(12, color: _TrackingStyle.purple, weight: FontWeight.w700))),
-                ]),
-              TextButton(onPressed: widget.onAddFunds,
-                child: Text('Add Fund', style: _TrackingStyle.text(13, color: _TrackingStyle.navy, weight: FontWeight.w600))),
+                  Text(
+                    'Linked Mutual Funds',
+                    style: _TrackingStyle.text(14, weight: FontWeight.w600),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3EFFF),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '${_fundCount(funds)}',
+                      style: _TrackingStyle.text(
+                        12,
+                        color: _TrackingStyle.purple,
+                        weight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TextButton(
+                onPressed: widget.onAddFunds,
+                child: Text(
+                  'Add Fund',
+                  style: _TrackingStyle.text(
+                    13,
+                    color: _TrackingStyle.navy,
+                    weight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ],
           ),
           if (c.isLoadingSingleGoal.value && funds.isEmpty)
             const GoalLinkedFundsShimmer()
           else if (funds.isEmpty)
-            LinkedFundsCard(goal: widget.goal, onAddFunds: widget.onAddFunds, showHeader: false)
+            LinkedFundsCard(
+              goal: widget.goal,
+              onAddFunds: widget.onAddFunds,
+              showHeader: false,
+            )
           else
             ...funds.take(2).map(_fundRow),
           Align(
@@ -3616,8 +3656,14 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
             child: TextButton.icon(
               onPressed: widget.onAddFunds,
               icon: const Icon(Icons.add, size: 16, color: _TrackingStyle.navy),
-              label: Text('Add more', style: _TrackingStyle.text(13,
-                color: _TrackingStyle.navy, weight: FontWeight.w600)),
+              label: Text(
+                'Add more',
+                style: _TrackingStyle.text(
+                  13,
+                  color: _TrackingStyle.navy,
+                  weight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
           if (funds.isNotEmpty)
@@ -3680,7 +3726,9 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
             ? null
             : Obx(
                 () =>
-                    (c.isDeleting[fund.id > 0 ? fund.id : fund.mfuOrderFundId] ??
+                    (c.isDeleting[fund.id > 0
+                            ? fund.id
+                            : fund.mfuOrderFundId] ??
                         false)
                     ? const SizedBox(
                         width: 20,
@@ -3893,7 +3941,7 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
             if (!alreadyExists) {
               final bool isUnits =
                   r.transactionVolumeType.toUpperCase() == 'U' ||
-                      (r.amount <= 0 && r.units > 0);
+                  (r.amount <= 0 && r.units > 0);
 
               final String displayAmount = isUnits
                   ? "-${r.units.toStringAsFixed(3)} Units"
@@ -3927,8 +3975,8 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
                   statusLabel: r.statusLabel.isNotEmpty
                       ? r.statusLabel
                       : (r.orderStatusLabel.isNotEmpty
-                          ? r.orderStatusLabel
-                          : r.status),
+                            ? r.orderStatusLabel
+                            : r.status),
                   orderStatus: r.statusCode,
                   orderStatusLabel: r.orderStatusLabel.isNotEmpty
                       ? r.orderStatusLabel
@@ -3950,9 +3998,11 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
 
       // Sort newest first
       allTxns.sort((a, b) {
-        final dateA = DateTime.tryParse(a.date.isNotEmpty ? a.date : a.txnDate) ??
+        final dateA =
+            DateTime.tryParse(a.date.isNotEmpty ? a.date : a.txnDate) ??
             DateTime(1970);
-        final dateB = DateTime.tryParse(b.date.isNotEmpty ? b.date : b.txnDate) ??
+        final dateB =
+            DateTime.tryParse(b.date.isNotEmpty ? b.date : b.txnDate) ??
             DateTime(1970);
         return dateB.compareTo(dateA);
       });
@@ -3960,8 +4010,10 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
       // Filter by type
       final filteredTxns = allTxns.where((t) {
         if (_selectedFilter == 'All') return true;
-        final type = (t.investmentType.isNotEmpty ? t.investmentType : t.type).toLowerCase();
-        final isDebit = t.direction.toLowerCase() == 'debit' ||
+        final type = (t.investmentType.isNotEmpty ? t.investmentType : t.type)
+            .toLowerCase();
+        final isDebit =
+            t.direction.toLowerCase() == 'debit' ||
             type == 'redeem' ||
             type == 'redemption' ||
             type == 'red' ||
@@ -4004,8 +4056,12 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
                           filter,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            color: isSelected ? Colors.white : Colors.grey.shade700,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.grey.shade700,
                           ),
                         ),
                         selected: isSelected,
@@ -4015,7 +4071,9 @@ class _GoalRecordTabState extends State<GoalRecordTab> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: isSelected ? Ucolors.primary : Colors.grey.shade300,
+                            color: isSelected
+                                ? Ucolors.primary
+                                : Colors.grey.shade300,
                           ),
                         ),
                         onSelected: (val) {
@@ -4110,19 +4168,21 @@ class _GoalTransactionCardItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final txn = transaction;
-    final bool isDebit = txn.direction.toLowerCase() == 'debit' ||
+    final bool isDebit =
+        txn.direction.toLowerCase() == 'debit' ||
         txn.type.toLowerCase() == 'redeem' ||
         txn.investmentType.toLowerCase() == 'redeem';
 
-    final Color amountColor =
-        isDebit ? const Color(0xFFE53935) : const Color(0xFF2E7D32);
+    final Color amountColor = isDebit
+        ? const Color(0xFFE53935)
+        : const Color(0xFF2E7D32);
 
     final String unitStr = txn.display?.units.isNotEmpty == true
         ? txn.display!.units
         : (txn.units > 0 ? txn.units.toStringAsFixed(3) : '');
 
-    final bool isRedeemInUnits = isDebit &&
-        (txn.amount <= 0 || (unitStr.isNotEmpty && txn.amount <= 0));
+    final bool isRedeemInUnits =
+        isDebit && (txn.amount <= 0 || (unitStr.isNotEmpty && txn.amount <= 0));
 
     final String amountStr;
     if (txn.display?.amount.isNotEmpty == true) {
@@ -4138,8 +4198,8 @@ class _GoalTransactionCardItem extends StatelessWidget {
     final String typeLabel = isDebit
         ? (isRedeemInUnits ? 'REDEEM (UNITS)' : 'REDEEM')
         : (txn.investmentType.isNotEmpty
-            ? txn.investmentType.toUpperCase()
-            : (txn.type.isNotEmpty ? txn.type.toUpperCase() : 'INVESTMENT'));
+              ? txn.investmentType.toUpperCase()
+              : (txn.type.isNotEmpty ? txn.type.toUpperCase() : 'INVESTMENT'));
 
     final String statusLabel = txn.orderStatusLabel.isNotEmpty
         ? txn.orderStatusLabel
@@ -4153,7 +4213,8 @@ class _GoalTransactionCardItem extends StatelessWidget {
         lowerStatus.contains('success')) {
       statusBg = const Color(0xFFE8F5E9);
       statusColor = const Color(0xFF2E7D32);
-    } else if (lowerStatus.contains('accept') || lowerStatus.contains('order')) {
+    } else if (lowerStatus.contains('accept') ||
+        lowerStatus.contains('order')) {
       statusBg = const Color(0xFFE3F2FD);
       statusColor = const Color(0xFF1565C0);
     } else if (lowerStatus.contains('pending') ||
@@ -4174,13 +4235,13 @@ class _GoalTransactionCardItem extends StatelessWidget {
 
     final String logoUrl = txn.amcLogo.isNotEmpty
         ? (txn.amcLogo.startsWith('http')
-            ? txn.amcLogo
-            : '${Appurl.baseUrl}/${txn.amcLogo}')
+              ? txn.amcLogo
+              : '${Appurl.baseUrl}/${txn.amcLogo}')
         : (txn.amcImageUrl.isNotEmpty
-            ? (txn.amcImageUrl.startsWith('http')
-                ? txn.amcImageUrl
-                : '${Appurl.baseUrl}/${txn.amcImageUrl}')
-            : '');
+              ? (txn.amcImageUrl.startsWith('http')
+                    ? txn.amcImageUrl
+                    : '${Appurl.baseUrl}/${txn.amcImageUrl}')
+              : '');
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
@@ -4314,8 +4375,8 @@ class _GoalTransactionCardItem extends StatelessWidget {
                 Text(
                   isDebit
                       ? (isRedeemInUnits
-                          ? "$unitStr units${txn.nav > 0 ? ' • NAV ₹${txn.nav.toStringAsFixed(2)}' : ''}"
-                          : "-$unitStr units${txn.nav > 0 ? ' @ ₹${txn.nav.toStringAsFixed(2)}' : ''}")
+                            ? "$unitStr units${txn.nav > 0 ? ' • NAV ₹${txn.nav.toStringAsFixed(2)}' : ''}"
+                            : "-$unitStr units${txn.nav > 0 ? ' @ ₹${txn.nav.toStringAsFixed(2)}' : ''}")
                       : "$unitStr units${txn.nav > 0 ? ' @ ₹${txn.nav.toStringAsFixed(2)}' : ''}",
                   style: TextStyle(
                     fontSize: 11,
@@ -4993,8 +5054,10 @@ class GoalDetailSection extends StatelessWidget {
                                       size: 18,
                                     ),
                                     onPressed: () {
-                                      final fundTitle = fund.mutualFund?.schemeName ??
-                                          fund.mutualFund?.schemeCode?.toString() ??
+                                      final fundTitle =
+                                          fund.mutualFund?.schemeName ??
+                                          fund.mutualFund?.schemeCode
+                                              ?.toString() ??
                                           'this fund';
                                       DialogHelper.showRemoveFundDialog(
                                         fundName: fundTitle,

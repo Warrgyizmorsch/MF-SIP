@@ -18,14 +18,9 @@ class FileEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-    id,
-    filetype,
-    size,
-    directURL,
-    protected,
-  ];
+  List<Object?> get props => [id, filetype, size, directURL, protected];
 }
+
 extension FileResponseModelMapper on FileResponseModel {
   FileEntity toEntity() {
     return FileEntity(

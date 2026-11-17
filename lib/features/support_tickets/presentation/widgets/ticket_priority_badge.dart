@@ -73,11 +73,7 @@ class TicketPriorityBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: isCompact ? 13 : 15,
-            color: color,
-          ),
+          Icon(icon, size: isCompact ? 13 : 15, color: color),
           const SizedBox(width: 3),
           Text(
             label,

@@ -52,12 +52,16 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
   bool _isStackPressed = false;
 
   static const String _topSlabAsset = 'assets/images/Isometric slabs.png';
-  static const String _middleSlabAsset = 'assets/images/Isometric slabs (1).png';
-  static const String _bottomSlabAsset = 'assets/images/Isometric slabs (2).png';
+  static const String _middleSlabAsset =
+      'assets/images/Isometric slabs (1).png';
+  static const String _bottomSlabAsset =
+      'assets/images/Isometric slabs (2).png';
 
   static const String _topSlabFallback = 'assets/images/isometric_slab_top.png';
-  static const String _middleSlabFallback = 'assets/images/isometric_slab_middle.png';
-  static const String _bottomSlabFallback = 'assets/images/isometric_slab_bottom.png';
+  static const String _middleSlabFallback =
+      'assets/images/isometric_slab_middle.png';
+  static const String _bottomSlabFallback =
+      'assets/images/isometric_slab_bottom.png';
 
   int _currentPage = 0;
   int _previousPage = 0;
@@ -112,10 +116,7 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
     )..repeat(reverse: true);
 
     _floatAnimation = Tween<double>(begin: -6.0, end: 6.0).animate(
-      CurvedAnimation(
-        parent: _floatController,
-        curve: Curves.easeInOutSine,
-      ),
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOutSine),
     );
 
     _slabsEntranceController = AnimationController(
@@ -219,31 +220,51 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
         final double floatVal = _floatAnimation.value;
 
         // 1. Bottom Foundation Slab (Golden/Orange) Interval: [0.0, 0.45] -> enters first from bottom
-        final double bInterval = const Interval(0.0, 0.45, curve: Curves.easeOutBack)
-            .transform(entrance);
-        final double bOpacityVal = const Interval(0.0, 0.30, curve: Curves.easeIn)
-            .transform(entrance);
+        final double bInterval = const Interval(
+          0.0,
+          0.45,
+          curve: Curves.easeOutBack,
+        ).transform(entrance);
+        final double bOpacityVal = const Interval(
+          0.0,
+          0.30,
+          curve: Curves.easeIn,
+        ).transform(entrance);
         final double bScaleVal = 0.82 + (0.18 * bInterval);
         final double bTranslateY = (1.0 - bInterval) * 85.0 + (floatVal * 0.35);
 
         // 2. Middle Slab (Deep Purple) Interval: [0.25, 0.72] -> drops in second
-        final double mInterval = const Interval(0.25, 0.72, curve: Curves.easeOutBack)
-            .transform(entrance);
-        final double mOpacityVal = const Interval(0.25, 0.50, curve: Curves.easeIn)
-            .transform(entrance);
+        final double mInterval = const Interval(
+          0.25,
+          0.72,
+          curve: Curves.easeOutBack,
+        ).transform(entrance);
+        final double mOpacityVal = const Interval(
+          0.25,
+          0.50,
+          curve: Curves.easeIn,
+        ).transform(entrance);
         final double mScaleVal = 0.85 + (0.15 * mInterval);
-        final double mTranslateY = (1.0 - mInterval) * -80.0 + (floatVal * 0.65);
+        final double mTranslateY =
+            (1.0 - mInterval) * -80.0 + (floatVal * 0.65);
 
         // 3. Top Slab (Lavender Glass) Interval: [0.50, 1.00] -> drops in third to complete stack
-        final double tInterval = const Interval(0.50, 1.00, curve: Curves.easeOutBack)
-            .transform(entrance);
-        final double tOpacityVal = const Interval(0.50, 0.78, curve: Curves.easeIn)
-            .transform(entrance);
+        final double tInterval = const Interval(
+          0.50,
+          1.00,
+          curve: Curves.easeOutBack,
+        ).transform(entrance);
+        final double tOpacityVal = const Interval(
+          0.50,
+          0.78,
+          curve: Curves.easeIn,
+        ).transform(entrance);
         final double tScaleVal = 0.85 + (0.15 * tInterval);
         final double tTranslateY = (1.0 - tInterval) * -95.0 + (floatVal * 1.0);
 
         // Ambient floor shadow beneath foundation slab
-        final double shadowOpacityVal = bOpacityVal *
+        final double shadowOpacityVal =
+            bOpacityVal *
             (0.20 + 0.05 * (1.0 - (floatVal / 6.0).clamp(-1.0, 1.0)));
         final double shadowScaleVal =
             bScaleVal * (1.0 - 0.06 * (floatVal / 6.0).clamp(-1.0, 1.0));
@@ -283,8 +304,9 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF0E176F)
-                                        .withValues(alpha: 0.35),
+                                    color: const Color(
+                                      0xFF0E176F,
+                                    ).withValues(alpha: 0.35),
                                     blurRadius: 24,
                                     spreadRadius: 6,
                                   ),
@@ -437,10 +459,7 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
               height: 270,
               child: Stack(
                 alignment: Alignment.center,
-                children: [
-                  outgoingWidget,
-                  incomingWidget,
-                ],
+                children: [outgoingWidget, incomingWidget],
               ),
             ),
           );
@@ -497,9 +516,7 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -630,8 +647,9 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
                               onTap: () => _goToPage(index),
                               behavior: HitTestBehavior.opaque,
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 300),
                                   curve: Curves.easeInOut,
@@ -643,8 +661,8 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
                                   decoration: BoxDecoration(
                                     color: isActive
                                         ? (isStep3
-                                            ? Ucolors.goalPrimary
-                                            : const Color(0xFF1D1D1F))
+                                              ? Ucolors.goalPrimary
+                                              : const Color(0xFF1D1D1F))
                                         : Colors.grey.shade300,
                                     borderRadius: BorderRadius.circular(3.0),
                                   ),
@@ -719,8 +737,9 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
                                         color: Colors.transparent,
                                         borderRadius: BorderRadius.circular(30),
                                         border: Border.all(
-                                          color: const Color(0xFF1D1D1F)
-                                              .withValues(alpha: 0.65),
+                                          color: const Color(
+                                            0xFF1D1D1F,
+                                          ).withValues(alpha: 0.65),
                                           width: 1.1,
                                         ),
                                       ),
@@ -762,10 +781,7 @@ class _GoalBeyondSavingViewState extends State<GoalBeyondSavingView>
     );
 
     if (widget.onRefresh != null) {
-      return RefreshIndicator(
-        onRefresh: widget.onRefresh!,
-        child: content,
-      );
+      return RefreshIndicator(onRefresh: widget.onRefresh!, child: content);
     }
 
     return content;

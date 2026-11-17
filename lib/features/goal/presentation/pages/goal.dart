@@ -521,6 +521,7 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                         ),
                       ),
                     ),
+
                     // if (goal.effectiveMonthlySip > 0)
                     //   Positioned(
                     //     bottom: 12,
@@ -544,7 +545,6 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                     //       ),
                     //     ),
                     //   ),
-                
                   ],
                 ),
               ),

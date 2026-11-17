@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
+import 'package:my_sip/features/explore/data/model/mutual_fund_list_model.dart';
 import 'package:my_sip/features/fund_details/data/models/fund_detail_model.dart';
 import 'package:my_sip/features/fund_details/data/models/nav_history_model.dart';
 import 'package:my_sip/features/fund_details/data/models/portfolio_analysis_model.dart'
@@ -132,6 +133,37 @@ class FundDetailRemoteDataSource {
       return Right(ApiError(message: 'nav Histroy info: Success was false'));
     } catch (e) {
       return Right(ApiError(message: 'Nav history info failed $e'));
+    }
+  }
+
+  /// --------- Funds by Manager ----------////
+  Future<Either<Result<MutualFundListResponseModel>, ApiError>>
+  getFundsByManager(int managerId) async {
+    try {
+      final response = await _servicesApi.postApi(
+        '${Appurl.baseUrl}/api/v1/mutual-funds',
+        queryParameters: {'fund_manager_id': managerId},
+        data: {},
+      );
+      createLog(
+        '[FundDetailRemoteDataSource] getFundsByManager Response: $response',
+      );
+      final Map<String, dynamic> json = response is String
+          ? jsonDecode(response)
+          : (response as Map<String, dynamic>);
+      if (json['success'] == true) {
+        final result = MutualFundListResponseModel.fromJson(json);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(
+            message:
+                json['message']?.toString() ?? 'Failed to load manager funds',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'Error fetching manager funds: $e'));
     }
   }
 }

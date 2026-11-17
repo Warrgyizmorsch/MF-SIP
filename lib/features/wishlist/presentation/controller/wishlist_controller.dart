@@ -27,13 +27,15 @@ class WishlistController extends GetxController {
   final Rxn<WishlistEntity> wishlistResponseEntity = Rxn<WishlistEntity>();
   bool isFavorite(String schemeCode) {
     return wishlistResponseEntity.value?.data?.any(
-            (item) => item.schemeCode == schemeCode
-    ) ?? false;
+          (item) => item.schemeCode == schemeCode,
+        ) ??
+        false;
   }
+
   Future<void> toggleWishlist(String schemeCode, String schemeName) async {
     // Find if it exists locally first
     final existingItem = wishlistResponseEntity.value?.data?.firstWhereOrNull(
-            (item) => item.schemeCode == schemeCode
+      (item) => item.schemeCode == schemeCode,
     );
 
     if (existingItem != null) {
@@ -42,6 +44,7 @@ class WishlistController extends GetxController {
       await addToWishList(schemeCode, schemeName);
     }
   }
+
   // add to wishlist
   Future<void> addToWishList(String schemeCode, String schemeName) async {
     final userId = SessionManager.instance.getUserData?.id;

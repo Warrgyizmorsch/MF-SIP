@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
@@ -60,7 +59,11 @@ class BottomPortion extends StatelessWidget {
       child: Center(
         child: Text(
           'Let’s Get Started',
-          style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.light, fontSize: 16),
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            color: Ucolors.light,
+            fontSize: 16,
+          ),
         ),
       ),
     );
@@ -157,7 +160,6 @@ class TitleContent2 extends StatelessWidget {
   }
 }
 
-
 // Row(
 //   mainAxisAlignment: MainAxisAlignment.start,
 //   crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,9 +176,6 @@ class TitleContent2 extends StatelessWidget {
 //     // Remove Spacer() completely
 //   ],
 // )
-
-
-
 
 // ListTile(
 //   minLeadingWidth: 0,

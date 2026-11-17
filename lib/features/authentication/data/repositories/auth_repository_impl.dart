@@ -5,7 +5,6 @@ import 'package:my_sip/features/authentication/data/datasources/auth_remote_data
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 import 'package:my_sip/features/authentication/domain/repositories/auth_repository.dart';
 
-
 class AuthRepositoryImpl extends AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
 
@@ -106,14 +105,16 @@ class AuthRepositoryImpl extends AuthRepository {
       return Right(ApiError(message: 'Login Failed $e'));
     }
   }
+
   @override
   Future<Either<Result<FcmDeviceTokenEntity>, ApiError>> fcmDeviceToken(
-      Map<String, dynamic> data,) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await _remoteDataSource.fcmDeviceToken(data);
 
       return result.fold(
-            (success) {
+        (success) {
           if (success.isSuccess) {
             final result = success.data?.toEntity();
 
@@ -122,7 +123,7 @@ class AuthRepositoryImpl extends AuthRepository {
             return Right(ApiError(message: 'FCM Device Token Failed'));
           }
         },
-            (error) {
+        (error) {
           return Right(ApiError(message: 'FCM Device Token Failed $error'));
         },
       );
@@ -133,12 +134,13 @@ class AuthRepositoryImpl extends AuthRepository {
 
   @override
   Future<Either<Result<LoginResponseEntity>, ApiError>> signWithGoogle(
-      Map<String, dynamic> data,) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await _remoteDataSource.signWithGoogle(data);
 
       return result.fold(
-            (success) {
+        (success) {
           if (success.isSuccess) {
             final result = success.data?.toEntity();
 
@@ -147,7 +149,7 @@ class AuthRepositoryImpl extends AuthRepository {
             return Right(ApiError(message: 'FCM Device Token Failed'));
           }
         },
-            (error) {
+        (error) {
           return Right(ApiError(message: 'FCM Device Token Failed $error'));
         },
       );

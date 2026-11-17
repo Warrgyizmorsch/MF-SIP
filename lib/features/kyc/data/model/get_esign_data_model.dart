@@ -14,10 +14,12 @@ class GetEsignDataModel {
 
     if (objectData != null) {
       // Extract the signed PDF URL from either 'result' or 'newResult'
-      if (objectData['result'] != null && objectData['result']['esignedFile'] != null) {
+      if (objectData['result'] != null &&
+          objectData['result']['esignedFile'] != null) {
         extractedUrl = objectData['result']['esignedFile'].toString();
       } else if (objectData['newResult']?['object'] != null) {
-        extractedUrl = objectData['newResult']['object']['finalSignedContract']?.toString();
+        extractedUrl = objectData['newResult']['object']['finalSignedContract']
+            ?.toString();
       }
 
       // Check if the contract is fully signed
@@ -32,4 +34,3 @@ class GetEsignDataModel {
     );
   }
 }
-

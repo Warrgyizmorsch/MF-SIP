@@ -34,18 +34,18 @@ class CapitalGainStatementEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        success,
-        message,
-        type,
-        mode,
-        statementView,
-        folio,
-        pan,
-        emailSent,
-        emailTo,
-        downloadUrl,
-        expiresInMinutes,
-      ];
+    success,
+    message,
+    type,
+    mode,
+    statementView,
+    folio,
+    pan,
+    emailSent,
+    emailTo,
+    downloadUrl,
+    expiresInMinutes,
+  ];
 }
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────

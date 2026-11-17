@@ -43,18 +43,16 @@ import '../../domain/entity/goal_entity.dart';
 class IhavegoalPage extends GetView<GoalSipController> {
   IhavegoalPage({super.key});
 
-
   final CartController cartController = Get.find<CartController>();
   final GlobalKey popularFundsKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
-
     final args = Get.arguments ?? {};
     final String initialType = args['goalType'] ?? 'custom';
-    final bool isEdit =args['isEdit']??false;
-    final int goalId =args['goalId']??0;
-    final UserGoalEntity? goal =args['goal']??null;
+    final bool isEdit = args['isEdit'] ?? false;
+    final int goalId = args['goalId'] ?? 0;
+    final UserGoalEntity? goal = args['goal'] ?? null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       /// reset only when create new goal
       if (!isEdit) {
@@ -83,25 +81,23 @@ class IhavegoalPage extends GetView<GoalSipController> {
       appBar: isDesktop
           ? null
           : PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Obx(() {
-          final activeName =
-              controller.goalConfig[
-              controller.selectedGoalType.value]?['name'] ??
-                  'Custom';
+              preferredSize: const Size.fromHeight(kToolbarHeight),
+              child: Obx(() {
+                final activeName =
+                    controller.goalConfig[controller
+                        .selectedGoalType
+                        .value]?['name'] ??
+                    'Custom';
 
-          return CustomAppBarNormal(
-            title: 'Create $activeName Goal',
-            action: [
-              CompactIcon(
-                icon: Iconsax.info_circle,
-                onPressed: () {},
-              ),
-            ],
-            actionsPadding: 15,
-          );
-        }),
-      ),
+                return CustomAppBarNormal(
+                  title: 'Create $activeName Goal',
+                  action: [
+                    CompactIcon(icon: Iconsax.info_circle, onPressed: () {}),
+                  ],
+                  actionsPadding: 15,
+                );
+              }),
+            ),
 
       body: Obx(() {
         final currentType = controller.selectedGoalType.value;
@@ -133,10 +129,7 @@ class IhavegoalPage extends GetView<GoalSipController> {
                     log(controller.savedDatabaseId.value.toString());
 
                     if (controller.selectedPopularFund.isEmpty) {
-                      Get.snackbar(
-                        "Error",
-                        "Please select funds to start SIP",
-                      );
+                      Get.snackbar("Error", "Please select funds to start SIP");
                       return;
                     }
 
@@ -219,7 +212,7 @@ class _WebLayoutState extends State<_WebLayout> {
 
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:.08),
+                  color: Colors.black.withValues(alpha: .08),
                   blurRadius: 30,
                   offset: const Offset(-4, 10),
                 ),
@@ -239,10 +232,7 @@ class _WebLayoutState extends State<_WebLayout> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1500),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 24,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -283,9 +273,7 @@ class _WebLayoutState extends State<_WebLayout> {
                           backgroundColor: Ucolors.primary,
                           foregroundColor: Colors.white,
                           elevation: 0,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -296,9 +284,7 @@ class _WebLayoutState extends State<_WebLayout> {
                         icon: const Icon(Iconsax.add_circle),
                         label: const Text(
                           "Create Goal",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -329,15 +315,14 @@ class _WebLayoutState extends State<_WebLayout> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:.04),
+                                  color: Colors.black.withValues(alpha: .04),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
                             child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: const [
                                 Row(
                                   children: [
@@ -373,15 +358,14 @@ class _WebLayoutState extends State<_WebLayout> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:.04),
+                                  color: Colors.black.withValues(alpha: .04),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
                             child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
@@ -400,16 +384,15 @@ class _WebLayoutState extends State<_WebLayout> {
                                     const Spacer(),
 
                                     Container(
-                                      padding:
-                                      const EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                         horizontal: 14,
                                         vertical: 8,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.green
-                                            .withValues(alpha:.08),
-                                        borderRadius:
-                                        BorderRadius.circular(12),
+                                        color: Colors.green.withValues(
+                                          alpha: .08,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: const Text(
                                         "Top Performing Funds",
@@ -447,9 +430,7 @@ class _WebLayoutState extends State<_WebLayout> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xffE5E7EB),
-        ),
+        border: Border.all(color: const Color(0xffE5E7EB)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -458,24 +439,17 @@ class _WebLayoutState extends State<_WebLayout> {
             height: 120,
             width: 120,
             decoration: BoxDecoration(
-              color: Ucolors.primary.withValues(alpha:.08),
+              color: Ucolors.primary.withValues(alpha: .08),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Iconsax.chart_square,
-              size: 54,
-              color: Ucolors.primary,
-            ),
+            child: Icon(Iconsax.chart_square, size: 54, color: Ucolors.primary),
           ),
 
           const Gap(28),
 
           const Text(
             "No Goal Created Yet",
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
 
           const Gap(12),
@@ -496,10 +470,7 @@ class _WebLayoutState extends State<_WebLayout> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Ucolors.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -960,8 +931,8 @@ class _MobileLayout extends StatelessWidget {
                                           vertical: 10,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withValues(alpha:
-                                            0.05,
+                                          color: Ucolors.primary.withValues(
+                                            alpha: 0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
                                             16,
@@ -990,7 +961,7 @@ class _MobileLayout extends StatelessWidget {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -1029,6 +1000,7 @@ class _MobileLayout extends StatelessWidget {
     });
   }
 }
+
 class GoalDetailsFormCard extends StatelessWidget {
   final String name;
   final Map<String, dynamic> goalData;
@@ -1051,11 +1023,7 @@ class GoalDetailsFormCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.only(bottom: 4),
               decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey.shade200,
-                  ),
-                ),
+                border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
               ),
               child: Row(
                 children: [
@@ -1063,22 +1031,17 @@ class GoalDetailsFormCard extends StatelessWidget {
                     height: 30,
                     width: 30,
                     decoration: BoxDecoration(
-                      color: Ucolors.primary.withValues(alpha:.08),
+                      color: Ucolors.primary.withValues(alpha: .08),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(
-                      Iconsax.flag,
-                      color: Ucolors.primary,
-                      size: 22,
-                    ),
+                    child: Icon(Iconsax.flag, color: Ucolors.primary, size: 22),
                   ),
 
                   const Gap(8),
 
                   Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
                           "Create Your Goal",
@@ -1134,25 +1097,19 @@ class GoalDetailsFormCard extends StatelessWidget {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.only(top: 4),
                   child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CoverSection(controller: controller),
 
                       const Gap(4),
 
-                      GoalNameSelect(
-                        goalName: name,
-                        controller: controller,
-                      ),
+                      GoalNameSelect(goalName: name, controller: controller),
 
                       const Gap(4),
 
                       SIPSection(
-                        amount:
-                        goalData['amount'].toDouble(),
-                        duration:
-                        goalData['duration'].toInt(),
+                        amount: goalData['amount'].toDouble(),
+                        duration: goalData['duration'].toInt(),
                         rate: goalData['rate'].toDouble(),
                       ),
 
@@ -1164,25 +1121,17 @@ class GoalDetailsFormCard extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
-                            backgroundColor:
-                            Ucolors.primary,
-                            foregroundColor:
-                            Colors.white,
-                            shape:
-                            RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(
-                                14,
-                              ),
+                            backgroundColor: Ucolors.primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
                           onPressed: () async {
-                            await controller
-                                .saveGoalToDb();
+                            await controller.saveGoalToDb();
                           },
                           child: const Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Iconsax.calculator),
                               Gap(10),
@@ -1190,8 +1139,7 @@ class GoalDetailsFormCard extends StatelessWidget {
                                 "Save Goal & Calculate",
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontWeight:
-                                  FontWeight.w600,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -1318,7 +1266,7 @@ class PopularFund extends StatelessWidget {
                       //   vertical: 10,
                       // ),
                       decoration: BoxDecoration(
-                        color: Ucolors.primary.withValues(alpha:0.05),
+                        color: Ucolors.primary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: Ucolors.primary, width: 2),
                       ),
@@ -1329,8 +1277,6 @@ class PopularFund extends StatelessWidget {
           );
         });
       },
-
-      
     );
   }
 }
@@ -1689,7 +1635,6 @@ class GoalNameSelect extends StatelessWidget {
     );
   }
 }
-
 
 class CoverSection extends StatelessWidget {
   final GoalSipController controller;

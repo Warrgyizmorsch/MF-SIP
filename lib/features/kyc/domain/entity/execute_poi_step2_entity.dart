@@ -10,18 +10,17 @@ class ExecutePOIStep2Entity extends Equatable {
   @override
   List<Object?> get props => [result];
 }
+
 class ResultPOIStep2Entity extends Equatable {
   final String type;
   final PoiOutputEntity output;
 
-  const ResultPOIStep2Entity({
-    required this.type,
-    required this.output,
-  });
+  const ResultPOIStep2Entity({required this.type, required this.output});
 
   @override
   List<Object?> get props => [type, output];
 }
+
 class PoiOutputEntity extends Equatable {
   final String uid;
   final String name;
@@ -42,9 +41,17 @@ class PoiOutputEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [uid, name, dob, gender, address, photo, splitAddress];
+  List<Object?> get props => [
+    uid,
+    name,
+    dob,
+    gender,
+    address,
+    photo,
+    splitAddress,
+  ];
 }
+
 class SplitAddressEntity extends Equatable {
   final String district;
   final String state;
@@ -63,23 +70,25 @@ class SplitAddressEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [district, state, city, pincode, country, addressLine];
+  List<Object?> get props => [
+    district,
+    state,
+    city,
+    pincode,
+    country,
+    addressLine,
+  ];
 }
+
 extension ExecutePOIStep2Mapper on ExecutePOIStep2Model {
   ExecutePOIStep2Entity toEntity() {
-    return ExecutePOIStep2Entity(
-      result: result.toEntity(),
-    );
+    return ExecutePOIStep2Entity(result: result.toEntity());
   }
 }
 
 extension ResultPOIStep2Mapper on ResultPOIStep2Model {
   ResultPOIStep2Entity toEntity() {
-    return ResultPOIStep2Entity(
-      type: type,
-      output: output.toEntity(),
-    );
+    return ResultPOIStep2Entity(type: type, output: output.toEntity());
   }
 }
 

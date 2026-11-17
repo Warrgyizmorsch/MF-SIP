@@ -64,18 +64,18 @@ class AddedBankEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        uid,
-        accountHolderName,
-        accountNumber,
-        ifscCode,
-        micrCode,
-        accountType,
-        bankName,
-        verified,
-        verifiedAt,
-        createdAt,
-      ];
+    id,
+    uid,
+    accountHolderName,
+    accountNumber,
+    ifscCode,
+    micrCode,
+    accountType,
+    bankName,
+    verified,
+    verifiedAt,
+    createdAt,
+  ];
 }
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────

@@ -69,8 +69,10 @@ class UserBankListDataModel {
       uid: json.parse<int>('uid'),
       banks: (json['banks'] ?? json['bank_accounts']) != null
           ? ((json['banks'] ?? json['bank_accounts']) as List)
-              .map((e) => BankAccountModel.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map(
+                  (e) => BankAccountModel.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
           : null,
       count: json.parse<int>('count'),
       maxAllowed: json.parse<int>('max_allowed'),

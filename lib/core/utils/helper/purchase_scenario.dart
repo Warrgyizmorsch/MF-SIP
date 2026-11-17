@@ -29,11 +29,15 @@ class GatekeeperHelper {
 
     // 🛑 1. Check KYC Status
     final String sessionKyc =
-        (SessionManager.instance.getUserData?.kycStatus ?? '').trim().toLowerCase();
-    final String userCtrlKyc =
-        (userCtrl.userData.value?.kycStatus ?? '').trim().toLowerCase();
+        (SessionManager.instance.getUserData?.kycStatus ?? '')
+            .trim()
+            .toLowerCase();
+    final String userCtrlKyc = (userCtrl.userData.value?.kycStatus ?? '')
+        .trim()
+        .toLowerCase();
 
-    final bool isKycDone = userCtrl.isKycVerified.value ||
+    final bool isKycDone =
+        userCtrl.isKycVerified.value ||
         SessionManager.instance.isKycVerified.value ||
         sessionKyc == 'approved' ||
         sessionKyc == 'verified' ||
@@ -93,8 +97,17 @@ class GatekeeperHelper {
 
     // 🛑 4. Check CAN (Common Account Number) Status & Approval
     final userData = userCtrl.userData.value;
-    final String canNumber = (userData?.canNumber ?? SessionManager.instance.getUserData?.canNumber ?? '').trim();
-    final String canStatus = (userData?.canStatus ?? SessionManager.instance.getUserData?.canStatus ?? '').trim().toLowerCase();
+    final String canNumber =
+        (userData?.canNumber ??
+                SessionManager.instance.getUserData?.canNumber ??
+                '')
+            .trim();
+    final String canStatus =
+        (userData?.canStatus ??
+                SessionManager.instance.getUserData?.canStatus ??
+                '')
+            .trim()
+            .toLowerCase();
     final String? canError = userData?.canErrorMessage;
 
     final bool isCanApproved =
@@ -103,7 +116,9 @@ class GatekeeperHelper {
 
     if (!isCanApproved) {
       // Auto-trigger registration only if CAN does not exist and is not cancelled/rejected
-      if (canNumber.isEmpty && canStatus.isEmpty && (canError == null || canError.isEmpty)) {
+      if (canNumber.isEmpty &&
+          canStatus.isEmpty &&
+          (canError == null || canError.isEmpty)) {
         userCtrl.checkAndTriggerCanRegistration();
       }
 
@@ -185,8 +200,9 @@ class GatekeeperHelper {
             id: isDesktop ? 1 : null,
           );
         },
-        secondaryButtonText:
-            onInvestAsLumpsum != null ? 'Invest as Lumpsum' : null,
+        secondaryButtonText: onInvestAsLumpsum != null
+            ? 'Invest as Lumpsum'
+            : null,
         onSecondaryTap: onInvestAsLumpsum != null
             ? () {
                 Get.back();

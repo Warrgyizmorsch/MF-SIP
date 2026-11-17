@@ -20,13 +20,13 @@ class OnboardingEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        success,
-        message,
-        userDetails,
-        onboardingId,
-        sessionToken,
-        dbRecord,
-      ];
+    success,
+    message,
+    userDetails,
+    onboardingId,
+    sessionToken,
+    dbRecord,
+  ];
 }
 
 extension OnboardingEntityX on OnboardingResponse {
@@ -53,10 +53,8 @@ class UserDetailsEntity extends Equatable {
 }
 
 extension UserDetailsEntityX on UserDetails {
-  UserDetailsEntity toEntity() => UserDetailsEntity(
-        name: name,
-        username: username,
-      );
+  UserDetailsEntity toEntity() =>
+      UserDetailsEntity(name: name, username: username);
 }
 
 class DbRecordEntity extends Equatable {

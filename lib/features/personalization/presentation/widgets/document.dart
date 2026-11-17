@@ -97,11 +97,13 @@ class DocumentScreen extends StatelessWidget {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor:Colors.white,
+      backgroundColor: Colors.white,
       appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Documents'),
 
       body: SingleChildScrollView(
-        padding: isDesktop ? const EdgeInsets.symmetric(horizontal: 0, vertical: 0) : UPadding.screenPadding,
+        padding: isDesktop
+            ? const EdgeInsets.symmetric(horizontal: 0, vertical: 0)
+            : UPadding.screenPadding,
         child: isDesktop
             ? _buildWebDashboardLayout() // 💻 Desktop Layout
             : _buildMobileLayout(),
@@ -142,7 +144,7 @@ class DocumentScreen extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2, // 2 Documents per row
-          childAspectRatio:4,
+          childAspectRatio: 4,
           crossAxisSpacing: 24,
           mainAxisSpacing: 24,
           children: [
@@ -189,7 +191,9 @@ class DocumentScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)), // Clean slate border
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+        ), // Clean slate border
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF0F172A).withValues(alpha: 0.02),
@@ -239,7 +243,9 @@ class DocumentScreen extends StatelessWidget {
                         color: const Color(0xFF64748B),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        letterSpacing: title.toLowerCase().contains("pan") ? 1.0 : 0.1,
+                        letterSpacing: title.toLowerCase().contains("pan")
+                            ? 1.0
+                            : 0.1,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -283,7 +289,10 @@ class DocumentScreen extends StatelessWidget {
                     onPressed: onView,
                     style: TextButton.styleFrom(
                       foregroundColor: Ucolors.blue,
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 4,
+                      ),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),

@@ -12,7 +12,11 @@ class UploadToSignzyUseCase {
 
   UploadToSignzyUseCase({required this.kycRepository});
 
-  Future<Either<Result<FileEntity>, ApiError>> call(Map<String, String> data, List<Uint8List> files, List<String> fileNames) async {
+  Future<Either<Result<FileEntity>, ApiError>> call(
+    Map<String, String> data,
+    List<Uint8List> files,
+    List<String> fileNames,
+  ) async {
     return await kycRepository.uploadToSignZy(data, files, fileNames);
   }
 }

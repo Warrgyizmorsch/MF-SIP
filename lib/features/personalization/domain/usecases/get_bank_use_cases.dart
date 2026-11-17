@@ -10,7 +10,9 @@ class GetBankUseCases {
 
   GetBankUseCases(this._repository);
 
-  Future<Either<Result<BankResponseListEntity>,ApiError>>call(Map<String,dynamic> data) async {
+  Future<Either<Result<BankResponseListEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await _repository.getBanks(data);
   }
 }

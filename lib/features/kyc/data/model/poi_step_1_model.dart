@@ -1,13 +1,9 @@
-
-
 import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
 class ExecutePOIStep1Model {
   final ResultPOIStep1Model result;
 
-  ExecutePOIStep1Model({
-    required this.result,
-  });
+  ExecutePOIStep1Model({required this.result});
 
   factory ExecutePOIStep1Model.fromJson(Map<String, dynamic> json) {
     return ExecutePOIStep1Model(
@@ -16,22 +12,15 @@ class ExecutePOIStep1Model {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'result': result.toJson(),
-    };
+    return {'result': result.toJson()};
   }
 }
-
 
 class ResultPOIStep1Model {
   final String url;
   final String requestId;
 
-
-  ResultPOIStep1Model({
-    required this.url,
-    required this.requestId,
-  });
+  ResultPOIStep1Model({required this.url, required this.requestId});
 
   factory ResultPOIStep1Model.fromJson(Map<String, dynamic> json) {
     return ResultPOIStep1Model(
@@ -41,10 +30,6 @@ class ResultPOIStep1Model {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'url': url,
-      'requestId': requestId,
-    };
+    return {'url': url, 'requestId': requestId};
   }
 }
-

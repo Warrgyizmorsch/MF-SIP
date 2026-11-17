@@ -9,7 +9,9 @@ class SendOtpUseCase {
 
   SendOtpUseCase({required this.authRepository});
 
-  Future<Either<Result<String>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<String>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await authRepository.sendOtpForLogin(data);
   }
 }

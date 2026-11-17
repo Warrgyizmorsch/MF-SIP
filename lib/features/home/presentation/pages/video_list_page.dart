@@ -61,7 +61,10 @@ class VideoListScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 "Learn more about mutual funds and SIP strategies.",
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontFamily: FontFamily.medium,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                  fontFamily: FontFamily.medium,
                 ),
               ),
             ],

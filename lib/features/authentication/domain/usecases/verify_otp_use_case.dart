@@ -8,10 +8,12 @@ import '../entitites/auth_entity.dart';
 class VerifyOtpUseCase {
   final AuthRepository _authRepository;
 
-  VerifyOtpUseCase({required AuthRepository authRepository}) : _authRepository = authRepository;
+  VerifyOtpUseCase({required AuthRepository authRepository})
+    : _authRepository = authRepository;
 
-  Future<Either<Result<LoginResponseEntity>,ApiError>>call(Map<String,dynamic> data)async {
+  Future<Either<Result<LoginResponseEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await _authRepository.verifyOtpForLogin(data);
   }
-
 }

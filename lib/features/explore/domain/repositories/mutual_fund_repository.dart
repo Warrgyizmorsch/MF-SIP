@@ -9,6 +9,7 @@ abstract class MutualFundRepository {
   getMutualFundList(Map<String, dynamic> data);
   // Future<Either<Result<SchemeDetailEntity>, ApiError>> getSchemeInfo(Map<String, dynamic> data);
 
-  Future<Either<Result<FundCategoryEntity>, ApiError>>
-  getMfCategories(Map<String, dynamic> data);
+  Future<Either<Result<FundCategoryEntity>, ApiError>> getMfCategories(
+    Map<String, dynamic> data,
+  );
 }

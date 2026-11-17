@@ -5,7 +5,6 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 
 import '../../../features/home/presentation/widgets/product_tool/widget/image_slider_thumb.dart';
 
-
 class SipSliderWithBg extends StatefulWidget {
   final String title;
   final double value;
@@ -67,7 +66,6 @@ class _SipSliderWithBgState extends State<SipSliderWithBg> {
     if (oldWidget.value != widget.value) {
       _currentValue = widget.value;
 
-
       if (!_focusNode.hasFocus) {
         _controller.text = widget.value.toInt().toString();
       }
@@ -116,9 +114,7 @@ class _SipSliderWithBgState extends State<SipSliderWithBg> {
               children: [
                 Text(
                   widget.title,
-                  style: AppTextStyles.bodySmallW500(
-                    color: Colors.grey
-                  ),
+                  style: AppTextStyles.bodySmallW500(color: Colors.grey),
                 ),
                 Container(
                   width: 100,
@@ -131,10 +127,7 @@ class _SipSliderWithBgState extends State<SipSliderWithBg> {
                   child: Row(
                     children: [
                       if (widget.prefix != null)
-                        Text(
-                          widget.prefix!,
-                          style: AppTextStyles.bodySmall(),
-                        ),
+                        Text(widget.prefix!, style: AppTextStyles.bodySmall()),
                       Expanded(
                         child: TextField(
                           focusNode: _focusNode,
@@ -157,7 +150,7 @@ class _SipSliderWithBgState extends State<SipSliderWithBg> {
                         Text(
                           widget.suffix!,
                           style: AppTextStyles.bodyMediumSemiBold(
-                            color: effectiveColor
+                            color: effectiveColor,
                           ),
                         ),
                     ],
@@ -181,7 +174,8 @@ class _SipSliderWithBgState extends State<SipSliderWithBg> {
                 padding: EdgeInsets.zero,
                 trackShape: const RoundedRectSliderTrackShape(),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 25),
-                thumbShape: widget.customThumb ??
+                thumbShape:
+                    widget.customThumb ??
                     ImageSliderThumb(
                       thumbRadius: 15,
                       image: AssetImage(UImages.imp),

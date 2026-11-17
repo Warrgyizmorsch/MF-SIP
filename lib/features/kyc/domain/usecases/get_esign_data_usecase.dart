@@ -9,7 +9,9 @@ class GetEsignDataUseCase {
 
   GetEsignDataUseCase({required this.kycRepository});
 
-  Future<Either<Result<GetEsignDataEntity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<GetEsignDataEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await kycRepository.getEsignData(data);
   }
 }

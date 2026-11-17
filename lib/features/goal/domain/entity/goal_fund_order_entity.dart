@@ -96,14 +96,14 @@ extension GoalFundOrderMapper on GoalFundOrderModel {
       orderDate: orderDate,
       status: status,
       sipAmount: sipAmount ?? 0,
-      sipDay: sipDay??0,
-      sipStartDate: sipStartDate??"",
-      sipEndDate: sipEndDate??"",
+      sipDay: sipDay ?? 0,
+      sipStartDate: sipStartDate ?? "",
+      sipEndDate: sipEndDate ?? "",
       lumpsumAmount: lumpsumAmount ?? 0,
       topUpAmount: topUpAmount ?? 0,
       stepUpPercentage: stepUpPercentage ?? 0,
       capingAmount: capingAmount ?? 0,
-      capingDate: capingDate??"",
+      capingDate: capingDate ?? "",
     );
   }
 }

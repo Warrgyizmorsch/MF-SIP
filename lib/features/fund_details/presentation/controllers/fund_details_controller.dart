@@ -7,6 +7,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
     hide showCustomToast, showCustomToast1;
+import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
@@ -40,6 +41,8 @@ class FundDetailsController extends GetxController
   final isSipAllowed = true.obs;
   final isLumpsumAllowed = true.obs;
   final allowedSipDates = ''.obs;
+  final fundManagers = <FundManagerEntity>[].obs;
+  final fundManagerId = RxnInt();
 
   // Controllers
   late TabController tabController;
@@ -171,7 +174,25 @@ class FundDetailsController extends GetxController
             match.isin!.isNotEmpty) {
           isin = match.isin!;
         }
+        if (match.fundManagers.isNotEmpty) {
+          fundManagers.assignAll(match.fundManagers);
+        }
+        if (match.fundManagerId != null) {
+          fundManagerId.value = match.fundManagerId;
+        }
       }
+    }
+
+    final rawManagers = navArgs['fund_managers'] ?? getArgs['fund_managers'];
+    if (rawManagers is List<FundManagerEntity> && rawManagers.isNotEmpty) {
+      fundManagers.assignAll(rawManagers);
+    }
+    final rawManagerId =
+        navArgs['fund_manager_id'] ??
+        getArgs['fund_manager_id'] ??
+        params['fund_manager_id'];
+    if (rawManagerId != null) {
+      fundManagerId.value = int.tryParse(rawManagerId.toString());
     }
 
     final purchaseAllowedVal =
@@ -225,6 +246,40 @@ class FundDetailsController extends GetxController
     final trimmed = value.trim();
     if (trimmed.length != 12) return false;
     return RegExp(r'^[A-Z]{2}[A-Z0-9]{9}[0-9]$').hasMatch(trimmed);
+  }
+
+  int? findManagerId(String managerName) {
+    final clean = managerName.trim().toLowerCase();
+    if (clean.isEmpty) return null;
+
+    for (final m in fundManagers) {
+      final mName = m.name?.trim().toLowerCase() ?? '';
+      if (mName.isNotEmpty &&
+          (mName == clean || mName.contains(clean) || clean.contains(mName))) {
+        return m.id;
+      }
+    }
+
+    if (fundManagers.length <= 1 && fundManagerId.value != null) {
+      return fundManagerId.value;
+    }
+
+    if (Get.isRegistered<MutualFundController>()) {
+      final mfCtrl = Get.find<MutualFundController>();
+      for (final f in mfCtrl.mutualfund) {
+        for (final m in f.fundManagers) {
+          final mName = m.name?.trim().toLowerCase() ?? '';
+          if (mName.isNotEmpty &&
+              (mName == clean ||
+                  mName.contains(clean) ||
+                  clean.contains(mName))) {
+            return m.id;
+          }
+        }
+      }
+    }
+
+    return null;
   }
 
   bool get hasNoFundInfo {

@@ -48,14 +48,14 @@ class TicketMessageEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        senderType,
-        senderName,
-        message,
-        readAt,
-        createdAt,
-        attachments,
-      ];
+    id,
+    senderType,
+    senderName,
+    message,
+    readAt,
+    createdAt,
+    attachments,
+  ];
 }
 
 class TicketDetailEntity extends Equatable {
@@ -96,18 +96,18 @@ class TicketDetailEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        ticketNumber,
-        subject,
-        priority,
-        status,
-        category,
-        relatedType,
-        relatedId,
-        createdAt,
-        updatedAt,
-        resolvedAt,
-        closedAt,
-        messages,
-      ];
+    id,
+    ticketNumber,
+    subject,
+    priority,
+    status,
+    category,
+    relatedType,
+    relatedId,
+    createdAt,
+    updatedAt,
+    resolvedAt,
+    closedAt,
+    messages,
+  ];
 }

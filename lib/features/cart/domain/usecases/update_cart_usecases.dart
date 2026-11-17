@@ -7,7 +7,7 @@ class UpdateCartUsecases {
   final CartRepo cartRepo;
   UpdateCartUsecases(this.cartRepo);
 
-   Future<Either<Result<String>, ApiError>> call(
+  Future<Either<Result<String>, ApiError>> call(
     Map<String, dynamic> data,
   ) async {
     return await cartRepo.updateCart(data);

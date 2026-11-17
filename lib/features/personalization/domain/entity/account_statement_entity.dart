@@ -28,14 +28,14 @@ class AccountStatementEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        success,
-        message,
-        type,
-        emailSent,
-        emailTo,
-        downloadUrl,
-        expiresInMinutes,
-      ];
+    success,
+    message,
+    type,
+    emailSent,
+    emailTo,
+    downloadUrl,
+    expiresInMinutes,
+  ];
 }
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────

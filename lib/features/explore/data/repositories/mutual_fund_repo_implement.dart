@@ -15,7 +15,6 @@ class MutualFundRepoImplement extends MutualFundRepository {
   ////////////// Get Fund house
   Future<Either<Result<MutualFundListResponseEntity>, ApiError>>
   getMutualFundList(Map<String, dynamic> data) async {
-    
     try {
       final result = await _mutualfundRemoteDs.getFundHouse(data);
       return result.fold(
@@ -39,8 +38,9 @@ class MutualFundRepoImplement extends MutualFundRepository {
   }
 
   @override
-  Future<Either<Result<FundCategoryEntity>, ApiError>> getMfCategories(Map<String, dynamic> data) async {
-
+  Future<Either<Result<FundCategoryEntity>, ApiError>> getMfCategories(
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await _mutualfundRemoteDs.getMfCategories(data);
       return result.fold(
@@ -61,7 +61,6 @@ class MutualFundRepoImplement extends MutualFundRepository {
     } catch (e) {
       return Right(ApiError(message: 'Get mutual fund list  Failed $e'));
     }
-   
   }
 
   // @override

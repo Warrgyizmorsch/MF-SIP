@@ -9,8 +9,9 @@ class UpdateFormUseCase {
 
   UpdateFormUseCase({required this.kycRepository});
 
-  Future<Either<Result<String>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<String>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await kycRepository.updateForm(data);
   }
-
 }

@@ -36,7 +36,7 @@ class OtpVerificationScreen extends GetView<AuthController> {
               builder: (context, constraints) {
                 return SingleChildScrollView(
                   // physics: const ClampingScrollPhysics(),
-                   physics: isDesktop
+                  physics: isDesktop
                       ? const ClampingScrollPhysics()
                       : const NeverScrollableScrollPhysics(),
                   padding: UPadding.screenPadding,

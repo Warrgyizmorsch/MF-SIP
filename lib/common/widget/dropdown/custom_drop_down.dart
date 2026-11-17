@@ -7,7 +7,8 @@ class CustomDropdown<T> extends StatelessWidget {
   final List<T> items;
   final T? value;
   final Function(T?) onChanged;
-  final String Function(T)? displayItem; // Optional: To convert object to string
+  final String Function(T)?
+  displayItem; // Optional: To convert object to string
 
   const CustomDropdown({
     super.key,
@@ -25,16 +26,19 @@ class CustomDropdown<T> extends StatelessWidget {
       isExpanded: true, // Prevents overflow errors
       decoration: InputDecoration(
         labelText: hintText,
-        hintStyle: TextStyle( fontFamily: FontFamily.medium,),
+        hintStyle: TextStyle(fontFamily: FontFamily.medium),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
       items: items.map((T item) {
         return DropdownMenuItem<T>(
           value: item,
           child: Text(
             displayItem != null ? displayItem!(item) : item.toString(),
-            style: const TextStyle(fontSize: 14, fontFamily: FontFamily.medium,),
+            style: const TextStyle(fontSize: 14, fontFamily: FontFamily.medium),
           ),
         );
       }).toList(),

@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,8 +18,6 @@ class CartItem {
     required this.fundId,
     required this.fundName,
     required this.logoUrl,
-    
-
   }) {
     // ✅ initialize once
     amountController.text = amount.value.toString();

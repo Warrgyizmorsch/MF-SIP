@@ -17,7 +17,7 @@ extension FundHouseResponseEntityX on FundHouseResponseModel {
   FundHouseResponseEntity toEntity() {
     return FundHouseResponseEntity(
       success: success ?? false,
-      data: data?.map((e) => e.toEntity()).toList() ?? [ ],
+      data: data?.map((e) => e.toEntity()).toList() ?? [],
     );
   }
 }

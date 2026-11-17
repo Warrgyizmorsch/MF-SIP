@@ -9,8 +9,6 @@ enum PostApiStatus {
   loadingMore,
 }
 
-
-
 enum ValidationType {
   none,
   required,
@@ -18,6 +16,5 @@ enum ValidationType {
   phone,
   minLength,
   custom,
-  maxLength
+  maxLength,
 }
-

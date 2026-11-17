@@ -15,6 +15,7 @@ import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
     hide showCustomToast, showCustomToast1;
+import 'package:my_sip/features/fund_details/presentation/widgets/manager_funds_modal.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
@@ -1682,7 +1683,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                   dashSpace: 4,
                                 ),
                               ),
-                            fundManager(entry.value),
+                            fundManager(context, entry.value),
                           ],
                         );
                       }).toList()
@@ -2431,10 +2432,29 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
     );
   }
 
-  Widget fundManager(String name) {
+  Widget fundManager(BuildContext context, String name) {
+    void handleTap() {
+      final managerId = controller.findManagerId(name);
+      if (managerId != null) {
+        ManagerFundsModal.show(
+          context,
+          managerId: managerId,
+          managerName: name,
+        );
+      } else {
+        showCustomToast(
+          title: "Manager Funds",
+          message: "Fund listing currently unavailable for $name.",
+          backgroundColor: Colors.orange.shade800,
+          icon: Icons.info_outline,
+        );
+      }
+    }
+
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
+      onTap: handleTap,
       leading: CircleAvatar(
         radius: 15,
         backgroundColor: Ucolors.skyblue1,
@@ -2451,7 +2471,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         icon: Icons.arrow_forward_ios_rounded,
         iconColor: Ucolors.darkgrey,
         iconSize: 12,
-        onPressed: () {},
+        onPressed: handleTap,
       ),
     );
   }
@@ -3982,7 +4002,7 @@ class _DesktopAboutCard extends StatelessWidget {
               spacing: 12,
               runSpacing: 12,
               children: managers
-                  .map((name) => _buildManagerChip(name))
+                  .map((name) => _buildManagerChip(context, name))
                   .toList(),
             )
           else
@@ -3998,29 +4018,58 @@ class _DesktopAboutCard extends StatelessWidget {
     );
   }
 
-  Widget _buildManagerChip(String name) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Ucolors.skyblue1,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Ucolors.skyblue),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.person, size: 18, color: Ucolors.primary),
-          const Gap(8),
-          Text(
-            name,
-            style: TextStyle(
-              fontFamily: FontFamily.medium,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+  Widget _buildManagerChip(BuildContext context, String name) {
+    return InkWell(
+      onTap: () {
+        final ctrl = Get.isRegistered<FundDetailsController>()
+            ? Get.find<FundDetailsController>()
+            : null;
+        final managerId = ctrl?.findManagerId(name);
+        if (managerId != null) {
+          ManagerFundsModal.show(
+            context,
+            managerId: managerId,
+            managerName: name,
+          );
+        } else {
+          showCustomToast(
+            title: "Manager Funds",
+            message: "Fund listing currently unavailable for $name.",
+            backgroundColor: Colors.orange.shade800,
+            icon: Icons.info_outline,
+          );
+        }
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Ucolors.skyblue1,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Ucolors.skyblue),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.person, size: 18, color: Ucolors.primary),
+            const Gap(8),
+            Text(
+              name,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Ucolors.primary,
+              ),
+            ),
+            const Gap(6),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 11,
               color: Ucolors.primary,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -6024,7 +6073,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           ),
 
                         // Render the Manager Name Widget
-                        fundManager(name),
+                        fundManager(context, name),
                       ],
                     );
                   }).toList()
@@ -6448,10 +6497,29 @@ class OverviewScreen extends GetView<FundDetailsController> {
     );
   }
 
-  Widget fundManager(String name) {
+  Widget fundManager(BuildContext context, String name) {
+    void handleTap() {
+      final managerId = controller.findManagerId(name);
+      if (managerId != null) {
+        ManagerFundsModal.show(
+          context,
+          managerId: managerId,
+          managerName: name,
+        );
+      } else {
+        showCustomToast(
+          title: "Manager Funds",
+          message: "Fund listing currently unavailable for $name.",
+          backgroundColor: Colors.orange.shade800,
+          icon: Icons.info_outline,
+        );
+      }
+    }
+
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+      onTap: handleTap,
       leading: CircleAvatar(
         radius: 15,
         backgroundColor: Ucolors.skyblue1,
@@ -6468,8 +6536,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
         icon: Icons.arrow_forward_ios_rounded,
         iconColor: Ucolors.darkgrey,
         iconSize: 12,
-
-        onPressed: () {},
+        onPressed: handleTap,
       ),
     );
   }

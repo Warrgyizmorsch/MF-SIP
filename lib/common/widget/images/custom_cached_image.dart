@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'web_image_stub.dart'
-if (dart.library.js_interop) 'web_image_helper.dart';
+    if (dart.library.js_interop) 'web_image_helper.dart';
 
 class CustomCachedImage extends StatelessWidget {
   final String? imageUrl;
@@ -65,8 +65,10 @@ class CustomCachedImage extends StatelessWidget {
       memCacheWidth: cacheWidth,
       memCacheHeight: cacheHeight,
       fadeInDuration: const Duration(milliseconds: 300),
-      placeholder: (context, url) => _buildPlaceholder(effectiveWidth, effectiveHeight),
-      errorWidget: (context, url, error) => _buildErrorWidget(effectiveWidth, effectiveHeight),
+      placeholder: (context, url) =>
+          _buildPlaceholder(effectiveWidth, effectiveHeight),
+      errorWidget: (context, url, error) =>
+          _buildErrorWidget(effectiveWidth, effectiveHeight),
     );
   }
 

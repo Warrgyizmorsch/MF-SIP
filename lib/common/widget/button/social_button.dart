@@ -6,7 +6,6 @@ import '../../../features/authentication/presentation/controllers/auth/auth_cont
 
 // ignore: must_be_immutable
 class USocialButton extends StatelessWidget {
-
   const USocialButton({super.key});
 
   @override
@@ -21,8 +20,8 @@ class USocialButton extends StatelessWidget {
               authController.isGoogleSignInLoading.value
                   ? null
                   : () async {
-                await authController.signInWithGoogle();
-              },
+                      await authController.signInWithGoogle();
+                    },
               isLoading: authController.isGoogleSignInLoading.value,
             );
           }),
@@ -34,10 +33,10 @@ class USocialButton extends StatelessWidget {
   }
 
   Widget _socialButton(
-      String imagePath,
-      VoidCallback? onTap, {
-        bool isLoading = false,
-      }) {
+    String imagePath,
+    VoidCallback? onTap, {
+    bool isLoading = false,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -49,16 +48,11 @@ class USocialButton extends StatelessWidget {
         child: Center(
           child: isLoading
               ? const SizedBox(
-            height: 22,
-            width: 22,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-            ),
-          )
-              : Image.asset(
-            imagePath,
-            height: 28,
-          ),
+                  height: 22,
+                  width: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Image.asset(imagePath, height: 28),
         ),
       ),
     );

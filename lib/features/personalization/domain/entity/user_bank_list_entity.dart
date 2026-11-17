@@ -36,17 +36,17 @@ class UserBankListEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        success,
-        message,
-        isNct,
-        nctStatus,
-        nctRefNo,
-        nctUniqId,
-        canCheckStatus,
-        uid,
-        banks,
-        count,
-        maxAllowed,
-        canAddMore,
-      ];
+    success,
+    message,
+    isNct,
+    nctStatus,
+    nctRefNo,
+    nctUniqId,
+    canCheckStatus,
+    uid,
+    banks,
+    count,
+    maxAllowed,
+    canAddMore,
+  ];
 }

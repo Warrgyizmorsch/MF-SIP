@@ -11,8 +11,4 @@ class AddToCartModel {
   //   required this.amount,
   //   required this.sipDay,
   // });
-
-  
-
-
 }

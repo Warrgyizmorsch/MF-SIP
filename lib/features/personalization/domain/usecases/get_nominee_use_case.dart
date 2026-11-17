@@ -10,7 +10,9 @@ class GetNomineeUseCase {
 
   GetNomineeUseCase({required this.personalisationRepository});
 
-  Future<Either<Result<NomineeResponseEntity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<NomineeResponseEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await personalisationRepository.getNominee(data);
   }
 }

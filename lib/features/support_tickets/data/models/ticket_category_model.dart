@@ -19,7 +19,9 @@ class TicketCategoryModel {
 
   factory TicketCategoryModel.fromJson(Map<String, dynamic> json) {
     return TicketCategoryModel(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       name: json['name']?.toString() ?? '',
       slug: json['slug']?.toString() ?? '',
       description: json['description']?.toString() ?? '',

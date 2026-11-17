@@ -16,7 +16,8 @@ class TicketRemoteDs {
   TicketRemoteDs(this._servicesApi);
 
   /// 1. Get Categories
-  Future<Either<Result<List<TicketCategoryModel>>, ApiError>> getCategories() async {
+  Future<Either<Result<List<TicketCategoryModel>>, ApiError>>
+  getCategories() async {
     try {
       final resp = await _servicesApi.getApi(
         "${Appurl.baseUrl}/api/v1/tickets/categories",
@@ -31,7 +32,12 @@ class TicketRemoteDs {
             .toList();
         return Left(Result.success(list));
       } else {
-        return Right(ApiError(message: resp?['message']?.toString() ?? 'Failed to load categories'));
+        return Right(
+          ApiError(
+            message:
+                resp?['message']?.toString() ?? 'Failed to load categories',
+          ),
+        );
       }
     } catch (e) {
       createLog("[TicketRemoteDs] getCategories error: $e");
@@ -63,7 +69,11 @@ class TicketRemoteDs {
         final model = TicketListResponseModel.fromJson(resp);
         return Left(Result.success(model));
       } else {
-        return Right(ApiError(message: resp?['message']?.toString() ?? 'Failed to load tickets'));
+        return Right(
+          ApiError(
+            message: resp?['message']?.toString() ?? 'Failed to load tickets',
+          ),
+        );
       }
     } catch (e) {
       createLog("[TicketRemoteDs] getTickets error: $e");
@@ -115,23 +125,33 @@ class TicketRemoteDs {
       final response = await _servicesApi.dio.post(
         "${Appurl.baseUrl}/api/v1/tickets",
         data: formData,
-        options: Options(
-          contentType: 'multipart/form-data',
-        ),
+        options: Options(contentType: 'multipart/form-data'),
       );
 
-      createLog("[TicketRemoteDs] createTicket status: ${response.statusCode}, response: ${response.data}");
+      createLog(
+        "[TicketRemoteDs] createTicket status: ${response.statusCode}, response: ${response.data}",
+      );
 
       final data = response.data;
-      if (response.statusCode == 201 || (data != null && data['success'] == true)) {
-        final model = TicketModel.fromJson(data['data'] as Map<String, dynamic>);
+      if (response.statusCode == 201 ||
+          (data != null && data['success'] == true)) {
+        final model = TicketModel.fromJson(
+          data['data'] as Map<String, dynamic>,
+        );
         return Left(Result.success(model));
       } else {
-        return Right(ApiError(message: data?['message']?.toString() ?? 'Failed to create ticket'));
+        return Right(
+          ApiError(
+            message: data?['message']?.toString() ?? 'Failed to create ticket',
+          ),
+        );
       }
     } on DioException catch (e) {
-      createLog("[TicketRemoteDs] createTicket DioException: ${e.response?.data}");
-      final msg = e.response?.data?['message'] ?? e.message ?? 'Network error occurred';
+      createLog(
+        "[TicketRemoteDs] createTicket DioException: ${e.response?.data}",
+      );
+      final msg =
+          e.response?.data?['message'] ?? e.message ?? 'Network error occurred';
       return Right(ApiError(message: msg.toString()));
     } catch (e) {
       createLog("[TicketRemoteDs] createTicket error: $e");
@@ -140,7 +160,9 @@ class TicketRemoteDs {
   }
 
   /// 4. Get Ticket Detail & Message Timeline
-  Future<Either<Result<TicketDetailModel>, ApiError>> getTicketDetail(dynamic id) async {
+  Future<Either<Result<TicketDetailModel>, ApiError>> getTicketDetail(
+    dynamic id,
+  ) async {
     try {
       final resp = await _servicesApi.getApi(
         "${Appurl.baseUrl}/api/v1/tickets/$id",
@@ -149,10 +171,17 @@ class TicketRemoteDs {
       createLog("[TicketRemoteDs] getTicketDetail response: $resp");
 
       if (resp != null && resp['success'] == true && resp['data'] != null) {
-        final model = TicketDetailModel.fromJson(resp['data'] as Map<String, dynamic>);
+        final model = TicketDetailModel.fromJson(
+          resp['data'] as Map<String, dynamic>,
+        );
         return Left(Result.success(model));
       } else {
-        return Right(ApiError(message: resp?['message']?.toString() ?? 'Failed to load ticket details'));
+        return Right(
+          ApiError(
+            message:
+                resp?['message']?.toString() ?? 'Failed to load ticket details',
+          ),
+        );
       }
     } catch (e) {
       createLog("[TicketRemoteDs] getTicketDetail error: $e");
@@ -167,9 +196,7 @@ class TicketRemoteDs {
     List<File>? attachments,
   }) async {
     try {
-      final formData = FormData.fromMap({
-        'message': message,
-      });
+      final formData = FormData.fromMap({'message': message});
 
       if (attachments != null && attachments.isNotEmpty) {
         for (final file in attachments) {
@@ -186,22 +213,28 @@ class TicketRemoteDs {
       final response = await _servicesApi.dio.post(
         "${Appurl.baseUrl}/api/v1/tickets/$ticketId/reply",
         data: formData,
-        options: Options(
-          contentType: 'multipart/form-data',
-        ),
+        options: Options(contentType: 'multipart/form-data'),
       );
 
       createLog("[TicketRemoteDs] replyTicket response: ${response.data}");
 
       final data = response.data;
-      if (response.statusCode == 200 || (data != null && data['success'] == true)) {
-        final model = TicketMessageModel.fromJson(data['data'] as Map<String, dynamic>);
+      if (response.statusCode == 200 ||
+          (data != null && data['success'] == true)) {
+        final model = TicketMessageModel.fromJson(
+          data['data'] as Map<String, dynamic>,
+        );
         return Left(Result.success(model));
       } else {
-        return Right(ApiError(message: data?['message']?.toString() ?? 'Failed to send reply'));
+        return Right(
+          ApiError(
+            message: data?['message']?.toString() ?? 'Failed to send reply',
+          ),
+        );
       }
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? e.message ?? 'Network error occurred';
+      final msg =
+          e.response?.data?['message'] ?? e.message ?? 'Network error occurred';
       return Right(ApiError(message: msg.toString()));
     } catch (e) {
       return Right(ApiError(message: 'Exception sending reply: $e'));
@@ -209,7 +242,10 @@ class TicketRemoteDs {
   }
 
   /// 6. Close Ticket
-  Future<Either<Result<bool>, ApiError>> closeTicket(dynamic ticketId, {String? reason}) async {
+  Future<Either<Result<bool>, ApiError>> closeTicket(
+    dynamic ticketId, {
+    String? reason,
+  }) async {
     try {
       final resp = await _servicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/tickets/$ticketId/close",
@@ -221,7 +257,11 @@ class TicketRemoteDs {
       if (resp != null && resp['success'] == true) {
         return Left(Result.success(true));
       } else {
-        return Right(ApiError(message: resp?['message']?.toString() ?? 'Failed to close ticket'));
+        return Right(
+          ApiError(
+            message: resp?['message']?.toString() ?? 'Failed to close ticket',
+          ),
+        );
       }
     } catch (e) {
       return Right(ApiError(message: 'Exception closing ticket: $e'));
@@ -229,7 +269,10 @@ class TicketRemoteDs {
   }
 
   /// 7. Reopen Ticket
-  Future<Either<Result<bool>, ApiError>> reopenTicket(dynamic ticketId, {String? reason}) async {
+  Future<Either<Result<bool>, ApiError>> reopenTicket(
+    dynamic ticketId, {
+    String? reason,
+  }) async {
     try {
       final resp = await _servicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/tickets/$ticketId/reopen",
@@ -241,7 +284,11 @@ class TicketRemoteDs {
       if (resp != null && resp['success'] == true) {
         return Left(Result.success(true));
       } else {
-        return Right(ApiError(message: resp?['message']?.toString() ?? 'Failed to reopen ticket'));
+        return Right(
+          ApiError(
+            message: resp?['message']?.toString() ?? 'Failed to reopen ticket',
+          ),
+        );
       }
     } catch (e) {
       return Right(ApiError(message: 'Exception reopening ticket: $e'));

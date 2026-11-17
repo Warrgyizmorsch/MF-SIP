@@ -80,9 +80,8 @@ class PersonalisationBinding extends Bindings {
       ),
     );
     Get.lazyPut(
-      () => DeleteBankUseCase(
-        repository: Get.find<PersonalisationRepository>(),
-      ),
+      () =>
+          DeleteBankUseCase(repository: Get.find<PersonalisationRepository>()),
     );
     Get.lazyPut(
       () => GetUserBankListUseCase(

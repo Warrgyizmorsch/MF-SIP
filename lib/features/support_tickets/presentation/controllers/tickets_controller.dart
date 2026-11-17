@@ -10,12 +10,11 @@ class TicketsController extends GetxController {
   final GetTicketsUseCase getTicketsUseCase;
 
   TicketsController({GetTicketsUseCase? useCase})
-      : getTicketsUseCase = useCase ??
-            GetTicketsUseCase(
-              TicketRepoImpl(
-                TicketRemoteDs(NetworkServicesApi()),
-              ),
-            );
+    : getTicketsUseCase =
+          useCase ??
+          GetTicketsUseCase(
+            TicketRepoImpl(TicketRemoteDs(NetworkServicesApi())),
+          );
 
   final isLoading = false.obs;
   final isLoadingMore = false.obs;

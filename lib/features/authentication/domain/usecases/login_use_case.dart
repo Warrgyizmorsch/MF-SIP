@@ -10,7 +10,9 @@ class LoginUseCase {
 
   LoginUseCase(this.authRepository);
 
-  Future<Either<Result<LoginResponseEntity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<LoginResponseEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await authRepository.login(data);
   }
 }

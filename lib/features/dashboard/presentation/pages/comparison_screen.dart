@@ -224,7 +224,9 @@ class FundBottomBarButton extends StatelessWidget {
                           fontFamily: FontFamily.medium,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
-                          color: isInCart ? Colors.green.shade700 : Ucolors.primary,
+                          color: isInCart
+                              ? Colors.green.shade700
+                              : Ucolors.primary,
                         ),
                       ),
                     ),

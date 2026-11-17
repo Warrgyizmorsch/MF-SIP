@@ -36,7 +36,7 @@ class _GroupedPerformanceBarChartState
         boxShadow: isDesktop
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.03),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -54,7 +54,8 @@ class _GroupedPerformanceBarChartState
               children: [
                 Text(
                   'Performance Comparison',
-                  style:  TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade900,
@@ -91,7 +92,8 @@ class _GroupedPerformanceBarChartState
                             child: FittedBox(
                               child: Text(
                                 widget.data[index].period,
-                                style:  TextStyle(fontFamily: FontFamily.medium,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   color: Colors.grey.shade700,
                                   fontWeight: FontWeight.w600,
                                   fontSize: isDesktop ? 12 : 10,
@@ -113,7 +115,8 @@ class _GroupedPerformanceBarChartState
                         if (value == 0) return const SizedBox();
                         return Text(
                           '${value.toInt()}%',
-                          style:  TextStyle(fontFamily: FontFamily.medium,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             color: Colors.grey.shade500,
                             fontSize: isDesktop ? 12 : 10,
                             fontWeight: FontWeight.w500,
@@ -154,7 +157,8 @@ class _GroupedPerformanceBarChartState
                       // if (rodIndex == 2) label = 'Category';
                       return BarTooltipItem(
                         '$label\n',
-                        const  TextStyle(fontFamily: FontFamily.medium,
+                        const TextStyle(
+                          fontFamily: FontFamily.medium,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -162,7 +166,8 @@ class _GroupedPerformanceBarChartState
                         children: <TextSpan>[
                           TextSpan(
                             text: '${rod.toY.toStringAsFixed(2)}%',
-                            style: const  TextStyle(fontFamily: FontFamily.medium,
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
                               color: Colors.yellowAccent,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -240,7 +245,8 @@ class _GroupedPerformanceBarChartState
         const SizedBox(width: 6),
         Text(
           label,
-          style:  TextStyle(fontFamily: FontFamily.medium,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: 12,
             color: Colors.grey.shade700,
             fontWeight: FontWeight.w500,

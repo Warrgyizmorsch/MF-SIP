@@ -59,19 +59,25 @@ class AppOpenAlertCoordinator {
     final appConfig = AppConfigService.instance.currentConfig.value;
     if (appConfig != null && appConfig.isAnnouncementActive) {
       final announcement = appConfig.announcement;
-      final noticeId = 'server_announcement_${announcement.id ?? announcement.message.hashCode}';
+      final noticeId =
+          'server_announcement_${announcement.id ?? announcement.message.hashCode}';
       final shown = await AppNoticeManager.showNoticeIfEligible(
         noticeId: noticeId,
         frequency: NoticeFrequency.oncePerDay,
         condition: () => appConfig.isAnnouncementActive,
-        title: announcement.title.isNotEmpty ? announcement.title : 'Announcement',
+        title: announcement.title.isNotEmpty
+            ? announcement.title
+            : 'Announcement',
         message: announcement.message,
-        primaryButtonText: announcement.actionText?.isNotEmpty == true ? announcement.actionText! : 'Got It',
+        primaryButtonText: announcement.actionText?.isNotEmpty == true
+            ? announcement.actionText!
+            : 'Got It',
         icon: Icons.campaign_rounded,
         illustrationAsset: UImages.popupAnnouncement,
         iconColor: Ucolors.primary,
         onPrimaryTap: () {
-          if (announcement.actionUrl != null && announcement.actionUrl!.isNotEmpty) {
+          if (announcement.actionUrl != null &&
+              announcement.actionUrl!.isNotEmpty) {
             final uri = Uri.tryParse(announcement.actionUrl!);
             if (uri != null) {
               launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -107,11 +113,15 @@ class AppOpenAlertCoordinator {
 
     // ── STEP 1: KYC Verification ─────────────────────────────────────────────
     final String sessionKyc =
-        (SessionManager.instance.getUserData?.kycStatus ?? '').trim().toLowerCase();
-    final String userCtrlKyc =
-        (userCtrl.userData.value?.kycStatus ?? '').trim().toLowerCase();
+        (SessionManager.instance.getUserData?.kycStatus ?? '')
+            .trim()
+            .toLowerCase();
+    final String userCtrlKyc = (userCtrl.userData.value?.kycStatus ?? '')
+        .trim()
+        .toLowerCase();
 
-    final bool isKycDone = userCtrl.isKycVerified.value ||
+    final bool isKycDone =
+        userCtrl.isKycVerified.value ||
         SessionManager.instance.isKycVerified.value ||
         sessionKyc == 'approved' ||
         sessionKyc == 'verified' ||
@@ -127,8 +137,12 @@ class AppOpenAlertCoordinator {
         noticeId: 'onboarding_kyc',
         frequency: NoticeFrequency.everyOpen,
         condition: () {
-          final sKyc = (SessionManager.instance.getUserData?.kycStatus ?? '').trim().toLowerCase();
-          final uKyc = (userCtrl.userData.value?.kycStatus ?? '').trim().toLowerCase();
+          final sKyc = (SessionManager.instance.getUserData?.kycStatus ?? '')
+              .trim()
+              .toLowerCase();
+          final uKyc = (userCtrl.userData.value?.kycStatus ?? '')
+              .trim()
+              .toLowerCase();
           return !userCtrl.isKycVerified.value &&
               !SessionManager.instance.isKycVerified.value &&
               sKyc != 'approved' &&
@@ -222,16 +236,28 @@ class AppOpenAlertCoordinator {
     // ═════════════════════════════════════════════════════════════════════════
 
     final userData = userCtrl.userData.value;
-    final String canNumber = (userData?.canNumber ?? SessionManager.instance.getUserData?.canNumber ?? '').trim();
-    final String canStatus = (userData?.canStatus ?? SessionManager.instance.getUserData?.canStatus ?? '').trim().toLowerCase();
+    final String canNumber =
+        (userData?.canNumber ??
+                SessionManager.instance.getUserData?.canNumber ??
+                '')
+            .trim();
+    final String canStatus =
+        (userData?.canStatus ??
+                SessionManager.instance.getUserData?.canStatus ??
+                '')
+            .trim()
+            .toLowerCase();
     final String? canError = userData?.canErrorMessage;
 
     // Only auto-trigger CAN registration if user has no CAN and is not cancelled/rejected
-    if (canNumber.isEmpty && canStatus.isEmpty && (canError == null || canError.isEmpty)) {
+    if (canNumber.isEmpty &&
+        canStatus.isEmpty &&
+        (canError == null || canError.isEmpty)) {
       userCtrl.checkAndTriggerCanRegistration();
     }
 
-    final bool isCanApproved = canNumber.isNotEmpty &&
+    final bool isCanApproved =
+        canNumber.isNotEmpty &&
         (canStatus == 'approved' || canStatus == 'active');
 
     if (!isCanApproved) {
@@ -240,8 +266,8 @@ class AppOpenAlertCoordinator {
       String canMessage =
           'Your Common Account Number (CAN) requires setup or verification to enable investments.';
       String canBtnText = 'Resolve Issue';
-      VoidCallback onCanTap =
-          () => userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
+      VoidCallback onCanTap = () =>
+          userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
 
       if (canStatus == 'cancelled') {
         canTitle = 'CAN Account Cancelled';
@@ -261,8 +287,8 @@ class AppOpenAlertCoordinator {
         canMessage =
             'We could not generate your CAN because:\n\n"$canError"\n\nPlease resolve this issue to proceed.';
         canBtnText = 'Try Again';
-        onCanTap =
-            () => userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
+        onCanTap = () =>
+            userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
       } else if (canStatus.contains('pending') ||
           canStatus.contains('hold') ||
           canStatus.contains('process') ||
@@ -415,8 +441,9 @@ class AppOpenAlertCoordinator {
         } catch (_) {}
       }
 
-      final bool hasAnyCreatedGoal =
-          goalCtrl.masterGoals.any((g) => g.isCreated);
+      final bool hasAnyCreatedGoal = goalCtrl.masterGoals.any(
+        (g) => g.isCreated,
+      );
       final bool hasUserGoals =
           (goalCtrl.goalResponse.value?.data ?? []).isNotEmpty;
 
@@ -427,7 +454,8 @@ class AppOpenAlertCoordinator {
           condition: () {
             if (!Get.isRegistered<GoalSipController>()) return false;
             final gCtrl = Get.find<GoalSipController>();
-            if (gCtrl.isLoadingGoals.value || gCtrl.goalResponse.value == null) {
+            if (gCtrl.isLoadingGoals.value ||
+                gCtrl.goalResponse.value == null) {
               return false;
             }
             return !gCtrl.masterGoals.any((g) => g.isCreated) &&
@@ -463,29 +491,52 @@ class AppOpenAlertCoordinator {
         final pendingGoal = activeGoals.firstWhereOrNull((g) {
           final double target = g.targetAmount > 0
               ? g.targetAmount
-              : ((double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ?? 0.0) > 0
-                  ? (double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ?? 0.0)
-                  : (g.monthlyInvestment > 0 ? g.monthlyInvestment * 12 : 50000.0));
+              : ((double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ??
+                            0.0) >
+                        0
+                    ? (double.tryParse(
+                            g.goalType?.targetAmount.toString() ?? '0',
+                          ) ??
+                          0.0)
+                    : (g.monthlyInvestment > 0
+                          ? g.monthlyInvestment * 12
+                          : 50000.0));
           final double invested = g.investedAmount > 0
               ? g.investedAmount
               : (target * (g.progressPercent / 100));
           return target > 0 && invested < target;
         });
 
-        debugPrint('[AppOpenAlertCoordinator] Step 8 check: activeGoals=${activeGoals.length}, pendingGoal=${pendingGoal?.goalName}');
+        debugPrint(
+          '[AppOpenAlertCoordinator] Step 8 check: activeGoals=${activeGoals.length}, pendingGoal=${pendingGoal?.goalName}',
+        );
 
         if (pendingGoal != null) {
           final double target = pendingGoal.targetAmount > 0
               ? pendingGoal.targetAmount
-              : ((double.tryParse(pendingGoal.goalType?.targetAmount.toString() ?? '0') ?? 0.0) > 0
-                  ? (double.tryParse(pendingGoal.goalType?.targetAmount.toString() ?? '0') ?? 0.0)
-                  : (pendingGoal.monthlyInvestment > 0 ? pendingGoal.monthlyInvestment * 12 : 50000.0));
+              : ((double.tryParse(
+                              pendingGoal.goalType?.targetAmount.toString() ??
+                                  '0',
+                            ) ??
+                            0.0) >
+                        0
+                    ? (double.tryParse(
+                            pendingGoal.goalType?.targetAmount.toString() ??
+                                '0',
+                          ) ??
+                          0.0)
+                    : (pendingGoal.monthlyInvestment > 0
+                          ? pendingGoal.monthlyInvestment * 12
+                          : 50000.0));
           final double invested = pendingGoal.investedAmount > 0
               ? pendingGoal.investedAmount
               : (target * (pendingGoal.progressPercent / 100));
-          final double progress = (target > 0 ? (invested / target) : 0.0).clamp(0.0, 1.0);
+          final double progress = (target > 0 ? (invested / target) : 0.0)
+              .clamp(0.0, 1.0);
           final int progressPct = (progress * 100).toInt();
-          final String goalName = pendingGoal.goalName.isNotEmpty ? pendingGoal.goalName : 'Financial Goal';
+          final String goalName = pendingGoal.goalName.isNotEmpty
+              ? pendingGoal.goalName
+              : 'Financial Goal';
 
           final shown = await AppNoticeManager.showNoticeIfEligible(
             noticeId: 'goal_topup_accelerator',
@@ -497,9 +548,18 @@ class AppOpenAlertCoordinator {
               return goals.any((g) {
                 final double t = g.targetAmount > 0
                     ? g.targetAmount
-                    : ((double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ?? 0.0) > 0
-                        ? (double.tryParse(g.goalType?.targetAmount.toString() ?? '0') ?? 0.0)
-                        : (g.monthlyInvestment > 0 ? g.monthlyInvestment * 12 : 50000.0));
+                    : ((double.tryParse(
+                                    g.goalType?.targetAmount.toString() ?? '0',
+                                  ) ??
+                                  0.0) >
+                              0
+                          ? (double.tryParse(
+                                  g.goalType?.targetAmount.toString() ?? '0',
+                                ) ??
+                                0.0)
+                          : (g.monthlyInvestment > 0
+                                ? g.monthlyInvestment * 12
+                                : 50000.0));
                 final double inv = g.investedAmount > 0
                     ? g.investedAmount
                     : (t * (g.progressPercent / 100));
@@ -529,7 +589,8 @@ class AppOpenAlertCoordinator {
               notifService?.scheduleReminder(
                 id: notifIdGoalTopup,
                 title: 'Boost Your Goal: $goalName',
-                body: 'A quick top-up today brings you closer to your financial target.',
+                body:
+                    'A quick top-up today brings you closer to your financial target.',
                 delay: const Duration(hours: 12),
                 targetRoute: AppRoutes.goaldetails,
                 extraData: {'goalId': pendingGoal.id.toString()},

@@ -10,7 +10,9 @@ class ExecutePoiStep1UseCase {
 
   ExecutePoiStep1UseCase({required this.kycRepository});
 
-  Future<Either<Result<ExecutePOIStep1Entity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<ExecutePOIStep1Entity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await kycRepository.executePOIStep1(data);
   }
 }

@@ -27,7 +27,9 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   createLog('[FCM Background] Message received: ${message.messageId}');
   if (message.notification != null) {
-    createLog('[FCM Background] Notification: ${message.notification?.title} - ${message.notification?.body}');
+    createLog(
+      '[FCM Background] Notification: ${message.notification?.title} - ${message.notification?.body}',
+    );
   }
   if (message.data.isNotEmpty) {
     createLog('[FCM Background] Data payload: ${message.data}');
@@ -109,8 +111,9 @@ class NotificationService extends GetxService {
 
   /// Initialize flutter_local_notifications plugin and create Android channel
   Future<void> _setupLocalNotifications() async {
-    const androidSettings =
-        AndroidInitializationSettings('@drawable/ic_notification');
+    const androidSettings = AndroidInitializationSettings(
+      '@drawable/ic_notification',
+    );
     const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -131,7 +134,8 @@ class NotificationService extends GetxService {
     // Create the high-importance channel on Android
     final androidPlugin = _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin != null) {
       await androidPlugin.createNotificationChannel(_channel);
@@ -143,12 +147,12 @@ class NotificationService extends GetxService {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       createLog('[FCM Foreground] Message received: ${message.messageId}');
 
-      final title = message.notification?.title ??
+      final title =
+          message.notification?.title ??
           message.data['title']?.toString() ??
           'Notification';
-      final body = message.notification?.body ??
-          message.data['body']?.toString() ??
-          '';
+      final body =
+          message.notification?.body ?? message.data['body']?.toString() ?? '';
 
       // 1. Store in HomeController notification list if available
       try {
@@ -317,8 +321,9 @@ class NotificationService extends GetxService {
         final useCase = Get.find<FcmDeviceTokenUseCase>();
         final result = await useCase.call({'fcm_token': fcmToken});
         result.fold(
-          (success) =>
-              createLog('[FCM] Token synced with backend: ${success.data?.message}'),
+          (success) => createLog(
+            '[FCM] Token synced with backend: ${success.data?.message}',
+          ),
           (error) =>
               createLog('[FCM] Token backend sync failed: ${error.message}'),
         );

@@ -59,10 +59,10 @@ class WishlistRepoImplement extends WishlistAbsRepo {
       return Right(ApiError(message: 'fetch wishlist  Failed $e'));
     }
   }
-  
+
   // Delete Wishlist item
   @override
   Future<Either<bool, ApiError>> deleteFromWishlist(String wishlistId) async {
-   return await wishlistRmDs.deleteWishList(wishlistId);
+    return await wishlistRmDs.deleteWishList(wishlistId);
   }
 }

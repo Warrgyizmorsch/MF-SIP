@@ -5,7 +5,6 @@ import 'package:my_sip/features/personalization/domain/entity/risk_question_enti
 import 'package:my_sip/features/personalization/domain/repository/personalisation_repository.dart';
 
 class GetRiskquestionUseCases {
-  
   final PersonalisationRepository personalisationRepository;
   GetRiskquestionUseCases(this.personalisationRepository);
 

@@ -8,9 +8,7 @@ class RiskSubmitUsecases {
   final PersonalisationRepository personalisationRepository;
   RiskSubmitUsecases(this.personalisationRepository);
 
-  Future<Either<Result<RiskResultModel>, ApiError>> call(
-    data,
-  ) async {
+  Future<Either<Result<RiskResultModel>, ApiError>> call(data) async {
     return await personalisationRepository.riskSubmitResult(data);
   }
 }

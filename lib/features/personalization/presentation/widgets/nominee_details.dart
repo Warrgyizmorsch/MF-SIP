@@ -321,8 +321,12 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                     style: TextStyle(
                       fontFamily: FontFamily.medium,
                       fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                      color: isSelected ? Ucolors.primary : const Color(0xFF1E293B),
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w600,
+                      color: isSelected
+                          ? Ucolors.primary
+                          : const Color(0xFF1E293B),
                     ),
                   ),
                   Text(
@@ -339,11 +343,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
               ),
             ),
             if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                color: Ucolors.primary,
-                size: 18,
-              ),
+              const Icon(Icons.check_circle, color: Ucolors.primary, size: 18),
           ],
         ),
       ),
@@ -392,7 +392,11 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                           fit: BoxFit.contain,
                         ),
                       )
-                    : const Icon(Icons.description_outlined, size: 20, color: Ucolors.primary),
+                    : const Icon(
+                        Icons.description_outlined,
+                        size: 20,
+                        color: Ucolors.primary,
+                      ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -423,7 +427,11 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                 ),
               ),
             ] else ...[
-              const Icon(Icons.folder_open_outlined, color: Colors.grey, size: 22),
+              const Icon(
+                Icons.folder_open_outlined,
+                color: Colors.grey,
+                size: 22,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -486,7 +494,11 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(ctx),
-                      icon: const Icon(Icons.close, size: 20, color: Colors.grey),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
@@ -513,18 +525,19 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                     child: ListView.separated(
                       shrinkWrap: true,
                       itemCount: folioItems.length,
-                      separatorBuilder: (_, __) => const Divider(
-                        height: 1,
-                        color: Color(0xFFF1F5F9),
-                      ),
+                      separatorBuilder: (_, __) =>
+                          const Divider(height: 1, color: Color(0xFFF1F5F9)),
                       itemBuilder: (context, index) {
                         final item = folioItems[index];
                         final folioNum = item.folioNumber ?? item.folio ?? '';
-                        final isSelected = item == controller.selectedNominationFolio.value;
+                        final isSelected =
+                            item == controller.selectedNominationFolio.value;
 
                         String amcName = item.amcName ?? '';
                         if (amcName.isEmpty && item.displayLabel != null) {
-                          final match = RegExp(r'\((.*?)\)').firstMatch(item.displayLabel!);
+                          final match = RegExp(
+                            r'\((.*?)\)',
+                          ).firstMatch(item.displayLabel!);
                           if (match != null && match.group(1) != null) {
                             amcName = match.group(1)!;
                           }

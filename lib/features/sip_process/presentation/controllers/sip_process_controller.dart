@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 
 import 'dart:math' as math;
 
@@ -37,8 +37,9 @@ class SipProcessController extends GetxController
   final RxBool isLumpsum = false.obs; // Track if it's Lumpsum mode
   final ValueNotifier<String?> selectedSipDay = ValueNotifier<String?>('10');
   final Rx<SipFrequency> selectedFrequency = SipFrequency.monthly.obs;
-  final ValueNotifier<String?> selectedWeekDay =
-      ValueNotifier<String?>('Monday');
+  final ValueNotifier<String?> selectedWeekDay = ValueNotifier<String?>(
+    'Monday',
+  );
 
   void setFrequency(SipFrequency freq) {
     selectedFrequency.value = freq;
@@ -50,8 +51,13 @@ class SipProcessController extends GetxController
   }
 
   int get selectedWeekDayIndex {
-    final idx = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-        .indexOf(selectedWeekDay.value ?? 'Monday');
+    final idx = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+    ].indexOf(selectedWeekDay.value ?? 'Monday');
     return idx >= 0 ? idx + 1 : 1;
   }
 
@@ -76,6 +82,7 @@ class SipProcessController extends GetxController
         return selectedSipDay.value ?? '10';
     }
   }
+
   final RxDouble totalInvested = 0.0.obs;
   final RxDouble totalProjected = 0.0.obs;
   final RxList<FlSpot> chartInvestedSpots = <FlSpot>[].obs;
@@ -169,8 +176,8 @@ class SipProcessController extends GetxController
           message: !canPurchase
               ? "Purchases for this fund are temporarily suspended by the AMC."
               : (isLumpsum.value
-                  ? "Lumpsum investments are not allowed for this scheme."
-                  : "SIP investments are not allowed for this scheme."),
+                    ? "Lumpsum investments are not allowed for this scheme."
+                    : "SIP investments are not allowed for this scheme."),
           backgroundColor: Colors.orange.shade800,
           icon: Icons.pause_circle_outline,
         );
@@ -183,7 +190,8 @@ class SipProcessController extends GetxController
           ? minAmount.toDouble()
           : amount.value;
       if (initialValue % minAmount != 0) {
-        initialValue = ((initialValue / minAmount).ceil() * minAmount).toDouble();
+        initialValue = ((initialValue / minAmount).ceil() * minAmount)
+            .toDouble();
       }
       // Initialize with the global amount from the slider/input
       fundAmounts[code] = amount.value;
@@ -193,7 +201,10 @@ class SipProcessController extends GetxController
       }
     }
     // Synchronize current StateMixin state with all displayed funds
-    change(allDisplayedFunds, status: allDisplayedFunds.isEmpty ? RxStatus.empty() : RxStatus.success());
+    change(
+      allDisplayedFunds,
+      status: allDisplayedFunds.isEmpty ? RxStatus.empty() : RxStatus.success(),
+    );
   }
 
   void updateFundAmount(String schemeCode, String val) {
@@ -224,7 +235,8 @@ class SipProcessController extends GetxController
     if (unpurchasable.isNotEmpty) {
       showCustomToast(
         title: "Investment Unavailable",
-        message: "${unpurchasable.first.baseSchemeName ?? 'Selected fund'} is currently not accepting investments.",
+        message:
+            "${unpurchasable.first.baseSchemeName ?? 'Selected fund'} is currently not accepting investments.",
         backgroundColor: Colors.orange.shade800,
         icon: Icons.pause_circle_outline,
       );
@@ -423,8 +435,9 @@ class SipProcessController extends GetxController
       isLumpsum: lumpsumMode,
       onSuccess: () async {
         if (lumpsumMode) {
-          final List<LumpsumFundItemModel> lumpsumFunds =
-              selectedFunds.map((fund) {
+          final List<LumpsumFundItemModel> lumpsumFunds = selectedFunds.map((
+            fund,
+          ) {
             final code = fund.schemeCode ?? "";
             final double fundAmount = fundAmounts[code] ?? amount.value;
             return LumpsumFundItemModel(

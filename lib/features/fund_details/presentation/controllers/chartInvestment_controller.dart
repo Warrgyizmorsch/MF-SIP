@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:get/get.dart';
 
-
 class ChartInvestmentController extends GetxController {
   RxDouble investment = 100000.0.obs;
 
@@ -42,5 +41,4 @@ class ChartInvestmentController extends GetxController {
   double getGainPercent(double returnPercent, String label) {
     return (getGainAmount(returnPercent, label) / investment.value) * 100;
   }
-
 }

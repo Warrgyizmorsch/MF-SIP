@@ -16,16 +16,9 @@ class AppNotificationEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-    id,
-    title,
-    body,
-    time,
-    isRead,
-  ];
-
-
+  List<Object?> get props => [id, title, body, time, isRead];
 }
+
 extension NotificationEntityToModel on AppNotificationEntity {
   Map<String, dynamic> toJson() {
     return {
@@ -35,7 +28,7 @@ extension NotificationEntityToModel on AppNotificationEntity {
         "body": body,
         "time": time.toIso8601String(),
         "isRead": isRead,
-      }
+      },
     };
   }
 }

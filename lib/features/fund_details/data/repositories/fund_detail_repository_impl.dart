@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
+import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/fund_details/data/datasource/fund_detail_remote_data_source.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
 import 'package:my_sip/features/fund_details/domain/entity/nav_history_entity.dart';
@@ -66,7 +67,7 @@ class FundDetailRepositoryImpl extends FundDetailRepository {
     }
   }
 
-  ///// ----- Nav History ------ data 
+  ///// ----- Nav History ------ data
   @override
   Future<Either<Result<NavHistoryResponseEntity>, ApiError>> getNavhistory(
     Map<String, dynamic> data,
@@ -88,6 +89,36 @@ class FundDetailRepositoryImpl extends FundDetailRepository {
       );
     } catch (e) {
       return Right(ApiError(message: 'Nav History info  fund list  Failed $e'));
+    }
+  }
+
+  /// ----- Funds by Manager -----
+  @override
+  Future<Either<Result<MutualFundListResponseEntity>, ApiError>>
+  getFundsByManager(int managerId) async {
+    try {
+      final result = await _fundDetailRemoteDataSource.getFundsByManager(
+        managerId,
+      );
+      return result.fold(
+        (success) {
+          if (success.isSuccess && success.data != null) {
+            final entity = success.data!.toEntity();
+            return Left(Result.success(entity));
+          } else {
+            return Right(
+              ApiError(message: 'Failed to load funds for this manager'),
+            );
+          }
+        },
+        (error) {
+          return Right(
+            ApiError(message: error.message ?? 'Manager funds request failed'),
+          );
+        },
+      );
+    } catch (e) {
+      return Right(ApiError(message: 'Error fetching manager funds: $e'));
     }
   }
 }

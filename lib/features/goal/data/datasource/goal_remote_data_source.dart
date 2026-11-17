@@ -35,7 +35,12 @@ class GoalRemoteDataSource {
         // Byte uploads support camera/gallery files and browser XFiles.
         final bytes = await cover.readAsBytes();
         if (bytes.isEmpty) {
-          return Right(ApiError(message: 'The goal cover image is empty. Please choose another image.'));
+          return Right(
+            ApiError(
+              message:
+                  'The goal cover image is empty. Please choose another image.',
+            ),
+          );
         }
         result = await apiService.postMultipart(
           url: "${Appurl.baseUrl}/api/v1/goals",

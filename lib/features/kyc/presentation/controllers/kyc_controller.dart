@@ -357,8 +357,11 @@ class KycController extends GetxController {
             }
             await Future.delayed(const Duration(seconds: 2));
             if (Get.isRegistered<PersonalisationController>() &&
-                Get.find<PersonalisationController>().isContinuousOnboarding.value) {
-              Get.find<PersonalisationController>().navigateToNextOnboardingStep();
+                Get.find<PersonalisationController>()
+                    .isContinuousOnboarding
+                    .value) {
+              Get.find<PersonalisationController>()
+                  .navigateToNextOnboardingStep();
             } else {
               Get.offAllNamed(AppRoutes.navMenuBar);
             }
@@ -1666,8 +1669,11 @@ class KycController extends GetxController {
 
               // 3. FINAL NAV (Uncomment to go to dashboard)
               if (Get.isRegistered<PersonalisationController>() &&
-                  Get.find<PersonalisationController>().isContinuousOnboarding.value) {
-                Get.find<PersonalisationController>().navigateToNextOnboardingStep();
+                  Get.find<PersonalisationController>()
+                      .isContinuousOnboarding
+                      .value) {
+                Get.find<PersonalisationController>()
+                    .navigateToNextOnboardingStep();
               } else {
                 Get.offAllNamed(AppRoutes.navMenuBar);
               }

@@ -579,8 +579,6 @@ class FundShimmerCard extends StatelessWidget {
   }
 }
 
-
-
 class GoalShimmerGrid extends StatelessWidget {
   const GoalShimmerGrid({super.key});
 

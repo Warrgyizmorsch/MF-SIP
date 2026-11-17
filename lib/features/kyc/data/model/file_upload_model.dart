@@ -3,19 +3,18 @@ import '../../../../core/utils/helper/custom_json_parser.dart';
 class FileResponseModel {
   final FileModel? file;
 
-  const FileResponseModel({
-    this.file,
-  });
+  const FileResponseModel({this.file});
 
   factory FileResponseModel.fromJson(Map<String, dynamic> json) {
     return FileResponseModel(
       file: json.parseNested<FileModel>(
         'file',
-            (map) => FileModel.fromJson(map),
+        (map) => FileModel.fromJson(map),
       ),
     );
   }
 }
+
 class FileModel {
   final int? id;
   final String? filetype;

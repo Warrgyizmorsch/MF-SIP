@@ -9,8 +9,6 @@ class PortfolioAnalysisUsecases {
 
   PortfolioAnalysisUsecases(this._fundDetailRepository);
 
- 
-
   // /// --------Portfolio analysis -------- //////////
   Future<Either<Result<SchemeDetailsEntity>, ApiError>> getPortfolioAnlysis(
     Map<String, dynamic> data,

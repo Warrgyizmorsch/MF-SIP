@@ -38,7 +38,7 @@ import '../../../core/utils/constant/text_style.dart';
 //     // 3. The shadow shrinking/fading as the icon goes higher
 //     _shadowAnimation = Tween<double>(
 //       begin: 1.0,
-//       end: 0.5, 
+//       end: 0.5,
 //     ).animate(CurvedAnimation(
 //       parent: _controller,
 //       curve: Curves.easeInOutSine,
@@ -66,13 +66,13 @@ import '../../../core/utils/constant/text_style.dart';
 //               child: Icon(
 //                 Iconsax.chart_fail, // Using your Iconsax package!
 //                 size: 45,
-//                 color: Ucolors.primary, 
+//                 color: Ucolors.primary,
 //               ),
 //             ),
 //           ),
-          
+
 //           const SizedBox(height: 16),
-          
+
 //           // --- THE ANIMATED SHADOW ---
 //           ScaleTransition(
 //             scale: _shadowAnimation,
@@ -95,7 +95,7 @@ import '../../../core/utils/constant/text_style.dart';
 //               ),
 //             ),
 //           ),
-          
+
 //           const SizedBox(height: 32),
 
 //           // --- THE TEXT ---
@@ -123,7 +123,6 @@ import '../../../core/utils/constant/text_style.dart';
 //     );
 //   }
 // }
-
 
 class AnimatedEmptyState extends StatefulWidget {
   final String title;
@@ -157,22 +156,15 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
     )..repeat(reverse: true);
 
     // 2. Float Up and Down
-    _floatAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, -0.15),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOutSine,
-    ));
+    _floatAnimation =
+        Tween<Offset>(begin: Offset.zero, end: const Offset(0, -0.15)).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
+        );
 
     // 3. Shadow Shrink/Fade
-    _shadowAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.5,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOutSine,
-    ));
+    _shadowAnimation = Tween<double>(begin: 1.0, end: 0.5).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
+    );
   }
 
   @override
@@ -185,7 +177,7 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
   Widget build(BuildContext context) {
     return Container(
       // Height can be adjusted or removed if you want it to fill available space
-      height: 350, 
+      height: 350,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: Column(
@@ -198,7 +190,7 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
               height: 100,
               width: 100,
               decoration: BoxDecoration(
-                color: Ucolors.primary.withValues(alpha:0.08),
+                color: Ucolors.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -208,7 +200,7 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
 
           // --- ANIMATED SHADOW ---
@@ -220,7 +212,7 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
                 height: 8,
                 width: 60,
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha:0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),

@@ -9,7 +9,9 @@ class CreateEsignUrlUseCase {
 
   CreateEsignUrlUseCase({required this.kycRepository});
 
-  Future<Either<Result<CreateEsignUrlEntity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<CreateEsignUrlEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await kycRepository.createEsignUrl(data);
   }
 }

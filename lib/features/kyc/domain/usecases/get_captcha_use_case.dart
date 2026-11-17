@@ -11,7 +11,9 @@ class GetCaptchaUseCase {
 
   GetCaptchaUseCase({required this.kycRepository});
 
-  Future<Either<Result<Uint8List?>, ApiError>> call(Map<String, dynamic> data)async{
+  Future<Either<Result<Uint8List?>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await kycRepository.getCaptcha(data);
   }
 }

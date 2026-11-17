@@ -10,7 +10,9 @@ class ExecutePennyDropUseCase {
 
   ExecutePennyDropUseCase({required this.kycRepository});
 
-  Future<Either<Result<BankVerificationEntity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<BankVerificationEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await kycRepository.executePennyDrop(data);
   }
 }

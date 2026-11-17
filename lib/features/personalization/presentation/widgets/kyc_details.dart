@@ -20,15 +20,19 @@ class KycDetailsScreen extends StatelessWidget {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor:  Ucolors.white,
+      backgroundColor: Ucolors.white,
       appBar: isDesktop ? null : CustomAppBarNormal(title: 'KYC Details'),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: isDesktop ? const EdgeInsets.only(top: 0) : UPadding.screenPadding,
+        padding: isDesktop
+            ? const EdgeInsets.only(top: 0)
+            : UPadding.screenPadding,
         child: Center(
-          child: Obx(() => isDesktop
-              ? _buildWebDashboardLayout(context)
-              : _buildMobileLayout()),
+          child: Obx(
+            () => isDesktop
+                ? _buildWebDashboardLayout(context)
+                : _buildMobileLayout(),
+          ),
         ),
       ),
     );
@@ -39,16 +43,21 @@ class KycDetailsScreen extends StatelessWidget {
   // =========================================
   Widget _buildWebDashboardLayout(BuildContext context) {
     final user = SessionManager.instance.userObs.value;
-    final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '---';
-    final String taxStatusName = ProfileUtils.getWealthSourceName(
-      int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
-    ) ?? 'Salary';
+    final String readySinceYear =
+        user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '---';
+    final String taxStatusName =
+        ProfileUtils.getWealthSourceName(
+          int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
+        ) ??
+        'Salary';
     final bool hasRiskProfile = user?.riskProfileModel?.profileName != null;
     final bool isKycApproved = user?.kycStatus?.toLowerCase() == 'approved';
-    final bool isPanVerified = user?.panCard != null && user!.panCard!.isNotEmpty;
+    final bool isPanVerified =
+        user?.panCard != null && user!.panCard!.isNotEmpty;
     final bool isRiskProfileUpdated = user?.riskProfileModel != null;
     final String aadhaarDisplay = user?.customerDetailsModel?.adhar ?? '---';
-    final bool hasAadhaar = aadhaarDisplay.isNotEmpty && aadhaarDisplay != '---';
+    final bool hasAadhaar =
+        aadhaarDisplay.isNotEmpty && aadhaarDisplay != '---';
     final bool isVerificationComplete = isKycApproved && isPanVerified;
     String _formatLastUpdated(String? rawDateString) {
       if (rawDateString == null || rawDateString.isEmpty) return '---';
@@ -59,6 +68,7 @@ class KycDetailsScreen extends StatelessWidget {
       // Formats into something premium and clean like: 29 Apr 2026
       return DateFormat('dd MMM yyyy').format(parsedDate.toLocal());
     }
+
     return Column(
       children: [
         Row(
@@ -78,16 +88,32 @@ class KycDetailsScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: const [
-                      Icon(Icons.check_circle, color: Color(0xFF1F9254), size: 20),
+                      Icon(
+                        Icons.check_circle,
+                        color: Color(0xFF1F9254),
+                        size: 20,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         'KYC Overview',
-                        style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF1A1D20)),
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: Color(0xFF1A1D20),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text('Your KYC is verified and up to date.', style:TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 12)),
+                  Text(
+                    'Your KYC is verified and up to date.',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                  ),
                   const SizedBox(height: 20),
 
                   _buildWebCheckmarkItem(
@@ -115,24 +141,41 @@ class KycDetailsScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.shield_outlined, color: Color(0xFF0066FF), size: 18),
+                        const Icon(
+                          Icons.shield_outlined,
+                          color: Color(0xFF0066FF),
+                          size: 18,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
-                              Text('Secure & Compliant', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 11, color: Color(0xFF0066FF))),
+                              Text(
+                                'Secure & Compliant',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                  color: Color(0xFF0066FF),
+                                ),
+                              ),
                               SizedBox(height: 4),
                               Text(
                                 'We use industry-leading security to protect your information.',
-                                style:TextStyle(fontFamily: FontFamily.medium,fontSize: 10, color: Color(0xFF4A5568), height: 1.4),
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 10,
+                                  color: Color(0xFF4A5568),
+                                  height: 1.4,
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -145,13 +188,20 @@ class KycDetailsScreen extends StatelessWidget {
                   /// Info Row Block 1
                   Row(
                     children: [
-                      Expanded(child: _buildWebInfoGridCard('Full Name', user?.name ?? '---')),
+                      Expanded(
+                        child: _buildWebInfoGridCard(
+                          'Full Name',
+                          user?.name ?? '---',
+                        ),
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildWebInfoGridCard(
                           'PAN Number',
                           user?.panCard ?? '---',
-                          badgeText: isVerificationComplete ? 'PAN Verified' : 'Pending',
+                          badgeText: isVerificationComplete
+                              ? 'PAN Verified'
+                              : 'Pending',
                           isErrorBadge: !isVerificationComplete,
                         ),
                       ),
@@ -171,7 +221,12 @@ class KycDetailsScreen extends StatelessWidget {
                   /// Info Row Block 2
                   Row(
                     children: [
-                      Expanded(child: _buildWebInfoGridCard('Tax Status', taxStatusName)),
+                      Expanded(
+                        child: _buildWebInfoGridCard(
+                          'Tax Status',
+                          taxStatusName,
+                        ),
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildWebInfoGridCard(
@@ -210,16 +265,38 @@ class KycDetailsScreen extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Text('KYC Status', style:TextStyle(fontFamily: FontFamily.medium,fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF70767F))),
+                                const Text(
+                                  'KYC Status',
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF70767F),
+                                  ),
+                                ),
                                 const SizedBox(width: 8),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(color: const Color(0xFFE6F7ED), borderRadius: BorderRadius.circular(4)),
-                                  child:  Text(isVerificationComplete ? 'Verified' : 'Pending Verification',
-                                    style:TextStyle(fontFamily: FontFamily.medium,
-                                      color: isVerificationComplete ? const Color(0xFF1F9254) : const Color(0xFFC53929),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE6F7ED),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    isVerificationComplete
+                                        ? 'Verified'
+                                        : 'Pending Verification',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      color: isVerificationComplete
+                                          ? const Color(0xFF1F9254)
+                                          : const Color(0xFFC53929),
                                       fontSize: 10,
-                                      fontWeight: FontWeight.w600,)),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -228,16 +305,35 @@ class KycDetailsScreen extends StatelessWidget {
                               isVerificationComplete
                                   ? 'Your KYC is complete and verified. You can continue investing without any interruptions.'
                                   : 'Your PAN verification or KYC profile is pending. Complete both details to authorize full investment access.',
-                              style:TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 12),
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
-                          children:  [
-                            Text('Last Updated', style:TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: Color(0xFF70767F))),
+                          children: [
+                            Text(
+                              'Last Updated',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 11,
+                                color: Color(0xFF70767F),
+                              ),
+                            ),
                             SizedBox(height: 4),
-                            Text(_formatLastUpdated(user?.updatedAt), style:TextStyle(fontFamily: FontFamily.medium,fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1A1D20))),
+                            Text(
+                              _formatLastUpdated(user?.updatedAt),
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1A1D20),
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -267,9 +363,24 @@ class KycDetailsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
-                    Text('Need to update your KYC?', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF1A1D20))),
+                    Text(
+                      'Need to update your KYC?',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color: Color(0xFF1A1D20),
+                      ),
+                    ),
                     SizedBox(height: 4),
-                    Text('If your details have changed, please update your information to keep your account up to date.', style:TextStyle(fontFamily: FontFamily.medium,color: Color(0xFF4A5568), fontSize: 12)),
+                    Text(
+                      'If your details have changed, please update your information to keep your account up to date.',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Color(0xFF4A5568),
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -282,10 +393,22 @@ class KycDetailsScreen extends StatelessWidget {
                     foregroundColor: Ucolors.primary,
                     elevation: 0,
                     side: const BorderSide(color: Ucolors.skyblue),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                   ),
-                  child: const Text('Update KYC', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 13)),
+                  child: const Text(
+                    'Update KYC',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -293,16 +416,17 @@ class KycDetailsScreen extends StatelessWidget {
       ],
     );
   }
-// Reusable helper logic to open a centered web dialog frame when clicked
+
+  // Reusable helper logic to open a centered web dialog frame when clicked
   void _openKycUpdateDialog(BuildContext context) {
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: Colors.white,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480), // Perfect width for web popups
+          constraints: const BoxConstraints(
+            maxWidth: 480,
+          ), // Perfect width for web popups
           child: Padding(
             padding: const EdgeInsets.all(32.0),
             child: Column(
@@ -327,7 +451,8 @@ class KycDetailsScreen extends StatelessWidget {
                 // Dialog Headings
                 const Text(
                   "Update KYC Profile",
-                  style:TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
 
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -338,7 +463,8 @@ class KycDetailsScreen extends StatelessWidget {
                 const Text(
                   "To update your central KYC registration record or modify your validated identity documents, please complete the procedure via our integrated secure system mobile application workflow.",
                   textAlign: TextAlign.center,
-                  style:TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
 
                     fontSize: 13,
                     color: Color(0xFF70767F),
@@ -352,14 +478,21 @@ class KycDetailsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed: () => Get.back(), // Safely close the dialog window
+                      onPressed: () =>
+                          Get.back(), // Safely close the dialog window
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: const Text(
                         "Close",
-                        style:TextStyle(fontFamily: FontFamily.medium,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
 
                           color: Color(0xFF5F6670),
                           fontWeight: FontWeight.w500,
@@ -372,12 +505,18 @@ class KycDetailsScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Ucolors.primary,
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: const Text(
                         "Understood",
-                        style:TextStyle(fontFamily: FontFamily.medium,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
 
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -391,15 +530,18 @@ class KycDetailsScreen extends StatelessWidget {
           ),
         ),
       ),
-      barrierDismissible: true, // Let users tap outside the popup window to drop it
+      barrierDismissible:
+          true, // Let users tap outside the popup window to drop it
     );
   }
+
   // =========================================
   // 📱 MOBILE LAYOUT (Preserved Setup Style)
   // =========================================
   Widget _buildMobileLayout() {
     final user = SessionManager.instance.userObs.value;
-    final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '';
+    final String readySinceYear =
+        user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '';
 
     return Column(
       children: [
@@ -410,13 +552,17 @@ class KycDetailsScreen extends StatelessWidget {
           subtitle: 'Ready to invest since $readySinceYear',
           icon: Icons.verified,
           onTap: () {},
-          iconColor: user?.kycStatus?.toLowerCase() == 'approved' ? Colors.green : Colors.black,
+          iconColor: user?.kycStatus?.toLowerCase() == 'approved'
+              ? Colors.green
+              : Colors.black,
         ),
         const SizedBox(height: 30),
         InfoCard(
           title: 'Kyc Status',
           subtitle: user?.kycStatus ?? 'NO KYC',
-          trailing: user?.kycStatus?.toLowerCase() == 'approved' ? const Icon(Icons.verified, color: Colors.green) : null,
+          trailing: user?.kycStatus?.toLowerCase() == 'approved'
+              ? const Icon(Icons.verified, color: Colors.green)
+              : null,
         ),
         const SizedBox(height: 10),
         InfoCard(
@@ -443,11 +589,14 @@ class KycDetailsScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             label,
-            style:TextStyle(fontFamily: FontFamily.medium,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: isValid ? const Color(0xFF2D3136) : Colors.grey.shade500,
-              decoration: isValid ? TextDecoration.none : TextDecoration.lineThrough, // Optional visual cue
+              decoration: isValid
+                  ? TextDecoration.none
+                  : TextDecoration.lineThrough, // Optional visual cue
             ),
           ),
         ],
@@ -456,12 +605,12 @@ class KycDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildWebInfoGridCard(
-      String label,
-      String value, {
-        String? badgeText,
-        IconData? trailingIcon,
-        bool isErrorBadge = false, // Renamed to accurately reflect status flags
-      }) {
+    String label,
+    String value, {
+    String? badgeText,
+    IconData? trailingIcon,
+    bool isErrorBadge = false, // Renamed to accurately reflect status flags
+  }) {
     return Container(
       height: 76,
       decoration: BoxDecoration(
@@ -480,14 +629,24 @@ class KycDetailsScreen extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF70767F)),
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF70767F),
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1A1D20)),
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1D20),
+                  ),
                 ),
               ],
             ),
@@ -498,12 +657,15 @@ class KycDetailsScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 // ✅ FIXED: Background color now changes dynamically to match status semantics
-                color: isErrorBadge ? const Color(0xFFFCE8E6) : const Color(0xFFE6F7ED),
+                color: isErrorBadge
+                    ? const Color(0xFFFCE8E6)
+                    : const Color(0xFFE6F7ED),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 badgeText,
-                style:TextStyle(fontFamily: FontFamily.medium,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   // ✅ FIXED: Typo reference color mapping resolved
                   color: isErrorBadge ? Ucolors.red : Ucolors.success,
                   fontSize: 10,
@@ -519,7 +681,8 @@ class KycDetailsScreen extends StatelessWidget {
         ],
       ),
     );
-  }}
+  }
+}
 
 // Mobile Compatible Fallback Implementation Card
 class InfoCard extends StatelessWidget {
@@ -560,7 +723,11 @@ class InfoCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SectionHeading(sectionTitle: title, fontSize: 14, fontWeight: FontWeight.w600),
+                    SectionHeading(
+                      sectionTitle: title,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                     const SizedBox(height: 6),
                     SubtitleText(subtitle: subtitle, fontSize: 12),
                     if (colum1 != null) ...[const SizedBox(height: 8), colum1!],
@@ -575,10 +742,6 @@ class InfoCard extends StatelessWidget {
     );
   }
 }
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:my_sip/common/style/padding.dart';

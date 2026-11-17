@@ -8,11 +8,9 @@ class AddwishlistUsecases {
 
   AddwishlistUsecases(this.wishlistAbsRepo);
 
-   Future<Either<Result<String>, ApiError>> call(
+  Future<Either<Result<String>, ApiError>> call(
     Map<String, dynamic> data,
   ) async {
     return await wishlistAbsRepo.addToWishlist(data);
   }
-
-
 }

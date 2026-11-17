@@ -17,6 +17,7 @@ class DeleteGoalFundUseCase {
     return await goalRepository.deleteGoalFund(id: id);
   }
 }
+
 class DeleteGoalUseCase {
   final GoalRepository goalRepository;
 

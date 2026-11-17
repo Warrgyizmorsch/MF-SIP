@@ -578,7 +578,7 @@ class RegisterAccountScreen extends GetView<AuthController> {
                                     ),
                                   ),
                                   SizedBox(height: Get.height * 0.01),
-                                   USocialButton(),
+                                  USocialButton(),
                                   SizedBox(height: Get.height * 0.02),
                                   Center(
                                     child: CreataAccountIfNot(

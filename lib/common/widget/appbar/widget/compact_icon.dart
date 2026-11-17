@@ -6,7 +6,8 @@ class CompactIcon extends StatelessWidget {
     super.key,
     required this.icon,
     required this.onPressed,
-    this.iconColor, this.iconSize,
+    this.iconColor,
+    this.iconSize,
   });
 
   final IconData icon;
@@ -21,7 +22,11 @@ class CompactIcon extends StatelessWidget {
       radius: 18,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Icon(icon, size: iconSize?? 25, color: iconColor ?? Ucolors.dark),
+        child: Icon(
+          icon,
+          size: iconSize ?? 25,
+          color: iconColor ?? Ucolors.dark,
+        ),
       ),
     );
   }

@@ -88,7 +88,6 @@
 //   }
 // }
 
-
 import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
 class OnboardingResponse {
@@ -151,10 +150,7 @@ class UserDetails {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'username': username,
-    };
+    return {'name': name, 'username': username};
   }
 }
 

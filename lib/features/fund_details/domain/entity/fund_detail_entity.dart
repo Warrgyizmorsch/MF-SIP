@@ -262,7 +262,7 @@ extension SchemePerformanceModelX on SchemePerformanceModel {
   SchemePerformanceEntity toEntity() {
     return SchemePerformanceEntity(
       schemeName: schemeName ?? '',
-        oneWeekReturn: oneWeekReturn ?? 0.0,
+      oneWeekReturn: oneWeekReturn ?? 0.0,
       oneYearReturn: oneYearReturn ?? 0.0,
       threeYearReturn: threeYearReturn ?? 0.0,
       fiveYearReturn: fiveYearReturn ?? 0.0,

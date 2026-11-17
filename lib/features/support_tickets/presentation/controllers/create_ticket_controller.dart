@@ -18,18 +18,16 @@ class CreateTicketController extends GetxController {
   CreateTicketController({
     GetTicketCategoriesUseCase? categoriesUseCase,
     CreateTicketUseCase? createUseCase,
-  })  : getCategoriesUseCase = categoriesUseCase ??
-            GetTicketCategoriesUseCase(
-              TicketRepoImpl(
-                TicketRemoteDs(NetworkServicesApi()),
-              ),
-            ),
-        createTicketUseCase = createUseCase ??
-            CreateTicketUseCase(
-              TicketRepoImpl(
-                TicketRemoteDs(NetworkServicesApi()),
-              ),
-            );
+  }) : getCategoriesUseCase =
+           categoriesUseCase ??
+           GetTicketCategoriesUseCase(
+             TicketRepoImpl(TicketRemoteDs(NetworkServicesApi())),
+           ),
+       createTicketUseCase =
+           createUseCase ??
+           CreateTicketUseCase(
+             TicketRepoImpl(TicketRemoteDs(NetworkServicesApi())),
+           );
 
   final isLoadingCategories = false.obs;
   final isSubmitting = false.obs;
@@ -72,7 +70,9 @@ class CreateTicketController extends GetxController {
         }
       },
       (error) {
-        createLog("[CreateTicketController] Error categories: ${error.message}");
+        createLog(
+          "[CreateTicketController] Error categories: ${error.message}",
+        );
       },
     );
     isLoadingCategories.value = false;
@@ -141,7 +141,10 @@ class CreateTicketController extends GetxController {
 
     try {
       final picker = ImagePicker();
-      final photo = await picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+      final photo = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
       if (photo != null) {
         final file = File(photo.path);
         final size = await file.length();
@@ -171,20 +174,29 @@ class CreateTicketController extends GetxController {
     final description = descriptionController.text.trim();
 
     if (selectedCategory.value == null) {
-      Get.snackbar('Missing Field', 'Please select a ticket category.',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Missing Field',
+        'Please select a ticket category.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
     if (subject.isEmpty) {
-      Get.snackbar('Missing Field', 'Please provide a subject for your ticket.',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Missing Field',
+        'Please provide a subject for your ticket.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
     if (subject.length > 255) {
-      Get.snackbar('Validation Error', 'Subject cannot exceed 255 characters.',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Validation Error',
+        'Subject cannot exceed 255 characters.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -194,7 +206,8 @@ class CreateTicketController extends GetxController {
     }
 
     if (description.length < 5) {
-      descriptionError.value = 'Description must be at least 5 characters long.';
+      descriptionError.value =
+          'Description must be at least 5 characters long.';
       return;
     }
 

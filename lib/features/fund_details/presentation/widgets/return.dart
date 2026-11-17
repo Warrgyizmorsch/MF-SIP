@@ -53,7 +53,8 @@ class ReturnsTableRow extends StatelessWidget {
                   data.period,
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis,
-                  style:  TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: isDesktop ? 14 : 12,
                     fontWeight: isDesktop ? FontWeight.w500 : FontWeight.w400,
                     color: Colors.grey.shade800,
@@ -68,7 +69,8 @@ class ReturnsTableRow extends StatelessWidget {
                       ? '${data.scheme.toStringAsFixed(2)}%'
                       : formatCurrency(data.scheme.toDouble()),
                   textAlign: TextAlign.center,
-                  style:  TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
                     color: _valueColor(data.scheme),
                     fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w400,
@@ -83,7 +85,8 @@ class ReturnsTableRow extends StatelessWidget {
                       ? '${data.category.toStringAsFixed(2)}%'
                       : formatCurrency(data.category.toDouble()),
                   textAlign: TextAlign.center,
-                  style:  TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
                     color: color3 ?? _valueColor(data.category),
                     fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w400,
@@ -98,7 +101,8 @@ class ReturnsTableRow extends StatelessWidget {
                       ? '${data.benchmark.toStringAsFixed(2)}%'
                       : formatCurrency(data.benchmark.toDouble()),
                   textAlign: TextAlign.center,
-                  style:  TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
                     color: color4 ?? _valueColor(data.benchmark),
                     fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w400,
@@ -114,7 +118,8 @@ class ReturnsTableRow extends StatelessWidget {
                         ? '${data.extra!.toStringAsFixed(2)}%'
                         : formatIndianNumber(data.extra!.toDouble()),
                     textAlign: TextAlign.center,
-                    style:  TextStyle(fontFamily: FontFamily.medium,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: fontSize ?? (isDesktop ? 14 : 12),
                       color: color5 ?? _valueColor(data.category),
                       fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w400,
@@ -127,11 +132,7 @@ class ReturnsTableRow extends StatelessWidget {
 
         // Divider
         if (isDesktop)
-          Divider(
-            color: Colors.grey.shade100,
-            height: 1,
-            thickness: 1,
-          )
+          Divider(color: Colors.grey.shade100, height: 1, thickness: 1)
         else
           DashedLine(color: Colors.grey.shade300, dashSpace: 0),
       ],

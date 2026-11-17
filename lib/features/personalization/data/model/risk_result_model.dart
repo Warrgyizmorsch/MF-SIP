@@ -13,8 +13,7 @@ class RiskResultModel {
     required this.profileName,
   });
 
-
-Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'status': status,
       'total_score': totalScore,
@@ -22,6 +21,7 @@ Map<String, dynamic> toJson() {
       'profile_name': profileName,
     };
   }
+
   factory RiskResultModel.fromJson(Map<String, dynamic> json) {
     return RiskResultModel(
       status: json.parse<bool>('status') ?? false,
@@ -30,6 +30,4 @@ Map<String, dynamic> toJson() {
       profileName: json.parse<String>('profile_name') ?? '',
     );
   }
-
-
 }

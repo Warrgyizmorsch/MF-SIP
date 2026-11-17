@@ -7,12 +7,12 @@ class CartUsecases {
   final AddToCartUsecases addToCartUsecases;
   final GetCartListUsecases getCartListUsecases;
   final UpdateCartUsecases updateCartUsecases;
-  final DeleteCartItemUsecases deleteCartItemUsecases ;
+  final DeleteCartItemUsecases deleteCartItemUsecases;
 
   CartUsecases(
     this.addToCartUsecases,
     this.getCartListUsecases,
     this.updateCartUsecases,
-    this.deleteCartItemUsecases 
+    this.deleteCartItemUsecases,
   );
 }

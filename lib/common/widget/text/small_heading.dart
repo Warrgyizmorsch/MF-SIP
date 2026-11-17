@@ -9,7 +9,8 @@ class SmallHeading extends StatelessWidget {
     super.key,
     required this.smallheading,
     this.fontsize,
-    this.color, this.fontWeight,
+    this.color,
+    this.fontWeight,
   });
 
   final String smallheading;

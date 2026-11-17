@@ -326,10 +326,7 @@ class GoalFundTransactionDisplayEntity {
   final String amount;
   final String units;
 
-  GoalFundTransactionDisplayEntity({
-    this.amount = '',
-    this.units = '',
-  });
+  GoalFundTransactionDisplayEntity({this.amount = '', this.units = ''});
 }
 
 class GoalFundTransactionEntity {

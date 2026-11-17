@@ -10,7 +10,9 @@ class SaveGoalUseCase {
 
   SaveGoalUseCase({required this.goalRepository});
 
-  Future<Either<Result<SaveGoalResponseEntity>,ApiError>>call(Map<String,dynamic> data) async {
+  Future<Either<Result<SaveGoalResponseEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await goalRepository.saveGoal(data);
   }
 }

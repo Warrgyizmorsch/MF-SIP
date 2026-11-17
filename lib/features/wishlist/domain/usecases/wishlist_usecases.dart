@@ -7,5 +7,9 @@ class WishlistUsecases {
   final FetchwishlistUsecases fetchwishlistUsecases;
   final DeleteWishlistUsecase deleteWishlistUsecase;
 
-  WishlistUsecases(this.addwishlistUsecases, this.fetchwishlistUsecases, this.deleteWishlistUsecase);
+  WishlistUsecases(
+    this.addwishlistUsecases,
+    this.fetchwishlistUsecases,
+    this.deleteWishlistUsecase,
+  );
 }

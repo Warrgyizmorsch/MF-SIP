@@ -10,7 +10,9 @@ class GoalFundOrderUseCase {
 
   GoalFundOrderUseCase({required this.goalRepository});
 
-  Future<Either<Result<GoalFundOrderEntity>,ApiError>>call(Map<String,dynamic> data) async {
+  Future<Either<Result<GoalFundOrderEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await goalRepository.saveGoalFundOrder(data);
   }
 }

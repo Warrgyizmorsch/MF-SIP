@@ -4,10 +4,12 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../controllers/kyc_controller.dart';
+
 class SelectionPickerWidget extends StatelessWidget {
   final String title;
   final List<String> options;
-  final RxString selectedValue; // Pass the specific observable (e.g., controller.selectedGender)
+  final RxString
+  selectedValue; // Pass the specific observable (e.g., controller.selectedGender)
 
   const SelectionPickerWidget({
     super.key,
@@ -46,13 +48,20 @@ class SelectionPickerWidget extends StatelessWidget {
                       selectedValue.value = item; // Update the observable
                     },
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200), // Smooth animation
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      duration: const Duration(
+                        milliseconds: 200,
+                      ), // Smooth animation
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected ? Ucolors.blue : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? Ucolors.blue : Colors.grey.shade300,
+                          color: isSelected
+                              ? Ucolors.blue
+                              : Colors.grey.shade300,
                           width: 1.5,
                         ),
                       ),

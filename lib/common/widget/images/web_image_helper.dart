@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'dart:ui_web' as ui_web; // Available in Flutter 3.38+
 import 'package:web/web.dart' as web; // Standard web package
@@ -32,7 +31,7 @@ class WebCorsImage extends StatelessWidget {
     // with the same key is safe or ignored in modern Flutter web.
     ui_web.platformViewRegistry.registerViewFactory(
       'img-cors-$imageUrl', // Unique key per image URL to avoid state conflicts
-          (int viewId) {
+      (int viewId) {
         final web.HTMLImageElement img = web.HTMLImageElement();
         img.src = imageUrl;
         img.style.width = '100%';

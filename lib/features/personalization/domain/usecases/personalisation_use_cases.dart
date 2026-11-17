@@ -21,7 +21,7 @@ class PersonalisationUseCases {
   final UpdateProfileUsecases updateProfileUsecases;
   final RequestCapitalGainStatementUseCase requestCapitalGainStatementUseCase;
   final RequestAccountStatementUseCase requestAccountStatementUseCase;
-  final AddBankUseCase addBankUseCase; 
+  final AddBankUseCase addBankUseCase;
   final DeleteBankUseCase deleteBankUseCase;
   final GetUserBankListUseCase getUserBankListUseCase;
 

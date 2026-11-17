@@ -164,17 +164,30 @@ class GoalSipController extends GetxController {
   };
   IconData getGoalIcon(String goalType) {
     final lower = goalType.toLowerCase().trim();
-    if (lower.contains('car') || lower.contains('vehicle') || lower.contains('bike')) {
+    if (lower.contains('car') ||
+        lower.contains('vehicle') ||
+        lower.contains('bike')) {
       return Icons.directions_car_rounded;
-    } else if (lower.contains('house') || lower.contains('home') || lower.contains('flat') || lower.contains('property')) {
+    } else if (lower.contains('house') ||
+        lower.contains('home') ||
+        lower.contains('flat') ||
+        lower.contains('property')) {
       return Icons.home_rounded;
-    } else if (lower.contains('education') || lower.contains('school') || lower.contains('college') || lower.contains('study')) {
+    } else if (lower.contains('education') ||
+        lower.contains('school') ||
+        lower.contains('college') ||
+        lower.contains('study')) {
       return Icons.school_rounded;
     } else if (lower.contains('marriage') || lower.contains('wedding')) {
       return Icons.favorite_rounded;
-    } else if (lower.contains('retirement') || lower.contains('pension') || lower.contains('elder')) {
+    } else if (lower.contains('retirement') ||
+        lower.contains('pension') ||
+        lower.contains('elder')) {
       return Icons.elderly_rounded;
-    } else if (lower.contains('vacation') || lower.contains('trip') || lower.contains('travel') || lower.contains('tour')) {
+    } else if (lower.contains('vacation') ||
+        lower.contains('trip') ||
+        lower.contains('travel') ||
+        lower.contains('tour')) {
       return Icons.flight_takeoff_rounded;
     }
     return Icons.flag_rounded;
@@ -183,17 +196,30 @@ class GoalSipController extends GetxController {
   String getGoalEmoji(String goalType, {double progressPercent = 0.0}) {
     if (progressPercent >= 100.0) return '🏆';
     final lower = goalType.toLowerCase().trim();
-    if (lower.contains('car') || lower.contains('vehicle') || lower.contains('bike')) {
+    if (lower.contains('car') ||
+        lower.contains('vehicle') ||
+        lower.contains('bike')) {
       return '🚗';
-    } else if (lower.contains('house') || lower.contains('home') || lower.contains('flat') || lower.contains('property')) {
+    } else if (lower.contains('house') ||
+        lower.contains('home') ||
+        lower.contains('flat') ||
+        lower.contains('property')) {
       return '🏠';
-    } else if (lower.contains('education') || lower.contains('school') || lower.contains('college') || lower.contains('study')) {
+    } else if (lower.contains('education') ||
+        lower.contains('school') ||
+        lower.contains('college') ||
+        lower.contains('study')) {
       return '🎓';
     } else if (lower.contains('marriage') || lower.contains('wedding')) {
       return '💍';
-    } else if (lower.contains('retirement') || lower.contains('pension') || lower.contains('elder')) {
+    } else if (lower.contains('retirement') ||
+        lower.contains('pension') ||
+        lower.contains('elder')) {
       return '🏖️';
-    } else if (lower.contains('vacation') || lower.contains('trip') || lower.contains('travel') || lower.contains('tour')) {
+    } else if (lower.contains('vacation') ||
+        lower.contains('trip') ||
+        lower.contains('travel') ||
+        lower.contains('tour')) {
       return '✈️';
     }
     return '🎯';
@@ -671,8 +697,8 @@ class GoalSipController extends GetxController {
       if (investmentMode.value == 'sip' && monthlySip.value > 0) {
         monthlySip.value = ((monthlySip.value / 100).ceil() * 100);
       } else if (investmentMode.value == 'lumpsum' && lumpsumAmount.value > 0) {
-        lumpsumAmount.value =
-            ((lumpsumAmount.value / 100).ceil() * 100).toDouble();
+        lumpsumAmount.value = ((lumpsumAmount.value / 100).ceil() * 100)
+            .toDouble();
       }
 
       final requestData = {
@@ -1214,7 +1240,7 @@ class GoalSipController extends GetxController {
     required double sipAmount,
     required int sipDay,
   }) async {
-//    HapticFeedback.successNotification();
+    //    HapticFeedback.successNotification();
     try {
       final totalSip = (sipAmount).toDouble();
       final selectedFundCount = selectedPopularFund.length;
@@ -1526,7 +1552,8 @@ class GoalSipController extends GetxController {
           (goal) => goal.goalFunds.any(
             (fund) => fund.schemeCode.trim().toUpperCase() == scheme,
           ),
-        ) == true) {
+        ) ==
+        true) {
       return false;
     }
     return !(currentGoalDetail.value?.linkedFunds.any(
@@ -1841,18 +1868,32 @@ class GoalSipController extends GetxController {
   }
 
   Color getGoalColor(String goalType, {String? goalName}) {
-    final combined = '${goalType.toLowerCase()} ${(goalName ?? '').toLowerCase()}';
-    if (combined.contains('car') || combined.contains('vehicle') || combined.contains('auto')) {
+    final combined =
+        '${goalType.toLowerCase()} ${(goalName ?? '').toLowerCase()}';
+    if (combined.contains('car') ||
+        combined.contains('vehicle') ||
+        combined.contains('auto')) {
       return Colors.blue.shade300;
-    } else if (combined.contains('house') || combined.contains('home') || combined.contains('property')) {
+    } else if (combined.contains('house') ||
+        combined.contains('home') ||
+        combined.contains('property')) {
       return Colors.orange.shade300;
-    } else if (combined.contains('education') || combined.contains('school') || combined.contains('college') || combined.contains('study')) {
+    } else if (combined.contains('education') ||
+        combined.contains('school') ||
+        combined.contains('college') ||
+        combined.contains('study')) {
       return Colors.green.shade300;
     } else if (combined.contains('marriage') || combined.contains('wedding')) {
       return Colors.pink.shade300;
-    } else if (combined.contains('retirement') || combined.contains('pension') || combined.contains('elderly')) {
+    } else if (combined.contains('retirement') ||
+        combined.contains('pension') ||
+        combined.contains('elderly')) {
       return Colors.deepPurple.shade300;
-    } else if (combined.contains('vacation') || combined.contains('travel') || combined.contains('holiday') || combined.contains('trip') || combined.contains('flight')) {
+    } else if (combined.contains('vacation') ||
+        combined.contains('travel') ||
+        combined.contains('holiday') ||
+        combined.contains('trip') ||
+        combined.contains('flight')) {
       return Colors.teal.shade300;
     } else if (combined.contains('other') || combined.contains('custom')) {
       return Colors.indigo.shade300;

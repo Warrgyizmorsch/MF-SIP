@@ -11,7 +11,8 @@ class AppFeatureGuard {
     if (!enabled && showNotice) {
       showCustomToast(
         title: 'SIP Investments Paused',
-        message: 'SIP investments are temporarily unavailable due to scheduled maintenance.',
+        message:
+            'SIP investments are temporarily unavailable due to scheduled maintenance.',
         backgroundColor: Colors.grey.shade900,
         icon: Icons.pause_circle_outline_rounded,
       );
@@ -25,7 +26,8 @@ class AppFeatureGuard {
     if (!enabled && showNotice) {
       showCustomToast(
         title: 'Redemption Paused',
-        message: 'Redemption services are temporarily unavailable due to system maintenance.',
+        message:
+            'Redemption services are temporarily unavailable due to system maintenance.',
         backgroundColor: Colors.grey.shade900,
         icon: Icons.pause_circle_outline_rounded,
       );
@@ -39,7 +41,8 @@ class AppFeatureGuard {
     if (!enabled && showNotice) {
       showCustomToast(
         title: 'Payment Gateway Unavailable',
-        message: 'Online payment services are currently undergoing maintenance.',
+        message:
+            'Online payment services are currently undergoing maintenance.',
         backgroundColor: Colors.grey.shade900,
         icon: Icons.block_rounded,
       );
@@ -53,7 +56,8 @@ class AppFeatureGuard {
     if (!enabled && showNotice) {
       showCustomToast(
         title: 'New Investments Paused',
-        message: 'New fund investments are temporarily unavailable. Please try again shortly.',
+        message:
+            'New fund investments are temporarily unavailable. Please try again shortly.',
         backgroundColor: Colors.grey.shade900,
         icon: Icons.info_outline_rounded,
       );

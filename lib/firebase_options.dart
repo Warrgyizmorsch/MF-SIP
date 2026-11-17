@@ -20,7 +20,7 @@ class DefaultFirebaseOptions {
       return web;
     }
     switch (defaultTargetPlatform) {
-      case TargetPlatform.android://
+      case TargetPlatform.android: //
         return android;
       case TargetPlatform.iOS:
         return ios;
@@ -64,8 +64,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '718782049570',
     projectId: 'mfsip-3aa54',
     storageBucket: 'mfsip-3aa54.firebasestorage.app',
-    androidClientId: '718782049570-h7ioskptkhlcn8prpdq3i1a60o8f4stf.apps.googleusercontent.com',
-    iosClientId: '718782049570-67su7tcjak5odsi9tsmbse501p0dgaq1.apps.googleusercontent.com',
+    androidClientId:
+        '718782049570-h7ioskptkhlcn8prpdq3i1a60o8f4stf.apps.googleusercontent.com',
+    iosClientId:
+        '718782049570-67su7tcjak5odsi9tsmbse501p0dgaq1.apps.googleusercontent.com',
     iosBundleId: 'com.kirtihinger.mfsip',
   );
 
@@ -75,8 +77,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '718782049570',
     projectId: 'mfsip-3aa54',
     storageBucket: 'mfsip-3aa54.firebasestorage.app',
-    androidClientId: '718782049570-h7ioskptkhlcn8prpdq3i1a60o8f4stf.apps.googleusercontent.com',
-    iosClientId: '718782049570-1v1dj9cscjmbhhjseaighr6pt654vt7o.apps.googleusercontent.com',
+    androidClientId:
+        '718782049570-h7ioskptkhlcn8prpdq3i1a60o8f4stf.apps.googleusercontent.com',
+    iosClientId:
+        '718782049570-1v1dj9cscjmbhhjseaighr6pt654vt7o.apps.googleusercontent.com',
     iosBundleId: 'com.example.mySip',
   );
 
@@ -89,5 +93,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'mfsip-3aa54.firebasestorage.app',
     measurementId: 'G-P86TNS2LRL',
   );
-
 }

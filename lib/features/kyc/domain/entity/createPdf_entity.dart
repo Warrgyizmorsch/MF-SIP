@@ -13,8 +13,6 @@ class CreatePdfEntity extends Equatable {
 // Mapper
 extension CreatePdfModelMapper on CreatePdfModel {
   CreatePdfEntity toEntity() {
-    return CreatePdfEntity(
-      combinedPdfUrl: combinedPdf ?? '',
-    );
+    return CreatePdfEntity(combinedPdfUrl: combinedPdf ?? '');
   }
 }

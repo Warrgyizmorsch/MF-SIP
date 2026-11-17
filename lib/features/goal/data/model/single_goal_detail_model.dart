@@ -701,7 +701,8 @@ class GoalLinkedFundModel {
       isSipCancelled: json.parse<bool>('is_sip_cancelled'),
       hasPendingSipCancellation:
           json.parse<bool>('has_pending_sip_cancellation') ?? false,
-      sipCancellationDetails: json['sip_cancellation_details'] is Map<String, dynamic>
+      sipCancellationDetails:
+          json['sip_cancellation_details'] is Map<String, dynamic>
           ? GoalSipCancellationDetailModel.fromJson(
               json['sip_cancellation_details'] as Map<String, dynamic>,
             )
@@ -713,8 +714,7 @@ class GoalLinkedFundModel {
       mfuOrderId: json.parse<int>('mfu_order_id'),
       mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
       goalId: json.parse<int>('goal_id'),
-      type:
-          json.parse<String>('type') ?? json.parse<String>('investment_type'),
+      type: json.parse<String>('type') ?? json.parse<String>('investment_type'),
       investmentType:
           json.parse<String>('investment_type') ?? json.parse<String>('type'),
       exitLoad: json.parse<String>('exit_load'),

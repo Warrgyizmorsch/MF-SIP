@@ -4,8 +4,5 @@ class RiskSubmitRequest {
 
   RiskSubmitRequest({required this.userId, required this.answers});
 
-  Map<String, dynamic> toJson() => {
-        "user_id": userId,
-        "answers": answers,
-      };
+  Map<String, dynamic> toJson() => {"user_id": userId, "answers": answers};
 }

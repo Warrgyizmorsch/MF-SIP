@@ -71,10 +71,7 @@ class AppConfigService extends GetxService {
       final network = NetworkServicesApi();
       final String url = '${Appurl.baseUrl}/api/v1/app/config';
 
-      final response = await network.getApi(
-        url,
-        isPublic: true,
-      );
+      final response = await network.getApi(url, isPublic: true);
 
       if (response != null && response is Map<String, dynamic>) {
         final configResponse = AppConfigResponseModel.fromJson(response);
@@ -83,7 +80,10 @@ class AppConfigService extends GetxService {
 
           // Cache in local storage for offline tolerance
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(_cacheKey, jsonEncode(configResponse.data.toJson()));
+          await prefs.setString(
+            _cacheKey,
+            jsonEncode(configResponse.data.toJson()),
+          );
           return configResponse.data;
         }
       }
@@ -97,7 +97,8 @@ class AppConfigService extends GetxService {
 
   // --- Convenience Getters ---
 
-  bool get isMaintenanceActive => currentConfig.value?.isMaintenanceActive ?? false;
+  bool get isMaintenanceActive =>
+      currentConfig.value?.isMaintenanceActive ?? false;
 
   bool get isForceUpdateRequired {
     final config = currentConfig.value;
@@ -105,7 +106,8 @@ class AppConfigService extends GetxService {
 
     // 1. Check server-evaluated flag first
     if (config.clientEvaluation != null) {
-      return config.clientEvaluation!.forceUpdate || !config.clientEvaluation!.isSupported;
+      return config.clientEvaluation!.forceUpdate ||
+          !config.clientEvaluation!.isSupported;
     }
 
     // 2. Client fallback: compare current version with minimumVersion
@@ -132,18 +134,26 @@ class AppConfigService extends GetxService {
 
   String? get storeUrl => currentConfig.value?.currentStoreUrl;
 
-  bool isFeatureEnabled(String key) => currentConfig.value?.isFeatureEnabled(key) ?? true;
+  bool isFeatureEnabled(String key) =>
+      currentConfig.value?.isFeatureEnabled(key) ?? true;
 
   bool get isSipEnabled => currentConfig.value?.isSipEnabled ?? true;
   bool get isRedeemEnabled => currentConfig.value?.isRedeemEnabled ?? true;
   bool get isPaymentEnabled => currentConfig.value?.isPaymentEnabled ?? true;
-  bool get isNewInvestmentEnabled => currentConfig.value?.isNewInvestmentEnabled ?? true;
+  bool get isNewInvestmentEnabled =>
+      currentConfig.value?.isNewInvestmentEnabled ?? true;
 
   /// Compares semantic versions (e.g. 1.0.0 vs 1.2.0)
   static bool isVersionOlder(String current, String target) {
     try {
-      final currentParts = current.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-      final targetParts = target.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+      final currentParts = current
+          .split('.')
+          .map((e) => int.tryParse(e) ?? 0)
+          .toList();
+      final targetParts = target
+          .split('.')
+          .map((e) => int.tryParse(e) ?? 0)
+          .toList();
       for (var i = 0; i < 3; i++) {
         final c = i < currentParts.length ? currentParts[i] : 0;
         final t = i < targetParts.length ? targetParts[i] : 0;

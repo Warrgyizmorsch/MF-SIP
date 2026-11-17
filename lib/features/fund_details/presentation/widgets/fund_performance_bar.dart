@@ -10,13 +10,8 @@ import '../../../../core/utils/helper/helpers.dart';
 import '../../data/models/return_model.dart';
 import '../controllers/chartInvestment_controller.dart';
 
-
 class YearlyReturnsChart extends StatelessWidget {
-  const YearlyReturnsChart({
-    super.key,
-    this.height,
-    required this.yearlyData,
-  });
+  const YearlyReturnsChart({super.key, this.height, required this.yearlyData});
 
   final double? height;
   final List<ReturnRow> yearlyData;
@@ -43,7 +38,7 @@ class YearlyReturnsChart extends StatelessWidget {
 
             // Get the data for the active period
             final selectedData = yearlyData.firstWhere(
-                  (e) => e.period == selectedPeriod,
+              (e) => e.period == selectedPeriod,
               orElse: () => yearlyData.first,
             );
 
@@ -73,22 +68,29 @@ class YearlyReturnsChart extends StatelessWidget {
                 borderData: FlBorderData(show: false),
 
                 titlesData: FlTitlesData(
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 60,
                       getTitlesWidget: (value, _) {
                         int index = value.toInt();
-                        if (index < 0 || index >= xLabels.length) return const SizedBox.shrink();
+                        if (index < 0 || index >= xLabels.length)
+                          return const SizedBox.shrink();
 
                         final percent = returnPercents[index];
-                        final totalAmount = currentInv + (currentInv * percent / 100);
+                        final totalAmount =
+                            currentInv + (currentInv * percent / 100);
 
                         // Helper function to format 120000 to 1.2L
-
 
                         return Padding(
                           padding: const EdgeInsets.only(top: 10.0),
@@ -97,14 +99,17 @@ class YearlyReturnsChart extends StatelessWidget {
                             children: [
                               Text(
                                 formatCurrency(totalAmount),
-                                style: const  TextStyle(fontFamily: FontFamily.medium,
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   color: Colors.green,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
-                              ), Text(
-                        "${returnPercents[index].toStringAsFixed(2)}%",
-                                style: const  TextStyle(fontFamily: FontFamily.medium,
+                              ),
+                              Text(
+                                "${returnPercents[index].toStringAsFixed(2)}%",
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   color: Colors.green,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -112,7 +117,11 @@ class YearlyReturnsChart extends StatelessWidget {
                               ),
                               Text(
                                 xLabels[index],
-                                style:  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 10),
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  color: Colors.grey.shade600,
+                                  fontSize: 10,
+                                ),
                               ),
                             ],
                           ),
@@ -137,7 +146,11 @@ class YearlyReturnsChart extends StatelessWidget {
                           // Investment Base (Yellow Segment)
                           BarChartRodStackItem(0, currentInv, Ucolors.primary),
                           // Gain Segment (Green Segment)
-                          BarChartRodStackItem(currentInv, totalValueInRupees, Ucolors.blue),
+                          BarChartRodStackItem(
+                            currentInv,
+                            totalValueInRupees,
+                            Ucolors.blue,
+                          ),
                         ],
                       ),
                     ],
@@ -157,7 +170,7 @@ class YearlyReturnsChart extends StatelessWidget {
         Obx(() {
           final currentInv = controller.investment.value;
           final selectedData = yearlyData.firstWhere(
-                (e) => e.period == controller.selectedPeriod.value,
+            (e) => e.period == controller.selectedPeriod.value,
             orElse: () => yearlyData.first,
           );
 
@@ -172,27 +185,56 @@ class YearlyReturnsChart extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Invested", style:  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 10)),
-                    Text(isLoss ? "Loss" : "Gain", style: const  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 10)),
+                    const Text(
+                      "Invested",
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Colors.grey,
+                        fontSize: 10,
+                      ),
+                    ),
+                    Text(
+                      isLoss ? "Loss" : "Gain",
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Colors.grey,
+                        fontSize: 10,
+                      ),
+                    ),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("₹${currentInv.toStringAsFixed(0)}",
-                        style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 14, fontWeight: FontWeight.bold)),
+                    Text(
+                      "₹${currentInv.toStringAsFixed(0)}",
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text("₹${gainAmount.toStringAsFixed(2)}",
-                            style:  TextStyle(fontFamily: FontFamily.medium,
-                                color: isLoss ? Colors.red : Colors.green,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14
-                            )),
-                        Text("(${selectedData.scheme.toStringAsFixed(2)}%)",
-                            style:  TextStyle(fontFamily: FontFamily.medium,color: isLoss ? Colors.red : Colors.green, fontSize: 12)),
+                        Text(
+                          "₹${gainAmount.toStringAsFixed(2)}",
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: isLoss ? Colors.red : Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          "(${selectedData.scheme.toStringAsFixed(2)}%)",
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: isLoss ? Colors.red : Colors.green,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -202,42 +244,29 @@ class YearlyReturnsChart extends StatelessWidget {
           );
         }),
 
-
-
         /// 4. SLIDER
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Obx(() => SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: const Color(0xFF66BB6A),
-              thumbColor: Colors.orange,
-              trackHeight: 2,
+          child: Obx(
+            () => SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: const Color(0xFF66BB6A),
+                thumbColor: Colors.orange,
+                trackHeight: 2,
+              ),
+              child: Slider(
+                value: controller.investment.value,
+                min: controller.minInvestment,
+                max: controller.maxInvestment,
+                onChanged: (val) => controller.investment.value = val,
+              ),
             ),
-            child: Slider(
-              value: controller.investment.value,
-              min: controller.minInvestment,
-              max: controller.maxInvestment,
-              onChanged: (val) => controller.investment.value = val,
-            ),
-          )),
+          ),
         ),
       ],
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // class YearlyReturnsChart extends StatelessWidget {
 //   const YearlyReturnsChart({super.key, this.height, required this.yearlyData});

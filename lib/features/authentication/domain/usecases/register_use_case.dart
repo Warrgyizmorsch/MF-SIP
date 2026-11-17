@@ -1,5 +1,3 @@
-
-
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 
@@ -12,7 +10,9 @@ class RegisterUseCase {
 
   RegisterUseCase(this.authRepository);
 
-  Future<Either<Result<RegisterResponseEntity>, ApiError>> call(Map<String, dynamic> data) async {
+  Future<Either<Result<RegisterResponseEntity>, ApiError>> call(
+    Map<String, dynamic> data,
+  ) async {
     return await authRepository.registerUser(data);
   }
 }

@@ -19,9 +19,7 @@ class AppNotificationModel {
 
   //  ADD THIS
   Map<String, dynamic> toJson() {
-    return {
-      "result": result?.toJson(),
-    };
+    return {"result": result?.toJson()};
   }
 
   AppNotificationEntity toEntity() {
@@ -58,6 +56,7 @@ class AppNotificationModel {
     return decoded.map((e) => AppNotificationModel.fromJson(e)).toList();
   }
 }
+
 class _NotificationResultModel {
   final String? id;
   final String? title;
@@ -78,9 +77,7 @@ class _NotificationResultModel {
       id: json['id']?.toString(),
       title: json['title'],
       body: json['body'],
-      time: json['time'] != null
-          ? DateTime.tryParse(json['time'])
-          : null,
+      time: json['time'] != null ? DateTime.tryParse(json['time']) : null,
       isRead: json['isRead'] ?? false,
     );
   }

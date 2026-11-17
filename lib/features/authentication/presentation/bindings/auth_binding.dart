@@ -39,14 +39,10 @@ class AuthBinding extends Bindings {
       () => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()),
     );
     Get.lazyPut<FcmDeviceTokenUseCase>(
-          () => FcmDeviceTokenUseCase(
-        Get.find<AuthRepository>(),
-      ),
+      () => FcmDeviceTokenUseCase(Get.find<AuthRepository>()),
     );
     Get.lazyPut<GoogleSignInUseCase>(
-          () => GoogleSignInUseCase(
-        Get.find<AuthRepository>(),
-      ),
+      () => GoogleSignInUseCase(Get.find<AuthRepository>()),
     );
     // 4. Wrapper Use Case (Depends on LoginUseCase)
     // Get.lazyPut(
@@ -67,7 +63,7 @@ class AuthBinding extends Bindings {
         sendOtpUseCase: Get.find<SendOtpUseCase>(),
         verifyOtpUseCase: Get.find<VerifyOtpUseCase>(),
         fcmDeviceTokenUseCase: Get.find<FcmDeviceTokenUseCase>(),
-        googleSignInUseCase: Get.find<GoogleSignInUseCase>()
+        googleSignInUseCase: Get.find<GoogleSignInUseCase>(),
       ),
       permanent: true,
     );

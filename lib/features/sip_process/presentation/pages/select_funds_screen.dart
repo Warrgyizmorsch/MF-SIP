@@ -167,7 +167,9 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           Obx(
             () => _buildProfileDetailCard(
               icon: Icons.money,
-              title: controller.isLumpsum.value ? "Lumpsum Amount" : "Monthly SIP",
+              title: controller.isLumpsum.value
+                  ? "Lumpsum Amount"
+                  : "Monthly SIP",
               value: controller.formatCurrency(controller.amount.value),
             ),
           ),
@@ -328,8 +330,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               color: isPaused
                   ? Colors.grey.shade50
                   : (isSelected
-                      ? Ucolors.primary.withValues(alpha: 0.04)
-                      : Colors.white),
+                        ? Ucolors.primary.withValues(alpha: 0.04)
+                        : Colors.white),
               border: Border.all(
                 color: isPaused
                     ? Colors.grey.shade300
@@ -405,8 +407,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                               !canPurchase
                                   ? "Paused"
                                   : (controller.isLumpsum.value
-                                      ? "Lumpsum Paused"
-                                      : "SIP Paused"),
+                                        ? "Lumpsum Paused"
+                                        : "SIP Paused"),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -456,223 +458,233 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       ),
                   ],
                 ),
-            const SizedBox(height: 4),
+                const SizedBox(height: 4),
 
-            // --- 2. Middle Row: AMC Logo & Fund Name ---
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ClipOval(
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CustomCachedImage(
-                      imageUrl: '${Appurl.baseUrl}${fund.amc?.amcLogoUrl}',
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    fund.baseSchemeName ?? "Unknown Fund",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF142438),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-
-            // --- 3. MOVED: Dashed Line Row Leading into Returns (Matches image_71e69a.png) ---
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: DashedLine(color: Colors.grey.shade300),
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.circle,
-                            color: getRiskMeter(fund.riskLevel).color,
-                            size: 10,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            fund.riskLevel ?? "N/A",
-                            style: AppTextStyles.bodySmall(
-                              color: getRiskMeter(fund.riskLevel).color,
-                              size: 11,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          const Icon(Icons.star, color: Colors.amber, size: 14),
-                          const SizedBox(width: 4),
-                          Text(
-                            "4.0 Rating",
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                // --- 2. Middle Row: AMC Logo & Fund Name ---
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      "$returnVal%",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: (double.tryParse(returnVal) ?? 0.0) < 0
-                            ? Colors.red
-                            : Colors.green,
+                    ClipOval(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CustomCachedImage(
+                          imageUrl: '${Appurl.baseUrl}${fund.amc?.amcLogoUrl}',
+                        ),
                       ),
                     ),
-                    Text(
-                      "$returnLabel RETURNS",
-                      style: const TextStyle(
-                        fontSize: 9,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.3,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        fund.baseSchemeName ?? "Unknown Fund",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF142438),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 4),
+                const SizedBox(height: 4),
 
-            // --- 5. Bottom Row: Contextual Amount Input Box (Cleaned up style) ---
-            if (isSelected) ...[
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Amount in this fund (₹)",
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade500,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 120,
-                    child: CustomTextField(
-                      controller: textController,
-                      validationType: ValidationType.custom,
-                      keyboardType: TextInputType.number,
-                      height: 40, // Reduced to clean 40px bounding box
-                      borderRadius: 8,
-                      bgColor: const Color(
-                        0xFFF1F5F9,
-                      ), // Perfectly smooth light grey/blue backdrop tint
-                      borderColor: const Color(0xFFCBD5E1),
-                      focusedBorderColor: Ucolors.primary,
-                      onChanged: (val) => controller.updateFundAmount(
-                        fund.schemeCode ?? "",
-                        val,
-                      ),
-                      customValidator: (value) {
-                        if (value == null || value.isEmpty) return "Required";
-                        final enteredAmount = int.tryParse(value) ?? 0;
-                        final minAmount = controller.isLumpsum.value
-                            ? (fund.minLumpsum ?? 1000)
-                            : (fund.minSipAmount ?? 500);
-                        if (enteredAmount < minAmount) {
-                          return "Min. ₹$minAmount";
-                        }
-                        if (enteredAmount % 100 != 0) return "Multiple of ₹100";
-                        return null;
-                      },
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                // --- 3. MOVED: Dashed Line Row Leading into Returns (Matches image_71e69a.png) ---
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
                         children: [
-                          // Vertical splitting separator line
-                          Container(
-                            width: 1,
-                            height: 20,
-                            color: const Color(0xFFCBD5E1),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: DashedLine(color: Colors.grey.shade300),
                           ),
-                          const SizedBox(width: 4),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
+                          Row(
                             children: [
-                              // Increment button (+100)
-                              InkWell(
-                                onTap: () {
-                                  int current =
-                                      int.tryParse(textController.text) ?? 0;
-                                  int nextValue = current + 100;
-                                  textController.text = nextValue.toString();
-                                  controller.updateFundAmount(
-                                    fund.schemeCode ?? "",
-                                    nextValue.toString(),
-                                  );
-                                },
-                                child: const Icon(
-                                  Icons.keyboard_arrow_up_rounded,
+                              Icon(
+                                Icons.circle,
+                                color: getRiskMeter(fund.riskLevel).color,
+                                size: 10,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                fund.riskLevel ?? "N/A",
+                                style: AppTextStyles.bodySmall(
+                                  color: getRiskMeter(fund.riskLevel).color,
                                   size: 11,
-                                  color: Color(0xFF64748B),
                                 ),
                               ),
-                              const SizedBox(height: 1),
-                              // Decrement button (-100)
-                              InkWell(
-                                onTap: () {
-                                  int current =
-                                      int.tryParse(textController.text) ?? 0;
-                                  int minLimit = fund.minSipAmount ?? 500;
-                                  int nextValue = current - 100;
-                                  if (nextValue >= minLimit) {
-                                    textController.text = nextValue.toString();
-                                    controller.updateFundAmount(
-                                      fund.schemeCode ?? "",
-                                      nextValue.toString(),
-                                    );
-                                  }
-                                },
-                                child: const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  size: 11,
-                                  color: Color(0xFF64748B),
+                              const SizedBox(width: 16),
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "4.0 Rating",
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(width: 8),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "$returnVal%",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: (double.tryParse(returnVal) ?? 0.0) < 0
+                                ? Colors.red
+                                : Colors.green,
+                          ),
+                        ),
+                        Text(
+                          "$returnLabel RETURNS",
+                          style: const TextStyle(
+                            fontSize: 9,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+
+                // --- 5. Bottom Row: Contextual Amount Input Box (Cleaned up style) ---
+                if (isSelected) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Amount in this fund (₹)",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 120,
+                        child: CustomTextField(
+                          controller: textController,
+                          validationType: ValidationType.custom,
+                          keyboardType: TextInputType.number,
+                          height: 40, // Reduced to clean 40px bounding box
+                          borderRadius: 8,
+                          bgColor: const Color(
+                            0xFFF1F5F9,
+                          ), // Perfectly smooth light grey/blue backdrop tint
+                          borderColor: const Color(0xFFCBD5E1),
+                          focusedBorderColor: Ucolors.primary,
+                          onChanged: (val) => controller.updateFundAmount(
+                            fund.schemeCode ?? "",
+                            val,
+                          ),
+                          customValidator: (value) {
+                            if (value == null || value.isEmpty)
+                              return "Required";
+                            final enteredAmount = int.tryParse(value) ?? 0;
+                            final minAmount = controller.isLumpsum.value
+                                ? (fund.minLumpsum ?? 1000)
+                                : (fund.minSipAmount ?? 500);
+                            if (enteredAmount < minAmount) {
+                              return "Min. ₹$minAmount";
+                            }
+                            if (enteredAmount % 100 != 0)
+                              return "Multiple of ₹100";
+                            return null;
+                          },
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Vertical splitting separator line
+                              Container(
+                                width: 1,
+                                height: 20,
+                                color: const Color(0xFFCBD5E1),
+                              ),
+                              const SizedBox(width: 4),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Increment button (+100)
+                                  InkWell(
+                                    onTap: () {
+                                      int current =
+                                          int.tryParse(textController.text) ??
+                                          0;
+                                      int nextValue = current + 100;
+                                      textController.text = nextValue
+                                          .toString();
+                                      controller.updateFundAmount(
+                                        fund.schemeCode ?? "",
+                                        nextValue.toString(),
+                                      );
+                                    },
+                                    child: const Icon(
+                                      Icons.keyboard_arrow_up_rounded,
+                                      size: 11,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  // Decrement button (-100)
+                                  InkWell(
+                                    onTap: () {
+                                      int current =
+                                          int.tryParse(textController.text) ??
+                                          0;
+                                      int minLimit = fund.minSipAmount ?? 500;
+                                      int nextValue = current - 100;
+                                      if (nextValue >= minLimit) {
+                                        textController.text = nextValue
+                                            .toString();
+                                        controller.updateFundAmount(
+                                          fund.schemeCode ?? "",
+                                          nextValue.toString(),
+                                        );
+                                      }
+                                    },
+                                    child: const Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      size: 11,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ],
-          ],
+              ],
+            ),
+          ),
         ),
-      ),
-    ),
-  );
-});
-}
+      );
+    });
+  }
 
   // --- CONTEXT CALCULATOR STATS BAR ---
   Widget _buildInvestedAmountRow() {
@@ -1079,9 +1091,12 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                             final isSelected = controller.isSelected(
                               fund.schemeCode ?? "",
                             );
-                            final bool canPurchase = fund.isPurchaseAllowed != false;
-                            final bool canInvestInMode = controller.isLumpsum.value
-                                ? (canPurchase && fund.isLumpsumAllowed != false)
+                            final bool canPurchase =
+                                fund.isPurchaseAllowed != false;
+                            final bool canInvestInMode =
+                                controller.isLumpsum.value
+                                ? (canPurchase &&
+                                      fund.isLumpsumAllowed != false)
                                 : (canPurchase && fund.isSipAllowed != false);
                             final bool isPaused = !canInvestInMode;
 
@@ -1100,23 +1115,24 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                   right: 28,
                                   child: IgnorePointer(
                                     child: AnimatedContainer(
-                                      duration:
-                                          const Duration(milliseconds: 200),
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
                                       width: 24,
                                       height: 24,
                                       decoration: BoxDecoration(
                                         color: isPaused
                                             ? Colors.grey.shade200
                                             : (isSelected
-                                                ? Ucolors.primary
-                                                : Colors.white),
+                                                  ? Ucolors.primary
+                                                  : Colors.white),
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(
                                           color: isPaused
                                               ? Colors.grey.shade400
                                               : (isSelected
-                                                  ? Ucolors.primary
-                                                  : Colors.grey.shade400),
+                                                    ? Ucolors.primary
+                                                    : Colors.grey.shade400),
                                           width: 1.5,
                                         ),
                                         boxShadow: [
@@ -1136,12 +1152,12 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                               color: Colors.grey.shade600,
                                             )
                                           : (isSelected
-                                              ? const Icon(
-                                                  Icons.check,
-                                                  size: 16,
-                                                  color: Colors.white,
-                                                )
-                                              : null),
+                                                ? const Icon(
+                                                    Icons.check,
+                                                    size: 16,
+                                                    color: Colors.white,
+                                                  )
+                                                : null),
                                     ),
                                   ),
                                 ),
@@ -1193,8 +1209,6 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
       mutualController.handleRefresh();
     });
   }
-
-  
 
   Widget _buildWebBottomActions() {
     return Obx(() {
@@ -1520,8 +1534,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               color: isPaused
                   ? Colors.grey.shade50
                   : (isSelected
-                      ? Ucolors.primary.withValues(alpha: 0.04)
-                      : Colors.white),
+                        ? Ucolors.primary.withValues(alpha: 0.04)
+                        : Colors.white),
               border: Border.all(
                 color: isPaused
                     ? Colors.grey.shade300
@@ -1564,9 +1578,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     Expanded(
                       child: Text(
                         fund.baseSchemeName ?? "Unknown Fund",
-                        style: AppTextStyles.bodyMediumSemiBold(
-                          size: 14,
-                        ),
+                        style: AppTextStyles.bodyMediumSemiBold(size: 14),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -1598,8 +1610,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                               !canPurchase
                                   ? "Paused"
                                   : (controller.isLumpsum.value
-                                      ? "Lumpsum Paused"
-                                      : "SIP Paused"),
+                                        ? "Lumpsum Paused"
+                                        : "SIP Paused"),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -1645,132 +1657,133 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     ],
                   ],
                 ),
-              const SizedBox(height: 12),
-              DashedLine(color: Colors.grey.shade300),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  if (isSelected) ...[
-                    // Details for selected state
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.circle,
-                              color: getRiskMeter(fund.riskLevel).color,
-                              size: 10,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              fund.riskLevel ?? "N/A",
-                              style: AppTextStyles.bodySmall(
+                const SizedBox(height: 12),
+                DashedLine(color: Colors.grey.shade300),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    if (isSelected) ...[
+                      // Details for selected state
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.circle,
                                 color: getRiskMeter(fund.riskLevel).color,
-                                size: 12,
+                                size: 10,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Text(
-                              "Returns ($returnLabel): ",
-                              style: AppTextStyles.bodySmall(
-                                color: Colors.grey.shade700,
-                                size: 12,
+                              const SizedBox(width: 6),
+                              Text(
+                                fund.riskLevel ?? "N/A",
+                                style: AppTextStyles.bodySmall(
+                                  color: getRiskMeter(fund.riskLevel).color,
+                                  size: 12,
+                                ),
                               ),
-                            ),
-                            Text(
-                              "$returnVal%",
-                              style: AppTextStyles.bodySmallBold(
-                                color: retNum < 0 ? Colors.red : Colors.green,
-                                size: 12,
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Text(
+                                "Returns ($returnLabel): ",
+                                style: AppTextStyles.bodySmall(
+                                  color: Colors.grey.shade700,
+                                  size: 12,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: CustomTextField(
-                        validationType: ValidationType.custom,
-                        keyboardType: TextInputType.number,
-                        height: 48, // Slightly taller for web
-                        controller: controller.getTextController(
-                          fund.schemeCode ?? "",
-                        ),
-                        onChanged: (val) => controller.updateFundAmount(
-                          fund.schemeCode ?? "",
-                          val,
-                        ),
-                        customValidator: (value) {
-                          if (value == null || value.isEmpty) return "Required";
-                          final enteredAmount = int.tryParse(value) ?? 0;
-                          final minAmount = controller.isLumpsum.value
-                              ? (fund.minLumpsum ?? 1000)
-                              : (fund.minSipAmount ?? 500);
-                          if (enteredAmount < minAmount) {
-                            return "Min. ₹$minAmount required";
-                          }
-                          if (enteredAmount % 100 != 0) {
-                            return "Must be multiple of ₹100";
-                          }
-                          return null;
-                        },
+                              Text(
+                                "$returnVal%",
+                                style: AppTextStyles.bodySmallBold(
+                                  color: retNum < 0 ? Colors.red : Colors.green,
+                                  size: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                  if (!isSelected) ...[
-                    // Details for unselected state
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.circle,
-                          color: getRiskMeter(fund.riskLevel).color,
-                          size: 10,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: CustomTextField(
+                          validationType: ValidationType.custom,
+                          keyboardType: TextInputType.number,
+                          height: 48, // Slightly taller for web
+                          controller: controller.getTextController(
+                            fund.schemeCode ?? "",
+                          ),
+                          onChanged: (val) => controller.updateFundAmount(
+                            fund.schemeCode ?? "",
+                            val,
+                          ),
+                          customValidator: (value) {
+                            if (value == null || value.isEmpty)
+                              return "Required";
+                            final enteredAmount = int.tryParse(value) ?? 0;
+                            final minAmount = controller.isLumpsum.value
+                                ? (fund.minLumpsum ?? 1000)
+                                : (fund.minSipAmount ?? 500);
+                            if (enteredAmount < minAmount) {
+                              return "Min. ₹$minAmount required";
+                            }
+                            if (enteredAmount % 100 != 0) {
+                              return "Must be multiple of ₹100";
+                            }
+                            return null;
+                          },
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          fund.riskLevel ?? "N/A",
-                          style: AppTextStyles.bodySmall(
+                      ),
+                    ],
+                    if (!isSelected) ...[
+                      // Details for unselected state
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.circle,
                             color: getRiskMeter(fund.riskLevel).color,
-                            size: 12,
+                            size: 10,
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          "Returns ($returnLabel): ",
-                          style: AppTextStyles.bodySmall(
-                            color: Colors.grey.shade700,
-                            size: 12,
+                          const SizedBox(width: 4),
+                          Text(
+                            fund.riskLevel ?? "N/A",
+                            style: AppTextStyles.bodySmall(
+                              color: getRiskMeter(fund.riskLevel).color,
+                              size: 12,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "$returnVal%",
-                          style: AppTextStyles.bodySmallBold(
-                            color: retNum < 0 ? Colors.red : Colors.green,
-                            size: 12,
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            "Returns ($returnLabel): ",
+                            style: AppTextStyles.bodySmall(
+                              color: Colors.grey.shade700,
+                              size: 12,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          Text(
+                            "$returnVal%",
+                            style: AppTextStyles.bodySmallBold(
+                              color: retNum < 0 ? Colors.red : Colors.green,
+                              size: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  });
-}
+      );
+    });
+  }
 }
 
 class _FilterChip extends StatelessWidget {
@@ -1811,4 +1824,3 @@ class _FilterChip extends StatelessWidget {
     );
   }
 }
-

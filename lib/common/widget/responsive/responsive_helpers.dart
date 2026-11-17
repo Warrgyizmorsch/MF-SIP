@@ -90,11 +90,7 @@ class ResponsiveContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
 
-  const ResponsiveContainer({
-    super.key,
-    required this.child,
-    this.padding,
-  });
+  const ResponsiveContainer({super.key, required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {

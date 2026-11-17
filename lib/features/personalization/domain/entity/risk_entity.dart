@@ -11,5 +11,9 @@ class RiskQuestion {
   final String question;
   final List<RiskOption> options;
 
-  RiskQuestion({required this.id, required this.question, required this.options});
+  RiskQuestion({
+    required this.id,
+    required this.question,
+    required this.options,
+  });
 }

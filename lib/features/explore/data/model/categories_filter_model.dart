@@ -4,12 +4,7 @@ class FundCategoryModel {
   String? msg;
   List<String>? data; // Mapped from JSON key "list"
 
-  FundCategoryModel({
-    this.status,
-    this.statusMsg,
-    this.msg,
-    this.data,
-  });
+  FundCategoryModel({this.status, this.statusMsg, this.msg, this.data});
 
   // Factory constructor for creating a new instance from a map
   factory FundCategoryModel.fromJson(Map<String, dynamic> json) {

@@ -21,9 +21,9 @@ extension FundCategoryModelX on FundCategoryModel {
     return FundCategoryEntity(
       status: status,
       // Uses 'msg' from API, falls back to 'statusMsg' or empty string
-      message: msg ?? statusMsg ?? '', 
+      message: msg ?? statusMsg ?? '',
       // 'data' in your model maps to 'list' from JSON
-      categories: data ?? [], 
+      categories: data ?? [],
     );
   }
 }

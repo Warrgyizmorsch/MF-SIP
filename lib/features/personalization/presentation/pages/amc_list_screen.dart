@@ -100,10 +100,7 @@ class _AmcListScreenState extends State<AmcListScreen> {
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
-      appBar: CustomAppBarNormal(
-        title: 'AMCs, SEBI & AMFI',
-        backIcon: true,
-      ),
+      appBar: CustomAppBarNormal(title: 'AMCs, SEBI & AMFI', backIcon: true),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -251,13 +248,14 @@ class _AmcListScreenState extends State<AmcListScreen> {
                       }
 
                       final query = _searchQuery.value.toLowerCase();
-                      final List<FundHouseItemEntity> amcs =
-                          controller.fundlist.where((item) {
-                        if (query.isEmpty) return true;
-                        final name = item.amcName?.toLowerCase() ?? '';
-                        final code = item.amcCode?.toLowerCase() ?? '';
-                        return name.contains(query) || code.contains(query);
-                      }).toList();
+                      final List<FundHouseItemEntity> amcs = controller.fundlist
+                          .where((item) {
+                            if (query.isEmpty) return true;
+                            final name = item.amcName?.toLowerCase() ?? '';
+                            final code = item.amcCode?.toLowerCase() ?? '';
+                            return name.contains(query) || code.contains(query);
+                          })
+                          .toList();
 
                       if (amcs.isEmpty) {
                         return Center(
@@ -293,7 +291,8 @@ class _AmcListScreenState extends State<AmcListScreen> {
                           separatorBuilder: (_, __) => const Gap(12),
                           itemBuilder: (context, index) {
                             final item = amcs[index];
-                            final hasUrl = item.websiteUrl != null &&
+                            final hasUrl =
+                                item.websiteUrl != null &&
                                 item.websiteUrl!.trim().isNotEmpty;
 
                             return Container(
@@ -306,8 +305,7 @@ class _AmcListScreenState extends State<AmcListScreen> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        Colors.black.withValues(alpha: 0.02),
+                                    color: Colors.black.withValues(alpha: 0.02),
                                     blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   ),
@@ -334,16 +332,18 @@ class _AmcListScreenState extends State<AmcListScreen> {
                                           padding: const EdgeInsets.all(4),
                                           decoration: BoxDecoration(
                                             color: Colors.grey.shade50,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
                                             border: Border.all(
                                               color: Colors.grey.shade200,
                                             ),
                                           ),
                                           alignment: Alignment.center,
                                           child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                             child: CustomCachedImage(
                                               imageUrl: item.amcLogoUrl,
                                             ),
@@ -392,12 +392,13 @@ class _AmcListScreenState extends State<AmcListScreen> {
                                                         color: hasUrl
                                                             ? Ucolors.primary
                                                             : Colors
-                                                                .grey.shade400,
+                                                                  .grey
+                                                                  .shade400,
                                                         decoration: hasUrl
                                                             ? TextDecoration
-                                                                .underline
+                                                                  .underline
                                                             : TextDecoration
-                                                                .none,
+                                                                  .none,
                                                         decorationColor:
                                                             Ucolors.primary,
                                                       ),
@@ -418,8 +419,9 @@ class _AmcListScreenState extends State<AmcListScreen> {
                                           Container(
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color: Ucolors.primary
-                                                  .withValues(alpha: 0.08),
+                                              color: Ucolors.primary.withValues(
+                                                alpha: 0.08,
+                                              ),
                                               shape: BoxShape.circle,
                                             ),
                                             child: const Icon(
@@ -483,11 +485,7 @@ class _AmcListScreenState extends State<AmcListScreen> {
                     color: Ucolors.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: Ucolors.primary,
-                  ),
+                  child: Icon(icon, size: 20, color: Ucolors.primary),
                 ),
                 const Gap(10),
                 Expanded(

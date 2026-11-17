@@ -14,15 +14,13 @@ class TicketRepoImpl implements TicketRepo {
   TicketRepoImpl(this.remoteDs);
 
   @override
-  Future<Either<Result<List<TicketCategoryEntity>>, ApiError>> getCategories() async {
+  Future<Either<Result<List<TicketCategoryEntity>>, ApiError>>
+  getCategories() async {
     final result = await remoteDs.getCategories();
-    return result.fold(
-      (success) {
-        final list = success.data?.map((m) => m.toEntity()).toList() ?? [];
-        return Left(Result.success(list));
-      },
-      (error) => Right(error),
-    );
+    return result.fold((success) {
+      final list = success.data?.map((m) => m.toEntity()).toList() ?? [];
+      return Left(Result.success(list));
+    }, (error) => Right(error));
   }
 
   @override
@@ -36,15 +34,12 @@ class TicketRepoImpl implements TicketRepo {
       page: page,
       perPage: perPage,
     );
-    return result.fold(
-      (success) {
-        if (success.data != null) {
-          return Left(Result.success(success.data!.toEntity()));
-        }
-        return Right(ApiError(message: 'No ticket data returned'));
-      },
-      (error) => Right(error),
-    );
+    return result.fold((success) {
+      if (success.data != null) {
+        return Left(Result.success(success.data!.toEntity()));
+      }
+      return Right(ApiError(message: 'No ticket data returned'));
+    }, (error) => Right(error));
   }
 
   @override
@@ -62,29 +57,25 @@ class TicketRepoImpl implements TicketRepo {
       priority: priority,
       attachments: attachments,
     );
-    return result.fold(
-      (success) {
-        if (success.data != null) {
-          return Left(Result.success(success.data!.toEntity()));
-        }
-        return Right(ApiError(message: 'Failed to create ticket'));
-      },
-      (error) => Right(error),
-    );
+    return result.fold((success) {
+      if (success.data != null) {
+        return Left(Result.success(success.data!.toEntity()));
+      }
+      return Right(ApiError(message: 'Failed to create ticket'));
+    }, (error) => Right(error));
   }
 
   @override
-  Future<Either<Result<TicketDetailEntity>, ApiError>> getTicketDetail(int ticketId) async {
+  Future<Either<Result<TicketDetailEntity>, ApiError>> getTicketDetail(
+    int ticketId,
+  ) async {
     final result = await remoteDs.getTicketDetail(ticketId);
-    return result.fold(
-      (success) {
-        if (success.data != null) {
-          return Left(Result.success(success.data!.toEntity()));
-        }
-        return Right(ApiError(message: 'Ticket details not found'));
-      },
-      (error) => Right(error),
-    );
+    return result.fold((success) {
+      if (success.data != null) {
+        return Left(Result.success(success.data!.toEntity()));
+      }
+      return Right(ApiError(message: 'Ticket details not found'));
+    }, (error) => Right(error));
   }
 
   @override
@@ -98,19 +89,19 @@ class TicketRepoImpl implements TicketRepo {
       message: message,
       attachments: attachments,
     );
-    return result.fold(
-      (success) {
-        if (success.data != null) {
-          return Left(Result.success(success.data!.toEntity()));
-        }
-        return Right(ApiError(message: 'Failed to send reply'));
-      },
-      (error) => Right(error),
-    );
+    return result.fold((success) {
+      if (success.data != null) {
+        return Left(Result.success(success.data!.toEntity()));
+      }
+      return Right(ApiError(message: 'Failed to send reply'));
+    }, (error) => Right(error));
   }
 
   @override
-  Future<Either<Result<bool>, ApiError>> closeTicket(int ticketId, {String? reason}) async {
+  Future<Either<Result<bool>, ApiError>> closeTicket(
+    int ticketId, {
+    String? reason,
+  }) async {
     final result = await remoteDs.closeTicket(ticketId, reason: reason);
     return result.fold(
       (success) => Left(Result.success(success.data ?? true)),
@@ -119,7 +110,10 @@ class TicketRepoImpl implements TicketRepo {
   }
 
   @override
-  Future<Either<Result<bool>, ApiError>> reopenTicket(int ticketId, {String? reason}) async {
+  Future<Either<Result<bool>, ApiError>> reopenTicket(
+    int ticketId, {
+    String? reason,
+  }) async {
     final result = await remoteDs.reopenTicket(ticketId, reason: reason);
     return result.fold(
       (success) => Left(Result.success(success.data ?? true)),

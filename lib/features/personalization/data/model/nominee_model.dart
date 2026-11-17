@@ -92,8 +92,10 @@ class NomineeModel {
   factory NomineeModel.fromJson(Map<String, dynamic> json) {
     return NomineeModel(
       nominationLevel: json.parse<String>('nomination_level'),
-      folioNumber: json.parse<String>('folio_number') ?? json.parse<String>('folio'),
-      rtaAmcCode: json.parse<String>('rta_amc_code') ?? json.parse<String>('amc_code'),
+      folioNumber:
+          json.parse<String>('folio_number') ?? json.parse<String>('folio'),
+      rtaAmcCode:
+          json.parse<String>('rta_amc_code') ?? json.parse<String>('amc_code'),
       id: json.parse<int>('id'),
       customerId: json.parse<int>('customer_id'),
       name: json.parse<String>('name'),

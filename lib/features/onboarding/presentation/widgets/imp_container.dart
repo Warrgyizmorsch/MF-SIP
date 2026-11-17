@@ -41,7 +41,8 @@ class ImpContainer extends StatelessWidget {
             Text(
               textAlign: TextAlign.center,
               'Your Smart Personal Finance AI',
-              style: TextStyle(fontFamily: FontFamily.medium,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
                 color: Ucolors.dark,
                 fontWeight: FontWeight.w500,
                 fontSize: 18,
@@ -50,7 +51,8 @@ class ImpContainer extends StatelessWidget {
             Text(
               textAlign: TextAlign.center,
               'Companion UI Kit',
-              style: TextStyle(fontFamily: FontFamily.medium,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
                 color: Ucolors.dark,
                 fontWeight: FontWeight.w500,
                 fontSize: 18,
