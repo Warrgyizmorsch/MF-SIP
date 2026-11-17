@@ -37,7 +37,12 @@ class ImpContainer extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: h * 0.055),
-            Image.asset(UImages.imp),
+            Image.asset(
+              UImages.mfsipNewLogo,
+              // height: 60,
+              // fit: BoxFit.contain,
+              // semanticLabel: 'MF SIP logo',
+            ),
             Text(
               textAlign: TextAlign.center,
               'Your Smart Personal Finance AI',

@@ -266,7 +266,7 @@ class _SplashScreenState extends State<SplashScreen>
                               child: AnimatedBuilder(
                                 animation: _ambient,
                                 child: Image.asset(
-                                  UImages.imp,
+                                  UImages.mfsipNewLogo,
                                   width: logoWidth,
                                   height: logoWidth,
                                   fit: BoxFit.contain,
