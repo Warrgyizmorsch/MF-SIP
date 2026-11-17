@@ -266,6 +266,7 @@ class GoalSipController extends GetxController {
   ///Popular Funds Contains
   // final selectedPopularFund = <int>{}.obs;
   final selectedPopularFund = <String>{}.obs;
+  final manuallyEditedSchemeCodes = <String>{}.obs;
   // RxList<int> selectedPopularFund = <int>[].obs;
   final isDeleting = <int, bool>{}.obs;
 
@@ -811,16 +812,25 @@ class GoalSipController extends GetxController {
       if (count == 0) return;
 
       final int roundedTotal = ((lumpsumAmount.value / 100).ceil() * 100);
-      int baseAmount = ((roundedTotal / count) / 100).floor() * 100;
-      if (baseAmount <= 0) baseAmount = 100;
+      const int minAmount = 100;
 
-      final List<int> assignedAmounts = List.generate(count, (_) => baseAmount);
-
-      int totalAssigned = assignedAmounts.fold(0, (a, b) => a + b);
-      int difference = roundedTotal - totalAssigned;
-
-      if (difference != 0) {
-        assignedAmounts[count - 1] += difference;
+      final List<int> assignedAmounts;
+      if (roundedTotal >= count * minAmount) {
+        final int baseAmount =
+            ((roundedTotal / count) / minAmount).floor() * minAmount;
+        assignedAmounts = List.generate(count, (_) => baseAmount);
+        final int remainder = roundedTotal - (baseAmount * count);
+        if (remainder > 0) {
+          final int extraUnits = remainder ~/ minAmount;
+          for (int i = 0; i < extraUnits && i < count; i++) {
+            assignedAmounts[i] += minAmount;
+          }
+          final int leftover =
+              roundedTotal - assignedAmounts.fold(0, (a, b) => a + b);
+          if (leftover > 0) assignedAmounts[0] += leftover;
+        }
+      } else {
+        assignedAmounts = List.generate(count, (_) => minAmount);
       }
 
       final allFunds = mutualController.searchFund;
@@ -884,9 +894,8 @@ class GoalSipController extends GetxController {
       if (selectedFunds.isEmpty) return;
 
       final totalAmount = roundToNearest5(lumpsumAmount.value);
-      final remainingAmount = totalAmount - editedAmount;
-
-      if (remainingAmount < 0) return;
+      const int minAmount = 100;
+      manuallyEditedSchemeCodes.add(editedSchemeCode);
 
       final allFunds = mutualController.searchFund;
 
@@ -921,25 +930,54 @@ class GoalSipController extends GetxController {
         });
       }
 
-      if (remainingSchemeCodes.isNotEmpty) {
-        int perFund = roundToNearest5(
-          (remainingAmount / remainingSchemeCodes.length).round(),
-        );
+      // Preserve other manually edited funds
+      double otherEditedSum = 0;
+      final uneditedSchemeCodes = <String>[];
+      for (final schemeCode in remainingSchemeCodes) {
+        if (manuallyEditedSchemeCodes.contains(schemeCode)) {
+          final amt =
+              double.tryParse(getAmountController(schemeCode).text) ??
+              minAmount.toDouble();
+          otherEditedSum += amt;
+          final fundId = getGoalFundId(schemeCode);
+          if (fundId != null) {
+            funds.add({
+              "goal_id": savedDatabaseId.value ?? 0,
+              "order_type": "lumpsum",
+              "id": fundId,
+              "status": "pending",
+              "scheme_code": schemeCode,
+              "lumpsum_amount": amt,
+            });
+          }
+        } else {
+          uneditedSchemeCodes.add(schemeCode);
+        }
+      }
 
-        final amounts = List.generate(
-          remainingSchemeCodes.length,
-          (_) => perFund,
-        );
+      final remainingAmount = totalAmount - editedAmount - otherEditedSum;
 
-        int assigned = amounts.fold(0, (a, b) => a + b);
-        int diff = remainingAmount.round() - assigned;
+      if (uneditedSchemeCodes.isNotEmpty) {
+        final List<int> amounts;
+        if (remainingAmount >= uneditedSchemeCodes.length * minAmount) {
+          int perFund = roundToNearest5(
+            (remainingAmount / uneditedSchemeCodes.length).round(),
+          );
+          if (perFund < minAmount) perFund = minAmount;
+          amounts = List.generate(uneditedSchemeCodes.length, (_) => perFund);
 
-        if (diff != 0) {
-          amounts.last += diff;
+          int assigned = amounts.fold(0, (a, b) => a + b);
+          int diff = remainingAmount.round() - assigned;
+
+          if (diff != 0) {
+            amounts.last += diff;
+          }
+        } else {
+          amounts = List.generate(uneditedSchemeCodes.length, (_) => minAmount);
         }
 
-        for (int i = 0; i < remainingSchemeCodes.length; i++) {
-          final schemeCode = remainingSchemeCodes[i];
+        for (int i = 0; i < uneditedSchemeCodes.length; i++) {
+          final schemeCode = uneditedSchemeCodes[i];
           final amount = amounts[i];
 
           getAmountController(schemeCode).text = amount.toString();
@@ -995,15 +1033,24 @@ class GoalSipController extends GetxController {
       final allFunds = mutualController.searchFund;
       final count = selectedFunds.length;
 
-      int perFund = ((totalSip / count) / 100).floor() * 100;
-      if (perFund <= 0) perFund = 100;
-      final amounts = List.generate(count, (_) => perFund);
+      final int total = totalSip.toInt();
+      const int minAmount = 100;
 
-      int assigned = amounts.fold(0, (a, b) => a + b);
-      int diff = totalSip.toInt() - assigned;
-
-      if (diff != 0) {
-        amounts[amounts.length - 1] += diff;
+      final List<int> amounts;
+      if (total >= count * minAmount) {
+        final int perFund = ((total / count) / minAmount).floor() * minAmount;
+        amounts = List.generate(count, (_) => perFund);
+        final int remainder = total - (perFund * count);
+        if (remainder > 0) {
+          final int extraUnits = remainder ~/ minAmount;
+          for (int i = 0; i < extraUnits && i < count; i++) {
+            amounts[i] += minAmount;
+          }
+          final int leftover = total - amounts.fold(0, (a, b) => a + b);
+          if (leftover > 0) amounts[0] += leftover;
+        }
+      } else {
+        amounts = List.generate(count, (_) => minAmount);
       }
 
       final List<Map<String, dynamic>> funds = [];
@@ -1063,13 +1110,10 @@ class GoalSipController extends GetxController {
     try {
       isDistributingAmount.value = true;
 
-      final totalSip = monthlySip.value;
-      final remainingAmount = totalSip - editedAmount;
+      manuallyEditedSchemeCodes.add(editedSchemeCode);
 
-      if (remainingAmount < 0) {
-        Get.snackbar("Error", "Fund amount cannot exceed total SIP.");
-        return;
-      }
+      final totalSip = monthlySip.value;
+      const int minAmount = 100;
 
       final selectedFunds = selectedPopularFund.toList();
       final allFunds = Get.find<MutualFundController>().searchFund;
@@ -1111,25 +1155,61 @@ class GoalSipController extends GetxController {
         });
       }
 
-      if (remainingSchemeCodes.isNotEmpty) {
-        int perFund = roundToNearest5(
-          remainingAmount / remainingSchemeCodes.length,
-        );
-        final amounts = List.generate(
-          remainingSchemeCodes.length,
-          (_) => perFund,
-        );
+      // Preserve other manually edited funds
+      double otherEditedSum = 0;
+      final uneditedSchemeCodes = <String>[];
+      for (final schemeCode in remainingSchemeCodes) {
+        if (manuallyEditedSchemeCodes.contains(schemeCode)) {
+          final amt =
+              double.tryParse(getAmountController(schemeCode).text) ??
+              minAmount.toDouble();
+          otherEditedSum += amt;
+          final fundId = getGoalFundId(schemeCode);
+          if (fundId != null) {
+            funds.add({
+              "goal_id": savedDatabaseId.value ?? 0,
+              "order_type": "sip",
+              "id": fundId,
+              "status": "pending",
+              "scheme_code": schemeCode,
+              "sip_amount": amt,
+              "sip_day": selectedSipDay.value,
+              "sip_start_date": DateTime.now().toString().split(' ').first,
+              "sip_end_date": DateTime.now()
+                  .add(const Duration(days: 365 * 3))
+                  .toString()
+                  .split(' ')
+                  .first,
+            });
+          }
+        } else {
+          uneditedSchemeCodes.add(schemeCode);
+        }
+      }
 
-        int assigned = amounts.fold(0, (a, b) => a + b);
-        int diff = remainingAmount.round() - assigned;
+      final remainingAmount = totalSip - editedAmount - otherEditedSum;
 
-        if (diff != 0) {
-          amounts[amounts.length - 1] += diff;
-          amounts[amounts.length - 1] = ((amounts.last / 5.0).ceil()) * 5;
+      if (uneditedSchemeCodes.isNotEmpty) {
+        final List<int> amounts;
+        if (remainingAmount >= uneditedSchemeCodes.length * minAmount) {
+          int perFund = roundToNearest5(
+            remainingAmount / uneditedSchemeCodes.length,
+          );
+          if (perFund < minAmount) perFund = minAmount;
+          amounts = List.generate(uneditedSchemeCodes.length, (_) => perFund);
+
+          int assigned = amounts.fold(0, (a, b) => a + b);
+          int diff = remainingAmount.round() - assigned;
+
+          if (diff != 0) {
+            amounts[amounts.length - 1] += diff;
+          }
+        } else {
+          amounts = List.generate(uneditedSchemeCodes.length, (_) => minAmount);
         }
 
-        for (int i = 0; i < remainingSchemeCodes.length; i++) {
-          final schemeCode = remainingSchemeCodes[i];
+        for (int i = 0; i < uneditedSchemeCodes.length; i++) {
+          final schemeCode = uneditedSchemeCodes[i];
 
           // Update Text Field instantly
           getAmountController(schemeCode).text = amounts[i].toString();
@@ -1862,6 +1942,12 @@ class GoalSipController extends GetxController {
   void toggleFund(String name) {
     if (selectedPopularFund.contains(name)) {
       selectedPopularFund.remove(name);
+      final allFunds = Get.find<MutualFundController>().searchFund;
+      final fund = allFunds.firstWhereOrNull((f) => f.baseSchemeName == name);
+      final schemeCode = fund?.schemeCode?.toString();
+      if (schemeCode != null) {
+        manuallyEditedSchemeCodes.remove(schemeCode);
+      }
     } else {
       selectedPopularFund.add(name);
     }
@@ -1943,6 +2029,7 @@ class GoalSipController extends GetxController {
     lumpsumTotalReturn.value = 0;
     goalError.value = '';
     selectedPopularFund.clear();
+    manuallyEditedSchemeCodes.clear();
     savedGoalFunds.clear();
     amountControllers.clear();
     coverImage.value = null;

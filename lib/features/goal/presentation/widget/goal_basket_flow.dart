@@ -31,6 +31,7 @@ class GoalBasketFlow extends StatefulWidget {
 
 class GoalBasketFlowState extends State<GoalBasketFlow> {
   bool review = false, consent = false;
+  bool _amountMismatchConfirmed = false;
   final Map<String, String> _frequencies = {};
   String _frequencyKey(MutualFundListEntity fund) =>
       fund.schemeCode ?? fund.baseSchemeName ?? '';
@@ -53,7 +54,10 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
   List<MutualFundListEntity> get funds => selectedFunds;
   bool backToBasket() {
     if (!review) return false;
-    setState(() => review = false);
+    setState(() {
+      review = false;
+      _amountMismatchConfirmed = false;
+    });
     return true;
   }
 
@@ -88,6 +92,38 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
       ) ??
       0;
   double get total => funds.fold(0, (sum, f) => sum + amount(f));
+  double get _expectedGoalAmount {
+    final isLumpsum = c.savedInvestmentType.value == 'lumpsum';
+    if (isLumpsum) {
+      if (c.lumpsumAmount.value > 0) return c.lumpsumAmount.value;
+      if (c.targetAmount.value > 0) return c.targetAmount.value;
+      return 0.0;
+    } else {
+      if (c.monthlySip.value > 0) return c.monthlySip.value.toDouble();
+      if (c.existingSipAmount.value > 0) return c.existingSipAmount.value;
+      final savedMonthly = c.currentGoalDetail.value?.monthlySavings.toDouble();
+      if (savedMonthly != null && savedMonthly > 0) return savedMonthly;
+      return 0.0;
+    }
+  }
+
+  Future<void> _commitFundAmount(String schemeCode, String rawValue) async {
+    final value = double.tryParse(rawValue.replaceAll(',', '')) ?? 0;
+    if (value <= 0 || c.isDistributingAmount.value) return;
+    if (c.savedInvestmentType.value == 'lumpsum') {
+      await c.redistributeRemainingAmount(
+        editedSchemeCode: schemeCode,
+        editedAmount: value,
+      );
+    } else {
+      await c.redistributeSipAmountAfterEdit(
+        editedSchemeCode: schemeCode,
+        editedAmount: value,
+      );
+    }
+    if (mounted) setState(() {});
+  }
+
   Widget svg(String name, double width, double height) => SvgPicture.asset(
     'assets/home/figma/$name.svg',
     width: width,
@@ -109,7 +145,10 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
         trailing: review
             ? circle(
                 svg('goal_basket_edit', 22, 22),
-                () => setState(() => review = false),
+                () => setState(() {
+                  review = false;
+                  _amountMismatchConfirmed = false;
+                }),
               )
             : null,
       ),
@@ -173,6 +212,26 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                               ? null
                               : () async {
                                   FocusScope.of(context).unfocus();
+                                  final goalAmount = _expectedGoalAmount;
+                                  final hasMismatch =
+                                      goalAmount > 0 &&
+                                      (total - goalAmount).abs() >= 1;
+
+                                  if (hasMismatch &&
+                                      !_amountMismatchConfirmed) {
+                                    final proceed =
+                                        await _showAmountMismatchDialog(
+                                          context: context,
+                                          basketTotal: total,
+                                          goalAmount: goalAmount,
+                                          isLumpsum:
+                                              c.savedInvestmentType.value ==
+                                              'lumpsum',
+                                        );
+                                    if (!proceed) return;
+                                    _amountMismatchConfirmed = true;
+                                  }
+
                                   if (review) {
                                     if (c.savedInvestmentType.value !=
                                             'lumpsum' &&
@@ -426,41 +485,40 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                   SizedBox(
                     width: 100,
                     height: 20,
-                    child: TextField(
-                      controller: c.getAmountController(f.schemeCode ?? ''),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      style: text(11, weight: FontWeight.w800),
-                      decoration: InputDecoration(
-                        prefixText: '₹ ',
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: const BorderSide(color: line),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      onSubmitted: (v) async {
-                        final value = double.tryParse(v) ?? 0;
-                        if (c.savedInvestmentType.value == 'lumpsum') {
-                          await c.redistributeRemainingAmount(
-                            editedSchemeCode: f.schemeCode ?? '',
-                            editedAmount: value,
-                          );
-                        } else {
-                          await c.redistributeSipAmountAfterEdit(
-                            editedSchemeCode: f.schemeCode ?? '',
-                            editedAmount: value,
+                    child: Focus(
+                      onFocusChange: (hasFocus) {
+                        if (!hasFocus) {
+                          _commitFundAmount(
+                            f.schemeCode ?? '',
+                            c.getAmountController(f.schemeCode ?? '').text,
                           );
                         }
-                        if (mounted) setState(() {});
                       },
+                      child: TextField(
+                        controller: c.getAmountController(f.schemeCode ?? ''),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        style: text(11, weight: FontWeight.w800),
+                        decoration: InputDecoration(
+                          prefixText: '₹ ',
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: const BorderSide(color: line),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        onSubmitted: (v) =>
+                            _commitFundAmount(f.schemeCode ?? '', v),
+                      ),
                     ),
                   ),
                   if (c.savedInvestmentType.value != 'lumpsum')
@@ -690,6 +748,216 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
         ),
       ),
     );
+  }
+
+  Future<bool> _showAmountMismatchDialog({
+    required BuildContext context,
+    required double basketTotal,
+    required double goalAmount,
+    required bool isLumpsum,
+  }) async {
+    final isLess = basketTotal < goalAmount;
+    final diff = (basketTotal - goalAmount).abs();
+    final period = isLumpsum ? 'invested' : 'a month';
+    final tenureYears = c.years.value.toInt() > 0
+        ? c.years.value.toInt()
+        : ((c.currentGoalDetail.value?.goalTenure ?? 0) / 12).round();
+    final targetAmt = c.targetAmount.value > 0
+        ? money(c.targetAmount.value)
+        : (c.currentGoalDetail.value?.targetAmount != null
+              ? money(c.currentGoalDetail.value!.targetAmount)
+              : null);
+
+    final result = await showGeneralDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Amount validation',
+      barrierColor: const Color(0x66000000),
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionBuilder: (context, anim, secondaryAnim, child) {
+        return FadeTransition(
+          opacity: anim,
+          child: ScaleTransition(
+            scale: CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (context, a, b) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: isLess
+                        ? const Color(0xFFFFF7ED)
+                        : const Color(0xFFF3EFFF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      isLess
+                          ? Icons.warning_amber_rounded
+                          : Icons.trending_up_rounded,
+                      color: isLess
+                          ? const Color(0xFFEA580C)
+                          : const Color(0xFF5B3FE0),
+                      size: 30,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                isLess
+                    ? 'Investment Amount is Less'
+                    : 'Investment Amount is Higher',
+                textAlign: TextAlign.center,
+                style: text(18, weight: FontWeight.w700),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isLess
+                    ? 'Your total basket amount is less than the planned goal amount. Investing less may delay reaching your goal${targetAmt != null && tenureYears > 0 ? ' of $targetAmt in $tenureYears years' : ''}.'
+                    : 'Your total basket amount is higher than the planned goal amount. Investing more can help you achieve your goal earlier${targetAmt != null && tenureYears > 0 ? ' than $tenureYears years' : ''}.',
+                textAlign: TextAlign.center,
+                style: text(13, color: muted).copyWith(height: 1.45),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FD),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: line),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Planned Goal', style: text(13, color: muted)),
+                        Text(
+                          '${money(goalAmount)} $period',
+                          style: text(13, weight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Basket Total', style: text(13, color: muted)),
+                        Text(
+                          '${money(basketTotal)} $period',
+                          style: text(
+                            13,
+                            color: isLess
+                                ? const Color(0xFFEA580C)
+                                : const Color(0xFF5B3FE0),
+                            weight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 16, color: line),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Difference',
+                          style: text(
+                            13,
+                            color: muted,
+                            weight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          '${money(diff)} ${isLess ? 'less' : 'more'}',
+                          style: text(
+                            13,
+                            color: isLess
+                                ? const Color(0xFFEA580C)
+                                : const Color(0xFF16A34A),
+                            weight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: line),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                      child: Text(
+                        'Adjust Amount',
+                        style: text(
+                          14,
+                          color: const Color(0xFF12121A),
+                          weight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: gradient,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(999),
+                          onTap: () => Navigator.of(context).pop(true),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            child: Center(
+                              child: Text(
+                                'Proceed Anyway',
+                                style: text(
+                                  14,
+                                  color: Colors.white,
+                                  weight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    return result ?? false;
   }
 
   Widget reviewContent(List<MutualFundListEntity> selected) => Column(
