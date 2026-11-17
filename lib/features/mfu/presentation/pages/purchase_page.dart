@@ -3524,9 +3524,10 @@ class _ModernRiskBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (riskLabel.trim().isEmpty) return const SizedBox.shrink();
     final c = _color();
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
@@ -3536,15 +3537,20 @@ class _ModernRiskBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.speed_rounded, size: 14, color: c),
-          const SizedBox(width: 6),
-          Text(
-            riskLabel.toUpperCase(),
-            style: TextStyle(
-              fontFamily: FontFamily.medium,
-              color: c,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.5,
+          const SizedBox(width: 5),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 110),
+            child: Text(
+              riskLabel.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: c,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.4,
+              ),
             ),
           ),
         ],
@@ -3592,17 +3598,21 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 14),
-          const Text(
-            'Purchase Fund',
-            style: TextStyle(
-              fontFamily: FontFamily.medium,
-              color: _C.textPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.5,
+          const Expanded(
+            child: Text(
+              'Purchase Fund',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: _C.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.5,
+              ),
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           _ModernRiskBadge(riskLabel: args.riskLabel),
         ],
       ),
