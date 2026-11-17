@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/helper/app_notice_manager.dart';
 import 'package:my_sip/features/goal/presentation/bindings/goal_binding.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
@@ -67,6 +68,7 @@ class AppOpenAlertCoordinator {
         message: announcement.message,
         primaryButtonText: announcement.actionText?.isNotEmpty == true ? announcement.actionText! : 'Got It',
         icon: Icons.campaign_rounded,
+        illustrationAsset: UImages.popupAnnouncement,
         iconColor: Ucolors.primary,
         onPrimaryTap: () {
           if (announcement.actionUrl != null && announcement.actionUrl!.isNotEmpty) {
@@ -140,6 +142,7 @@ class AppOpenAlertCoordinator {
         primaryButtonText: 'Verify Now',
         secondaryButtonText: 'Remind Later',
         icon: Icons.verified_user_outlined,
+        illustrationAsset: UImages.popupKyc,
         iconColor: Ucolors.primary,
         onPrimaryTap: () => Get.toNamed(AppRoutes.kycScreen),
         onSecondaryTap: () {
@@ -168,6 +171,7 @@ class AppOpenAlertCoordinator {
         primaryButtonText: 'Add Details',
         secondaryButtonText: 'Remind Later',
         icon: Icons.person_outline,
+        illustrationAsset: UImages.popupPersonalInfo,
         iconColor: Ucolors.primary,
         onPrimaryTap: () => Get.toNamed(AppRoutes.additionalInfo),
         onSecondaryTap: () {
@@ -196,6 +200,7 @@ class AppOpenAlertCoordinator {
         primaryButtonText: 'Add Bank',
         secondaryButtonText: 'Remind Later',
         icon: Icons.account_balance_outlined,
+        illustrationAsset: UImages.popupBank,
         iconColor: Ucolors.indigo,
         onPrimaryTap: () => Get.toNamed(AppRoutes.addanotherbank),
         onSecondaryTap: () {
@@ -231,6 +236,7 @@ class AppOpenAlertCoordinator {
 
     if (!isCanApproved) {
       String canTitle = 'CAN Account Action Needed';
+      String canImage = UImages.popupCanNeeded;
       String canMessage =
           'Your Common Account Number (CAN) requires setup or verification to enable investments.';
       String canBtnText = 'Resolve Issue';
@@ -239,6 +245,7 @@ class AppOpenAlertCoordinator {
 
       if (canStatus == 'cancelled') {
         canTitle = 'CAN Account Cancelled';
+        canImage = UImages.popupCanCancelled;
         canMessage =
             'Your investment account (CAN) has been cancelled by MFU/KRA. Please contact our support team at +91 78508 88522 for assistance.';
         canBtnText = 'Call Support';
@@ -250,6 +257,7 @@ class AppOpenAlertCoordinator {
         };
       } else if (canError != null && canError.isNotEmpty) {
         canTitle = 'CAN Registration Failed';
+        canImage = UImages.popupCanFailed;
         canMessage =
             'We could not generate your CAN because:\n\n"$canError"\n\nPlease resolve this issue to proceed.';
         canBtnText = 'Try Again';
@@ -260,6 +268,7 @@ class AppOpenAlertCoordinator {
           canStatus.contains('process') ||
           canStatus == 'verified') {
         canTitle = 'Account Activation Pending';
+        canImage = UImages.popupCanPending;
         canMessage =
             'Your investment account (CAN) is currently being set up by MF Utility. Orders will unlock once account activation completes.';
         canBtnText = 'Check Status';
@@ -270,6 +279,7 @@ class AppOpenAlertCoordinator {
         };
       } else {
         canTitle = 'Account Setup In Progress';
+        canImage = UImages.popupCanSetup;
         canMessage =
             'Your profile details are complete. We are setting up your Common Account Number (CAN) with MF Utility to enable mutual fund investing.';
         canBtnText = 'Check Status';
@@ -285,6 +295,7 @@ class AppOpenAlertCoordinator {
         frequency: NoticeFrequency.everyOpen,
         condition: () => true,
         title: canTitle,
+        illustrationAsset: canImage,
         message: canMessage,
         primaryButtonText: canBtnText,
         secondaryButtonText: 'Remind Later',
@@ -326,6 +337,7 @@ class AppOpenAlertCoordinator {
         primaryButtonText: 'Set Up Auto Pay',
         secondaryButtonText: 'Remind Later',
         icon: Icons.payment_rounded,
+        illustrationAsset: UImages.popupMandate,
         iconColor: Ucolors.primary,
         onPrimaryTap: () => Get.toNamed(
           AppRoutes.paymentScreen,
@@ -363,6 +375,7 @@ class AppOpenAlertCoordinator {
         primaryButtonText: 'Add Nominee',
         secondaryButtonText: 'Remind Later',
         icon: Icons.family_restroom_rounded,
+        illustrationAsset: UImages.popupNominee,
         iconColor: Colors.deepOrange,
         onPrimaryTap: () => Get.toNamed(AppRoutes.nomineeDetail),
         onSecondaryTap: () {
@@ -426,6 +439,7 @@ class AppOpenAlertCoordinator {
           primaryButtonText: 'Explore Goals',
           secondaryButtonText: 'Remind Later',
           icon: Icons.flag_rounded,
+          illustrationAsset: UImages.popupGoal,
           iconColor: Colors.teal,
           onPrimaryTap: () => Get.toNamed(AppRoutes.masterGoalsPage),
           onSecondaryTap: () {
@@ -498,6 +512,7 @@ class AppOpenAlertCoordinator {
             primaryButtonText: 'Add Investment',
             secondaryButtonText: 'Remind Later',
             icon: Icons.rocket_launch_rounded,
+            illustrationAsset: UImages.popupGoalTopup,
             iconColor: Colors.deepPurpleAccent,
             onPrimaryTap: () {
               GoalDetailsPage.tempData = {

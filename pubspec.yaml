@@ -105,6 +105,7 @@ flutter:
     - assets/images/onboarding/
     - assets/logo/
     - assets/icon/
+    - assets/icon/popup/
     - assets/home/icon/
     - assets/home/figma/
     - assets/portfolio/figma/

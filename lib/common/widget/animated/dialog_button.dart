@@ -1,4 +1,5 @@
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/illustrated_notice_dialog.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -182,60 +183,21 @@ class DialogHelper {
     required VoidCallback onTap,
     String? secondaryButtonText,
     VoidCallback? onSecondaryTap,
+    String? illustrationAsset,
   }) {
+    final hasSecondary = secondaryButtonText != null && onSecondaryTap != null;
+    void close() => Get.back();
+
     Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontFamily: FontFamily.medium,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: Text(
-          message,
-          style: const TextStyle(
-            fontFamily: FontFamily.medium,
-            color: Colors.black87,
-            height: 1.4,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text(
-              'Close',
-              style: TextStyle(
-                fontFamily: FontFamily.medium,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          if (secondaryButtonText != null && onSecondaryTap != null)
-            TextButton(
-              onPressed: onSecondaryTap,
-              child: Text(
-                secondaryButtonText,
-                style: const TextStyle(
-                  fontFamily: FontFamily.medium,
-                  color: Colors.green,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          TextButton(
-            onPressed: onTap,
-            child: Text(
-              buttonText,
-              style: const TextStyle(
-                fontFamily: FontFamily.medium,
-                color: Ucolors.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
+      IllustratedNoticeDialog(
+        title: title,
+        message: message,
+        illustrationAsset: illustrationAsset,
+        primaryButtonText: buttonText,
+        onPrimaryTap: onTap,
+        secondaryButtonText: hasSecondary ? secondaryButtonText : 'Close',
+        onSecondaryTap: hasSecondary ? onSecondaryTap : close,
+        onDismiss: hasSecondary ? close : null,
       ),
       barrierDismissible: false,
     );

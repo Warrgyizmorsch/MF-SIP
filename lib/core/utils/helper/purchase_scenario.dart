@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -46,6 +47,7 @@ class GatekeeperHelper {
     if (!isKycDone) {
       DialogHelper.showPrerequisiteDialog(
         title: 'KYC Required',
+        illustrationAsset: UImages.popupKyc,
         message:
             'Your KYC verification is pending or incomplete. Please complete your KYC to invest.',
         buttonText: 'Complete KYC',
@@ -61,6 +63,7 @@ class GatekeeperHelper {
     if (!userCtrl.hasPersonalDetails.value) {
       DialogHelper.showPrerequisiteDialog(
         title: 'Additional Info Required',
+        illustrationAsset: UImages.popupPersonalInfo,
         message:
             'Please provide a few more personal details (like family details) to complete your investor profile.',
         buttonText: 'Add Details',
@@ -76,6 +79,7 @@ class GatekeeperHelper {
     if (!userCtrl.hasBank.value) {
       DialogHelper.showPrerequisiteDialog(
         title: 'Bank Account Required',
+        illustrationAsset: UImages.popupBank,
         message:
             'Please link a bank account to process your investments and receive withdrawals.',
         buttonText: 'Add Bank',
@@ -106,6 +110,7 @@ class GatekeeperHelper {
       if (canStatus == 'cancelled') {
         DialogHelper.showPrerequisiteDialog(
           title: 'CAN Account Cancelled',
+          illustrationAsset: UImages.popupCanCancelled,
           message:
               'Your investment account (CAN) has been cancelled by MFU/KRA. Please contact our support team at +91 78508 88522 for assistance.',
           buttonText: 'Call Support',
@@ -123,6 +128,7 @@ class GatekeeperHelper {
           canStatus == 'verified') {
         DialogHelper.showPrerequisiteDialog(
           title: 'Account Activation Pending',
+          illustrationAsset: UImages.popupCanPending,
           message:
               'Your investment account (CAN) is currently being set up by MF Utility. Orders will unlock as soon as account activation completes.',
           buttonText: 'Check Status',
@@ -136,6 +142,7 @@ class GatekeeperHelper {
       } else if (canError != null && canError.isNotEmpty) {
         DialogHelper.showPrerequisiteDialog(
           title: 'CAN Registration Failed',
+          illustrationAsset: UImages.popupCanFailed,
           message:
               'We could not generate your CAN because: \n\n"$canError"\n\nPlease resolve this issue to proceed.',
           buttonText: 'Try Again',
@@ -147,6 +154,7 @@ class GatekeeperHelper {
       } else {
         DialogHelper.showPrerequisiteDialog(
           title: 'Account Setup In Progress',
+          illustrationAsset: UImages.popupCanSetup,
           message:
               'Your profile details are complete. We are setting up your Common Account Number (CAN) with MF Utility to enable mutual fund investing.',
           buttonText: 'Check Status',
@@ -165,6 +173,7 @@ class GatekeeperHelper {
     if (!isLumpsum && !userCtrl.hasApprovedMandate) {
       DialogHelper.showPrerequisiteDialog(
         title: 'Auto Pay Required for SIP',
+        illustrationAsset: UImages.popupMandate,
         message:
             'Auto Pay mandate is required for automated monthly SIP investments. Would you like to set up Auto Pay, or invest as Lumpsum today without a mandate?',
         buttonText: 'Set Up Auto Pay',

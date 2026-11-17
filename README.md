@@ -43,6 +43,19 @@ The comparison page still supports the existing Home and peer-comparison entry
 points. API failures currently rely mainly on logging; comparison loading and
 error feedback remains an area for further work.
 
+App-open notices and purchase prerequisite dialogs share the illustrated popup
+in `lib/common/widget/animated/illustrated_notice_dialog.dart`, using artwork from
+`assets/icon/popup/`. Titles, messages, actions, eligibility checks, reminder
+callbacks, and navigation remain owned by their existing helpers. Existing
+prerequisite callers can omit `illustrationAsset` and receive an icon fallback.
+The SIP mandate dialog retains Close, Invest as Lumpsum (when supplied), and
+Set Up Auto Pay. Content scrolls on short screens and buttons stack when their
+labels or the text scale need more space.
+
+Run the focused popup checks with
+`flutter test test/illustrated_notice_dialog_test.dart`. They use synthetic
+profile data, mock preferences, and controller substitutes without backend calls.
+
 ## Architecture
 
 The repository uses feature-oriented modules with a Clean Architecture-style separation. Most complete features contain `data`, `domain`, and `presentation` layers; smaller or prototype features may contain only presentation code.

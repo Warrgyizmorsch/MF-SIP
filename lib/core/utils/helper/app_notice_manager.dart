@@ -1,16 +1,10 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/common/widget/animated/illustrated_notice_dialog.dart';
 
-enum NoticeFrequency {
-  everyOpen,
-  oncePerSession,
-  oncePerDay,
-  onceEver,
-}
+enum NoticeFrequency { everyOpen, oncePerSession, oncePerDay, onceEver }
 
 class AppNoticeManager {
   static final Set<String> _sessionHistory = {};
@@ -46,6 +40,7 @@ class AppNoticeManager {
     VoidCallback? onSecondaryTap,
     IconData icon = Icons.info_outline_rounded,
     Color? iconColor,
+    String? illustrationAsset,
     bool barrierDismissible = true,
   }) async {
     // 1. Condition Guard
@@ -86,191 +81,27 @@ class AppNoticeManager {
       await prefs.setBool(dismissedKey, true);
     }
 
-    // 4. Present Responsive Center Dialog Modal
-    final Color effectiveColor = iconColor ?? Ucolors.primary;
+    // 4. Present the shared illustrated dialog. Frequency guards stay above.
+    void dismiss() {
+      Get.back();
+      onSecondaryTap?.call();
+    }
 
     Get.dialog(
-      BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-        child: Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.white,
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 24,
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final double screenWidth = MediaQuery.of(context).size.width;
-              final bool isDesktop = screenWidth > 640;
-
-              return TweenAnimationBuilder<double>(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutBack,
-                tween: Tween<double>(begin: 0.88, end: 1.0),
-                builder: (context, scale, child) {
-                  return Transform.scale(scale: scale, child: child);
-                },
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 430,
-                    minWidth: 280,
-                  ),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          isDesktop ? 28 : 22,
-                          26,
-                          isDesktop ? 28 : 22,
-                          22,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Circular Icon Header
-                            Container(
-                              height: isDesktop ? 62 : 56,
-                              width: isDesktop ? 62 : 56,
-                              decoration: BoxDecoration(
-                                color: effectiveColor.withValues(alpha: 0.12),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                icon,
-                                color: effectiveColor,
-                                size: isDesktop ? 30 : 28,
-                              ),
-                            ),
-                            const SizedBox(height: 18),
-
-                            // Title
-                            Text(
-                              title,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: isDesktop ? 19 : 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                                letterSpacing: -0.3,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-
-                            // Message Body
-                            Text(
-                              message,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: FontFamily.regular,
-                                fontSize: isDesktop ? 14 : 13.5,
-                                height: 1.5,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-
-                            // Action Buttons
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton(
-                                    style: OutlinedButton.styleFrom(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: isDesktop ? 14 : 12,
-                                      ),
-                                      side: BorderSide(
-                                        color: Colors.grey.shade300,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      Get.back();
-                                      onSecondaryTap?.call();
-                                    },
-                                    child: Text(
-                                      secondaryButtonText,
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.medium,
-                                        color: Colors.grey.shade800,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: isDesktop ? 13.5 : 13,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: effectiveColor,
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: isDesktop ? 14 : 12,
-                                      ),
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      Get.back();
-                                      onPrimaryTap();
-                                    },
-                                    child: Text(
-                                      primaryButtonText,
-                                      style: TextStyle(
-                                        fontFamily: FontFamily.medium,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: isDesktop ? 13.5 : 13,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Desktop / Web Close (X) Button
-                      if (isDesktop && barrierDismissible)
-                        Positioned(
-                          top: 12,
-                          right: 12,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(20),
-                            onTap: () {
-                              Get.back();
-                              onSecondaryTap?.call();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.close_rounded,
-                                size: 16,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+      IllustratedNoticeDialog(
+        title: title,
+        message: message,
+        illustrationAsset: illustrationAsset,
+        icon: icon,
+        iconColor: iconColor ?? Ucolors.primary,
+        primaryButtonText: primaryButtonText,
+        onPrimaryTap: () {
+          Get.back();
+          onPrimaryTap();
+        },
+        secondaryButtonText: secondaryButtonText,
+        onSecondaryTap: dismiss,
+        onClose: barrierDismissible ? dismiss : null,
       ),
       barrierDismissible: barrierDismissible,
     );

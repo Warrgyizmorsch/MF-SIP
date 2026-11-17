@@ -1,4 +1,20 @@
 class UImages {
+  // Illustrated onboarding and investment notices.
+  static const popupAnnouncement = 'assets/icon/popup/announcement.png';
+  static const popupKyc = 'assets/icon/popup/complete_kyc.png';
+  static const popupPersonalInfo =
+      'assets/icon/popup/personal_info_required.png';
+  static const popupBank = 'assets/icon/popup/link_bank_acc.png';
+  static const popupCanCancelled = 'assets/icon/popup/can_acc_cancel.png';
+  static const popupCanNeeded = 'assets/icon/popup/can_acc_need.png';
+  static const popupCanFailed = 'assets/icon/popup/registratoin_failed_can.png';
+  static const popupCanPending = 'assets/icon/popup/acc_activation_pending.png';
+  static const popupCanSetup = 'assets/icon/popup/acc_setup_in_progress.png';
+  static const popupMandate = 'assets/icon/popup/setup_auto_mandate.png';
+  static const popupNominee = 'assets/icon/popup/add_nominee.png';
+  static const popupGoal = 'assets/icon/popup/plan_ur_goal.png';
+  static const popupGoalTopup = 'assets/icon/popup/accelerate_goal.png';
+
   //Imf logo
   static const String imp = 'assets/logo/imf.png';
 
