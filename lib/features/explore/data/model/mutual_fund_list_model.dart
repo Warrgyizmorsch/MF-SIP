@@ -28,6 +28,24 @@ class MutualFundListResponseModel {
   }
 }
 
+class FundManagerModel {
+  final int? id;
+  final String? name;
+
+  FundManagerModel({this.id, this.name});
+
+  factory FundManagerModel.fromJson(Map<String, dynamic> json) {
+    return FundManagerModel(
+      id: json.parse<int>('id'),
+      name: json.parse<String>('name'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name};
+  }
+}
+
 class MutualFundListModel {
   final int? fundId;
   final int? amcId;
@@ -57,8 +75,17 @@ class MutualFundListModel {
   final List<VariantModel> variants;
 
   final String? divoption;
+  final String? divOpt;
   final bool? isNfo;
   final NfoDetailsModel? nfoDetails;
+
+  final String? fundManager;
+  final int? fundManagerId;
+  final List<FundManagerModel> fundManagers;
+  final bool? isPopular;
+  final bool? isBetterThanFd;
+  final bool? isBestSip;
+  final bool? isCurated;
 
   MutualFundListModel({
     this.fundId,
@@ -86,8 +113,16 @@ class MutualFundListModel {
     this.navDate,
     this.navChange,
     this.divoption,
+    this.divOpt,
     this.isNfo,
     this.nfoDetails,
+    this.fundManager,
+    this.fundManagerId,
+    this.fundManagers = const [],
+    this.isPopular,
+    this.isBetterThanFd,
+    this.isBestSip,
+    this.isCurated,
   });
 
   factory MutualFundListModel.fromJson(Map<String, dynamic> json) {
@@ -95,21 +130,25 @@ class MutualFundListModel {
       fundId: json.parse<int>('fund_id'),
       amcId: json.parse<int>('amc_id'),
       schemeCode: json.parse<String>('scheme_code'),
-      baseSchemeName: json.parse<String>('fund_name') ??
+      baseSchemeName:
+          json.parse<String>('fund_name') ??
           json.parse<String>('base_scheme_name'),
       schemeType: json.parse<String>('scheme_type'),
       isin: json.parse<String>('isin'),
       mfuSchemeCode: json.parse<String>('mfu_scheme_code'),
       rtaAmcCode: json.parse<String>('rta_amc_code'),
-      minSipAmount: json.parse<int>('min_sip_amount') ??
+      minSipAmount:
+          json.parse<int>('min_sip_amount') ??
           json.parse<int>('min_sip') ??
           json.parse<int>('sip_minimum_amount'),
-      minLumpsum: json.parse<int>('min_lumpsum') ??
+      minLumpsum:
+          json.parse<int>('min_lumpsum') ??
           json.parse<int>('min_investment') ??
           json.parse<int>('minimum_investment'),
-      minTopUp: json.parse<int>('minimum_topup') ??
-          json.parse<int>('min_topup'),
-      allowedSipDates: json.parse<String>('allowed_sip_dates') ??
+      minTopUp:
+          json.parse<int>('minimum_topup') ?? json.parse<int>('min_topup'),
+      allowedSipDates:
+          json.parse<String>('allowed_sip_dates') ??
           json.parse<String>('sys_dates') ??
           json.parse<String>('Sys_Dates') ??
           json.parse<String>('sip_dates') ??
@@ -134,12 +173,31 @@ class MutualFundListModel {
       schemecategory: json.parse<String>('scheme_category'),
       riskLevel: json.parse<String>('risk_level'),
       divoption: json.parse<String>('divoption'),
+      divOpt: json.parse<String>('div_opt'),
       isNfo: json.parse<bool>('is_nfo'),
-      nfoDetails: json.parseNested('nfo_details', (e) => NfoDetailsModel.fromJson(e)),
+      nfoDetails: json.parseNested(
+        'nfo_details',
+        (e) => NfoDetailsModel.fromJson(e),
+      ),
       amc: json.parseNested('amc', (e) => AmcModel.fromJson(e)),
       returns: json.parseNested('returns', (e) => ReturnsModel.fromJson(e)),
       variants:
           json.parseListOf('variants', (e) => VariantModel.fromJson(e)) ?? [],
+      fundManager: json.parse<String>('fund_manager'),
+      fundManagerId: json.parse<int>('fund_manager_id'),
+      fundManagers:
+          json.parseListOf(
+            'fund_managers',
+            (e) => FundManagerModel.fromJson(e),
+          ) ??
+          [],
+      isPopular:
+          json.parse<bool>('is_popular') ?? json.parse<bool>('popular_fund'),
+      isBetterThanFd:
+          json.parse<bool>('is_better_than_fd') ??
+          json.parse<bool>('better_than_fd'),
+      isBestSip: json.parse<bool>('is_bestsip'),
+      isCurated: json.parse<bool>('is_curated'),
     );
   }
 }

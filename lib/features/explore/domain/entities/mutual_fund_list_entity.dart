@@ -21,13 +21,16 @@ class MutualFundListResponseEntity extends Equatable {
 
 extension MutualFundListResponseEntityX on MutualFundListResponseModel {
   MutualFundListResponseEntity toEntity() {
-    final filteredData = data.where((item) {
-      final category = (item.schemecategory ?? '')
-          .toLowerCase()
-          .replaceAll("'", '')
-          .replaceAll('’', '');
-      return !category.contains('childrens fund');
-    }).map((e) => e.toEntity()).toList();
+    final filteredData = data
+        .where((item) {
+          final category = (item.schemecategory ?? '')
+              .toLowerCase()
+              .replaceAll("'", '')
+              .replaceAll('’', '');
+          return !category.contains('childrens fund');
+        })
+        .map((e) => e.toEntity())
+        .toList();
 
     return MutualFundListResponseEntity(
       success: success ?? false,
@@ -35,6 +38,22 @@ extension MutualFundListResponseEntityX on MutualFundListResponseModel {
       data: filteredData,
       pagination: pagination?.toEntity(),
     );
+  }
+}
+
+class FundManagerEntity extends Equatable {
+  final int? id;
+  final String? name;
+
+  const FundManagerEntity({this.id, this.name});
+
+  @override
+  List<Object?> get props => [id, name];
+}
+
+extension FundManagerEntityX on FundManagerModel {
+  FundManagerEntity toEntity() {
+    return FundManagerEntity(id: id, name: name);
   }
 }
 
@@ -66,8 +85,17 @@ class MutualFundListEntity extends Equatable {
 
   final String? schemecategory;
   final String? divoption;
+  final String? divOpt;
   final bool? isNfo;
   final NfoDetailsEntity? nfoDetails;
+
+  final String? fundManager;
+  final int? fundManagerId;
+  final List<FundManagerEntity> fundManagers;
+  final bool? isPopular;
+  final bool? isBetterThanFd;
+  final bool? isBestSip;
+  final bool? isCurated;
 
   final List<VariantModelEntity> variants;
 
@@ -97,12 +125,38 @@ class MutualFundListEntity extends Equatable {
     this.variants = const [],
     required this.schemecategory,
     this.divoption,
+    this.divOpt,
     this.isNfo,
     this.nfoDetails,
+    this.fundManager,
+    this.fundManagerId,
+    this.fundManagers = const [],
+    this.isPopular,
+    this.isBetterThanFd,
+    this.isBestSip,
+    this.isCurated,
   });
 
   /// Convenient alias for fund name
   String? get fundName => baseSchemeName;
+
+  /// List of fund manager names, falling back to parsed fundManager string
+  List<String> get resolvedManagerNames {
+    if (fundManagers.isNotEmpty) {
+      return fundManagers
+          .map((m) => m.name?.trim() ?? '')
+          .where((name) => name.isNotEmpty)
+          .toList();
+    }
+    if (fundManager != null && fundManager!.trim().isNotEmpty) {
+      return fundManager!
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+    }
+    return [];
+  }
 
   NfoLifecycle lifecycleAt(DateTime now) => resolveNfoLifecycle(
     isNfo: isNfo == true,
@@ -157,8 +211,16 @@ class MutualFundListEntity extends Equatable {
     navDate,
     navChange,
     divoption,
+    divOpt,
     isNfo,
     nfoDetails,
+    fundManager,
+    fundManagerId,
+    fundManagers,
+    isPopular,
+    isBetterThanFd,
+    isBestSip,
+    isCurated,
   ];
 }
 
@@ -189,9 +251,17 @@ extension MutualFundListEntityX on MutualFundListModel {
       isPurchaseAllowed: isPurchaseAllowed,
       isRedeemAllowed: isRedeemAllowed,
       divoption: divoption,
+      divOpt: divOpt,
       isNfo: isNfo,
       nfoDetails: nfoDetails?.toEntity(),
       variants: variants.map((e) => e.toEntity()).toList(),
+      fundManager: fundManager,
+      fundManagerId: fundManagerId,
+      fundManagers: fundManagers.map((e) => e.toEntity()).toList(),
+      isPopular: isPopular,
+      isBetterThanFd: isBetterThanFd,
+      isBestSip: isBestSip,
+      isCurated: isCurated,
     );
   }
 }

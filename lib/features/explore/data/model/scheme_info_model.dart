@@ -1,6 +1,5 @@
 import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
-
 class SchemeDetailModel {
   final int? status;
   final String? statusMsg;
@@ -117,11 +116,14 @@ class SchemeDetailModel {
       navChangePercentage: json.parse<double>('nav_change_percentage'),
 
       schemeInceptionReturn: json.parse<double>('scheme_inception_return'),
-      benchmarkInceptionReturn:
-          json.parse<double>('benchmark_inception_return'),
+      benchmarkInceptionReturn: json.parse<double>(
+        'benchmark_inception_return',
+      ),
 
       schemeObjective: json.parse<String>('scheme_objective'),
-      schemeManager: json.parse<String>('scheme_manager'),
+      schemeManager:
+          json.parse<String>('scheme_manager') ??
+          json.parse<String>('fund_manager'),
       riskometerValue: json.parse<String>('riskometer_value'),
 
       isinNo: json.parse<String>('isin_no'),
@@ -135,8 +137,7 @@ class SchemeDetailModel {
       schemeBenchmark: json.parse<String>('scheme_benchmark'),
       schemeBenchmarkCode: json.parse<String>('scheme_benchmark_code'),
 
-      expenseRatioPercentage:
-          json.parse<double>('expense_ratio_percentage'),
+      expenseRatioPercentage: json.parse<double>('expense_ratio_percentage'),
       expenseRatioDate: json.parse<String>('expense_ratio_date'),
 
       schemeStatus: json.parse<String>('scheme_status'),
@@ -153,31 +154,36 @@ class SchemeDetailModel {
       rating: json.parse<String>('rating'),
       ratingValue: json.parse<int>('rating_value'),
 
-      upmarketCaptureRatio:
-          json.parse<double>('upmarket_capture_ratio'),
-      downmarketCaptureRatio:
-          json.parse<double>('downmarket_capture_ratio'),
-      marketCapLargecapPercent:
-          json.parse<double>('market_cap_largecap_percent'),
-      marketCapMidcapPercent:
-          json.parse<double>('market_cap_midcap_percent'),
-      marketCapSmallcapPercent:
-          json.parse<double>('market_cap_smallcap_percent'),
+      upmarketCaptureRatio: json.parse<double>('upmarket_capture_ratio'),
+      downmarketCaptureRatio: json.parse<double>('downmarket_capture_ratio'),
+      marketCapLargecapPercent: json.parse<double>(
+        'market_cap_largecap_percent',
+      ),
+      marketCapMidcapPercent: json.parse<double>('market_cap_midcap_percent'),
+      marketCapSmallcapPercent: json.parse<double>(
+        'market_cap_smallcap_percent',
+      ),
 
       schemePerformanceList:
-          json.parseListOf('scheme_performance_list',
-              (e) => SchemePerformanceModel.fromJson(e)) ??
-              const [],
+          json.parseListOf(
+            'scheme_performance_list',
+            (e) => SchemePerformanceModel.fromJson(e),
+          ) ??
+          const [],
 
       riskStatisticsList:
-          json.parseListOf('risk_statistics_list',
-              (e) => RiskStatisticsModel.fromJson(e)) ??
-              const [],
+          json.parseListOf(
+            'risk_statistics_list',
+            (e) => RiskStatisticsModel.fromJson(e),
+          ) ??
+          const [],
 
       schemePeerComparisonList:
-          json.parseListOf('scheme_peer_comparision_list',
-              (e) => SchemePeerComparisonModel.fromJson(e)) ??
-              const [],
+          json.parseListOf(
+            'scheme_peer_comparision_list',
+            (e) => SchemePeerComparisonModel.fromJson(e),
+          ) ??
+          const [],
     );
   }
 }
@@ -225,14 +231,12 @@ class SchemePerformanceModel {
       threeYearReturn: json.parse<double>('three_year_return'),
       fiveYearReturn: json.parse<double>('five_year_return'),
       tenYearReturn: json.parse<double>('ten_year_return'),
-      inceptionYearReturn:
-          json.parse<double>('inception_year_return'),
+      inceptionYearReturn: json.parse<double>('inception_year_return'),
       ytdReturn: json.parse<double>('ytd_return'),
       schemeAssets: json.parse<double>('scheme_assets'),
     );
   }
 }
-
 
 class RiskStatisticsModel {
   final String? schemeCategory;
@@ -258,21 +262,16 @@ class RiskStatisticsModel {
   factory RiskStatisticsModel.fromJson(Map<String, dynamic> json) {
     return RiskStatisticsModel(
       schemeCategory: json.parse<String>('scheme_category'),
-      volatilityCm3Year:
-          json.parse<double>('volatility_cm_3year'),
-      sharpeRatioCm3Year:
-          json.parse<double>('sharpratio_cm_3year'),
+      volatilityCm3Year: json.parse<double>('volatility_cm_3year'),
+      sharpeRatioCm3Year: json.parse<double>('sharpratio_cm_3year'),
       alphaCm1Year: json.parse<double>('alpha_cm_1year'),
       betaCm1Year: json.parse<double>('beta_cm_1year'),
-      yieldToMaturity:
-          json.parse<double>('yield_to_maturity'),
-      averageMaturity:
-          json.parse<double>('average_maturity'),
+      yieldToMaturity: json.parse<double>('yield_to_maturity'),
+      averageMaturity: json.parse<double>('average_maturity'),
       shortinoRatio: json.parse<double>('shortino_ratio'),
     );
   }
 }
-
 
 class SchemePeerComparisonModel {
   final String? schemeName;
@@ -318,30 +317,23 @@ class SchemePeerComparisonModel {
   factory SchemePeerComparisonModel.fromJson(Map<String, dynamic> json) {
     return SchemePeerComparisonModel(
       schemeName: json.parse<String>('scheme_name'),
-      schemeInceptionDateString:
-          json.parse<String>('scheme_inception_date_string'),
+      schemeInceptionDateString: json.parse<String>(
+        'scheme_inception_date_string',
+      ),
       oneWeekReturn: json.parse<double>('one_week_return'),
       oneMonthReturn: json.parse<double>('one_month_return'),
-      threeMonthReturn:
-          json.parse<double>('three_month_return'),
-      sixMonthReturn:
-          json.parse<double>('six_month_return'),
+      threeMonthReturn: json.parse<double>('three_month_return'),
+      sixMonthReturn: json.parse<double>('six_month_return'),
       oneYearReturn: json.parse<double>('one_year_return'),
       twoYearReturn: json.parse<double>('two_year_return'),
-      threeYearReturn:
-          json.parse<double>('three_year_return'),
-      fiveYearReturn:
-          json.parse<double>('five_year_return'),
-      tenYearReturn:
-          json.parse<double>('ten_year_return'),
-      inceptionYearReturn:
-          json.parse<double>('inception_year_return'),
+      threeYearReturn: json.parse<double>('three_year_return'),
+      fiveYearReturn: json.parse<double>('five_year_return'),
+      tenYearReturn: json.parse<double>('ten_year_return'),
+      inceptionYearReturn: json.parse<double>('inception_year_return'),
       ytdReturn: json.parse<double>('ytd_return'),
       schemeAssets: json.parse<double>('scheme_assets'),
-      expenseRatioPercentage:
-          json.parse<double>('expense_ratio_percentage'),
-      expenseRatioDate:
-          json.parse<String>('expense_ratio_date'),
+      expenseRatioPercentage: json.parse<double>('expense_ratio_percentage'),
+      expenseRatioDate: json.parse<String>('expense_ratio_date'),
       rating: json.parse<String>('rating'),
       ratingValue: json.parse<int>('rating_value'),
     );
