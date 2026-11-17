@@ -634,9 +634,11 @@ class LoginTopSection extends StatelessWidget {
         children: [
           SizedBox(height: size.height * 0.07),
           Image.asset(
-            UImages.imp,
+            UImages.mfsipNewLogo,
             height: isDesktop ? 80 : Get.width * 0.15,
             width: isDesktop ? 100 : Get.width * 0.2,
+            fit: BoxFit.contain,
+            semanticLabel: 'MF SIP logo',
           ),
           SizedBox(height: size.height * 0.01),
 
