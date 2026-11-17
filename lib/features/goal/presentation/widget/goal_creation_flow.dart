@@ -292,37 +292,38 @@ class GoalCreationFlowState extends State<GoalCreationFlow> {
           ),
         ),
         _inflationStepper(),
-        Obx(
-          () => Container(
-            padding: const EdgeInsets.all(20),
-            decoration: _PlanStyle.box(26),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'You’ll actually need',
-                  style: _PlanStyle.text(
-                    13,
-                    color: _PlanStyle.navy,
-                    weight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  _money(
-                    c.targetAmount.value *
-                        math.pow(1 + _inflation / 100, c.years.value),
-                  ),
-                  style: _PlanStyle.text(
-                    26,
-                    color: _PlanStyle.navy,
-                    weight: FontWeight.w800,
-                  ).copyWith(letterSpacing: -0.52),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // Obx(
+        //   () => Container(
+        //     padding: const EdgeInsets.all(20),
+        //     decoration: _PlanStyle.box(26),
+        //     child: Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: [
+        //         Text(
+        //           'You’ll actually need',
+        //           style: _PlanStyle.text(
+        //             13,
+        //             color: _PlanStyle.navy,
+        //             weight: FontWeight.w500,
+        //           ),
+        //         ),
+        //         const SizedBox(height: 10),
+        //         Text(
+        //           _money(
+        //             c.targetAmount.value *
+        //                 math.pow(1 + _inflation / 100, c.years.value),
+        //           ),
+        //           style: _PlanStyle.text(
+        //             26,
+        //             color: _PlanStyle.navy,
+        //             weight: FontWeight.w800,
+        //           ).copyWith(letterSpacing: -0.52),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+    
       ],
     ),
   );
