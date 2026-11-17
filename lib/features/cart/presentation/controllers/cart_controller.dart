@@ -17,12 +17,14 @@ import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart'
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 import '../../../fund_details/domain/entity/fund_detail_entity.dart';
+import 'package:my_sip/common/widget/fund/sip_frequency_dropdown.dart';
 
 class CartController extends GetxController {
   RxString schemeCode = ''.obs;
   RxString schemeName = ''.obs;
   RxString amcImage = ''.obs;
   RxString invType = 'sip'.obs;
+  final Rx<SipFrequency> sipFrequency = SipFrequency.monthly.obs;
   RxInt minSipAmount = 0.obs;
   var selectedSipDay = 1.obs; // Default to the 1st of the month
   var stepUpFrequency = '6'.obs; // Default to 6 months
@@ -281,10 +283,17 @@ class CartController extends GetxController {
 
   List<LumpsumFundItemModel> get lumpsumFundItems {
     return lumpsumItems.map((item) {
+      final devopt =
+          (item.dividendOption != null &&
+              item.dividendOption != 'NA' &&
+              item.dividendOption!.trim().isNotEmpty)
+          ? item.dividendOption
+          : null;
       return LumpsumFundItemModel(
         schemeCode: item.schemeCode?.toString() ?? '',
         amount: item.amount ?? 1000,
         folio: 'NEW',
+        devopt: devopt,
       );
     }).toList();
   }
@@ -382,24 +391,36 @@ class CartController extends GetxController {
     return sipAndStepUpItems
         .where((item) => (item.transType?.toLowerCase() ?? 'sip') != 'stepup')
         .map((item) {
-          final freq = (item.frequency != null && item.frequency!.isNotEmpty)
-              ? item.frequency!
-              : 'M';
+          final sipFreq = SipFrequencyX.fromString(
+            item.sipFrequency ?? item.frequency,
+          );
+          final freqCode = sipFreq.mfuCode;
           final String dayVal;
-          if (freq == 'D') {
+          if (sipFreq == SipFrequency.daily) {
             dayVal = 'NA';
+          } else if (sipFreq == SipFrequency.weekly) {
+            final d = item.sipDay ?? 1;
+            dayVal = (d >= 1 && d <= 5) ? d.toString() : '1';
           } else if (item.sipDay != null && item.sipDay! > 0) {
             dayVal = item.sipDay.toString();
           } else {
             dayVal = selectedSipDay.value.toString();
           }
 
+          final devopt =
+              (item.dividendOption != null &&
+                  item.dividendOption != 'NA' &&
+                  item.dividendOption!.trim().isNotEmpty)
+              ? item.dividendOption
+              : null;
+
           return SipFundItemModel(
             schemeCode: item.schemeCode?.toString() ?? '',
             amount: item.amount ?? 1000,
             folio: 'NEW',
-            frequency: freq,
+            frequency: freqCode,
             day: dayVal,
+            devopt: devopt,
           );
         })
         .toList();
@@ -621,6 +642,10 @@ class CartController extends GetxController {
         "trans_type": transType,
         "amount": minSipAmount,
         "sip_day": 2,
+        if (transType.toLowerCase() == 'sip') ...{
+          "frequency": "Monthly",
+          "sip_frequency": "monthly",
+        },
       };
 
       // If goalId is provided, add it to the payload
@@ -714,6 +739,7 @@ class CartController extends GetxController {
     int? sipDay,
     int? amount,
     String? frequency,
+    String? sipFrequency,
     int? topUpAmount,
     String? capingDate,
     String? capingAmount,
@@ -723,15 +749,18 @@ class CartController extends GetxController {
     // 1. Save original state in case we need to revert on failure
     final originalState = cartResponseEntity.value;
 
+    final resolvedSipFreq = sipFrequency?.toLowerCase();
+
     // 2. Perform Optimistic Update: Update local UI state immediately
     if (cartResponseEntity.value != null) {
       final updatedItems = cartResponseEntity.value!.items.map((item) {
         if (item.id == itemId) {
           return item.copyWith(
             transType: transType ?? item.transType,
-            sipDay: sipDay ?? item.sipDay,
+            sipDay: sipDay != null ? (sipDay == 0 ? 0 : sipDay) : item.sipDay,
             amount: amount ?? item.amount,
             frequency: frequency ?? item.frequency,
+            sipFrequency: resolvedSipFreq ?? item.sipFrequency,
             topUpAmount: topUpAmount?.toString() ?? item.topUpAmount,
             capingAmount: capingAmount ?? item.capingAmount,
             capingDate: capingDate ?? item.capingDate,
@@ -751,10 +780,10 @@ class CartController extends GetxController {
     final result = await cartUsecases.updateCartUsecases.call({
       "item_id": itemId,
       if (transType != null) "trans_type": transType,
-      if (sipDay != null) "sip_day": sipDay,
+      if (sipDay != null) "sip_day": sipDay == 0 ? "NA" : sipDay,
       if (amount != null) "amount": amount,
-      // if (frequency != null)
-      "frequency": frequency,
+      if (frequency != null) "frequency": frequency,
+      if (resolvedSipFreq != null) "sip_frequency": resolvedSipFreq,
       if (topUpAmount != null) "top_up_amount": topUpAmount,
       if (capingDate != null) "caping_date": capingDate,
       if (capingAmount != null) "caping_amount": capingAmount,

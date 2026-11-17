@@ -131,7 +131,10 @@ class CartItemEntity extends Equatable {
   final bool? isPurchaseAllowed;
   final bool? isSipAllowed;
   final bool? isLumpsumAllowed;
+  final bool? isRedeemAllowed;
   final String? allowedSipDates;
+  final String? dividendOption;
+  final String? sipFrequency;
 
   //
   final int? goalId;
@@ -168,7 +171,10 @@ class CartItemEntity extends Equatable {
     this.isPurchaseAllowed,
     this.isSipAllowed,
     this.isLumpsumAllowed,
+    this.isRedeemAllowed,
     this.allowedSipDates,
+    this.dividendOption,
+    this.sipFrequency,
     //
     this.goalId,
     this.goalTargetAmount,
@@ -206,6 +212,10 @@ class CartItemEntity extends Equatable {
     bool? isPurchaseAllowed,
     bool? isSipAllowed,
     bool? isLumpsumAllowed,
+    bool? isRedeemAllowed,
+    String? allowedSipDates,
+    String? dividendOption,
+    String? sipFrequency,
     int? goalId,
     String? goalName,
     String? goalTargetAmount,
@@ -240,6 +250,19 @@ class CartItemEntity extends Equatable {
       isPurchaseAllowed: isPurchaseAllowed ?? this.isPurchaseAllowed,
       isSipAllowed: isSipAllowed ?? this.isSipAllowed,
       isLumpsumAllowed: isLumpsumAllowed ?? this.isLumpsumAllowed,
+      isRedeemAllowed: isRedeemAllowed ?? this.isRedeemAllowed,
+      allowedSipDates: allowedSipDates ?? this.allowedSipDates,
+      dividendOption: dividendOption ?? this.dividendOption,
+      sipFrequency: sipFrequency ?? this.sipFrequency,
+      goalId: goalId ?? this.goalId,
+      goalName: goalName ?? this.goalName,
+      goalTargetAmount: goalTargetAmount ?? this.goalTargetAmount,
+      goalMonthlyInvestment:
+          goalMonthlyInvestment ?? this.goalMonthlyInvestment,
+      goalTenure: goalTenure ?? this.goalTenure,
+      expectedReturnRate: expectedReturnRate ?? this.expectedReturnRate,
+      goalStatus: goalStatus ?? this.goalStatus,
+      goalCover: goalCover ?? this.goalCover,
     );
   }
 
@@ -278,7 +301,10 @@ class CartItemEntity extends Equatable {
     isPurchaseAllowed,
     isSipAllowed,
     isLumpsumAllowed,
+    isRedeemAllowed,
     allowedSipDates,
+    dividendOption,
+    sipFrequency,
   ];
 }
 
@@ -363,7 +389,10 @@ extension CartItemModelX on CartItemModel {
       isPurchaseAllowed: isPurchaseAllowed,
       isSipAllowed: isSipAllowed,
       isLumpsumAllowed: isLumpsumAllowed,
+      isRedeemAllowed: isRedeemAllowed,
       allowedSipDates: allowedSipDates,
+      dividendOption: dividendOption,
+      sipFrequency: sipFrequency,
     );
   }
 }

@@ -11,6 +11,7 @@ import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/fund/sip_frequency_dropdown.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -2438,8 +2439,59 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
           ? widget.itemEntity.amount.toString()
           : currentMinLimit.toString();
 
+      final SipFrequency currentFreq = SipFrequencyX.fromString(
+        widget.itemEntity.sipFrequency ?? widget.itemEntity.frequency,
+      );
+
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// Top Row: SIP Frequency Pill (Visible when not lumpsum)
+          if (currentType != 'lumpsum') ...[
+            Row(
+              children: [
+                Text(
+                  'SIP Frequency: ',
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff5B5B5B),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SipFrequencyDropdown(
+                  value: currentFreq,
+                  hasBorder: true,
+                  onChanged: (newFreq) {
+                    final int? id = widget.itemEntity.id;
+                    if (id != null) {
+                      final int newSipDay = switch (newFreq) {
+                        SipFrequency.daily => 0,
+                        SipFrequency.weekly =>
+                          (widget.itemEntity.sipDay != null &&
+                                  widget.itemEntity.sipDay! >= 1 &&
+                                  widget.itemEntity.sipDay! <= 5)
+                              ? widget.itemEntity.sipDay!
+                              : 1,
+                        SipFrequency.monthly =>
+                          (widget.itemEntity.sipDay != null &&
+                                  widget.itemEntity.sipDay! > 0)
+                              ? widget.itemEntity.sipDay!
+                              : 2,
+                      };
+
+                      controller.updateCartItem(
+                        itemId: id,
+                        sipFrequency: newFreq.label.toLowerCase(),
+                        sipDay: newSipDay,
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+
           Row(
             children: [
               /// 1. Investment Type Dropdown
@@ -2538,9 +2590,82 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
 
               const SizedBox(width: 12),
 
-              /// 2. SIP Date Dropdown
-              if (currentType != 'lumpsum')
+              /// 2. SIP Date / Day Dropdown (Visible for SIP/StepUp)
+              if (currentType != 'lumpsum') ...[
                 () {
+                  if (currentFreq == SipFrequency.daily) {
+                    return Expanded(
+                      flex: 2,
+                      child: _buildColumn(
+                        'SIP Day',
+                        Container(
+                          height: 28,
+                          alignment: Alignment.centerLeft,
+                          child: const Text(
+                            'NA',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 12,
+                              color: Color(0xFF142438),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (currentFreq == SipFrequency.weekly) {
+                    const weekdays = [
+                      {'val': '1', 'name': 'Mon (1)'},
+                      {'val': '2', 'name': 'Tue (2)'},
+                      {'val': '3', 'name': 'Wed (3)'},
+                      {'val': '4', 'name': 'Thu (4)'},
+                      {'val': '5', 'name': 'Fri (5)'},
+                    ];
+                    final currentDay = widget.itemEntity.sipDay ?? 1;
+                    final dropdownVal = (currentDay >= 1 && currentDay <= 5)
+                        ? '$currentDay'
+                        : '1';
+
+                    return Expanded(
+                      flex: 2,
+                      child: _buildColumn(
+                        'SIP Day',
+                        DropdownButton<String>(
+                          menuMaxHeight: 300,
+                          dropdownColor: Colors.white,
+                          isDense: true,
+                          value: dropdownVal,
+                          isExpanded: true,
+                          underline: const SizedBox(),
+                          items: weekdays
+                              .map(
+                                (item) => DropdownMenuItem(
+                                  value: item['val'],
+                                  child: Text(
+                                    item['name']!,
+                                    style: const TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              controller.updateCartItem(
+                                itemId: widget.itemEntity.id!,
+                                sipDay: int.parse(val),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  }
+
+                  // Monthly frequency (default)
                   final allowedDates = parseAllowedSipDates(
                     widget.itemEntity.allowedSipDates,
                   );
@@ -2581,7 +2706,6 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                             controller.updateCartItem(
                               itemId: widget.itemEntity.id!,
                               sipDay: int.parse(val),
-                              frequency: null,
                             );
                           }
                         },
@@ -2589,10 +2713,10 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                     ),
                   );
                 }(),
+                const SizedBox(width: 12),
+              ],
 
-              const SizedBox(width: 12),
-
-              /// 3. Amount Field
+              /// 3. Amount Field (Original 55px height preserved)
               Expanded(
                 flex: 3,
                 child: Column(
@@ -2607,11 +2731,7 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                     const SizedBox(height: 6),
                     CustomTextField(
                       height: 55,
-                      // key: ValueKey(
-                      //   'amt_${widget.itemEntity.id}_$currentAmount',
-                      // ),
                       keyboardType: TextInputType.number,
-                      // controller: TextEditingController(text: currentAmount),
                       controller: amountController,
                       validationType: ValidationType.custom,
                       onChanged: (value) {

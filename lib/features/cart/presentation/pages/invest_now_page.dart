@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 
+import '../../../../common/widget/fund/sip_frequency_dropdown.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
 import '../../../../common/widget/text_form/text_field_component.dart';
 import '../../../../config/routes/app_routes.dart';
@@ -163,8 +164,45 @@ class InvestmentInputsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      final isLumpsum = controller.invType.value == 'lumpsum';
+      final currentFreq = controller.sipFrequency.value;
+
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// Top Row: SIP Frequency Pill (Visible when not lumpsum)
+          if (!isLumpsum) ...[
+            Row(
+              children: [
+                Text(
+                  'SIP Frequency: ',
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff5B5B5B),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SipFrequencyDropdown(
+                  value: currentFreq,
+                  hasBorder: true,
+                  onChanged: (newFreq) {
+                    controller.sipFrequency.value = newFreq;
+                    if (newFreq == SipFrequency.daily) {
+                      controller.selectedSipDay.value = 0;
+                    } else if (newFreq == SipFrequency.weekly &&
+                        controller.selectedSipDay.value > 5) {
+                      controller.selectedSipDay.value = 1;
+                    } else if (newFreq == SipFrequency.monthly &&
+                        controller.selectedSipDay.value == 0) {
+                      controller.selectedSipDay.value = 2;
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+
           Row(
             children: [
               /// 1. Investment Type Dropdown
@@ -221,44 +259,116 @@ class InvestmentInputsRow extends StatelessWidget {
 
               const SizedBox(width: 12),
 
-              /// 2. SIP Date Dropdown (Visible for SIP/StepUp)
-              if (controller.invType.value != 'lumpsum')
-                Expanded(
-                  flex: 2,
-                  child: _buildColumn(
-                    'SIP Date',
-                    DropdownButton<String>(
-                      menuMaxHeight: 300,
-                      dropdownColor: Colors.white,
-                      isDense: true,
-                      value: controller.selectedSipDay.value.toString(),
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      items: List.generate(
-                        28,
-                        (i) => DropdownMenuItem(
-                          value: '${i + 1}',
-                          child: Text(
-                            '${i + 1}',
-                            style: const TextStyle(
+              /// 2. SIP Date / Day Dropdown (Visible for SIP/StepUp)
+              if (!isLumpsum) ...[
+                () {
+                  if (currentFreq == SipFrequency.daily) {
+                    return Expanded(
+                      flex: 2,
+                      child: _buildColumn(
+                        'SIP Day',
+                        Container(
+                          height: 28,
+                          alignment: Alignment.centerLeft,
+                          child: const Text(
+                            'NA',
+                            style: TextStyle(
                               fontFamily: FontFamily.medium,
                               fontSize: 12,
+                              color: Color(0xFF142438),
                             ),
                           ),
                         ),
                       ),
-                      onChanged: (val) {
-                        if (val != null) {
-                          controller.selectedSipDay.value = int.parse(val);
-                        }
-                      },
+                    );
+                  }
+
+                  if (currentFreq == SipFrequency.weekly) {
+                    const weekdays = [
+                      {'val': '1', 'name': 'Mon (1)'},
+                      {'val': '2', 'name': 'Tue (2)'},
+                      {'val': '3', 'name': 'Wed (3)'},
+                      {'val': '4', 'name': 'Thu (4)'},
+                      {'val': '5', 'name': 'Fri (5)'},
+                    ];
+                    final currentDay = controller.selectedSipDay.value;
+                    final dropdownVal = (currentDay >= 1 && currentDay <= 5)
+                        ? '$currentDay'
+                        : '1';
+
+                    return Expanded(
+                      flex: 2,
+                      child: _buildColumn(
+                        'SIP Day',
+                        DropdownButton<String>(
+                          menuMaxHeight: 300,
+                          dropdownColor: Colors.white,
+                          isDense: true,
+                          value: dropdownVal,
+                          isExpanded: true,
+                          underline: const SizedBox(),
+                          items: weekdays
+                              .map(
+                                (item) => DropdownMenuItem(
+                                  value: item['val'],
+                                  child: Text(
+                                    item['name']!,
+                                    style: const TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              controller.selectedSipDay.value = int.parse(val);
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  }
+
+                  // Monthly frequency (default)
+                  return Expanded(
+                    flex: 2,
+                    child: _buildColumn(
+                      'SIP Date',
+                      DropdownButton<String>(
+                        menuMaxHeight: 300,
+                        dropdownColor: Colors.white,
+                        isDense: true,
+                        value: controller.selectedSipDay.value.toString(),
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        items: List.generate(
+                          28,
+                          (i) => DropdownMenuItem(
+                            value: '${i + 1}',
+                            child: Text(
+                              '${i + 1}',
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        onChanged: (val) {
+                          if (val != null) {
+                            controller.selectedSipDay.value = int.parse(val);
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                }(),
+                const SizedBox(width: 12),
+              ],
 
-              const SizedBox(width: 12),
-
-              /// 3. Investment Amount
+              /// 3. Investment Amount (Original height 55 preserved)
               Expanded(
                 flex: 3,
                 child: Column(

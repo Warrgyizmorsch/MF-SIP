@@ -63,8 +63,14 @@ class CartDataModel {
         (e) => TransactionSummaryModel.fromJson(e),
       ),
       // lumpsum: TransactionSummaryModel.fromJson(json['lumpsum']),
-      withoutGoal: json.parseNested('without_goal', (e) => GoalSummaryModel.fromJson(e)),
-      withGoal: json.parseNested('with_goal', (e) => GoalSummaryModel.fromJson(e)),
+      withoutGoal: json.parseNested(
+        'without_goal',
+        (e) => GoalSummaryModel.fromJson(e),
+      ),
+      withGoal: json.parseNested(
+        'with_goal',
+        (e) => GoalSummaryModel.fromJson(e),
+      ),
     );
   }
 }
@@ -90,7 +96,10 @@ class GoalSummaryModel {
       totalAmount: json.parse<int>('total_amount'),
       topUpTotal: json.parse<int>('top_up_total'),
       sip: json.parseNested('sip', (e) => TransactionSummaryModel.fromJson(e)),
-      lumpsum: json.parseNested('lumpsum', (e) => TransactionSummaryModel.fromJson(e)),
+      lumpsum: json.parseNested(
+        'lumpsum',
+        (e) => TransactionSummaryModel.fromJson(e),
+      ),
     );
   }
 }
@@ -117,7 +126,7 @@ class CartItemModel {
   final int? amount;
   final String? frequency;
   final String? topUpAmount;
-  final int?  stepUpPercentage;
+  final int? stepUpPercentage;
   final String? capingDate;
   final String? capingAmount;
   final int? sipDay;
@@ -134,7 +143,10 @@ class CartItemModel {
   final bool? isPurchaseAllowed;
   final bool? isSipAllowed;
   final bool? isLumpsumAllowed;
+  final bool? isRedeemAllowed;
   final String? allowedSipDates;
+  final String? dividendOption;
+  final String? sipFrequency;
 
   //
   // Added Goal Specific Fields
@@ -172,7 +184,10 @@ class CartItemModel {
     this.isPurchaseAllowed,
     this.isSipAllowed,
     this.isLumpsumAllowed,
+    this.isRedeemAllowed,
     this.allowedSipDates,
+    this.dividendOption,
+    this.sipFrequency,
 
     //this.goalName,
     this.goalId,
@@ -210,21 +225,35 @@ class CartItemModel {
       minTopupAmount: json.parse<String>('minimum_topup'),
       isPurchaseAllowed: json['is_purchase_allowed'] != null
           ? (json['is_purchase_allowed'] is bool
-              ? json['is_purchase_allowed'] as bool
-              : json['is_purchase_allowed'].toString() == 'true' || json['is_purchase_allowed'].toString() == '1')
+                ? json['is_purchase_allowed'] as bool
+                : json['is_purchase_allowed'].toString() == 'true' ||
+                      json['is_purchase_allowed'].toString() == '1')
           : null,
       isSipAllowed: json['is_sip_allowed'] != null
           ? (json['is_sip_allowed'] is bool
-              ? json['is_sip_allowed'] as bool
-              : json['is_sip_allowed'].toString() == 'true' || json['is_sip_allowed'].toString() == '1')
+                ? json['is_sip_allowed'] as bool
+                : json['is_sip_allowed'].toString() == 'true' ||
+                      json['is_sip_allowed'].toString() == '1')
           : null,
       isLumpsumAllowed: json['is_lumpsum_allowed'] != null
           ? (json['is_lumpsum_allowed'] is bool
-              ? json['is_lumpsum_allowed'] as bool
-              : json['is_lumpsum_allowed'].toString() == 'true' || json['is_lumpsum_allowed'].toString() == '1')
+                ? json['is_lumpsum_allowed'] as bool
+                : json['is_lumpsum_allowed'].toString() == 'true' ||
+                      json['is_lumpsum_allowed'].toString() == '1')
           : null,
-      allowedSipDates: json.parse<String>('allowed_sip_dates') ??
+      isRedeemAllowed: json['is_redeem_allowed'] != null
+          ? (json['is_redeem_allowed'] is bool
+                ? json['is_redeem_allowed'] as bool
+                : json['is_redeem_allowed'].toString() == 'true' ||
+                      json['is_redeem_allowed'].toString() == '1')
+          : null,
+      allowedSipDates:
+          json.parse<String>('allowed_sip_dates') ??
           json.parse<String>('allowed_dates'),
+      dividendOption:
+          json.parse<String>('dividend_option') ??
+          json.parse<String>('div_opt'),
+      sipFrequency: json.parse<String>('sip_frequency'),
       //
       // Added Goal Mappings
       // goalId: json.parse<int>('goal_id'), // Added mapping

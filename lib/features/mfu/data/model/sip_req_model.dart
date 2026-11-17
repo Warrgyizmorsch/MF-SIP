@@ -27,6 +27,7 @@ class SipFundItemModel {
       'amount': amount,
       'folio': folio,
       'frequency': frequency,
+      'sip_frequency': frequency,
       'sip_day': int.tryParse(day) ?? day,
       'day': day,
     };
@@ -92,6 +93,7 @@ class SipReqModel {
     }
     if (frequency != null && frequency!.isNotEmpty) {
       data['frequency'] = frequency;
+      data['sip_frequency'] = frequency;
     }
     if (sipDay != null) {
       data['sip_day'] = int.tryParse(sipDay.toString()) ?? sipDay;
@@ -120,6 +122,7 @@ class SipReqModel {
         data['amount'] = single.amount;
         data['folio'] = single.folio;
         data['frequency'] = single.frequency;
+        data['sip_frequency'] = single.frequency;
         data['sip_day'] = int.tryParse(single.day) ?? single.day;
         if (single.devopt != null) data['devopt'] = single.devopt;
         if (single.endMonth != null && single.endMonth!.isNotEmpty) {
@@ -140,7 +143,10 @@ class SipReqModel {
       data['scheme_code'] = schemeCode;
       data['amount'] = amount ?? 0;
       data['folio'] = folio ?? 'NEW';
-      if (frequency != null) data['frequency'] = frequency;
+      if (frequency != null) {
+        data['frequency'] = frequency;
+        data['sip_frequency'] = frequency;
+      }
       if (sipDay != null) {
         data['sip_day'] = int.tryParse(sipDay.toString()) ?? sipDay;
       }
