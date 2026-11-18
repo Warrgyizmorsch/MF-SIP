@@ -341,6 +341,24 @@ class GoalDetailsPage extends GetView<GoalSipController> {
         }
       }
 
+      void onTopUpLumpsum() {
+        if (currentGoalId != 0) {
+          AddFundBottomSheet.show(
+            context,
+            goalId: currentGoalId,
+            goal: goal,
+            liveDetail: isCurrentGoalMatch ? liveDetail : null,
+            initialTabIndex: 1,
+            isDesktop: isDesktop,
+          ).then((_) {
+            controller.fetchSingleGoal(currentGoalId);
+            controller.getAllGoals();
+          });
+        } else {
+          Get.snackbar("Error", "Goal ID is missing.");
+        }
+      }
+
       if (isDesktop) {
         return Scaffold(
           backgroundColor: Ucolors.white,
@@ -354,6 +372,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             onEdit: onEdit,
             onDelete: onDelete,
             onAddFunds: onAddFunds,
+            onTopUpLumpsum: onTopUpLumpsum,
             controller: controller,
           ),
         );
@@ -369,6 +388,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
         onEdit: onEdit,
         onDelete: onDelete,
         onAddFunds: onAddFunds,
+        onTopUpLumpsum: onTopUpLumpsum,
       );
     });
   }
@@ -1694,6 +1714,7 @@ class GoalDetailsWebView extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onAddFunds;
+  final VoidCallback? onTopUpLumpsum;
   final GoalSipController controller;
 
   const GoalDetailsWebView({
@@ -1707,6 +1728,7 @@ class GoalDetailsWebView extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onAddFunds,
+    this.onTopUpLumpsum,
     required this.controller,
   });
 
@@ -1746,7 +1768,11 @@ class GoalDetailsWebView extends StatelessWidget {
                             controller: controller,
                           ),
                           const Gap(24),
-                          LinkedFundsCard(goal: goal, onAddFunds: onAddFunds),
+                          LinkedFundsCard(
+                            goal: goal,
+                            onAddFunds: onAddFunds,
+                            onTopUpLumpsum: onTopUpLumpsum,
+                          ),
                         ],
                       ),
                     ),
@@ -1826,6 +1852,13 @@ class GoalOverviewCard extends StatelessWidget {
       final double liveDaily = isMatch
           ? liveDetail.dailySavings
           : ((liveMonthly * 12) / 365);
+      final double liveTotalSip = isMatch && liveDetail.totalSipAmount > 0
+          ? liveDetail.totalSipAmount
+          : (goal?.totalSipAmount ?? 0.0);
+      final double liveTotalLumpsum =
+          isMatch && liveDetail.totalLumpsumAmount > 0
+          ? liveDetail.totalLumpsumAmount
+          : (goal?.totalLumpsumAmount ?? 0.0);
 
       final currentYear = DateTime.now().year;
       final dynamic rawDeadlineYear = isMatch && liveDetail.estYear > 0
@@ -1965,15 +1998,23 @@ class GoalOverviewCard extends StatelessWidget {
                           _fmt(liveWeekly),
                           hasBottomBorder: true,
                         ),
-                        const SizedBox.shrink(),
+                        _buildGridTile(
+                          Iconsax.repeat,
+                          "Total SIP",
+                          _fmt(liveTotalSip),
+                          hasRightBorder: true,
+                        ),
                         _buildGridTile(
                           Iconsax.card_send,
                           "Monthly Savings",
                           _fmt(liveMonthly),
-                          hasLeftBorder: true,
                           hasRightBorder: true,
                         ),
-                        const SizedBox.shrink(),
+                        _buildGridTile(
+                          Iconsax.wallet_add,
+                          "Total Lumpsum",
+                          _fmt(liveTotalLumpsum),
+                        ),
                       ],
                     ),
                   ),
@@ -2138,11 +2179,13 @@ class GoalOverviewCard extends StatelessWidget {
 class LinkedFundsCard extends StatelessWidget {
   final UserGoalEntity? goal;
   final VoidCallback? onAddFunds;
+  final VoidCallback? onTopUpLumpsum;
   final bool showHeader;
   const LinkedFundsCard({
     super.key,
     this.goal,
     this.onAddFunds,
+    this.onTopUpLumpsum,
     this.showHeader = true,
   });
 
@@ -2219,19 +2262,53 @@ class LinkedFundsCard extends StatelessWidget {
                     ],
                   ],
                 ),
-                if (onAddFunds != null)
-                  TextButton(
-                    onPressed: onAddFunds,
-                    child: const Text(
-                      'Add',
-                      style: TextStyle(
-                        color: _TrackingStyle.navy,
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  children: [
+                    if (onTopUpLumpsum != null)
+                      TextButton.icon(
+                        onPressed: onTopUpLumpsum,
+                        icon: const Icon(
+                          Icons.bolt,
+                          size: 15,
+                          color: Color(0xFF7C3AED),
+                        ),
+                        label: const Text(
+                          'Top Up',
+                          style: TextStyle(
+                            color: Color(0xFF7C3AED),
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          backgroundColor: const Color(0xFFF5F3FF),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    if (onAddFunds != null)
+                      TextButton(
+                        onPressed: onAddFunds,
+                        child: const Text(
+                          'Add Fund',
+                          style: TextStyle(
+                            color: _TrackingStyle.navy,
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ],
             );
           }),
@@ -3174,6 +3251,7 @@ class GoalDetailsMobileView extends StatefulWidget {
   final double invested;
   final String logo;
   final VoidCallback onEdit, onDelete, onAddFunds;
+  final VoidCallback? onTopUpLumpsum;
   const GoalDetailsMobileView({
     super.key,
     required this.title,
@@ -3185,6 +3263,7 @@ class GoalDetailsMobileView extends StatefulWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onAddFunds,
+    this.onTopUpLumpsum,
   });
   @override
   State<GoalDetailsMobileView> createState() => _TrackingViewState();
@@ -3236,7 +3315,37 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
               : (widget.goal?.goalTenure ?? 0).toDouble())
         : math.max(0, end.difference(DateTime.now()).inDays / 365);
     final year = (detail?.estYear ?? 0) > 0 ? detail!.estYear : end?.year;
+    final totalInvested = funds.fold<double>(
+      0,
+      (sum, f) =>
+          sum + (f.fundInvested > 0 ? f.fundInvested : f.investedAmount),
+    );
     final gain = funds.fold<double>(0, (sum, f) => sum + f.gainLoss);
+    final double gainPercent = totalInvested > 0
+        ? (gain / totalInvested * 100)
+        : (funds.isNotEmpty && funds.first.gainLossPercent != 0
+              ? funds.first.gainLossPercent
+              : 0.0);
+    final bool isGainPositive = gain > 0;
+    final bool isGainNegative = gain < 0;
+    final Color gainColor = isGainPositive
+        ? const Color(0xFF16A34A)
+        : (isGainNegative ? const Color(0xFFDC2626) : const Color(0xFF64748B));
+    final double totalSip = (detail?.totalSipAmount ?? 0) > 0
+        ? detail!.totalSipAmount
+        : (widget.goal?.totalSipAmount ?? 0.0);
+    final double totalLumpsum = (detail?.totalLumpsumAmount ?? 0) > 0
+        ? detail!.totalLumpsumAmount
+        : (widget.goal?.totalLumpsumAmount ?? 0.0);
+    final bool hasBothPlans = totalSip > 0 && totalLumpsum > 0;
+    final bool isLumpsumOnly =
+        (detail?.investmentType.toLowerCase() == 'lumpsum') ||
+        (widget.goal?.txnType.toLowerCase() == 'lumpsum');
+    final String planBadgeText = hasBothPlans
+        ? 'SIP & Lumpsum'
+        : (isLumpsumOnly
+              ? 'Lumpsum ${money(totalLumpsum > 0 ? totalLumpsum : (widget.goal?.lumpsumAmount ?? 0))}'
+              : '${money(monthly > 0 ? monthly : (widget.goal?.effectiveMonthlySip ?? 0))}/mo');
     final projected = target;
     return Scaffold(
       backgroundColor: _TrackingStyle.background,
@@ -3384,7 +3493,7 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                                             ),
                                           ),
                                           child: Text(
-                                            '${money(widget.goal?.txnType == 'lumpsum' ? (widget.goal?.lumpsumAmount ?? 0) : (monthly > 0 ? monthly : (widget.goal?.effectiveMonthlySip ?? 0)))}${widget.goal?.txnType == 'lumpsum' ? '' : '/mo'}',
+                                            planBadgeText,
                                             style: _TrackingStyle.text(
                                               12,
                                               weight: FontWeight.w600,
@@ -3460,6 +3569,116 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                               weight: FontWeight.w800,
                             ),
                           ),
+                          if (totalSip > 0 || totalLumpsum > 0) ...[
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                if (totalSip > 0)
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF1F5F9),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: const Color(0xFFE2E8F0),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.repeat_rounded,
+                                            size: 14,
+                                            color: Color(0xFF0066FF),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'SIP Total',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Color(0xFF64748B),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  money(totalSip),
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Color(0xFF0F172A),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                if (totalSip > 0 && totalLumpsum > 0)
+                                  const SizedBox(width: 8),
+                                if (totalLumpsum > 0)
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF1F5F9),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: const Color(0xFFE2E8F0),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons
+                                                .account_balance_wallet_outlined,
+                                            size: 14,
+                                            color: Color(0xFF8B5CF6),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Lumpsum Total',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Color(0xFF64748B),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  money(totalLumpsum),
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Color(0xFF0F172A),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
                           const SizedBox(height: 12),
                           Row(
                             children: [
@@ -3467,6 +3686,42 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                                 child: _stat(
                                   'Gain so far',
                                   '${gain >= 0 ? '+' : ''}${money(gain)}',
+                                  valueColor: gainColor,
+                                  trailingBadge: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: gainColor.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          isGainPositive
+                                              ? Icons.trending_up_rounded
+                                              : (isGainNegative
+                                                    ? Icons
+                                                          .trending_down_rounded
+                                                    : Icons
+                                                          .horizontal_rule_rounded),
+                                          size: 11,
+                                          color: gainColor,
+                                        ),
+                                        const SizedBox(width: 2),
+                                        Text(
+                                          '${gainPercent >= 0 ? '+' : ''}${gainPercent.toStringAsFixed(1)}%',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w700,
+                                            color: gainColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 20),
@@ -3516,8 +3771,13 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
       ),
     ],
   );
-  Widget _stat(String title, String value) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  Widget _stat(
+    String title,
+    String value, {
+    Color? valueColor,
+    Widget? trailingBadge,
+  }) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     decoration: BoxDecoration(
       color: _TrackingStyle.background,
       borderRadius: BorderRadius.circular(18),
@@ -3525,13 +3785,19 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: _TrackingStyle.text(11, color: Colors.black)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: _TrackingStyle.text(11, color: Colors.black)),
+            if (trailingBadge != null) trailingBadge,
+          ],
+        ),
         const SizedBox(height: 2),
         Text(
           value,
           style: _TrackingStyle.text(
-            20,
-            color: const Color(0xFF3023AC),
+            18,
+            color: valueColor ?? const Color(0xFF3023AC),
             weight: FontWeight.w800,
           ),
         ),
@@ -3628,44 +3894,64 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                   ),
                 ],
               ),
-              TextButton(
-                onPressed: widget.onAddFunds,
-                child: Text(
-                  'Add Fund',
-                  style: _TrackingStyle.text(
-                    13,
-                    color: _TrackingStyle.navy,
-                    weight: FontWeight.w600,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.onTopUpLumpsum != null)
+                    TextButton.icon(
+                      onPressed: widget.onTopUpLumpsum,
+                      icon: const Icon(
+                        Icons.bolt,
+                        size: 15,
+                        color: Color(0xFF7C3AED),
+                      ),
+                      label: Text(
+                        'Top Up',
+                        style: _TrackingStyle.text(
+                          12,
+                          color: const Color(0xFF7C3AED),
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        backgroundColor: const Color(0xFFF3EFFF),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 4),
+                  TextButton(
+                    onPressed: widget.onAddFunds,
+                    child: Text(
+                      'Add Fund',
+                      style: _TrackingStyle.text(
+                        13,
+                        color: _TrackingStyle.navy,
+                        weight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
+          const SizedBox(height: 8),
           if (c.isLoadingSingleGoal.value && funds.isEmpty)
             const GoalLinkedFundsShimmer()
           else if (funds.isEmpty)
             LinkedFundsCard(
               goal: widget.goal,
               onAddFunds: widget.onAddFunds,
+              onTopUpLumpsum: widget.onTopUpLumpsum,
               showHeader: false,
             )
           else
             ...funds.take(2).map(_fundRow),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: widget.onAddFunds,
-              icon: const Icon(Icons.add, size: 16, color: _TrackingStyle.navy),
-              label: Text(
-                'Add more',
-                style: _TrackingStyle.text(
-                  13,
-                  color: _TrackingStyle.navy,
-                  weight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
           if (funds.isNotEmpty)
             TextButton(
               onPressed: () => _allFunds(),
@@ -3684,80 +3970,167 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
     ),
   );
 
-  Widget _fundRow(GoalLinkedFundEntity fund) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Material(
-      color: const Color(0xFFF0F1F7),
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(color: _TrackingStyle.line),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        leading: ClipOval(
-          child: CustomCachedImage(
-            imageUrl: url(
-              fund.amcLogo.isNotEmpty ? fund.amcLogo : fund.amcImageUrl,
+  Widget _fundRow(GoalLinkedFundEntity fund) {
+    final bool isFundSip =
+        fund.isSip ||
+        fund.type.toLowerCase() == 'sip' ||
+        fund.investmentType.toLowerCase() == 'sip';
+    final double investedVal = fund.fundInvested > 0
+        ? fund.fundInvested
+        : (fund.investedAmount > 0
+              ? fund.investedAmount
+              : fund.investmentAmount);
+    final double currentVal = fund.currentValue;
+    final double gainVal = fund.gainLoss;
+    final double gainPct = fund.gainLossPercent;
+    final bool isGainPos = gainVal >= 0;
+    final Color gainCol = isGainPos
+        ? const Color(0xFF16A34A)
+        : const Color(0xFFDC2626);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: const Color(0xFFF0F1F7),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: _TrackingStyle.line),
+          borderRadius: BorderRadius.circular(22),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
+          leading: ClipOval(
+            child: CustomCachedImage(
+              imageUrl: url(
+                fund.amcLogo.isNotEmpty ? fund.amcLogo : fund.amcImageUrl,
+              ),
+              width: 40,
+              height: 40,
+              fit: BoxFit.contain,
             ),
-            width: 40,
-            height: 40,
-            fit: BoxFit.contain,
           ),
-        ),
-        title: Text(
-          fund.fundName,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: _TrackingStyle.text(12, weight: FontWeight.w600),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 7),
-          child: Text(
-            'Inv: ${money(fund.fundInvested)}   Cur: ${money(fund.currentValue)}   (${fund.gainLossPercent >= 0 ? '+' : ''}${fund.gainLossPercent.toStringAsFixed(1)}%)',
-            style: _TrackingStyle.text(10, color: _TrackingStyle.muted),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  fund.fundName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: _TrackingStyle.text(12, weight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 1.5,
+                ),
+                decoration: BoxDecoration(
+                  color: isFundSip
+                      ? const Color(0xFFEFF6FF)
+                      : const Color(0xFFF5F3FF),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isFundSip
+                        ? const Color(0xFFBFDBFE)
+                        : const Color(0xFFDDD6FE),
+                    width: 0.8,
+                  ),
+                ),
+                child: Text(
+                  isFundSip ? 'SIP' : 'Lumpsum',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: isFundSip
+                        ? const Color(0xFF1D4ED8)
+                        : const Color(0xFF7C3AED),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-        onTap: () => PortfolioFundDetailsModal.show(
-          context,
-          fund.toPortfolioItem(goalName: widget.title),
-        ),
-        trailing: fund.hasPendingRedemption
-            ? null
-            : Obx(
-                () =>
-                    (c.isDeleting[fund.id > 0
-                            ? fund.id
-                            : fund.mfuOrderFundId] ??
-                        false)
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : IconButton(
-                        onPressed: () => DialogHelper.showRemoveFundDialog(
-                          fundName: fund.fundName,
-                          onConfirm: () => c.deleteGoalFund(
-                            id: fund.id > 0 ? fund.id : fund.mfuOrderFundId,
-                            isEdit: false,
-                            schemeName: fund.fundName,
-                            goalId: widget.goal?.id,
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Inv: ${money(investedVal)}  •  Cur: ${money(currentVal)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _TrackingStyle.text(10, color: _TrackingStyle.muted),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isGainPos
+                          ? Icons.trending_up_rounded
+                          : Icons.trending_down_rounded,
+                      size: 11,
+                      color: gainCol,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      '${isGainPos ? '+' : ''}${gainPct.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: gainCol,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          onTap: () => PortfolioFundDetailsModal.show(
+            context,
+            fund.toPortfolioItem(goalName: widget.title),
+          ),
+          trailing: fund.hasPendingRedemption
+              ? null
+              : Obx(
+                  () =>
+                      (c.isDeleting[fund.id > 0
+                              ? fund.id
+                              : fund.mfuOrderFundId] ??
+                          false)
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : IconButton(
+                          onPressed: () => DialogHelper.showRemoveFundDialog(
+                            fundName: fund.fundName,
+                            onConfirm: () => c.deleteGoalFund(
+                              id: fund.id > 0 ? fund.id : fund.mfuOrderFundId,
+                              isEdit: false,
+                              schemeName: fund.fundName,
+                              goalId: widget.goal?.id,
+                            ),
+                          ),
+                          style: IconButton.styleFrom(
+                            backgroundColor: const Color(0xFFF6E3E7),
+                          ),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            size: 18,
+                            color: Color(0xFFFF5368),
                           ),
                         ),
-                        style: IconButton.styleFrom(
-                          backgroundColor: const Color(0xFFF6E3E7),
-                        ),
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: Color(0xFFFF5368),
-                        ),
-                      ),
-              ),
+                ),
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   List<Widget> _activity(List<GoalLinkedFundEntity> funds) {
     final txns = funds.expand((f) => f.transactions).toList()
@@ -4459,6 +4832,13 @@ class GoalDetailSection extends StatelessWidget {
       final double liveDaily = isMatch
           ? liveDetail.dailySavings
           : ((liveMonthly * 12) / 365);
+      final double liveTotalSip = isMatch && liveDetail.totalSipAmount > 0
+          ? liveDetail.totalSipAmount
+          : (goal?.totalSipAmount ?? 0.0);
+      final double liveTotalLumpsum =
+          isMatch && liveDetail.totalLumpsumAmount > 0
+          ? liveDetail.totalLumpsumAmount
+          : (goal?.totalLumpsumAmount ?? 0.0);
 
       final currentYear = DateTime.now().year;
       final dynamic rawDeadlineYear = isMatch && liveDetail.estYear > 0

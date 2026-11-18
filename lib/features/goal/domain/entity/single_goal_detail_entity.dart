@@ -19,7 +19,10 @@ class SingleGoalDetailEntity {
   final double investmentAmount;
   final String frequency;
   final double sipAmount;
+  final double totalSipAmount;
+  final double monthlySipAmount;
   final double lumpsumAmount;
+  final double totalLumpsumAmount;
   final double progressPercent;
   final double savedAmount;
   final double remainingAmount;
@@ -47,7 +50,10 @@ class SingleGoalDetailEntity {
     this.investmentAmount = 0.0,
     this.frequency = '',
     this.sipAmount = 0.0,
+    this.totalSipAmount = 0.0,
+    this.monthlySipAmount = 0.0,
     this.lumpsumAmount = 0.0,
+    this.totalLumpsumAmount = 0.0,
     required this.progressPercent,
     required this.savedAmount,
     required this.remainingAmount,
@@ -76,7 +82,10 @@ class SingleGoalDetailEntity {
     double? investmentAmount,
     String? frequency,
     double? sipAmount,
+    double? totalSipAmount,
+    double? monthlySipAmount,
     double? lumpsumAmount,
+    double? totalLumpsumAmount,
     double? progressPercent,
     double? savedAmount,
     double? remainingAmount,
@@ -104,7 +113,10 @@ class SingleGoalDetailEntity {
       investmentAmount: investmentAmount ?? this.investmentAmount,
       frequency: frequency ?? this.frequency,
       sipAmount: sipAmount ?? this.sipAmount,
+      totalSipAmount: totalSipAmount ?? this.totalSipAmount,
+      monthlySipAmount: monthlySipAmount ?? this.monthlySipAmount,
       lumpsumAmount: lumpsumAmount ?? this.lumpsumAmount,
+      totalLumpsumAmount: totalLumpsumAmount ?? this.totalLumpsumAmount,
       progressPercent: progressPercent ?? this.progressPercent,
       savedAmount: savedAmount ?? this.savedAmount,
       remainingAmount: remainingAmount ?? this.remainingAmount,
@@ -242,6 +254,10 @@ class GoalLinkedFundEntity {
   final String type;
   final String investmentType;
   final String exitLoad;
+  final bool isLumpsumAllowed;
+  final bool isSipAllowed;
+  final double sipMinimumAmount;
+  final double lumpsumMinimumAmount;
   final List<GoalFundTransactionEntity> transactions;
 
   GoalLinkedFundEntity({
@@ -302,6 +318,10 @@ class GoalLinkedFundEntity {
     required this.type,
     this.investmentType = '',
     this.exitLoad = '',
+    this.isLumpsumAllowed = true,
+    this.isSipAllowed = true,
+    this.sipMinimumAmount = 500.0,
+    this.lumpsumMinimumAmount = 500.0,
     this.transactions = const [],
   });
 }

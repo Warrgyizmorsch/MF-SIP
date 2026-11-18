@@ -36,7 +36,10 @@ class SingleGoalDetailModel {
   final double? investmentAmount;
   final String? frequency;
   final double? sipAmount;
+  final double? totalSipAmount;
+  final double? monthlySipAmount;
   final double? lumpsumAmount;
+  final double? totalLumpsumAmount;
   final double? progressPercent;
   final double? savedAmount;
   final double? remainingAmount;
@@ -64,7 +67,10 @@ class SingleGoalDetailModel {
     this.investmentAmount,
     this.frequency,
     this.sipAmount,
+    this.totalSipAmount,
+    this.monthlySipAmount,
     this.lumpsumAmount,
+    this.totalLumpsumAmount,
     this.progressPercent,
     this.savedAmount,
     this.remainingAmount,
@@ -94,7 +100,10 @@ class SingleGoalDetailModel {
       investmentAmount: json.parse<double>('investment_amount'),
       frequency: json.parse<String>('frequency'),
       sipAmount: json.parse<double>('sip_amount'),
+      totalSipAmount: json.parse<double>('total_sip_amount'),
+      monthlySipAmount: json.parse<double>('monthly_sip_amount'),
       lumpsumAmount: json.parse<double>('lumpsum_amount'),
+      totalLumpsumAmount: json.parse<double>('total_lumpsum_amount'),
       progressPercent: json.parse<double>('progress_percent'),
       savedAmount:
           json.parse<double>('saved_amount') ?? json.parse<double>('saved'),
@@ -138,7 +147,10 @@ class SingleGoalDetailModel {
       investmentAmount: investmentAmount ?? 0.0,
       frequency: frequency ?? '',
       sipAmount: sipAmount ?? 0.0,
+      totalSipAmount: totalSipAmount ?? 0.0,
+      monthlySipAmount: monthlySipAmount ?? monthlySavings ?? 0.0,
       lumpsumAmount: lumpsumAmount ?? 0.0,
+      totalLumpsumAmount: totalLumpsumAmount ?? lumpsumAmount ?? 0.0,
       progressPercent: progressPercent ?? 0.0,
       savedAmount: savedAmount ?? saving?.saved ?? 0.0,
       remainingAmount: remainingAmount ?? saving?.remaining ?? 0.0,
@@ -548,6 +560,10 @@ class GoalLinkedFundModel {
   final String? type;
   final String? investmentType;
   final String? exitLoad;
+  final bool? isLumpsumAllowed;
+  final bool? isSipAllowed;
+  final double? sipMinimumAmount;
+  final double? lumpsumMinimumAmount;
   final List<GoalFundTransactionModel>? transactions;
 
   GoalLinkedFundModel({
@@ -608,6 +624,10 @@ class GoalLinkedFundModel {
     this.type,
     this.investmentType,
     this.exitLoad,
+    this.isLumpsumAllowed,
+    this.isSipAllowed,
+    this.sipMinimumAmount,
+    this.lumpsumMinimumAmount,
     this.transactions,
   });
 
@@ -718,6 +738,10 @@ class GoalLinkedFundModel {
       investmentType:
           json.parse<String>('investment_type') ?? json.parse<String>('type'),
       exitLoad: json.parse<String>('exit_load'),
+      isLumpsumAllowed: json.parse<bool>('is_lumpsum_allowed'),
+      isSipAllowed: json.parse<bool>('is_sip_allowed'),
+      sipMinimumAmount: json.parse<double>('sip_minimum_amount'),
+      lumpsumMinimumAmount: json.parse<double>('lumpsum_minimum_amount'),
       transactions: json.parseListOf<GoalFundTransactionModel>(
         'transactions',
         (item) =>
@@ -787,6 +811,10 @@ class GoalLinkedFundModel {
       type: type ?? investmentType ?? '',
       investmentType: investmentType ?? type ?? '',
       exitLoad: exitLoad ?? '',
+      isLumpsumAllowed: isLumpsumAllowed ?? true,
+      isSipAllowed: isSipAllowed ?? true,
+      sipMinimumAmount: sipMinimumAmount ?? 500.0,
+      lumpsumMinimumAmount: lumpsumMinimumAmount ?? 500.0,
       transactions: transactions?.map((t) => t.toEntity()).toList() ?? const [],
     );
   }
