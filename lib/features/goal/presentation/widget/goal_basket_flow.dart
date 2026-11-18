@@ -109,6 +109,106 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     return 'Monthly • $intDay$suffix';
   }
 
+  String _getBasketFrequencyType(List<MutualFundListEntity> selected) {
+    if (selected.isEmpty) return 'Monthly';
+    final frequencies = selected.map((f) => _frequency(f)).toSet();
+    if (frequencies.length == 1) {
+      return frequencies.first;
+    }
+    return 'Mixed';
+  }
+
+  String _getFrequencyHeaderTitle(
+    List<MutualFundListEntity> selected,
+    bool isLumpsum,
+  ) {
+    if (isLumpsum) return 'TOTAL PAYABLE';
+    final type = _getBasketFrequencyType(selected);
+    switch (type) {
+      case 'Daily':
+        return 'DAILY SIP AMOUNT';
+      case 'Weekly':
+        return 'WEEKLY SIP AMOUNT';
+      case 'Monthly':
+        return 'MONTHLY SIP AMOUNT';
+      default:
+        return 'TOTAL SIP INSTALLMENT';
+    }
+  }
+
+  String _getFrequencyAmountSuffix(
+    List<MutualFundListEntity> selected,
+    bool isLumpsum,
+  ) {
+    if (isLumpsum) return '';
+    final type = _getBasketFrequencyType(selected);
+    switch (type) {
+      case 'Daily':
+        return ' / day';
+      case 'Weekly':
+        return ' / week';
+      case 'Monthly':
+        return ' / mo';
+      default:
+        return '';
+    }
+  }
+
+  String _getFrequencySubtitle(
+    List<MutualFundListEntity> selected,
+    bool isLumpsum,
+    String targetDateStr,
+  ) {
+    if (isLumpsum) {
+      return 'One-time investment toward ${c.goalNameTextEditingController.text}';
+    }
+    final type = _getBasketFrequencyType(selected);
+    switch (type) {
+      case 'Daily':
+        return 'Auto-debited daily on business days to reach ${money(c.targetAmount.value)} by $targetDateStr';
+      case 'Weekly':
+        return 'Auto-debited weekly on selected weekdays to reach ${money(c.targetAmount.value)} by $targetDateStr';
+      case 'Monthly':
+        return 'Auto-debited monthly on selected dates to reach ${money(c.targetAmount.value)} by $targetDateStr';
+      default:
+        return 'Includes mixed frequencies (Daily, Weekly & Monthly) toward ${money(c.targetAmount.value)}';
+    }
+  }
+
+  String _getFundAmountSuffix(MutualFundListEntity fund) {
+    final freq = _frequency(fund);
+    switch (freq) {
+      case 'Daily':
+        return '/ day';
+      case 'Weekly':
+        return '/ wk';
+      case 'Monthly':
+      default:
+        return '/ mo';
+    }
+  }
+
+  String _getButtonText(List<MutualFundListEntity> selected) {
+    final isLumpsum = c.savedInvestmentType.value == 'lumpsum';
+    if (!review) {
+      return 'Review Plan • ${money(total)}';
+    }
+    if (isLumpsum) {
+      return 'Pay ${money(total)}';
+    }
+    final type = _getBasketFrequencyType(selected);
+    switch (type) {
+      case 'Daily':
+        return 'Pay ${money(total)} & Set up Daily AutoPay';
+      case 'Weekly':
+        return 'Pay ${money(total)} & Set up Weekly AutoPay';
+      case 'Monthly':
+        return 'Pay ${money(total)} & Set up Monthly AutoPay';
+      default:
+        return 'Pay ${money(total)} & Set up AutoPay';
+    }
+  }
+
   GoalSipController get c => widget.controller;
   // Search results are transient: closing or searching the picker replaces them.
   // Retain fund details independently; selection remains owned by GetX.
@@ -361,12 +461,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                                     color: Colors.white,
                                   )
                                 : Text(
-                                    review
-                                        ? (c.savedInvestmentType.value ==
-                                                  'lumpsum'
-                                              ? 'Pay ${money(total)}'
-                                              : 'Pay ${money(total)} & Set up AutoPay')
-                                        : 'Review Plan • ${money(total)}',
+                                    _getButtonText(selected),
                                     style: text(
                                       16,
                                       color: Colors.white,
@@ -1269,7 +1364,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isLumpsum ? 'TOTAL PAYABLE' : 'MONTHLY SIP AMOUNT',
+                    _getFrequencyHeaderTitle(selected, isLumpsum),
                     style: text(
                       11,
                       weight: FontWeight.w700,
@@ -1294,7 +1389,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
               ),
               const SizedBox(height: 8),
               Text(
-                '${money(total)}${isLumpsum ? '' : ' / mo'}',
+                '${money(total)}${_getFrequencyAmountSuffix(selected, isLumpsum)}',
                 style: text(
                   28,
                   weight: FontWeight.w800,
@@ -1303,9 +1398,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
               ),
               const SizedBox(height: 4),
               Text(
-                isLumpsum
-                    ? 'One-time investment toward ${c.goalNameTextEditingController.text}'
-                    : 'Auto-debited on selected dates to reach ${money(c.targetAmount.value)} by $targetDateStr',
+                _getFrequencySubtitle(selected, isLumpsum, targetDateStr),
                 style: text(12, color: muted),
               ),
               const SizedBox(height: 16),
@@ -1322,10 +1415,25 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
               const SizedBox(height: 10),
               ...selected.map((f) {
                 final amt = amount(f);
+                final freq = _frequency(f);
                 final freqLabel = getFrequencyDisplayLabel(f);
+                final isDaily = freq == 'Daily';
+                final isWeekly = freq == 'Weekly';
+                final badgeColor = isDaily
+                    ? const Color(0xFF0284C7)
+                    : (isWeekly
+                          ? const Color(0xFF7C3AED)
+                          : const Color(0xFF4338CA));
+                final badgeBg = isDaily
+                    ? const Color(0xFFF0F9FF)
+                    : (isWeekly
+                          ? const Color(0xFFF5F3FF)
+                          : const Color(0xFFEEF2FF));
+
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: 12),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Column(
@@ -1341,25 +1449,48 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            if (!isLumpsum)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2),
+                            if (!isLumpsum) ...[
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: badgeBg,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                                 child: Text(
                                   freqLabel,
-                                  style: text(11, color: muted),
+                                  style: text(
+                                    10,
+                                    weight: FontWeight.w600,
+                                    color: badgeColor,
+                                  ),
                                 ),
                               ),
+                            ],
                           ],
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Text(
-                        money(amt),
-                        style: text(
-                          14,
-                          weight: FontWeight.w700,
-                          color: const Color(0xFF1A1D2E),
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            money(amt),
+                            style: text(
+                              14,
+                              weight: FontWeight.w700,
+                              color: const Color(0xFF1A1D2E),
+                            ),
+                          ),
+                          if (!isLumpsum)
+                            Text(
+                              _getFundAmountSuffix(f),
+                              style: text(10, color: muted),
+                            ),
+                        ],
                       ),
                     ],
                   ),
