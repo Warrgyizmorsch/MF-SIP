@@ -7,19 +7,30 @@ import '../../data/model/goal_model.dart';
 class GoalResponseEntity extends Equatable {
   final bool success;
   final String message;
+  final double totalSipAmount;
+  final double totalLumpsumAmount;
   final List<UserGoalEntity> goal;
   final List<UserGoalEntity> data;
 
   const GoalResponseEntity({
     required this.success,
     required this.message,
+    this.totalSipAmount = 0.0,
+    this.totalLumpsumAmount = 0.0,
     List<UserGoalEntity>? goal,
     List<UserGoalEntity>? data,
   }) : goal = goal ?? data ?? const [],
        data = data ?? goal ?? const [];
 
   @override
-  List<Object?> get props => [success, message, goal, data];
+  List<Object?> get props => [
+    success,
+    message,
+    totalSipAmount,
+    totalLumpsumAmount,
+    goal,
+    data,
+  ];
 }
 
 class SaveGoalResponseEntity extends Equatable {
@@ -112,10 +123,15 @@ class UserGoalEntity extends Equatable {
   final int goalId;
   final String goalName;
   final String goalCover;
+  final String investmentType;
   final String txnType;
   final double lumpsumAmount;
+  final double totalLumpsumAmount;
   final double targetAmount;
   final String frequency;
+  final double sipAmount;
+  final double totalSipAmount;
+  final double monthlySipAmount;
   final double monthlyInvestment;
   final double expectedReturnRate;
   final int goalTenure;
@@ -137,10 +153,15 @@ class UserGoalEntity extends Equatable {
     required this.goalId,
     required this.goalName,
     required this.goalCover,
+    String? investmentType,
     required this.txnType,
     required this.lumpsumAmount,
+    this.totalLumpsumAmount = 0.0,
     required this.targetAmount,
     required this.frequency,
+    this.sipAmount = 0.0,
+    this.totalSipAmount = 0.0,
+    this.monthlySipAmount = 0.0,
     required this.monthlyInvestment,
     required this.expectedReturnRate,
     required this.goalTenure,
@@ -155,8 +176,13 @@ class UserGoalEntity extends Equatable {
     this.mfuOrderStatus = 'not_ordered',
     this.goalType,
     this.goalFunds = const [],
-  }) : savedAmount = savedAmount ?? investedAmount ?? 0.0,
+  }) : investmentType = investmentType ?? txnType,
+       savedAmount = savedAmount ?? investedAmount ?? 0.0,
        investedAmount = investedAmount ?? savedAmount ?? 0.0;
+
+  bool get isLumpsum =>
+      investmentType.toLowerCase() == 'lumpsum' ||
+      txnType.toLowerCase() == 'lumpsum';
 
   double get effectiveTenureYears {
     if (duration.isNotEmpty) {
@@ -195,6 +221,8 @@ class UserGoalEntity extends Equatable {
   }
 
   double get effectiveMonthlySip {
+    if (monthlySipAmount > 0) return monthlySipAmount;
+    if (sipAmount > 0) return sipAmount;
     final explicitMonthly = monthlyInvestment > 0
         ? monthlyInvestment
         : (goalType?.monthlyInvestment ?? 0.0);
@@ -299,10 +327,15 @@ class UserGoalEntity extends Equatable {
     goalId,
     goalName,
     goalCover,
+    investmentType,
     txnType,
     lumpsumAmount,
+    totalLumpsumAmount,
     targetAmount,
     frequency,
+    sipAmount,
+    totalSipAmount,
+    monthlySipAmount,
     monthlyInvestment,
     expectedReturnRate,
     goalTenure,
@@ -565,6 +598,8 @@ extension GoalResponseMapper on GoalResponseModel {
     return GoalResponseEntity(
       success: success ?? false,
       message: message ?? '',
+      totalSipAmount: totalSipAmount ?? 0.0,
+      totalLumpsumAmount: totalLumpsumAmount ?? 0.0,
       goal: list,
       data: list,
     );
@@ -605,11 +640,17 @@ extension UserGoalMapper on UserGoalModel {
       goalId: goalId ?? 0,
       goalName: goalName ?? '',
       goalCover: goalCover ?? '',
-      txnType: txnType ?? '',
+      investmentType: investmentType ?? txnType ?? '',
+      txnType: txnType ?? investmentType ?? '',
       lumpsumAmount: lumpsumAmount ?? 0.0,
+      totalLumpsumAmount: totalLumpsumAmount ?? 0.0,
       targetAmount: targetAmount ?? 0.0,
       frequency: frequency ?? '',
-      monthlyInvestment: monthlyInvestment ?? 0.0,
+      sipAmount: sipAmount ?? 0.0,
+      totalSipAmount: totalSipAmount ?? 0.0,
+      monthlySipAmount: monthlySipAmount ?? 0.0,
+      monthlyInvestment:
+          monthlyInvestment ?? monthlySipAmount ?? sipAmount ?? 0.0,
       expectedReturnRate: expectedReturnRate ?? 0.0,
       goalTenure: goalTenure ?? 0,
       savedAmount: savedAmount ?? investedAmount ?? 0.0,

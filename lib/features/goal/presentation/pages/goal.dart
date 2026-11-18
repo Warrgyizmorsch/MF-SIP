@@ -263,15 +263,13 @@ class GoalScreenMobile extends GetView<GoalSipController> {
   );
 
   Widget _summary(List<UserGoalEntity> goals) {
-    final behind = goals.where(_behind).length;
     final completed = goals
         .where((goal) => goal.effectiveProgressPercent >= 100)
         .length;
-    final monthly = goals.fold<double>(
-      0,
-      (sum, g) => sum + g.effectiveMonthlySip,
-    );
-    final next = _nextSip(goals);
+    final totalSip = controller.goalResponse.value?.totalSipAmount ?? 0.0;
+    final totalLumpsum =
+        controller.goalResponse.value?.totalLumpsumAmount ?? 0.0;
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -280,17 +278,15 @@ class GoalScreenMobile extends GetView<GoalSipController> {
             child: Column(
               children: [
                 _summaryTile(
-                  Icons.warning_amber_rounded,
-                  '$behind Goal${behind == 1 ? '' : 's'}',
-                  behind == 0 ? 'No top-ups flagged' : 'Needs a top-up',
+                  Icons.repeat_rounded,
+                  _money(totalSip),
+                  'SIP Investments',
                 ),
                 const SizedBox(height: 12),
                 _summaryTile(
-                  Icons.calendar_today_outlined,
-                  _money(monthly),
-                  next == null
-                      ? 'Monthly SIP'
-                      : 'Next SIP · ${DateFormat('d MMM').format(next)}',
+                  Icons.account_balance_wallet_outlined,
+                  _money(totalLumpsum),
+                  'One-time Investments',
                 ),
               ],
             ),

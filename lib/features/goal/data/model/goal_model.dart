@@ -4,6 +4,8 @@ class GoalResponseModel {
   final bool? status;
   final bool? success;
   final String? message;
+  final double? totalSipAmount;
+  final double? totalLumpsumAmount;
   final List<UserGoalModel>? goal;
   final List<UserGoalModel>? data;
 
@@ -11,6 +13,8 @@ class GoalResponseModel {
     this.status,
     this.success,
     this.message,
+    this.totalSipAmount,
+    this.totalLumpsumAmount,
     this.goal,
     List<UserGoalModel>? data,
   }) : data = data ?? goal;
@@ -29,6 +33,8 @@ class GoalResponseModel {
       status: json.parse<bool>('status'),
       success: json.parse<bool>('success'),
       message: json.parse<String>('message'),
+      totalSipAmount: json.parse<double>('total_sip_amount'),
+      totalLumpsumAmount: json.parse<double>('total_lumpsum_amount'),
       goal: list,
       data: list,
     );
@@ -39,6 +45,9 @@ class GoalResponseModel {
       if (status != null) 'status': status,
       if (success != null) 'success': success,
       'message': message,
+      if (totalSipAmount != null) 'total_sip_amount': totalSipAmount,
+      if (totalLumpsumAmount != null)
+        'total_lumpsum_amount': totalLumpsumAmount,
       if (goal != null) 'goal': goal!.map((e) => e.toJson()).toList(),
       if (data != null) 'data': data!.map((e) => e.toJson()).toList(),
     };
@@ -175,10 +184,15 @@ class UserGoalModel {
   final int? goalId;
   final String? goalName;
   final String? goalCover;
+  final String? investmentType;
   final String? txnType;
   final double? lumpsumAmount;
+  final double? totalLumpsumAmount;
   final double? targetAmount; // Added missing property from API top level
   final String? frequency;
+  final double? sipAmount;
+  final double? totalSipAmount;
+  final double? monthlySipAmount;
   final double? monthlyInvestment;
   final double? expectedReturnRate;
   final int? goalTenure;
@@ -200,10 +214,15 @@ class UserGoalModel {
     this.goalId,
     this.goalName,
     this.goalCover,
-    this.txnType,
+    this.investmentType,
+    String? txnType,
     this.lumpsumAmount,
+    this.totalLumpsumAmount,
     this.targetAmount,
     this.frequency,
+    this.sipAmount,
+    this.totalSipAmount,
+    this.monthlySipAmount,
     this.monthlyInvestment,
     this.expectedReturnRate,
     this.goalTenure,
@@ -218,7 +237,8 @@ class UserGoalModel {
     this.mfuOrderStatus,
     this.goalType,
     this.goalFunds,
-  }) : investedAmount = investedAmount ?? savedAmount;
+  }) : txnType = txnType ?? investmentType,
+       investedAmount = investedAmount ?? savedAmount;
 
   factory UserGoalModel.fromJson(Map<String, dynamic> json) {
     int? parsedTenure =
@@ -242,23 +262,36 @@ class UserGoalModel {
         json.parse<double>('Invested_amount') ??
         json.parse<double>('invested_amount');
 
+    final parsedInvestmentType =
+        json.parse<String>('investment_type') ?? json.parse<String>('txn_type');
+    final parsedSipAmount = json.parse<double>('sip_amount');
+    final parsedMonthlySip =
+        json.parse<double>('monthly_sip_amount') ??
+        parsedSipAmount ??
+        json.parse<double>('monthly_investment');
+
     return UserGoalModel(
       id: json.parse<int>('id'),
       userId: json.parse<int>('user_id'),
       goalId: json.parse<int>('goal_id'),
       goalName: json.parse<String>('goal_name'),
       goalCover: json.parse<String>('goal_cover'),
-      txnType: json.parse<String>('txn_type'),
+      investmentType: parsedInvestmentType,
+      txnType: parsedInvestmentType,
       lumpsumAmount: json.parse<double>('lumpsum_amount'),
+      totalLumpsumAmount: json.parse<double>('total_lumpsum_amount'),
       targetAmount: json.parse<double>(
         'target_amount',
       ), // Handles String "1000000.00" safely
       frequency: json.parse<String>('frequency'),
+      sipAmount: parsedSipAmount,
+      totalSipAmount: json.parse<double>('total_sip_amount'),
+      monthlySipAmount: json.parse<double>('monthly_sip_amount'),
       monthlyInvestment:
           json.parse<double>('monthly_investment') ??
           json.parse<double>('monthly_savings') ??
           json.parse<double>('monthly_sip') ??
-          json.parse<double>('sip_amount') ??
+          parsedMonthlySip ??
           json.parse<double>('monthly_contribution') ??
           json.parse<double>('installment_amount'),
       expectedReturnRate: json.parse<double>('expected_return_rate'),
@@ -290,10 +323,15 @@ class UserGoalModel {
       'goal_id': goalId,
       'goal_name': goalName,
       'goal_cover': goalCover,
-      'txn_type': txnType,
+      'investment_type': investmentType ?? txnType,
+      'txn_type': txnType ?? investmentType,
       'lumpsum_amount': lumpsumAmount,
+      'total_lumpsum_amount': totalLumpsumAmount,
       'target_amount': targetAmount,
       'frequency': frequency,
+      'sip_amount': sipAmount,
+      'total_sip_amount': totalSipAmount,
+      'monthly_sip_amount': monthlySipAmount,
       'monthly_investment': monthlyInvestment,
       'expected_return_rate': expectedReturnRate,
       'goal_tenure': goalTenure,
