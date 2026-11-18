@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -911,178 +912,40 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
             ),
           ),
 
-          // Segmented Three-Tab Selector
+          // High-Contrast Floating Accent Pills (Option 1)
           if (!_isReviewing) ...[
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                height: 40,
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Row(
-                  children: [
-                    // Tab 0: Monthly SIP
-                    Expanded(
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(9),
-                        onTap: () => _switchTab(0),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: _activeTabIndex == 0
-                                ? Colors.white
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(9),
-                            boxShadow: _activeTabIndex == 0
-                                ? const [
-                                    BoxShadow(
-                                      color: Color(0x14000000),
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.repeat_rounded,
-                                size: 14,
-                                color: _activeTabIndex == 0
-                                    ? Ucolors.primary
-                                    : const Color(0xFF64748B),
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "Monthly SIP",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: _activeTabIndex == 0
-                                      ? FontWeight.bold
-                                      : FontWeight.w600,
-                                  color: _activeTabIndex == 0
-                                      ? Ucolors.primary
-                                      : const Color(0xFF64748B),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+              child: Row(
+                children: [
+                  // Tab 0: SIP
+                  Expanded(
+                    child: _buildInvestmentTypePill(
+                      index: 0,
+                      icon: Icons.repeat_rounded,
+                      label: "SIP",
                     ),
-                    const SizedBox(width: 3),
-                    // Tab 1: One-Time Lumpsum
-                    Expanded(
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(9),
-                        onTap: () => _switchTab(1),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: _activeTabIndex == 1
-                                ? Colors.white
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(9),
-                            boxShadow: _activeTabIndex == 1
-                                ? const [
-                                    BoxShadow(
-                                      color: Color(0x14000000),
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.flash_on_rounded,
-                                size: 14,
-                                color: _activeTabIndex == 1
-                                    ? Ucolors.primary
-                                    : const Color(0xFF64748B),
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "Lumpsum",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: _activeTabIndex == 1
-                                      ? FontWeight.bold
-                                      : FontWeight.w600,
-                                  color: _activeTabIndex == 1
-                                      ? Ucolors.primary
-                                      : const Color(0xFF64748B),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Tab 1: Lumpsum
+                  Expanded(
+                    child: _buildInvestmentTypePill(
+                      index: 1,
+                      icon: Icons.flash_on_rounded,
+                      label: "Lumpsum",
                     ),
-                    const SizedBox(width: 3),
-                    // Tab 2: Link from Portfolio
-                    Expanded(
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(9),
-                        onTap: () => _switchTab(2),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: _activeTabIndex == 2
-                                ? Colors.white
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(9),
-                            boxShadow: _activeTabIndex == 2
-                                ? const [
-                                    BoxShadow(
-                                      color: Color(0x14000000),
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Iconsax.wallet_3,
-                                size: 14,
-                                color: _activeTabIndex == 2
-                                    ? Ucolors.primary
-                                    : const Color(0xFF64748B),
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "From Portfolio",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: _activeTabIndex == 2
-                                      ? FontWeight.bold
-                                      : FontWeight.w600,
-                                  color: _activeTabIndex == 2
-                                      ? Ucolors.primary
-                                      : const Color(0xFF64748B),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Tab 2: Portfolio
+                  Expanded(
+                    child: _buildInvestmentTypePill(
+                      index: 2,
+                      icon: Iconsax.wallet_3,
+                      label: "Portfolio",
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -1201,6 +1064,66 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  // ── High-Contrast Floating Tab Pill (Option 1) ──
+  Widget _buildInvestmentTypePill({
+    required int index,
+    required IconData icon,
+    required String label,
+  }) {
+    final isSelected = _activeTabIndex == index;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => _switchTab(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        height: 38,
+        decoration: BoxDecoration(
+          color: isSelected ? Ucolors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Ucolors.primary : const Color(0xFFCBD5E1),
+            width: isSelected ? 1.2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Ucolors.primary.withValues(alpha: 0.28),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : const [
+                  BoxShadow(
+                    color: Color(0x06000000),
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 15,
+              color: isSelected ? Colors.white : const Color(0xFF64748B),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF334155),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1514,8 +1437,6 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
                 final fund = fundsList[index];
                 final schemeCode = fund.schemeCode?.toString() ?? '';
                 final isSelected = _selectedSchemeCodes.contains(schemeCode);
-                final name = fund.baseSchemeName ?? 'Unknown Fund';
-                final logoUrl = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
                 final activeSort = _mutualController.currentSortLabel.value;
                 final String returnLabel;
                 final String returnVal;
@@ -1561,339 +1482,297 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
 
                 final amountErr = isSelected ? _getFundAmountError(fund) : null;
 
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: isSelected ? null : toggleSelection,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFFFAF9FF)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isSelected
-                            ? Ucolors.primary
-                            : const Color(0xFFE2E8F0),
-                        width: isSelected ? 1.5 : 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isSelected
-                              ? Ucolors.primary.withValues(alpha: 0.08)
-                              : Colors.black.withValues(alpha: 0.02),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header Row: Checkbox, AMC Logo, Name, Returns
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: toggleSelection,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: CustomCachedImage(
-                                  imageUrl: logoUrl,
-                                  size: 36,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      name,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: isSelected
-                                            ? FontWeight.bold
-                                            : FontWeight.w600,
-                                        color: const Color(0xFF1E293B),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "$returnLabel: $returnVal%",
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            color: retNum < 0
-                                                ? Colors.red
-                                                : Ucolors.success,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Flexible(
-                                          child: Text(
-                                            "•  Min ${_isLumpsum ? 'Lumpsum' : 'SIP'} : ₹$minAllowed",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.grey.shade600,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 150),
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isSelected
-                                      ? Ucolors.primary
-                                      : Colors.white,
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? Ucolors.primary
-                                        : const Color(0xFFCBD5E1),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: isSelected
-                                    ? const Icon(
-                                        Icons.check,
-                                        size: 14,
-                                        color: Colors.white,
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // When Selected: Frequency Pill + Amount Input & Quick Chips
-                        if (isSelected) ...[
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Divider(
-                              height: 1,
-                              thickness: 1,
-                              color: Color(0xFFF1F5F9),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Frequency Pill for SIP (Tab 0)
-                                  if (!_isLumpsum)
-                                    InkWell(
-                                      borderRadius: BorderRadius.circular(8),
-                                      onTap: () =>
-                                          _openFrequencyMenu(context, fund),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFF3EFFF),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          border: Border.all(
-                                            color: const Color(0xFFDDD6FE),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(
-                                              Icons.repeat_rounded,
-                                              size: 13,
-                                              color: Ucolors.primary,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              _getFrequencyDisplayLabel(fund),
-                                              style: const TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                                color: Ucolors.primary,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 2),
-                                            const Icon(
-                                              Icons.keyboard_arrow_down_rounded,
-                                              size: 14,
-                                              color: Ucolors.primary,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  else
-                                    const Text(
-                                      "Investment Amount:",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF1E293B),
-                                      ),
-                                    ),
-
-                                  // Amount Input Box
-                                  Container(
-                                    width: 130,
-                                    height: 34,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: amountErr != null
-                                            ? Colors.red.shade400
-                                            : const Color(0xFFE2E8F0),
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: TextFormField(
-                                      controller: amountCtrl,
-                                      keyboardType: TextInputType.number,
-                                      textAlignVertical:
-                                          TextAlignVertical.center,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: amountErr != null
-                                            ? Colors.red.shade700
-                                            : const Color(0xFF1E293B),
-                                      ),
-                                      onChanged: (_) => setState(() {}),
-                                      decoration: InputDecoration(
-                                        prefixText: "₹ ",
-                                        prefixStyle: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: amountErr != null
-                                              ? Colors.red.shade700
-                                              : const Color(0xFF1E293B),
-                                        ),
-                                        isDense: true,
-                                        border: InputBorder.none,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 7,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (amountErr != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 6,
-                                    bottom: 2,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.error_outline,
-                                        size: 13,
-                                        color: Colors.red.shade600,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Expanded(
-                                        child: Text(
-                                          amountErr,
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.red.shade700,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          // Quick increment chips
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [500, 1000, 2000, 5000].map((step) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(8),
-                                    onTap: () {
-                                      final current =
-                                          int.tryParse(amountCtrl.text) ?? 0;
-                                      final updated =
-                                          (current < minAllowed
-                                              ? minAllowed
-                                              : current) +
-                                          step;
-                                      amountCtrl.text = updated.toString();
-                                      setState(() {});
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: const Color(0xFFE2E8F0),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        "+₹$step",
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF1E293B),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
+                return _buildGoalBasketFundCard(
+                  context: context,
+                  fund: fund,
+                  isSelected: isSelected,
+                  onToggleSelection: toggleSelection,
+                  returnLabel: returnLabel,
+                  returnVal: returnVal,
+                  retNum: retNum,
+                  minAllowed: minAllowed,
+                  amountCtrl: amountCtrl,
+                  amountErr: amountErr,
                 );
               },
             );
           }),
         ),
       ],
+    );
+  }
+
+  Widget _buildGoalBasketFundCard({
+    required BuildContext context,
+    required MutualFundListEntity fund,
+    required bool isSelected,
+    required VoidCallback onToggleSelection,
+    required String returnLabel,
+    required String returnVal,
+    required double retNum,
+    required int minAllowed,
+    required TextEditingController amountCtrl,
+    required String? amountErr,
+  }) {
+    final name = fund.baseSchemeName ?? 'Mutual Fund';
+    final rawPath = fund.amc?.amcLogoUrl?.trim();
+    final logoUrl = (rawPath == null || rawPath.isEmpty)
+        ? null
+        : Uri.parse(rawPath).hasScheme
+        ? rawPath
+        : '${Appurl.baseUrl.replaceFirst(RegExp(r'/+$'), '')}/${rawPath.replaceFirst(RegExp(r'^/+'), '')}';
+    final risk = (fund.riskLevel != null && fund.riskLevel!.isNotEmpty)
+        ? fund.riskLevel!
+        : 'Moderate';
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: isSelected ? null : onToggleSelection,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFFAF9FF) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? Colors.black.withValues(alpha: 0.04)
+                  : Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CustomCachedImage(
+                imageUrl: logoUrl,
+                width: 40,
+                height: 40,
+                radius: 10,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w600,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: 'Risk: ',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                        TextSpan(
+                          text: risk,
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFFF383C),
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' • $returnLabel: $returnVal%',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: retNum < 0 ? Colors.red : Ucolors.success,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' • Min: ₹$minAllowed',
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isSelected) ...[
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 108,
+                          height: 32,
+                          child: TextField(
+                            controller: amountCtrl,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: amountErr != null
+                                  ? Colors.red.shade700
+                                  : const Color(0xFF1E293B),
+                            ),
+                            onChanged: (_) => setState(() {}),
+                            decoration: InputDecoration(
+                              prefixText: '₹ ',
+                              prefixStyle: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: amountErr != null
+                                    ? Colors.red.shade700
+                                    : const Color(0xFF1E293B),
+                              ),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: amountErr != null
+                                      ? const Color(0xFFE11D48)
+                                      : const Color(0xFFCBD5E1),
+                                  width: amountErr != null ? 1.2 : 1,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: amountErr != null
+                                      ? const Color(0xFFE11D48)
+                                      : Ucolors.primary,
+                                  width: amountErr != null ? 1.2 : 1.5,
+                                ),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: amountErr != null
+                                      ? const Color(0xFFE11D48)
+                                      : const Color(0xFFCBD5E1),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (!_isLumpsum)
+                          SizedBox(
+                            height: 32,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                side: const BorderSide(
+                                  color: Color(0xFFDDD6FE),
+                                ),
+                                backgroundColor: const Color(0xFFF5F3FF),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () =>
+                                  _openFrequencyMenu(context, fund),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _getFrequencyDisplayLabel(fund),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: Ucolors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    size: 15,
+                                    color: Ucolors.primary,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    if (amountErr != null) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 13,
+                            color: Color(0xFFE11D48),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              amountErr,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFFE11D48),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onToggleSelection,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isSelected ? Ucolors.primary : Colors.white,
+                  border: Border.all(
+                    color: isSelected
+                        ? Ucolors.primary
+                        : const Color(0xFFCBD5E1),
+                    width: 1.5,
+                  ),
+                ),
+                child: isSelected
+                    ? const Icon(Icons.check, size: 14, color: Colors.white)
+                    : null,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
