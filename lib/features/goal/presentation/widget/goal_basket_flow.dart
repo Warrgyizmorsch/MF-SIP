@@ -7,9 +7,11 @@ import 'package:intl/intl.dart';
 import '../../../../config/routes/app_routes.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
 import '../../../../core/utils/constant/appUrl.dart';
+import '../../../cart/presentation/widgets/checkout_bank_selector.dart';
 import '../../../explore/domain/entities/mutual_fund_list_entity.dart';
 import '../../../explore/presentation/controller/mutual_fund_controller.dart';
 import '../../../mfu/presentation/controller/mfu_controller.dart';
+import '../../../personalization/presentation/controllers/personalisation_controller.dart';
 import '../controller/goal_sip_controller.dart';
 import 'goal_flow_app_bar.dart';
 
@@ -34,6 +36,17 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
   bool _amountMismatchConfirmed = false;
   final Map<String, String> _frequencies = {};
   final Map<String, String> _sipDays = {};
+
+  @override
+  void initState() {
+    super.initState();
+    if (Get.isRegistered<PersonalisationController>()) {
+      Get.find<PersonalisationController>().syncDefaultCheckoutBank(
+        isLumpsum: c.savedInvestmentType.value == 'lumpsum',
+      );
+    }
+  }
+
   String _frequencyKey(MutualFundListEntity fund) =>
       fund.schemeCode ?? fund.baseSchemeName ?? '';
   String _frequency(MutualFundListEntity fund) =>
@@ -329,6 +342,16 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                                   if (review) {
                                     await widget.onCheckout();
                                   } else {
+                                    if (Get.isRegistered<
+                                      PersonalisationController
+                                    >()) {
+                                      Get.find<PersonalisationController>()
+                                          .syncDefaultCheckoutBank(
+                                            isLumpsum:
+                                                c.savedInvestmentType.value ==
+                                                'lumpsum',
+                                          );
+                                    }
                                     setState(() => review = true);
                                   }
                                 },
@@ -341,9 +364,9 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                                     review
                                         ? (c.savedInvestmentType.value ==
                                                   'lumpsum'
-                                              ? 'Pay Now'
-                                              : 'Set up autopay & start')
-                                        : 'Pay Now',
+                                              ? 'Pay ${money(total)}'
+                                              : 'Pay ${money(total)} & Set up AutoPay')
+                                        : 'Review Plan • ${money(total)}',
                                     style: text(
                                       16,
                                       color: Colors.white,
@@ -1215,120 +1238,234 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     return result ?? false;
   }
 
-  Widget reviewContent(List<MutualFundListEntity> selected) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Text('My Goals / New', style: text(12, color: muted)),
-      const SizedBox(height: 6),
-      Text(
-        c.goalNameTextEditingController.text,
-        style: text(30, weight: FontWeight.w700),
+  Widget reviewContent(List<MutualFundListEntity> selected) {
+    final isLumpsum = c.savedInvestmentType.value == 'lumpsum';
+    final targetDateStr = DateFormat('MMM yyyy').format(
+      DateTime(
+        DateTime.now().year + c.years.value.toInt(),
+        DateTime.now().month,
       ),
-      const SizedBox(height: 46),
-      detail(
-        'Target',
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('My Goals / New', style: text(12, color: muted)),
+        const SizedBox(height: 6),
         Text(
-          money(c.targetAmount.value),
-          style: text(14, weight: FontWeight.w800),
+          c.goalNameTextEditingController.text,
+          style: text(28, weight: FontWeight.w700),
         ),
-      ),
-      detail(
-        'Plan',
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          children: [
-            pill(
-              '${money(total)}${c.savedInvestmentType.value == 'sip' ? '/mo' : ''} ›',
-              const Color(0xFFF5A524),
-            ),
-          ],
-        ),
-      ),
-      detail(
-        'Target date',
-        Text(
-          DateFormat('MMM yyyy').format(
-            DateTime(
-              DateTime.now().year + c.years.value.toInt(),
-              DateTime.now().month,
-            ),
-          ),
-          style: text(14, weight: FontWeight.w700),
-        ),
-      ),
-      detail(
-        'Funds',
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          children: selected
-              .map(
-                (f) => pill(
-                  f.schemecategory ?? f.baseSchemeName ?? '',
-                  const Color(0xFFF0F1F6),
-                ),
-              )
-              .toList(),
-        ),
-      ),
-      const SizedBox(height: 4),
-      if (c.savedInvestmentType.value == 'sip')
+        const SizedBox(height: 18),
+
+        // ── 1. Amount to Pay / Investment Summary Card ──
         Container(
           padding: const EdgeInsets.all(18),
-          decoration: box(26),
+          decoration: box(22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    isLumpsum ? 'TOTAL PAYABLE' : 'MONTHLY SIP AMOUNT',
+                    style: text(
+                      11,
+                      weight: FontWeight.w700,
+                      color: muted,
+                    ).copyWith(letterSpacing: 0.8),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F0FF),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '${selected.length} ${selected.length == 1 ? 'Fund' : 'Funds'}',
+                      style: text(11, weight: FontWeight.w700, color: purple),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${money(total)}${isLumpsum ? '' : ' / mo'}',
+                style: text(
+                  28,
+                  weight: FontWeight.w800,
+                  color: const Color(0xFF1A1D2E),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                isLumpsum
+                    ? 'One-time investment toward ${c.goalNameTextEditingController.text}'
+                    : 'Auto-debited on selected dates to reach ${money(c.targetAmount.value)} by $targetDateStr',
+                style: text(12, color: muted),
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1, color: Color(0xFFF0F1F6)),
+              const SizedBox(height: 12),
+              Text(
+                'FUNDS BREAKDOWN',
+                style: text(
+                  10,
+                  weight: FontWeight.w700,
+                  color: muted,
+                ).copyWith(letterSpacing: 0.8),
+              ),
+              const SizedBox(height: 10),
+              ...selected.map((f) {
+                final amt = amount(f);
+                final freqLabel = getFrequencyDisplayLabel(f);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              f.baseSchemeName ?? '',
+                              style: text(
+                                13,
+                                weight: FontWeight.w600,
+                                color: const Color(0xFF1A1D2E),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (!isLumpsum)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  freqLabel,
+                                  style: text(11, color: muted),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        money(amt),
+                        style: text(
+                          14,
+                          weight: FontWeight.w700,
+                          color: const Color(0xFF1A1D2E),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // ── 2. Investment Bank Selection (Like Payment Page) ──
+        Text(
+          'INVESTMENT BANK',
+          style: text(
+            11,
+            weight: FontWeight.w700,
+            color: muted,
+          ).copyWith(letterSpacing: 0.8),
+        ),
+        const SizedBox(height: 8),
+        CheckoutBankCard(isLumpsum: isLumpsum),
+
+        const SizedBox(height: 20),
+
+        // ── 3. Payment Method Section ──
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: box(22),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Pay automatically with',
+                isLumpsum ? 'Choose payment method' : 'Pay automatically with',
                 style: text(14, weight: FontWeight.w700),
               ),
               const SizedBox(height: 14),
               payment(
                 'upi',
-                'UPI Autopay',
-                'Approve once in your UPI app · ready in minutes',
+                isLumpsum ? 'UPI' : 'UPI Autopay',
+                isLumpsum
+                    ? 'Instant approval via any UPI app'
+                    : 'Approve once in your UPI app · ready in minutes',
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               payment(
                 'netbanking',
-                'Bank e-mandate',
-                'Choose your bank in the secure mandate flow',
+                isLumpsum ? 'NetBanking' : 'Bank e-mandate',
+                isLumpsum
+                    ? 'Pay directly via your bank portal'
+                    : 'Choose your bank in the secure mandate flow',
               ),
             ],
           ),
         ),
-      const SizedBox(height: 18),
-      InkWell(
-        onTap: () => setState(() => consent = !consent),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: consent ? purple : Colors.transparent,
-                border: Border.all(color: consent ? purple : line),
-              ),
-              child: consent
-                  ? Center(child: svg('goal_basket_consent', 13, 13))
-                  : null,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'I’ve read the scheme documents and riskometer for these ${selected.length} funds, and understand returns aren’t guaranteed.',
-                style: text(13).copyWith(height: 19 / 13),
-              ),
-            ),
-          ],
+
+        const SizedBox(height: 20),
+
+        // ── 4. Goal Target & Tenure Info ──
+        detail(
+          'Target',
+          Text(
+            money(c.targetAmount.value),
+            style: text(14, weight: FontWeight.w800),
+          ),
         ),
-      ),
-    ],
-  );
+        detail(
+          'Target date',
+          Text(targetDateStr, style: text(14, weight: FontWeight.w700)),
+        ),
+
+        const SizedBox(height: 8),
+
+        // ── 5. Regulatory Consent ──
+        InkWell(
+          onTap: () => setState(() => consent = !consent),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: consent ? purple : Colors.transparent,
+                  border: Border.all(color: consent ? purple : line),
+                ),
+                child: consent
+                    ? Center(child: svg('goal_basket_consent', 13, 13))
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'I’ve read the scheme documents and riskometer for these ${selected.length} funds, and understand returns aren’t guaranteed.',
+                  style: text(13).copyWith(height: 19 / 13),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
   Widget detail(String label, Widget value) => Padding(
     padding: const EdgeInsets.only(bottom: 14),
     child: Row(
