@@ -1895,10 +1895,12 @@ class MfuController extends GetxController {
             ),
         ];
 
-    final defaultDay = sipFunds.isNotEmpty ? sipFunds.first.day : (day ?? '10');
-    final defaultFreq = sipFunds.isNotEmpty
-        ? sipFunds.first.frequency
-        : frequency;
+    final defaultDay = sipFunds.isEmpty
+        ? (day ?? '10')
+        : (sipFunds.length == 1 ? sipFunds.first.day : null);
+    final defaultFreq = sipFunds.isEmpty
+        ? frequency
+        : (sipFunds.length == 1 ? sipFunds.first.frequency : null);
 
     final req = SipReqModel(
       funds: sipFunds,
@@ -1906,7 +1908,9 @@ class MfuController extends GetxController {
       bankId: resolvedBankId,
       paymentType: resolvedPaymentType,
       frequency: defaultFreq,
-      sipDay: int.tryParse(defaultDay) ?? defaultDay,
+      sipDay: defaultDay != null
+          ? (int.tryParse(defaultDay) ?? defaultDay)
+          : null,
       mandateId: resolvedMandateId,
       mandateRefNo: mandateRefNo,
       schemeCode: (sipFunds.length == 1)

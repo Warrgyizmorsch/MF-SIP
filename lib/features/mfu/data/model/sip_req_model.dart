@@ -90,12 +90,6 @@ class SipReqModel {
     if (paymentType != null && paymentType!.isNotEmpty) {
       data['payment_type'] = paymentType;
     }
-    if (frequency != null && frequency!.isNotEmpty) {
-      data['frequency'] = frequency;
-    }
-    if (sipDay != null) {
-      data['sip_day'] = int.tryParse(sipDay.toString()) ?? sipDay;
-    }
     if (mandateId != null) {
       data['mandate_id'] = mandateId;
     }
@@ -113,42 +107,29 @@ class SipReqModel {
     }
 
     if (funds != null && funds!.isNotEmpty) {
-      if (funds!.length == 1 && (schemeCode == null || schemeCode!.isEmpty)) {
-        // Single fund support matching POST /api/v1/invest/sip
-        final single = funds!.first;
-        data['scheme_code'] = single.schemeCode;
-        data['amount'] = single.amount;
-        data['folio'] = single.folio;
-        data['frequency'] = single.frequency;
-        data['sip_day'] = int.tryParse(single.day) ?? single.day;
-        if (single.devopt != null) data['devopt'] = single.devopt;
-        if (single.endMonth != null && single.endMonth!.isNotEmpty) {
-          data['end_month'] = single.endMonth;
-        } else if (endMonth != null && endMonth!.isNotEmpty) {
-          data['end_month'] = endMonth;
-        }
-        if (single.endYear != null && single.endYear!.isNotEmpty) {
-          data['end_year'] = single.endYear;
-        } else if (endYear != null && endYear!.isNotEmpty) {
-          data['end_year'] = endYear;
-        }
-      } else {
-        // Multiple funds support
-        data['funds'] = funds!.map((e) => e.toJson()).toList();
-      }
+      // Multiple or single funds array support:
+      // When funds array is provided, each fund item carries its own scheme_code,
+      // amount, folio, frequency, and sip_day. Root frequency and sip_day are omitted
+      // to avoid contradicting individual fund dates and frequencies.
+      data['funds'] = funds!.map((e) => e.toJson()).toList();
     } else if (schemeCode != null && schemeCode!.isNotEmpty) {
+      // Direct flat single fund support
       data['scheme_code'] = schemeCode;
       data['amount'] = amount ?? 0;
       data['folio'] = folio ?? 'NEW';
-      if (frequency != null) data['frequency'] = frequency;
+      if (frequency != null && frequency!.isNotEmpty) {
+        data['frequency'] = frequency;
+      }
       if (sipDay != null) {
         data['sip_day'] = int.tryParse(sipDay.toString()) ?? sipDay;
       }
-      if (endMonth != null && endMonth!.isNotEmpty) {
-        data['end_month'] = endMonth;
+    } else {
+      // Fallback for root metadata if neither funds nor schemeCode was passed
+      if (frequency != null && frequency!.isNotEmpty) {
+        data['frequency'] = frequency;
       }
-      if (endYear != null && endYear!.isNotEmpty) {
-        data['end_year'] = endYear;
+      if (sipDay != null) {
+        data['sip_day'] = int.tryParse(sipDay.toString()) ?? sipDay;
       }
     }
 
