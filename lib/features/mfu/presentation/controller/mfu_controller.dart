@@ -1628,6 +1628,7 @@ class MfuController extends GetxController {
     Future<void> Function(String result)? onVerifying,
   }) async {
     if (url.isEmpty) return null;
+    CustomLoadingDialog.hide();
     if (kIsWeb) {
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
@@ -1775,6 +1776,7 @@ class MfuController extends GetxController {
         final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
         Future<void> finalizeOrderAndNavigate() async {
+          CustomLoadingDialog.hide();
           // Evaluate overall status using both STATUS-CHK-TXN and TXN-HISTORY
           final evaluatedStatus = await evaluateOverallTxnStatus(
             entGroupRefNo: groupRef,
@@ -1823,6 +1825,7 @@ class MfuController extends GetxController {
         }
       },
       (error) {
+        CustomLoadingDialog.hide();
         final friendlyMsg = formatInvestmentErrorMessage(error.message);
         errorMessage.value = friendlyMsg;
         log("[MfuController] Lumpsum Error → ${error.message}");
@@ -1937,6 +1940,7 @@ class MfuController extends GetxController {
         final String todayStr = DateTime.now().toIso8601String().split('T')[0];
 
         Future<void> finalizeOrderAndNavigate() async {
+          CustomLoadingDialog.hide();
           // Evaluate overall status using both STATUS-CHK-TXN and TXN-HISTORY
           final evaluatedStatus = await evaluateOverallTxnStatus(
             entGroupRefNo: groupRef,
@@ -1985,6 +1989,7 @@ class MfuController extends GetxController {
         }
       },
       (error) {
+        CustomLoadingDialog.hide();
         final friendlyMsg = formatInvestmentErrorMessage(error.message);
         errorMessage.value = friendlyMsg;
         log("[MfuController] SIP Error → ${error.message}");

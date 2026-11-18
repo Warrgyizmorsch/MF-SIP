@@ -2262,53 +2262,34 @@ class LinkedFundsCard extends StatelessWidget {
                     ],
                   ],
                 ),
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 8,
-                  children: [
-                    if (onTopUpLumpsum != null)
-                      TextButton.icon(
-                        onPressed: onTopUpLumpsum,
-                        icon: const Icon(
-                          Icons.bolt,
-                          size: 15,
-                          color: Color(0xFF7C3AED),
-                        ),
-                        label: const Text(
-                          'Top Up',
-                          style: TextStyle(
-                            color: Color(0xFF7C3AED),
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        style: TextButton.styleFrom(
-                          backgroundColor: const Color(0xFFF5F3FF),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                if (onAddFunds != null)
+                  TextButton.icon(
+                    onPressed: onAddFunds,
+                    icon: const Icon(
+                      Icons.add_rounded,
+                      size: 16,
+                      color: _TrackingStyle.purple,
+                    ),
+                    label: const Text(
+                      'Add Fund',
+                      style: TextStyle(
+                        color: _TrackingStyle.purple,
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
                       ),
-                    if (onAddFunds != null)
-                      TextButton(
-                        onPressed: onAddFunds,
-                        child: const Text(
-                          'Add Fund',
-                          style: TextStyle(
-                            color: _TrackingStyle.navy,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    ),
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFFF5F3FF),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
                       ),
-                  ],
-                ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
               ],
             );
           }),
@@ -3894,49 +3875,31 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.onTopUpLumpsum != null)
-                    TextButton.icon(
-                      onPressed: widget.onTopUpLumpsum,
-                      icon: const Icon(
-                        Icons.bolt,
-                        size: 15,
-                        color: Color(0xFF7C3AED),
-                      ),
-                      label: Text(
-                        'Top Up',
-                        style: _TrackingStyle.text(
-                          12,
-                          color: const Color(0xFF7C3AED),
-                          weight: FontWeight.w700,
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        backgroundColor: const Color(0xFFF3EFFF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(width: 4),
-                  TextButton(
-                    onPressed: widget.onAddFunds,
-                    child: Text(
-                      'Add Fund',
-                      style: _TrackingStyle.text(
-                        13,
-                        color: _TrackingStyle.navy,
-                        weight: FontWeight.w600,
-                      ),
-                    ),
+              TextButton.icon(
+                onPressed: widget.onAddFunds,
+                icon: const Icon(
+                  Icons.add_rounded,
+                  size: 16,
+                  color: _TrackingStyle.purple,
+                ),
+                label: Text(
+                  'Add Fund',
+                  style: _TrackingStyle.text(
+                    12,
+                    color: _TrackingStyle.purple,
+                    weight: FontWeight.w700,
                   ),
-                ],
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  backgroundColor: const Color(0xFFF3EFFF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
             ],
           ),

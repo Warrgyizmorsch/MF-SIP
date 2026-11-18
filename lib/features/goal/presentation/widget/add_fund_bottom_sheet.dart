@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -749,87 +750,88 @@ class _AddFundBottomSheetState extends State<AddFundBottomSheet> {
     GatekeeperHelper.runWithPrerequisites(
       isLumpsum: isLumpsum,
       onSuccess: () async {
-        setState(() {
-          _isSubmitting = true;
-        });
+        if (mounted) {
+          setState(() {
+            _isSubmitting = true;
+          });
+        }
+
+        final List<LumpsumFundItemModel> lumpsumFunds = [];
+        final List<SipFundItemModel> sipFunds = [];
+
+        if (isLumpsum) {
+          for (final fund in selectedFunds) {
+            final schemeCode = fund.schemeCode?.toString() ?? '';
+            final amount =
+                double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
+                0.0;
+            if (schemeCode.isNotEmpty && amount > 0) {
+              lumpsumFunds.add(
+                LumpsumFundItemModel(
+                  schemeCode: schemeCode,
+                  amount: amount,
+                  folio: "NEW",
+                ),
+              );
+            }
+          }
+          if (lumpsumFunds.isEmpty) return;
+        } else {
+          for (final fund in selectedFunds) {
+            final schemeCode = fund.schemeCode?.toString() ?? '';
+            final amount =
+                double.tryParse(_amountControllers[schemeCode]?.text ?? '0') ??
+                0.0;
+            if (schemeCode.isNotEmpty && amount > 0) {
+              final freq = _getFrequencyCode(fund);
+              final day = _getMfuDay(fund);
+              sipFunds.add(
+                SipFundItemModel(
+                  schemeCode: schemeCode,
+                  amount: amount,
+                  folio: "NEW",
+                  frequency: freq,
+                  day: day,
+                ),
+              );
+            }
+          }
+          if (sipFunds.isEmpty) return;
+        }
+
+        // Close bottom sheet first so it is cleanly removed from the Navigator stack
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+
+        // Show professional loading dialog
+        CustomLoadingDialog.show(
+          title: "Processing Investment...",
+          subtitle: "Connecting to secure payment gateway",
+        );
 
         try {
           if (isLumpsum) {
-            final List<LumpsumFundItemModel> lumpsumFunds = [];
-            for (final fund in selectedFunds) {
-              final schemeCode = fund.schemeCode?.toString() ?? '';
-              final amount =
-                  double.tryParse(
-                    _amountControllers[schemeCode]?.text ?? '0',
-                  ) ??
-                  0.0;
-              if (schemeCode.isNotEmpty && amount > 0) {
-                lumpsumFunds.add(
-                  LumpsumFundItemModel(
-                    schemeCode: schemeCode,
-                    amount: amount,
-                    folio: "NEW",
-                  ),
-                );
-              }
-            }
-
-            if (lumpsumFunds.isNotEmpty) {
-              await _mfuController.postLumpsum(
-                goalId: widget.goalId,
-                funds: lumpsumFunds,
-              );
-            }
+            await _mfuController.postLumpsum(
+              goalId: widget.goalId,
+              funds: lumpsumFunds,
+            );
           } else {
-            final List<SipFundItemModel> sipFunds = [];
-            for (final fund in selectedFunds) {
-              final schemeCode = fund.schemeCode?.toString() ?? '';
-              final amount =
-                  double.tryParse(
-                    _amountControllers[schemeCode]?.text ?? '0',
-                  ) ??
-                  0.0;
-              if (schemeCode.isNotEmpty && amount > 0) {
-                final freq = _getFrequencyCode(fund);
-                final day = _getMfuDay(fund);
-                sipFunds.add(
-                  SipFundItemModel(
-                    schemeCode: schemeCode,
-                    amount: amount,
-                    folio: "NEW",
-                    frequency: freq,
-                    day: day,
-                  ),
-                );
-              }
-            }
-
-            if (sipFunds.isNotEmpty) {
-              await _mfuController.postSip(
-                goalId: widget.goalId,
-                funds: sipFunds,
-              );
-            }
+            await _mfuController.postSip(
+              goalId: widget.goalId,
+              funds: sipFunds,
+            );
           }
-
-          if (mounted) {
-            Navigator.of(context).pop();
-          }
-
-          await _goalController.fetchSingleGoal(widget.goalId);
-          await _goalController.getAllGoals();
         } catch (e) {
-          debugPrint("Error in AddFundBottomSheet: $e");
-          Get.snackbar(
-            "Error",
-            "Something went wrong while processing investment.",
+          debugPrint("Error in AddFund payment: $e");
+          CustomSnackbar.error(
+            title: "Investment Error",
+            message: "Something went wrong while processing investment.",
           );
         } finally {
-          if (mounted) {
-            setState(() {
-              _isSubmitting = false;
-            });
-          }
+          CustomLoadingDialog.hide();
+          _goalController.fetchSingleGoal(widget.goalId);
+          _goalController.getAllGoals();
         }
       },
     );
