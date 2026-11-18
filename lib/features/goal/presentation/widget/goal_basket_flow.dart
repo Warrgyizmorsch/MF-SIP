@@ -32,7 +32,7 @@ class GoalBasketFlow extends StatefulWidget {
 }
 
 class GoalBasketFlowState extends State<GoalBasketFlow> {
-  bool review = false, consent = false;
+  bool review = false;
   bool _amountMismatchConfirmed = false;
   final Map<String, String> _frequencies = {};
   final Map<String, String> _sipDays = {};
@@ -191,7 +191,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
   String _getButtonText(List<MutualFundListEntity> selected) {
     final isLumpsum = c.savedInvestmentType.value == 'lumpsum';
     if (!review) {
-      return 'Review Plan • ${money(total)}';
+      return 'Review Plan';
     }
     if (isLumpsum) {
       return 'Pay ${money(total)}';
@@ -199,13 +199,13 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     final type = _getBasketFrequencyType(selected);
     switch (type) {
       case 'Daily':
-        return 'Pay ${money(total)} & Set up Daily AutoPay';
+        return 'Pay ${money(total)} / day';
       case 'Weekly':
-        return 'Pay ${money(total)} & Set up Weekly AutoPay';
+        return 'Pay ${money(total)} / wk';
       case 'Monthly':
-        return 'Pay ${money(total)} & Set up Monthly AutoPay';
+        return 'Pay ${money(total)} / mo';
       default:
-        return 'Pay ${money(total)} & Set up AutoPay';
+        return 'Pay ${money(total)}';
     }
   }
 
@@ -404,10 +404,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                         color: Colors.transparent,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(999),
-                          onTap:
-                              loading ||
-                                  selected.isEmpty ||
-                                  (review && !consent)
+                          onTap: loading || selected.isEmpty
                               ? null
                               : () async {
                                   FocusScope.of(context).unfocus();
@@ -1562,36 +1559,6 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
           Text(targetDateStr, style: text(14, weight: FontWeight.w700)),
         ),
 
-        const SizedBox(height: 8),
-
-        // ── 5. Regulatory Consent ──
-        InkWell(
-          onTap: () => setState(() => consent = !consent),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: consent ? purple : Colors.transparent,
-                  border: Border.all(color: consent ? purple : line),
-                ),
-                child: consent
-                    ? Center(child: svg('goal_basket_consent', 13, 13))
-                    : null,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'I’ve read the scheme documents and riskometer for these ${selected.length} funds, and understand returns aren’t guaranteed.',
-                  style: text(13).copyWith(height: 19 / 13),
-                ),
-              ),
-            ],
-          ),
-        ),
         const SizedBox(height: 12),
       ],
     );
