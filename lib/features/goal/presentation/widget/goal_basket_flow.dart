@@ -725,10 +725,19 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                   }
                   c.toggleFund(f.baseSchemeName ?? '');
                   c.amountControllers.remove(f.schemeCode);
-                  if (c.savedInvestmentType.value == 'lumpsum') {
-                    await c.distributeMonthlyAmount();
+                  if (f.schemeCode != null) {
+                    c.manuallyEditedSchemeCodes.remove(f.schemeCode);
+                  }
+                  final hasCustomizedFunds =
+                      c.manuallyEditedSchemeCodes.isNotEmpty;
+                  if (hasCustomizedFunds) {
+                    setState(() {});
                   } else {
-                    await c.distributeSipAmount();
+                    if (c.savedInvestmentType.value == 'lumpsum') {
+                      await c.distributeMonthlyAmount();
+                    } else {
+                      await c.distributeSipAmount();
+                    }
                   }
                 }
               },
