@@ -11,6 +11,7 @@ import '../../../cart/presentation/widgets/checkout_bank_selector.dart';
 import '../../../explore/domain/entities/mutual_fund_list_entity.dart';
 import '../../../explore/presentation/controller/mutual_fund_controller.dart';
 import '../../../mfu/presentation/controller/mfu_controller.dart';
+import '../../../personalization/domain/entity/profile_update_entity.dart';
 import '../../../personalization/presentation/controllers/personalisation_controller.dart';
 import '../controller/goal_sip_controller.dart';
 import 'goal_flow_app_bar.dart';
@@ -41,9 +42,103 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
   void initState() {
     super.initState();
     if (Get.isRegistered<PersonalisationController>()) {
-      Get.find<PersonalisationController>().syncDefaultCheckoutBank(
+      final pCtrl = Get.find<PersonalisationController>();
+      pCtrl.syncDefaultCheckoutBank(
         isLumpsum: c.savedInvestmentType.value == 'lumpsum',
       );
+      _syncOptimalPaymentMethod(pCtrl.activeCheckoutBank);
+    }
+  }
+
+  void _syncOptimalPaymentMethod(BankAccountEntity? bank) {
+    if (c.savedInvestmentType.value == 'lumpsum') return;
+    if (bank == null) return;
+    final mandates = bank.approvedMandates ?? [];
+    final hasUpi = mandates.any(
+      (m) =>
+          m.mandateMode?.toUpperCase() == 'UPI' &&
+          (m.status?.toLowerCase() == 'approved' ||
+              m.status?.toLowerCase() == 'active' ||
+              m.aggrStatus?.toUpperCase() == 'AC'),
+    );
+    final hasEnach = mandates.any(
+      (m) =>
+          (m.mandateMode?.toUpperCase() == 'ENACH' ||
+              m.mandateMode?.toUpperCase() == 'NETBANKING') &&
+          (m.status?.toLowerCase() == 'approved' ||
+              m.status?.toLowerCase() == 'active' ||
+              m.aggrStatus?.toUpperCase() == 'AC'),
+    );
+    if (Get.isRegistered<MfuController>()) {
+      final mfu = Get.find<MfuController>();
+      if (hasEnach && !hasUpi) {
+        mfu.selectMethod('netbanking');
+      } else {
+        mfu.selectMethod('upi');
+      }
+    }
+  }
+
+  bool _isMandateNeededForSelectedMethod() {
+    final isLumpsum = c.savedInvestmentType.value == 'lumpsum';
+    if (isLumpsum) return false;
+    if (!Get.isRegistered<PersonalisationController>() ||
+        !Get.isRegistered<MfuController>()) {
+      return false;
+    }
+    final pCtrl = Get.find<PersonalisationController>();
+    final mfuCtrl = Get.find<MfuController>();
+    final bank = pCtrl.activeCheckoutBank;
+    if (bank == null) return false;
+    final mandates = bank.approvedMandates ?? [];
+    final selectedMethod = mfuCtrl.selectedMethod.value;
+
+    if (selectedMethod == 'upi') {
+      final hasUpi = mandates.any(
+        (m) =>
+            m.mandateMode?.toUpperCase() == 'UPI' &&
+            (m.status?.toLowerCase() == 'approved' ||
+                m.status?.toLowerCase() == 'active' ||
+                m.aggrStatus?.toUpperCase() == 'AC'),
+      );
+      return !hasUpi;
+    } else {
+      final hasEnach = mandates.any(
+        (m) =>
+            (m.mandateMode?.toUpperCase() == 'ENACH' ||
+                m.mandateMode?.toUpperCase() == 'NETBANKING') &&
+            (m.status?.toLowerCase() == 'approved' ||
+                m.status?.toLowerCase() == 'active' ||
+                m.aggrStatus?.toUpperCase() == 'AC'),
+      );
+      return !hasEnach;
+    }
+  }
+
+  Future<void> _navigateToMandateSetup() async {
+    final isDesktop = Get.width > 600;
+    final pCtrl = Get.isRegistered<PersonalisationController>()
+        ? Get.find<PersonalisationController>()
+        : null;
+    final activeBank = pCtrl?.activeCheckoutBank;
+
+    await Get.toNamed(
+      AppRoutes.paymentScreen,
+      arguments: {
+        'isMandate': true,
+        'amount': '100000',
+        if (activeBank?.id != null) 'bankId': activeBank!.id,
+      },
+      id: isDesktop ? 1 : null,
+    );
+
+    // Refresh bank details upon returning to reflect newly approved/created mandate
+    if (pCtrl != null) {
+      await pCtrl.fetchUserBankList(isRefresh: true);
+      _syncOptimalPaymentMethod(pCtrl.activeCheckoutBank);
+    }
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -192,6 +287,9 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     final isLumpsum = c.savedInvestmentType.value == 'lumpsum';
     if (!review) {
       return 'Review Plan';
+    }
+    if (_isMandateNeededForSelectedMethod()) {
+      return 'Set Up Auto Pay';
     }
     if (isLumpsum) {
       return 'Pay ${money(total)}';
@@ -437,17 +535,25 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                                   }
 
                                   if (review) {
-                                    await widget.onCheckout();
+                                    if (_isMandateNeededForSelectedMethod()) {
+                                      await _navigateToMandateSetup();
+                                    } else {
+                                      await widget.onCheckout();
+                                    }
                                   } else {
                                     if (Get.isRegistered<
                                       PersonalisationController
                                     >()) {
-                                      Get.find<PersonalisationController>()
-                                          .syncDefaultCheckoutBank(
-                                            isLumpsum:
-                                                c.savedInvestmentType.value ==
-                                                'lumpsum',
-                                          );
+                                      final pCtrl =
+                                          Get.find<PersonalisationController>();
+                                      pCtrl.syncDefaultCheckoutBank(
+                                        isLumpsum:
+                                            c.savedInvestmentType.value ==
+                                            'lumpsum',
+                                      );
+                                      _syncOptimalPaymentMethod(
+                                        pCtrl.activeCheckoutBank,
+                                      );
                                     }
                                     setState(() => review = true);
                                   }
@@ -457,12 +563,14 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
-                                : Text(
-                                    _getButtonText(selected),
-                                    style: text(
-                                      16,
-                                      color: Colors.white,
-                                      weight: FontWeight.w700,
+                                : Obx(
+                                    () => Text(
+                                      _getButtonText(selected),
+                                      style: text(
+                                        16,
+                                        color: Colors.white,
+                                        weight: FontWeight.w700,
+                                      ),
                                     ),
                                   ),
                           ),
@@ -1513,36 +1621,140 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
 
         const SizedBox(height: 20),
 
-        // ── 3. Payment Method Section ──
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: box(22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                isLumpsum ? 'Choose payment method' : 'Pay automatically with',
-                style: text(14, weight: FontWeight.w700),
-              ),
-              const SizedBox(height: 14),
-              payment(
-                'upi',
-                isLumpsum ? 'UPI' : 'UPI Autopay',
-                isLumpsum
-                    ? 'Instant approval via any UPI app'
-                    : 'Approve once in your UPI app · ready in minutes',
-              ),
-              const SizedBox(height: 12),
-              payment(
-                'netbanking',
-                isLumpsum ? 'NetBanking' : 'Bank e-mandate',
-                isLumpsum
-                    ? 'Pay directly via your bank portal'
-                    : 'Choose your bank in the secure mandate flow',
-              ),
-            ],
-          ),
-        ),
+        // ── 3. Payment Method & Mandate Section ──
+        Obx(() {
+          final personalisationCtrl = Get.find<PersonalisationController>();
+          final mfuCtrl = Get.find<MfuController>();
+          final bank = personalisationCtrl.activeCheckoutBank;
+          final mandates = bank?.approvedMandates ?? [];
+
+          final upiMandate = mandates.firstWhereOrNull(
+            (m) =>
+                m.mandateMode?.toUpperCase() == 'UPI' &&
+                (m.status?.toLowerCase() == 'approved' ||
+                    m.status?.toLowerCase() == 'active' ||
+                    m.aggrStatus?.toUpperCase() == 'AC'),
+          );
+          final hasActiveUpiMandate = upiMandate != null;
+
+          final enachMandate = mandates.firstWhereOrNull(
+            (m) =>
+                (m.mandateMode?.toUpperCase() == 'ENACH' ||
+                    m.mandateMode?.toUpperCase() == 'NETBANKING') &&
+                (m.status?.toLowerCase() == 'approved' ||
+                    m.status?.toLowerCase() == 'active' ||
+                    m.aggrStatus?.toUpperCase() == 'AC'),
+          );
+          final hasActiveEnachMandate = enachMandate != null;
+
+          final selectedMethod = mfuCtrl.selectedMethod.value;
+          final isSelectedMethodMandateReady =
+              (selectedMethod == 'upi' && hasActiveUpiMandate) ||
+              ((selectedMethod == 'netbanking' || selectedMethod == 'enach') &&
+                  hasActiveEnachMandate);
+
+          return Container(
+            padding: const EdgeInsets.all(18),
+            decoration: box(22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isLumpsum
+                          ? 'CHOOSE PAYMENT METHOD'
+                          : 'PAY AUTOMATICALLY WITH',
+                      style: text(
+                        11,
+                        weight: FontWeight.w700,
+                        color: muted,
+                      ).copyWith(letterSpacing: 0.8),
+                    ),
+                    if (!isLumpsum)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelectedMethodMandateReady
+                              ? const Color(0xFFECFDF5)
+                              : const Color(0xFFFFFBEB),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          isSelectedMethodMandateReady
+                              ? 'Mandate Ready ✓'
+                              : 'Mandate Required',
+                          style: text(
+                            10,
+                            weight: FontWeight.w700,
+                            color: isSelectedMethodMandateReady
+                                ? const Color(0xFF059669)
+                                : const Color(0xFFD97706),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isLumpsum
+                      ? 'Instant one-time investment via verified bank'
+                      : 'Recurring mandate linked to ${bank?.bankName ?? "your bank"}',
+                  style: text(12, color: muted),
+                ),
+                const SizedBox(height: 14),
+
+                // Option 1: UPI / UPI AutoPay
+                paymentOption(
+                  method: 'upi',
+                  icon: Icons.smartphone_rounded,
+                  title: isLumpsum ? 'UPI' : 'UPI AutoPay',
+                  subtitle: isLumpsum
+                      ? 'Instant approval via any UPI app (GPay, PhonePe, Paytm)'
+                      : (hasActiveUpiMandate
+                            ? 'Active mandate approved${upiMandate.mumrn != null && upiMandate.mumrn!.isNotEmpty ? " • ${upiMandate.mumrn}" : ""}'
+                            : 'One-time approval in PhonePe, GPay, or Paytm'),
+                  badgeText: isLumpsum
+                      ? 'Instant'
+                      : (hasActiveUpiMandate
+                            ? 'Active Mandate ✓'
+                            : 'Setup Required'),
+                  isSuccessBadge: isLumpsum || hasActiveUpiMandate,
+                  onSetupTap: (!isLumpsum && !hasActiveUpiMandate)
+                      ? _navigateToMandateSetup
+                      : null,
+                ),
+
+                const SizedBox(height: 12),
+
+                // Option 2: NetBanking / Bank e-Mandate
+                paymentOption(
+                  method: 'netbanking',
+                  icon: Icons.account_balance_rounded,
+                  title: isLumpsum ? 'NetBanking' : 'Bank e-Mandate (eNACH)',
+                  subtitle: isLumpsum
+                      ? 'Pay directly via your bank internet banking portal'
+                      : (hasActiveEnachMandate
+                            ? 'Active eNACH approved${enachMandate.maxAmount != null && enachMandate.maxAmount!.isNotEmpty ? " • Limit ₹${enachMandate.maxAmount}" : ""}'
+                            : 'Authenticate once via NetBanking or Debit Card'),
+                  badgeText: isLumpsum
+                      ? 'Direct'
+                      : (hasActiveEnachMandate
+                            ? 'Active eNACH ✓'
+                            : 'Setup Required'),
+                  isSuccessBadge: isLumpsum || hasActiveEnachMandate,
+                  onSetupTap: (!isLumpsum && !hasActiveEnachMandate)
+                      ? _navigateToMandateSetup
+                      : null,
+                ),
+              ],
+            ),
+          );
+        }),
 
         const SizedBox(height: 20),
 
@@ -1584,40 +1796,66 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     ),
     child: Text(label, style: text(12, weight: FontWeight.w600)),
   );
-  Widget payment(String method, String title, String subtitle) {
+  Widget paymentOption({
+    required String method,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    String? badgeText,
+    bool isSuccessBadge = false,
+    VoidCallback? onSetupTap,
+  }) {
     final m = Get.find<MfuController>();
-    return Obx(
-      () => InkWell(
+    return Obx(() {
+      final isSelected = m.selectedMethod.value == method;
+      return InkWell(
         onTap: () => m.selectMethod(method),
+        borderRadius: BorderRadius.circular(18),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 350),
+          duration: const Duration(milliseconds: 250),
           curve: Curves.easeOut,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: m.selectedMethod.value == method
+            color: isSelected
                 ? const Color(0xFFF3F0FF)
                 : const Color(0xFFFAFAFD),
             border: Border.all(
-              color: m.selectedMethod.value == method
-                  ? const Color(0xFF5B3FE0)
-                  : line,
-              width: m.selectedMethod.value == method ? 1.5 : 1,
+              color: isSelected ? const Color(0xFF5B3FE0) : line,
+              width: isSelected ? 1.5 : 1,
             ),
             borderRadius: BorderRadius.circular(18),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
+                margin: const EdgeInsets.only(top: 2),
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: m.selectedMethod.value == method
-                        ? const Color(0xFF0E176F)
+                    color: isSelected
+                        ? const Color(0xFF5B3FE0)
                         : const Color(0xFFC4C6D4),
-                    width: m.selectedMethod.value == method ? 7 : 1.5,
+                    width: isSelected ? 7 : 1.5,
                   ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? purple.withValues(alpha: 0.12)
+                      : const Color(0xFFE8EAF0),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isSelected ? purple : const Color(0xFF6E7186),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1625,15 +1863,77 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: text(14, weight: FontWeight.w700)),
-                    Text(subtitle, style: text(12, color: muted)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: text(
+                              14,
+                              weight: FontWeight.w700,
+                              color: const Color(0xFF1A1D2E),
+                            ),
+                          ),
+                        ),
+                        if (badgeText != null)
+                          GestureDetector(
+                            onTap: onSetupTap,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSuccessBadge
+                                    ? const Color(0xFFECFDF5)
+                                    : const Color(0xFFFFFBEB),
+                                borderRadius: BorderRadius.circular(6),
+                                border: isSuccessBadge
+                                    ? null
+                                    : Border.all(
+                                        color: const Color(0xFFFDE68A),
+                                      ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    badgeText,
+                                    style: text(
+                                      10,
+                                      weight: FontWeight.w700,
+                                      color: isSuccessBadge
+                                          ? const Color(0xFF059669)
+                                          : const Color(0xFFD97706),
+                                    ),
+                                  ),
+                                  if (!isSuccessBadge &&
+                                      onSetupTap != null) ...[
+                                    const SizedBox(width: 3),
+                                    const Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 8,
+                                      color: Color(0xFFD97706),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: text(12, color: muted).copyWith(height: 1.35),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
