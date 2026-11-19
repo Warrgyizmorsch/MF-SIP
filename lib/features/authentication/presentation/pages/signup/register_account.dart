@@ -315,6 +315,7 @@
 //     );
 //   }
 // }
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -518,6 +519,10 @@ class RegisterAccountScreen extends GetView<AuthController> {
                                               ),
                                               TextSpan(
                                                 text: 'Terms of Use',
+                                                recognizer:
+                                                    TapGestureRecognizer()
+                                                      ..onTap = TermAndPolicy
+                                                          .openTerms,
                                                 style: UTextStyles.subtitle2
                                                     .copyWith(
                                                       color: Ucolors.blue,
@@ -533,6 +538,10 @@ class RegisterAccountScreen extends GetView<AuthController> {
                                               ),
                                               TextSpan(
                                                 text: 'Privacy Policy.',
+                                                recognizer:
+                                                    TapGestureRecognizer()
+                                                      ..onTap = TermAndPolicy
+                                                          .openPrivacy,
                                                 style: UTextStyles.subtitle2
                                                     .copyWith(
                                                       color: Ucolors.blue,
