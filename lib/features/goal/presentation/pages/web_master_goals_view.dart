@@ -910,9 +910,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                           ontap: () async {
                             if (controller.selectedPopularFund.isEmpty ||
                                 controller.amountControllers.isEmpty) {
-                              Get.snackbar(
-                                "Error",
-                                "Please select funds and enter amount to start SIP",
+                              CustomSnackbar.warning(
+                                title: "Selection Required",
+                                message:
+                                    "Please select funds and enter amount to start SIP.",
                               );
                               return;
                             }
@@ -974,9 +975,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                 }
 
                                 if (lumpsumFunds.isEmpty) {
-                                  Get.snackbar(
-                                    "Error",
-                                    "Please enter valid amounts for selected funds.",
+                                  CustomSnackbar.warning(
+                                    title: "Amount Required",
+                                    message:
+                                        "Please enter valid amounts for selected funds.",
                                   );
                                   return;
                                 }
@@ -986,9 +988,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                   goalId: finalGoalId,
                                   funds: lumpsumFunds,
                                   onSuccess: (res) {
-                                    Get.snackbar(
-                                      "Success",
-                                      "Lumpsum investment initiated successfully!",
+                                    CustomSnackbar.success(
+                                      title: "Success",
+                                      message:
+                                          "Lumpsum investment initiated successfully!",
                                     );
                                   },
                                 );
@@ -1025,9 +1028,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                 }
 
                                 if (sipFunds.isEmpty) {
-                                  Get.snackbar(
-                                    "Error",
-                                    "Please enter valid amounts for selected funds.",
+                                  CustomSnackbar.warning(
+                                    title: "Amount Required",
+                                    message:
+                                        "Please enter valid amounts for selected funds.",
                                   );
                                   return;
                                 }
@@ -1037,24 +1041,26 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                   goalId: finalGoalId,
                                   funds: sipFunds,
                                   onSuccess: (res) {
-                                    Get.snackbar(
-                                      "Success",
-                                      "SIP investment initiated successfully!",
+                                    CustomSnackbar.success(
+                                      title: "Success",
+                                      message:
+                                          "SIP investment initiated successfully!",
                                     );
                                   },
                                 );
                               } else {
                                 // Your SIP cart logic goes here later
-                                Get.snackbar(
-                                  "Info",
-                                  "Processing SIP Checkout...",
+                                CustomSnackbar.info(
+                                  title: "Info",
+                                  message: "Processing SIP Checkout...",
                                 );
                               }
                             } catch (e) {
                               debugPrint("Transaction Error: $e");
-                              Get.snackbar(
-                                "Error",
-                                "Something went wrong while processing.",
+                              CustomSnackbar.error(
+                                title: "Error",
+                                message:
+                                    "Something went wrong while processing.",
                               );
                             } finally {
                               // 🚀 End Loading State (runs whether it succeeds or fails)
@@ -2490,11 +2496,9 @@ class SIPSectionGoal extends GetView<GoalSipController> {
                     onTap: () {
                       if (isSaved) {
                         if (!isSip) {
-                          showCustomToast(
-                            title: "Goal type cannot be changed once saved",
-                            message: "",
-                            backgroundColor: const Color(0xFF323232),
-                            icon: Icons.lock_outline_rounded,
+                          CustomSnackbar.warning(
+                            title: "Locked",
+                            message: "Goal type cannot be changed once saved.",
                           );
                         }
                         return;
@@ -2509,11 +2513,9 @@ class SIPSectionGoal extends GetView<GoalSipController> {
                     onTap: () {
                       if (isSaved) {
                         if (isSip) {
-                          showCustomToast(
-                            title: "Goal type cannot be changed once saved",
-                            message: "",
-                            backgroundColor: const Color(0xFF323232),
-                            icon: Icons.lock_outline_rounded,
+                          CustomSnackbar.warning(
+                            title: "Locked",
+                            message: "Goal type cannot be changed once saved.",
                           );
                         }
                         return;

@@ -11,6 +11,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
@@ -129,7 +130,10 @@ class IhavegoalPage extends GetView<GoalSipController> {
                     log(controller.savedDatabaseId.value.toString());
 
                     if (controller.selectedPopularFund.isEmpty) {
-                      Get.snackbar("Error", "Please select funds to start SIP");
+                      CustomSnackbar.warning(
+                        title: "Selection Required",
+                        message: "Please select funds to start SIP.",
+                      );
                       return;
                     }
 

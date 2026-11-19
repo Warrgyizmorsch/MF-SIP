@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import '../widget/goal_progress_indicator.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -337,7 +338,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             controller.getAllGoals();
           });
         } else {
-          Get.snackbar("Error", "Goal ID is missing.");
+          CustomSnackbar.error(title: "Error", message: "Goal ID is missing.");
         }
       }
 
@@ -355,7 +356,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             controller.getAllGoals();
           });
         } else {
-          Get.snackbar("Error", "Goal ID is missing.");
+          CustomSnackbar.error(title: "Error", message: "Goal ID is missing.");
         }
       }
 
@@ -467,7 +468,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
         : (liveDetail?.id ?? (goal?.id ?? 0));
 
     if (resolvedId == 0) {
-      Get.snackbar("Error", "Goal ID is missing.");
+      CustomSnackbar.error(title: "Error", message: "Goal ID is missing.");
       return;
     }
 
@@ -614,9 +615,9 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
       });
     } catch (_) {
       if (mounted) {
-        Get.snackbar(
-          'Image unavailable',
-          'Could not read this image. Please choose another image.',
+        CustomSnackbar.error(
+          title: 'Image unavailable',
+          message: 'Could not read this image. Please choose another image.',
         );
       }
     } finally {
@@ -778,12 +779,9 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
     if (_isSaving || _isPickingCover) return;
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      Get.snackbar(
-        "Required",
-        "Please enter a goal name",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade600,
-        colorText: Colors.white,
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Please enter a goal name",
       );
       return;
     }

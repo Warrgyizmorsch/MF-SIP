@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
@@ -605,7 +605,7 @@ class GoalSipController extends GetxController {
 
           update();
 
-          Get.snackbar("Error", error.message);
+          CustomSnackbar.error(title: "Error", message: error.message);
 
           return false;
         },
@@ -615,7 +615,7 @@ class GoalSipController extends GetxController {
 
       update();
 
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.error(title: "Error", message: e.toString());
 
       return false;
     }
@@ -631,12 +631,12 @@ class GoalSipController extends GetxController {
           return true;
         },
         (error) {
-          Get.snackbar("Error", error.message);
+          CustomSnackbar.error(title: "Error", message: error.message);
           return false;
         },
       );
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.error(title: "Error", message: e.toString());
       return false;
     } finally {
       isLoadingGoals.value = false;
@@ -675,19 +675,9 @@ class GoalSipController extends GetxController {
     }
 
     if (goalNameTextEditingController.text.isEmpty) {
-      // Get.snackbar("Error", "Please enter a goal name");
-      // showCustomToast(
-      //   title: "error",
-      //   message: 'Please enter a Goal name',
-      //   backgroundColor: Colors.yellow,
-      //   icon: Icons.warning,
-      // );
-      // ULoaders.warning(title: 'Enter a Goal Name ');
-      showCustomToast(
-        title: 'Enter a Goal name',
-        message: "",
-        backgroundColor: Colors.orange,
-        icon: Icons.warning,
+      CustomSnackbar.warning(
+        title: 'Goal Name Required',
+        message: 'Please enter a goal name before saving.',
       );
       return;
     }
@@ -739,8 +729,10 @@ class GoalSipController extends GetxController {
       final result = await goalUseCases.saveGoalUseCase.call(requestData);
       return result.fold(
         (success) async {
-          // Get.snackbar("Success", success.data ?? '');
-          Get.snackbar("Success", 'Goal saved successfully,');
+          CustomSnackbar.success(
+            title: "Success",
+            message: 'Goal saved successfully.',
+          );
           await fetchCount();
           await getAllGoals();
           isGoalSaved.value = true;
@@ -748,12 +740,12 @@ class GoalSipController extends GetxController {
           savedInvestmentType.value = success.data?.data.txnType ?? 'sip';
         },
         (error) {
-          Get.snackbar("Error", error.message);
+          CustomSnackbar.error(title: "Error", message: error.message);
           isGoalSaved.value = true;
         },
       );
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.error(title: "Error", message: e.toString());
       isGoalSaved.value = true;
     } finally {
       isSavingGoal.value = false;
@@ -1360,11 +1352,9 @@ class GoalSipController extends GetxController {
             toggleFund(schemeName);
           }
 
-          showCustomToast(
+          CustomSnackbar.success(
             title: "Fund Added",
-            message: schemeName,
-            backgroundColor: Colors.green,
-            icon: Icons.check_circle,
+            message: "$schemeName added to goal.",
           );
           await getAllGoals();
           if (goalId > 0) {
@@ -1372,23 +1362,13 @@ class GoalSipController extends GetxController {
           }
         },
         (failure) {
-          showCustomToast(
-            title: "Error",
-            message: failure.message,
-            backgroundColor: Colors.red.shade700,
-            icon: Icons.error_outline,
-          );
+          CustomSnackbar.error(title: "Error", message: failure.message);
         },
       );
     } catch (e) {
       debugPrint("Save Goal Fund Exception: $e");
 
-      showCustomToast(
-        title: "Error",
-        message: e.toString(),
-        backgroundColor: Colors.red.shade700,
-        icon: Icons.error_outline,
-      );
+      CustomSnackbar.error(title: "Error", message: e.toString());
     }
   }
 
@@ -1427,22 +1407,15 @@ class GoalSipController extends GetxController {
         // );
 
         // Get.snackbar("Success", "$fundName linked to your goal!");
-        showCustomToast(
+        CustomSnackbar.success(
           title: "Added to Goal",
-          message: fundName,
-          backgroundColor: Ucolors.primary,
-          icon: Icons.check_circle_outline,
+          message: "$fundName linked to your goal!",
         );
         await getAllGoals();
       },
       (error) {
         // Get.snackbar("Error", "${error.message}");
-        showCustomToast(
-          title: "Already in Goal",
-          message: fundName,
-          backgroundColor: Colors.orange.shade700,
-          icon: Icons.info_outline,
-        );
+        CustomSnackbar.warning(title: "Already in Goal", message: fundName);
       },
     );
   }
@@ -1497,11 +1470,9 @@ class GoalSipController extends GetxController {
             message: success.data?.message ?? '',
           );
         } else {
-          showCustomToast(
+          CustomSnackbar.success(
             title: "Removed from Goal",
-            message: schemeName ?? "",
-            backgroundColor: Ucolors.red,
-            icon: Icons.check_circle_outline,
+            message: schemeName ?? "Fund removed from goal.",
           );
         }
       },
@@ -1671,13 +1642,11 @@ class GoalSipController extends GetxController {
             );
           }
           final msg = success.data?.message;
-          showCustomToast(
+          CustomSnackbar.success(
             title: "Fund Linked",
             message: (msg != null && msg.isNotEmpty)
                 ? msg
                 : "Linked to ${goalName ?? 'goal'} successfully",
-            backgroundColor: Colors.green,
-            icon: Icons.check_circle_outline,
           );
           if (refreshGoals) {
             await getAllGoals();
@@ -1688,22 +1657,12 @@ class GoalSipController extends GetxController {
           return true;
         },
         (error) {
-          showCustomToast(
-            title: "Failed to Link",
-            message: error.message,
-            backgroundColor: Colors.red,
-            icon: Icons.error_outline,
-          );
+          CustomSnackbar.error(title: "Failed to Link", message: error.message);
           return false;
         },
       );
     } catch (e) {
-      showCustomToast(
-        title: "Error",
-        message: e.toString(),
-        backgroundColor: Colors.red,
-        icon: Icons.error_outline,
-      );
+      CustomSnackbar.error(title: "Error", message: e.toString());
       return false;
     } finally {
       linkingFundMap[linkingId] = false;
@@ -1724,7 +1683,7 @@ class GoalSipController extends GetxController {
         coverImage.value = image;
       }
     } catch (e) {
-      Get.snackbar("Error", "Failed to pick cover: $e");
+      CustomSnackbar.error(title: "Error", message: "Failed to pick cover: $e");
     }
   }
 
