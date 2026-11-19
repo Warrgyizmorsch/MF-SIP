@@ -36,6 +36,9 @@ class SingleGoalDetailEntity {
   final double dailySavings;
   final double weeklySavings;
   final double monthlySavings;
+  final double requiredDailySip;
+  final double requiredWeeklySip;
+  final double requiredMonthlySip;
   final int goalTenure;
   final GoalSavingEntity? saving;
   final GoalDeadlineEntity? deadline;
@@ -67,6 +70,9 @@ class SingleGoalDetailEntity {
     required this.dailySavings,
     required this.weeklySavings,
     required this.monthlySavings,
+    this.requiredDailySip = 0.0,
+    this.requiredWeeklySip = 0.0,
+    this.requiredMonthlySip = 0.0,
     required this.goalTenure,
     this.saving,
     this.deadline,
@@ -99,6 +105,9 @@ class SingleGoalDetailEntity {
     double? dailySavings,
     double? weeklySavings,
     double? monthlySavings,
+    double? requiredDailySip,
+    double? requiredWeeklySip,
+    double? requiredMonthlySip,
     int? goalTenure,
     GoalSavingEntity? saving,
     GoalDeadlineEntity? deadline,
@@ -130,6 +139,9 @@ class SingleGoalDetailEntity {
       dailySavings: dailySavings ?? this.dailySavings,
       weeklySavings: weeklySavings ?? this.weeklySavings,
       monthlySavings: monthlySavings ?? this.monthlySavings,
+      requiredDailySip: requiredDailySip ?? this.requiredDailySip,
+      requiredWeeklySip: requiredWeeklySip ?? this.requiredWeeklySip,
+      requiredMonthlySip: requiredMonthlySip ?? this.requiredMonthlySip,
       goalTenure: goalTenure ?? this.goalTenure,
       saving: saving ?? this.saving,
       deadline: deadline ?? this.deadline,
@@ -196,12 +208,98 @@ class GoalRedemptionDetailEntity {
   });
 }
 
+class GoalExitLoadDataEntity {
+  final bool success;
+  final String schemeCode;
+  final String fundName;
+  final String folio;
+  final double currentNav;
+  final double grossAmount;
+  final double units;
+  final double exitLoadAmount;
+  final double netEstimatedPayout;
+  final double ratePercent;
+  final String rateFormatted;
+  final bool isApplicable;
+  final int daysHeld;
+  final int thresholdDays;
+  final int daysRemainingForNil;
+  final String freeDate;
+  final String freeDateFormatted;
+  final String statusBadge;
+  final String summaryText;
+  final String smartTip;
+  final String rawRule;
+  final int lotsCount;
+  final List<GoalExitLoadLotEntity> lotsBreakdown;
+  final String disclaimer;
+
+  GoalExitLoadDataEntity({
+    this.success = false,
+    this.schemeCode = '',
+    this.fundName = '',
+    this.folio = '',
+    this.currentNav = 0.0,
+    this.grossAmount = 0.0,
+    this.units = 0.0,
+    this.exitLoadAmount = 0.0,
+    this.netEstimatedPayout = 0.0,
+    this.ratePercent = 0.0,
+    this.rateFormatted = '',
+    this.isApplicable = false,
+    this.daysHeld = 0,
+    this.thresholdDays = 0,
+    this.daysRemainingForNil = 0,
+    this.freeDate = '',
+    this.freeDateFormatted = '',
+    this.statusBadge = '',
+    this.summaryText = '',
+    this.smartTip = '',
+    this.rawRule = '',
+    this.lotsCount = 0,
+    this.lotsBreakdown = const [],
+    this.disclaimer = '',
+  });
+}
+
+class GoalExitLoadLotEntity {
+  final String allotmentDate;
+  final double units;
+  final double amount;
+  final double ratePercent;
+  final double exitLoadAmount;
+  final int daysHeld;
+
+  GoalExitLoadLotEntity({
+    this.allotmentDate = '',
+    this.units = 0.0,
+    this.amount = 0.0,
+    this.ratePercent = 0.0,
+    this.exitLoadAmount = 0.0,
+    this.daysHeld = 0,
+  });
+}
+
 class GoalLinkedFundEntity {
   final int id;
   final String amcImageUrl;
   final String amcLogo;
   final String fundName;
   final String schemeCode;
+  final String category;
+  final String riskLabel;
+  final String divOption;
+  final double minimumTopup;
+  final String allowedSipDates;
+  final GoalExitLoadDataEntity? exitLoadData;
+  final double exitLoadAmount;
+  final double exitLoadRate;
+  final String exitLoadRateFormatted;
+  final int exitLoadDaysRemaining;
+  final String exitLoadFreeDate;
+  final String exitLoadFreeDateFormatted;
+  final String exitLoadStatusBadge;
+  final String exitLoadSmartTip;
   final String folioNo;
   final double totalUnits;
   final double units;
@@ -209,6 +307,7 @@ class GoalLinkedFundEntity {
   final double? latestPurchaseNav;
   final double currentNav;
   final double nav;
+  final double averageNav;
   final String investedDate;
   final String? firstInvestedDate;
   final String? latestInvestedDate;
@@ -243,6 +342,13 @@ class GoalLinkedFundEntity {
   final double redeemedUnits;
   final bool isSip;
   final String? sipStatus;
+  final String? sipFrequency;
+  final String? sipFrequencyType;
+  final String? frequency;
+  final String? sipDay;
+  final String? nextSipDate;
+  final String? nextInstallmentDate;
+  final int totalInstallments;
   final bool isSipCancelled;
   final bool hasPendingSipCancellation;
   final GoalSipCancellationDetailEntity? sipCancellationDetails;
@@ -251,6 +357,7 @@ class GoalLinkedFundEntity {
   final int mfuOrderId;
   final int mfuOrderFundId;
   final int goalId;
+  final String goalName;
   final String type;
   final String investmentType;
   final String exitLoad;
@@ -266,6 +373,20 @@ class GoalLinkedFundEntity {
     required this.amcLogo,
     required this.fundName,
     required this.schemeCode,
+    this.category = '',
+    this.riskLabel = '',
+    this.divOption = '',
+    this.minimumTopup = 0.0,
+    this.allowedSipDates = '',
+    this.exitLoadData,
+    this.exitLoadAmount = 0.0,
+    this.exitLoadRate = 0.0,
+    this.exitLoadRateFormatted = '',
+    this.exitLoadDaysRemaining = 0,
+    this.exitLoadFreeDate = '',
+    this.exitLoadFreeDateFormatted = '',
+    this.exitLoadStatusBadge = '',
+    this.exitLoadSmartTip = '',
     required this.folioNo,
     required this.totalUnits,
     required this.units,
@@ -273,6 +394,7 @@ class GoalLinkedFundEntity {
     this.latestPurchaseNav,
     required this.currentNav,
     this.nav = 0.0,
+    this.averageNav = 0.0,
     required this.investedDate,
     this.firstInvestedDate,
     this.latestInvestedDate,
@@ -307,6 +429,13 @@ class GoalLinkedFundEntity {
     required this.redeemedUnits,
     required this.isSip,
     this.sipStatus,
+    this.sipFrequency,
+    this.sipFrequencyType,
+    this.frequency,
+    this.sipDay,
+    this.nextSipDate,
+    this.nextInstallmentDate,
+    this.totalInstallments = 0,
     required this.isSipCancelled,
     required this.hasPendingSipCancellation,
     this.sipCancellationDetails,
@@ -315,6 +444,7 @@ class GoalLinkedFundEntity {
     required this.mfuOrderId,
     required this.mfuOrderFundId,
     required this.goalId,
+    this.goalName = '',
     required this.type,
     this.investmentType = '',
     this.exitLoad = '',

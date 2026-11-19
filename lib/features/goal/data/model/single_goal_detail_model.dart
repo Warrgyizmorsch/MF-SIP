@@ -53,6 +53,9 @@ class SingleGoalDetailModel {
   final double? dailySavings;
   final double? weeklySavings;
   final double? monthlySavings;
+  final double? requiredDailySip;
+  final double? requiredWeeklySip;
+  final double? requiredMonthlySip;
   final int? goalTenure;
   final GoalSavingModel? saving;
   final GoalDeadlineModel? deadline;
@@ -84,6 +87,9 @@ class SingleGoalDetailModel {
     this.dailySavings,
     this.weeklySavings,
     this.monthlySavings,
+    this.requiredDailySip,
+    this.requiredWeeklySip,
+    this.requiredMonthlySip,
     this.goalTenure,
     this.saving,
     this.deadline,
@@ -123,6 +129,9 @@ class SingleGoalDetailModel {
       monthlySavings:
           json.parse<double>('monthly_savings') ??
           json.parse<double>('monthly_investment'),
+      requiredDailySip: json.parse<double>('required_daily_sip'),
+      requiredWeeklySip: json.parse<double>('required_weekly_sip'),
+      requiredMonthlySip: json.parse<double>('required_monthly_sip'),
       goalTenure: json.parse<int>('goal_tenure'),
       saving: json['saving'] is Map<String, dynamic>
           ? GoalSavingModel.fromJson(json['saving'] as Map<String, dynamic>)
@@ -164,6 +173,9 @@ class SingleGoalDetailModel {
       dailySavings: dailySavings ?? deadline?.dailySavings ?? 0.0,
       weeklySavings: weeklySavings ?? deadline?.weeklySavings ?? 0.0,
       monthlySavings: monthlySavings ?? deadline?.monthlySavings ?? 0.0,
+      requiredDailySip: requiredDailySip ?? 0.0,
+      requiredWeeklySip: requiredWeeklySip ?? 0.0,
+      requiredMonthlySip: requiredMonthlySip ?? 0.0,
       goalTenure: goalTenure ?? 0,
       saving: saving?.toEntity(),
       deadline: deadline?.toEntity(),
@@ -502,12 +514,182 @@ class GoalFundTransactionModel {
   }
 }
 
+class GoalExitLoadDataModel {
+  final bool? success;
+  final String? schemeCode;
+  final String? fundName;
+  final String? folio;
+  final double? currentNav;
+  final double? grossAmount;
+  final double? units;
+  final double? exitLoadAmount;
+  final double? netEstimatedPayout;
+  final double? ratePercent;
+  final String? rateFormatted;
+  final bool? isApplicable;
+  final int? daysHeld;
+  final int? thresholdDays;
+  final int? daysRemainingForNil;
+  final String? freeDate;
+  final String? freeDateFormatted;
+  final String? statusBadge;
+  final String? summaryText;
+  final String? smartTip;
+  final String? rawRule;
+  final int? lotsCount;
+  final List<GoalExitLoadLotModel>? lotsBreakdown;
+  final String? disclaimer;
+
+  GoalExitLoadDataModel({
+    this.success,
+    this.schemeCode,
+    this.fundName,
+    this.folio,
+    this.currentNav,
+    this.grossAmount,
+    this.units,
+    this.exitLoadAmount,
+    this.netEstimatedPayout,
+    this.ratePercent,
+    this.rateFormatted,
+    this.isApplicable,
+    this.daysHeld,
+    this.thresholdDays,
+    this.daysRemainingForNil,
+    this.freeDate,
+    this.freeDateFormatted,
+    this.statusBadge,
+    this.summaryText,
+    this.smartTip,
+    this.rawRule,
+    this.lotsCount,
+    this.lotsBreakdown,
+    this.disclaimer,
+  });
+
+  factory GoalExitLoadDataModel.fromJson(Map<String, dynamic> json) {
+    return GoalExitLoadDataModel(
+      success: json.parse<bool>('success'),
+      schemeCode: json.parse<String>('scheme_code'),
+      fundName: json.parse<String>('fund_name'),
+      folio: json.parse<String>('folio'),
+      currentNav: json.parse<double>('current_nav'),
+      grossAmount: json.parse<double>('gross_amount'),
+      units: json.parse<double>('units'),
+      exitLoadAmount: json.parse<double>('exit_load_amount'),
+      netEstimatedPayout: json.parse<double>('net_estimated_payout'),
+      ratePercent: json.parse<double>('rate_percent'),
+      rateFormatted: json.parse<String>('rate_formatted'),
+      isApplicable: json.parse<bool>('is_applicable'),
+      daysHeld: json.parse<int>('days_held'),
+      thresholdDays: json.parse<int>('threshold_days'),
+      daysRemainingForNil: json.parse<int>('days_remaining_for_nil'),
+      freeDate: json.parse<String>('free_date'),
+      freeDateFormatted: json.parse<String>('free_date_formatted'),
+      statusBadge: json.parse<String>('status_badge'),
+      summaryText: json.parse<String>('summary_text'),
+      smartTip: json.parse<String>('smart_tip'),
+      rawRule: json.parse<String>('raw_rule'),
+      lotsCount: json.parse<int>('lots_count'),
+      lotsBreakdown: json.parseListOf<GoalExitLoadLotModel>(
+        'lots_breakdown',
+        (item) => GoalExitLoadLotModel.fromJson(item as Map<String, dynamic>),
+      ),
+      disclaimer: json.parse<String>('disclaimer'),
+    );
+  }
+
+  GoalExitLoadDataEntity toEntity() {
+    return GoalExitLoadDataEntity(
+      success: success ?? false,
+      schemeCode: schemeCode ?? '',
+      fundName: fundName ?? '',
+      folio: folio ?? '',
+      currentNav: currentNav ?? 0.0,
+      grossAmount: grossAmount ?? 0.0,
+      units: units ?? 0.0,
+      exitLoadAmount: exitLoadAmount ?? 0.0,
+      netEstimatedPayout: netEstimatedPayout ?? 0.0,
+      ratePercent: ratePercent ?? 0.0,
+      rateFormatted: rateFormatted ?? '',
+      isApplicable: isApplicable ?? false,
+      daysHeld: daysHeld ?? 0,
+      thresholdDays: thresholdDays ?? 0,
+      daysRemainingForNil: daysRemainingForNil ?? 0,
+      freeDate: freeDate ?? '',
+      freeDateFormatted: freeDateFormatted ?? '',
+      statusBadge: statusBadge ?? '',
+      summaryText: summaryText ?? '',
+      smartTip: smartTip ?? '',
+      rawRule: rawRule ?? '',
+      lotsCount: lotsCount ?? 0,
+      lotsBreakdown:
+          lotsBreakdown?.map((l) => l.toEntity()).toList() ?? const [],
+      disclaimer: disclaimer ?? '',
+    );
+  }
+}
+
+class GoalExitLoadLotModel {
+  final String? allotmentDate;
+  final double? units;
+  final double? amount;
+  final double? ratePercent;
+  final double? exitLoadAmount;
+  final int? daysHeld;
+
+  GoalExitLoadLotModel({
+    this.allotmentDate,
+    this.units,
+    this.amount,
+    this.ratePercent,
+    this.exitLoadAmount,
+    this.daysHeld,
+  });
+
+  factory GoalExitLoadLotModel.fromJson(Map<String, dynamic> json) {
+    return GoalExitLoadLotModel(
+      allotmentDate: json.parse<String>('allotment_date'),
+      units: json.parse<double>('units'),
+      amount: json.parse<double>('amount'),
+      ratePercent: json.parse<double>('rate_percent'),
+      exitLoadAmount: json.parse<double>('exit_load_amount'),
+      daysHeld: json.parse<int>('days_held'),
+    );
+  }
+
+  GoalExitLoadLotEntity toEntity() {
+    return GoalExitLoadLotEntity(
+      allotmentDate: allotmentDate ?? '',
+      units: units ?? 0.0,
+      amount: amount ?? 0.0,
+      ratePercent: ratePercent ?? 0.0,
+      exitLoadAmount: exitLoadAmount ?? 0.0,
+      daysHeld: daysHeld ?? 0,
+    );
+  }
+}
+
 class GoalLinkedFundModel {
   final int? id;
   final String? amcImageUrl;
   final String? amcLogo;
   final String? fundName;
   final String? schemeCode;
+  final String? category;
+  final String? riskLabel;
+  final String? divOption;
+  final double? minimumTopup;
+  final String? allowedSipDates;
+  final GoalExitLoadDataModel? exitLoadData;
+  final double? exitLoadAmount;
+  final double? exitLoadRate;
+  final String? exitLoadRateFormatted;
+  final int? exitLoadDaysRemaining;
+  final String? exitLoadFreeDate;
+  final String? exitLoadFreeDateFormatted;
+  final String? exitLoadStatusBadge;
+  final String? exitLoadSmartTip;
   final String? folioNo;
   final double? totalUnits;
   final double? units;
@@ -515,6 +697,7 @@ class GoalLinkedFundModel {
   final double? latestPurchaseNav;
   final double currentNav;
   final double? nav;
+  final double? averageNav;
   final String? investedDate;
   final String? firstInvestedDate;
   final String? latestInvestedDate;
@@ -549,6 +732,13 @@ class GoalLinkedFundModel {
   final double? redeemedUnits;
   final bool? isSip;
   final String? sipStatus;
+  final String? sipFrequency;
+  final String? sipFrequencyType;
+  final String? frequency;
+  final String? sipDay;
+  final String? nextSipDate;
+  final String? nextInstallmentDate;
+  final int? totalInstallments;
   final bool? isSipCancelled;
   final bool hasPendingSipCancellation;
   final GoalSipCancellationDetailModel? sipCancellationDetails;
@@ -557,6 +747,7 @@ class GoalLinkedFundModel {
   final int? mfuOrderId;
   final int? mfuOrderFundId;
   final int? goalId;
+  final String? goalName;
   final String? type;
   final String? investmentType;
   final String? exitLoad;
@@ -572,6 +763,20 @@ class GoalLinkedFundModel {
     this.amcLogo,
     this.fundName,
     this.schemeCode,
+    this.category,
+    this.riskLabel,
+    this.divOption,
+    this.minimumTopup,
+    this.allowedSipDates,
+    this.exitLoadData,
+    this.exitLoadAmount,
+    this.exitLoadRate,
+    this.exitLoadRateFormatted,
+    this.exitLoadDaysRemaining,
+    this.exitLoadFreeDate,
+    this.exitLoadFreeDateFormatted,
+    this.exitLoadStatusBadge,
+    this.exitLoadSmartTip,
     this.folioNo,
     this.totalUnits,
     this.units,
@@ -579,6 +784,7 @@ class GoalLinkedFundModel {
     this.latestPurchaseNav,
     required this.currentNav,
     this.nav,
+    this.averageNav,
     this.investedDate,
     this.firstInvestedDate,
     this.latestInvestedDate,
@@ -613,6 +819,13 @@ class GoalLinkedFundModel {
     this.redeemedUnits,
     this.isSip,
     this.sipStatus,
+    this.sipFrequency,
+    this.sipFrequencyType,
+    this.frequency,
+    this.sipDay,
+    this.nextSipDate,
+    this.nextInstallmentDate,
+    this.totalInstallments,
     this.isSipCancelled,
     this.hasPendingSipCancellation = false,
     this.sipCancellationDetails,
@@ -621,6 +834,7 @@ class GoalLinkedFundModel {
     this.mfuOrderId,
     this.mfuOrderFundId,
     this.goalId,
+    this.goalName,
     this.type,
     this.investmentType,
     this.exitLoad,
@@ -643,6 +857,27 @@ class GoalLinkedFundModel {
           json.parse<String>('amc_logo') ?? json.parse<String>('amc_image_url'),
       fundName: json.parse<String>('fund_name'),
       schemeCode: json.parse<String>('scheme_code'),
+      category: json.parse<String>('category'),
+      riskLabel: json.parse<String>('risk_label'),
+      divOption:
+          json.parse<String>('divoption') ?? json.parse<String>('div_opt'),
+      minimumTopup: json.parse<double>('minimum_topup'),
+      allowedSipDates: json.parse<String>('allowed_sip_dates'),
+      exitLoadData: json['exit_load_data'] is Map<String, dynamic>
+          ? GoalExitLoadDataModel.fromJson(
+              json['exit_load_data'] as Map<String, dynamic>,
+            )
+          : null,
+      exitLoadAmount: json.parse<double>('exit_load_amount'),
+      exitLoadRate: json.parse<double>('exit_load_rate'),
+      exitLoadRateFormatted: json.parse<String>('exit_load_rate_formatted'),
+      exitLoadDaysRemaining: json.parse<int>('exit_load_days_remaining'),
+      exitLoadFreeDate: json.parse<String>('exit_load_free_date'),
+      exitLoadFreeDateFormatted: json.parse<String>(
+        'exit_load_free_date_formatted',
+      ),
+      exitLoadStatusBadge: json.parse<String>('exit_load_status_badge'),
+      exitLoadSmartTip: json.parse<String>('exit_load_smart_tip'),
       folioNo: json.parse<String>('folio_no') ?? json.parse<String>('folio'),
       totalUnits:
           json.parse<double>('total_units') ?? json.parse<double>('units'),
@@ -651,6 +886,10 @@ class GoalLinkedFundModel {
           json.parse<double>('purchase_nav') ??
           json.parse<double>('invested_nav') ??
           json.parse<double>('average_nav'),
+      averageNav:
+          json.parse<double>('average_nav') ??
+          json.parse<double>('purchase_nav') ??
+          json.parse<double>('invested_nav'),
       latestPurchaseNav: json.parse<double>('latest_purchase_nav'),
       nav: json.parse<double>('nav') ?? json.parse<double>('current_nav'),
       currentNav:
@@ -718,6 +957,15 @@ class GoalLinkedFundModel {
       redeemedUnits: json.parse<double>('redeemed_units'),
       isSip: json.parse<bool>('is_sip'),
       sipStatus: json.parse<String>('sip_status'),
+      sipFrequency: json.parse<String>('sip_frequency'),
+      sipFrequencyType: json.parse<String>('sip_frequency_type'),
+      frequency:
+          json.parse<String>('frequency') ??
+          json.parse<String>('sip_frequency'),
+      sipDay: json.parse<String>('sip_day'),
+      nextSipDate: json.parse<String>('next_sip_date'),
+      nextInstallmentDate: json.parse<String>('next_installment_date'),
+      totalInstallments: json.parse<int>('total_installments'),
       isSipCancelled: json.parse<bool>('is_sip_cancelled'),
       hasPendingSipCancellation:
           json.parse<bool>('has_pending_sip_cancellation') ?? false,
@@ -734,6 +982,7 @@ class GoalLinkedFundModel {
       mfuOrderId: json.parse<int>('mfu_order_id'),
       mfuOrderFundId: json.parse<int>('mfu_order_fund_id'),
       goalId: json.parse<int>('goal_id'),
+      goalName: json.parse<String>('goal_name'),
       type: json.parse<String>('type') ?? json.parse<String>('investment_type'),
       investmentType:
           json.parse<String>('investment_type') ?? json.parse<String>('type'),
@@ -757,6 +1006,24 @@ class GoalLinkedFundModel {
       amcLogo: amcLogo ?? '',
       fundName: fundName ?? '',
       schemeCode: schemeCode ?? '',
+      category: category ?? '',
+      riskLabel: riskLabel ?? '',
+      divOption: divOption ?? '',
+      minimumTopup: minimumTopup ?? 0.0,
+      allowedSipDates: allowedSipDates ?? '',
+      exitLoadData: exitLoadData?.toEntity(),
+      exitLoadAmount: exitLoadAmount ?? exitLoadData?.exitLoadAmount ?? 0.0,
+      exitLoadRate: exitLoadRate ?? exitLoadData?.ratePercent ?? 0.0,
+      exitLoadRateFormatted:
+          exitLoadRateFormatted ?? exitLoadData?.rateFormatted ?? '',
+      exitLoadDaysRemaining:
+          exitLoadDaysRemaining ?? exitLoadData?.daysRemainingForNil ?? 0,
+      exitLoadFreeDate: exitLoadFreeDate ?? exitLoadData?.freeDate ?? '',
+      exitLoadFreeDateFormatted:
+          exitLoadFreeDateFormatted ?? exitLoadData?.freeDateFormatted ?? '',
+      exitLoadStatusBadge:
+          exitLoadStatusBadge ?? exitLoadData?.statusBadge ?? '',
+      exitLoadSmartTip: exitLoadSmartTip ?? exitLoadData?.smartTip ?? '',
       folioNo: folioNo ?? '',
       totalUnits: totalUnits ?? 0.0,
       units: units ?? 0.0,
@@ -764,6 +1031,7 @@ class GoalLinkedFundModel {
       latestPurchaseNav: latestPurchaseNav,
       currentNav: currentNav,
       nav: nav ?? currentNav,
+      averageNav: averageNav ?? purchaseNav ?? 0.0,
       investedDate: investedDate ?? '',
       firstInvestedDate: firstInvestedDate,
       latestInvestedDate: latestInvestedDate,
@@ -800,6 +1068,13 @@ class GoalLinkedFundModel {
       redeemedUnits: redeemedUnits ?? 0.0,
       isSip: isSip ?? false,
       sipStatus: sipStatus,
+      sipFrequency: sipFrequency,
+      sipFrequencyType: sipFrequencyType,
+      frequency: frequency ?? sipFrequency,
+      sipDay: sipDay,
+      nextSipDate: nextSipDate,
+      nextInstallmentDate: nextInstallmentDate,
+      totalInstallments: totalInstallments ?? 0,
       isSipCancelled: isSipCancelled ?? false,
       hasPendingSipCancellation: hasPendingSipCancellation,
       sipCancellationDetails: sipCancellationDetails?.toEntity(),
@@ -808,6 +1083,7 @@ class GoalLinkedFundModel {
       mfuOrderId: mfuOrderId ?? 0,
       mfuOrderFundId: mfuOrderFundId ?? 0,
       goalId: goalId ?? 0,
+      goalName: goalName ?? '',
       type: type ?? investmentType ?? '',
       investmentType: investmentType ?? type ?? '',
       exitLoad: exitLoad ?? '',
