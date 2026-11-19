@@ -3623,7 +3623,7 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 const Text(
-                                                  'SIP Total',
+                                                  'Invested SIP',
                                                   style: TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.w500,
@@ -3679,7 +3679,7 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 const Text(
-                                                  'Lumpsum Total',
+                                                  'Invested Lumpsum',
                                                   style: TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.w500,
