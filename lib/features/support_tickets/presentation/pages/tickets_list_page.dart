@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import '../../domain/entities/ticket_entity.dart';
 import '../controllers/tickets_controller.dart';
+import '../widgets/quick_support_card.dart';
 import '../widgets/ticket_card.dart';
 import 'create_ticket_page.dart';
 import 'ticket_detail_page.dart';
@@ -79,6 +80,9 @@ class TicketsListPage extends StatelessWidget {
                   ],
                 ),
               ),
+
+              // Direct Support Channels (Call, WhatsApp, Email)
+              const QuickSupportCard(),
 
               // Filter Tabs Row
               Padding(

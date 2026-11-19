@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import '../../domain/entities/ticket_category_entity.dart';
 import '../controllers/create_ticket_controller.dart';
+import '../widgets/quick_support_card.dart';
 import '../widgets/ticket_priority_badge.dart';
 
 class CreateTicketPage extends StatelessWidget {
@@ -127,6 +128,13 @@ class CreateTicketPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Instant support channels
+            const QuickSupportCard(
+              compact: true,
+              title: 'Need quick help? Connect directly:',
+            ),
+            const SizedBox(height: 16),
+
             // Category Selector
             const Text(
               'Select Issue Category *',
