@@ -27,6 +27,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
 import '../../../../common/widget/images/image_picker.dart';
 import '../widget/add_fund_bottom_sheet.dart';
+import '../widget/goal_image_cropper.dart';
 import '../widget/goal_linked_funds_shimmer.dart';
 
 import '../../domain/entity/goal_entity.dart';
@@ -596,10 +597,18 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
     try {
       final image = await ImagePicker().pickImage(
         source: source,
-        imageQuality: 80,
+        imageQuality: 90,
       );
       if (image == null || !mounted) return;
-      final bytes = await image.readAsBytes();
+
+      final croppedImage = await GoalImageCropper.cropImage(
+        context: context,
+        imageFile: image,
+        aspectRatio: 390 / 224,
+      );
+      if (croppedImage == null || !mounted) return;
+
+      final bytes = await croppedImage.readAsBytes();
       if (bytes.isEmpty) throw const FormatException('Empty image');
       final codec = await ui.instantiateImageCodec(bytes, targetWidth: 160);
       try {
@@ -610,7 +619,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
       }
       if (!mounted) return;
       setState(() {
-        _selectedCover = image;
+        _selectedCover = croppedImage;
         _coverBytes = bytes;
       });
     } catch (_) {
@@ -710,6 +719,8 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
       for (final url in urls) {
         await CachedNetworkImage.evictFromCache(url);
       }
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
     } catch (_) {
       // A cache failure must not turn a confirmed goal update into a failure.
     }

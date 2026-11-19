@@ -15,6 +15,7 @@ import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:my_sip/features/goal/domain/usecases/goal_use_cases.dart';
 import 'package:my_sip/services/session_manager.dart';
+import '../widget/goal_image_cropper.dart';
 
 import '../../../explore/domain/entities/mutual_fund_list_entity.dart';
 import '../../../explore/presentation/controller/mutual_fund_controller.dart';
@@ -1676,11 +1677,17 @@ class GoalSipController extends GetxController {
 
       final XFile? image = await picker.pickImage(
         source: source,
-        imageQuality: 80,
+        imageQuality: 90,
       );
 
       if (image != null) {
-        coverImage.value = image;
+        final cropped = await GoalImageCropper.cropImage(
+          imageFile: image,
+          aspectRatio: 390 / 224,
+        );
+        if (cropped != null) {
+          coverImage.value = cropped;
+        }
       }
     } catch (e) {
       CustomSnackbar.error(title: "Error", message: "Failed to pick cover: $e");
