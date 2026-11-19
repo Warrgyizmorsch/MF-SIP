@@ -3318,15 +3318,52 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
     final double totalLumpsum = (detail?.totalLumpsumAmount ?? 0) > 0
         ? detail!.totalLumpsumAmount
         : (widget.goal?.totalLumpsumAmount ?? 0.0);
-    final bool hasBothPlans = totalSip > 0 && totalLumpsum > 0;
-    final bool isLumpsumOnly =
-        (detail?.investmentType.toLowerCase() == 'lumpsum') ||
-        (widget.goal?.txnType.toLowerCase() == 'lumpsum');
-    final String planBadgeText = hasBothPlans
-        ? 'SIP & Lumpsum'
-        : (isLumpsumOnly
-              ? 'Lumpsum ${money(totalLumpsum > 0 ? totalLumpsum : (widget.goal?.lumpsumAmount ?? 0))}'
-              : '${money(monthly > 0 ? monthly : (widget.goal?.effectiveMonthlySip ?? 0))}/mo');
+
+    // Inspect linked mutual funds' investment_type
+    final bool hasSipFund = funds.any(
+      (f) =>
+          f.investmentType.toLowerCase() == 'sip' ||
+          f.type.toLowerCase() == 'sip' ||
+          f.isSip,
+    );
+    final bool hasLumpsumFund = funds.any(
+      (f) =>
+          f.investmentType.toLowerCase() == 'lumpsum' ||
+          f.type.toLowerCase() == 'lumpsum' ||
+          (!f.isSip && f.investmentType.isNotEmpty),
+    );
+
+    final bool hasBothPlans = funds.isNotEmpty
+        ? (hasSipFund && hasLumpsumFund)
+        : (totalSip > 0 && totalLumpsum > 0);
+
+    final bool isLumpsumOnly = funds.isNotEmpty
+        ? (hasLumpsumFund && !hasSipFund)
+        : ((detail?.investmentType.toLowerCase() == 'lumpsum') ||
+              (widget.goal?.txnType.toLowerCase() == 'lumpsum'));
+
+    final String fallbackType = (detail?.investmentType.isNotEmpty == true)
+        ? detail!.investmentType
+        : (widget.goal?.txnType.isNotEmpty == true
+              ? widget.goal!.txnType
+              : 'sip');
+
+    final String planBadgeText;
+    if (funds.isNotEmpty) {
+      if (hasSipFund && hasLumpsumFund) {
+        planBadgeText = 'SIP & Lumpsum';
+      } else if (hasLumpsumFund) {
+        planBadgeText = 'Lumpsum';
+      } else {
+        planBadgeText = 'SIP';
+      }
+    } else {
+      if (fallbackType.toLowerCase() == 'lumpsum') {
+        planBadgeText = 'Lumpsum';
+      } else {
+        planBadgeText = 'SIP';
+      }
+    }
     final projected = target;
     return Scaffold(
       backgroundColor: _TrackingStyle.background,
@@ -3550,11 +3587,15 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                               weight: FontWeight.w800,
                             ),
                           ),
-                          if (totalSip > 0 || totalLumpsum > 0) ...[
+                          if ((!isLumpsumOnly && totalSip > 0) ||
+                              (isLumpsumOnly && totalLumpsum > 0) ||
+                              (hasBothPlans &&
+                                  (totalSip > 0 || totalLumpsum > 0))) ...[
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                if (totalSip > 0)
+                                if ((!isLumpsumOnly || hasBothPlans) &&
+                                    totalSip > 0)
                                   Expanded(
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
@@ -3604,9 +3645,12 @@ class _TrackingViewState extends State<GoalDetailsMobileView> {
                                       ),
                                     ),
                                   ),
-                                if (totalSip > 0 && totalLumpsum > 0)
+                                if (hasBothPlans &&
+                                    totalSip > 0 &&
+                                    totalLumpsum > 0)
                                   const SizedBox(width: 8),
-                                if (totalLumpsum > 0)
+                                if ((isLumpsumOnly || hasBothPlans) &&
+                                    totalLumpsum > 0)
                                   Expanded(
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
