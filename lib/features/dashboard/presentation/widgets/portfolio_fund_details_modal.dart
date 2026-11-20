@@ -366,7 +366,7 @@ class PortfolioFundDetailsModal extends StatelessWidget {
                     color: Colors.white,
                   ),
                   label: const Text(
-                    'Reinvest',
+                    'Invest More',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

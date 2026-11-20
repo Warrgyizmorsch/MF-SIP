@@ -51,7 +51,7 @@ class _PortfolioFundActionsState extends State<PortfolioFundActions> {
         widget.fund.totalUnits > 0 && !widget.fund.isFullyRedeemed;
 
     final reinvest = _button(
-      label: 'Reinvest',
+      label: 'Invest More',
       cancel: false,
       isReinvest: true,
       onPressed: canAct && widget.onReinvest != null ? widget.onReinvest : null,
