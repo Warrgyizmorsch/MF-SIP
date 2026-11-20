@@ -2481,51 +2481,95 @@ class SIPSectionGoal extends GetView<GoalSipController> {
           Obx(() {
             final isSip = controller.investmentMode.value == 'sip';
             final isSaved = controller.isGoalSaved.value;
-            return Container(
-              decoration: BoxDecoration(
-                color: const Color(0xffF3F4F6),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.all(4),
-              child: Row(
-                children: [
-                  _TabButton(
-                    label: 'SIP',
-                    isSelected: isSip,
-                    isLocked: isSaved,
-                    onTap: () {
-                      if (isSaved) {
-                        if (!isSip) {
-                          CustomSnackbar.warning(
-                            title: "Locked",
-                            message: "Goal type cannot be changed once saved.",
-                          );
-                        }
-                        return;
-                      }
-                      controller.investmentMode.value = 'sip';
-                    },
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Investment Mode',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Ucolors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        isSip ? 'Monthly Investment' : 'One-time Investment',
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Ucolors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xffF3F4F6),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  _TabButton(
-                    label: 'Lumpsum',
-                    isSelected: !isSip,
-                    isLocked: isSaved,
-                    onTap: () {
-                      if (isSaved) {
-                        if (isSip) {
-                          CustomSnackbar.warning(
-                            title: "Locked",
-                            message: "Goal type cannot be changed once saved.",
-                          );
-                        }
-                        return;
-                      }
-                      controller.investmentMode.value = 'lumpsum';
-                      controller.recalculateLumpsum();
-                    },
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
+                    children: [
+                      _TabButton(
+                        label: 'SIP',
+                        icon: Icons.autorenew_rounded,
+                        isSelected: isSip,
+                        isLocked: isSaved,
+                        onTap: () {
+                          if (isSaved) {
+                            if (!isSip) {
+                              CustomSnackbar.warning(
+                                title: "Locked",
+                                message:
+                                    "Goal type cannot be changed once saved.",
+                              );
+                            }
+                            return;
+                          }
+                          controller.investmentMode.value = 'sip';
+                        },
+                      ),
+                      const SizedBox(width: 4),
+                      _TabButton(
+                        label: 'Lumpsum',
+                        icon: Icons.account_balance_wallet_outlined,
+                        isSelected: !isSip,
+                        isLocked: isSaved,
+                        onTap: () {
+                          if (isSaved) {
+                            if (isSip) {
+                              CustomSnackbar.warning(
+                                title: "Locked",
+                                message:
+                                    "Goal type cannot be changed once saved.",
+                              );
+                            }
+                            return;
+                          }
+                          controller.investmentMode.value = 'lumpsum';
+                          controller.recalculateLumpsum();
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           }),
           const Gap(20),
@@ -2539,16 +2583,19 @@ class SIPSectionGoal extends GetView<GoalSipController> {
   }
 }
 
+// ── Tab Button ────────────────────────────────────────────────────────────────
 class _TabButton extends StatelessWidget {
   const _TabButton({
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.icon,
     this.isLocked = false,
   });
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final IconData? icon;
   final bool isLocked;
 
   @override
@@ -2559,16 +2606,16 @@ class _TabButton extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 11),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
+            color: isSelected ? Ucolors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
+                      color: Ucolors.primary.withValues(alpha: 0.32),
                       blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      offset: const Offset(0, 3),
                     ),
                   ]
                 : [],
@@ -2579,24 +2626,27 @@ class _TabButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (isLocked && isSelected) ...[
-                  const Icon(
-                    Icons.lock_rounded,
-                    size: 13,
-                    color: Ucolors.primary,
+                  const Icon(Icons.lock_rounded, size: 14, color: Colors.white),
+                  const SizedBox(width: 6),
+                ] else if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: 16,
+                    color: isSelected ? Colors.white : Colors.grey.shade600,
                   ),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 6),
                 ],
                 Text(
                   label,
                   style: TextStyle(
                     fontFamily: FontFamily.medium,
                     fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected
-                        ? Ucolors.primary
+                        ? Colors.white
                         : (isLocked
                               ? Colors.grey.shade400
-                              : Colors.grey.shade500),
+                              : Colors.grey.shade600),
                   ),
                 ),
               ],

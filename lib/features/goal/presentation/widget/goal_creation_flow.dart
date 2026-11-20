@@ -292,6 +292,7 @@ class GoalCreationFlowState extends State<GoalCreationFlow> {
           ),
         ),
         _inflationStepper(),
+
         // Obx(
         //   () => Container(
         //     padding: const EdgeInsets.all(20),
@@ -323,7 +324,6 @@ class GoalCreationFlowState extends State<GoalCreationFlow> {
         //     ),
         //   ),
         // ),
-    
       ],
     ),
   );
@@ -443,60 +443,126 @@ class GoalCreationFlowState extends State<GoalCreationFlow> {
 
   Widget _modeTabs() => Obx(() {
     final sip = c.investmentMode.value == 'sip';
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1F4F9),
-        border: Border.all(color: _PlanStyle.line),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        spacing: 4,
-        children: ['SIP', 'Lumpsum'].asMap().entries.map((e) {
-          final selected = e.key == 0 ? sip : !sip;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                c.investmentMode.value = e.key == 0 ? 'sip' : 'lumpsum';
-                c.recalculateLumpsum();
-              },
-              child: AnimatedContainer(
-                duration: _PlanStyle.duration,
-                curve: Curves.easeOut,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: selected ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: selected
-                        ? const Color(0x1A5B3FE0)
-                        : Colors.transparent,
-                  ),
-                  boxShadow: selected
-                      ? [
-                          const BoxShadow(
-                            color: Color(0x1A5B3FE0),
-                            blurRadius: 4,
-                          ),
-                        ]
-                      : [],
-                ),
-                child: Text(
-                  e.value,
-                  style: _PlanStyle.text(
-                    13,
-                    color: selected ? _PlanStyle.purple : _PlanStyle.muted,
-                    weight: FontWeight.w700,
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Investment Mode',
+              style: _PlanStyle.text(
+                13,
+                weight: FontWeight.w700,
+                color: _PlanStyle.dark,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: _PlanStyle.purple.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                sip ? 'Invest Regularly' : 'Invest Once',
+                style: _PlanStyle.text(
+                  11,
+                  weight: FontWeight.w700,
+                  color: _PlanStyle.purple,
                 ),
               ),
             ),
-          );
-        }).toList(),
-      ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 50,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F4F9),
+            border: Border.all(color: _PlanStyle.line),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: _modeOption(
+                  icon: Icons.autorenew_rounded,
+                  label: 'SIP',
+                  selected: sip,
+                  onTap: () {
+                    c.investmentMode.value = 'sip';
+                    c.recalculateLumpsum();
+                  },
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: _modeOption(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: 'Lumpsum',
+                  selected: !sip,
+                  onTap: () {
+                    c.investmentMode.value = 'lumpsum';
+                    c.recalculateLumpsum();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   });
+
+  Widget _modeOption({
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: _PlanStyle.duration,
+        curve: Curves.easeOut,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? _PlanStyle.purple : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: _PlanStyle.purple.withValues(alpha: 0.35),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: selected ? Colors.white : _PlanStyle.muted,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: _PlanStyle.text(
+                13,
+                color: selected ? Colors.white : _PlanStyle.muted,
+                weight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _slider({
     required double value,
@@ -985,6 +1051,7 @@ class _PlanStyle {
   static const background = Color(0xFFF5F6FA);
   static const purple = Color(0xFF441D9E);
   static const navy = Color(0xFF0E176F);
+  static const dark = Color(0xFF12121A);
   static const line = Color(0xFFE4E6EE);
   static const muted = Color(0xFF5E6175);
   static const dim = Color(0xFF6E7186);
