@@ -813,7 +813,7 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
     }
     if (mounted) {
       setState(() => _isSaving = false);
-      if (success) {
+      if (success && Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       }
     }
@@ -1100,35 +1100,35 @@ class _EditGoalSheetContentState extends State<_EditGoalSheetContent> {
               ),
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FBF4),
-                borderRadius: BorderRadius.circular(26),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Estimated Monthly SIP',
-                    style: _TrackingStyle.text(
-                      13,
-                      color: const Color(0xFF07894C),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    '₹${NumberFormat.decimalPattern('en_IN').format(monthly.round())}',
-                    style: _TrackingStyle.text(
-                      26,
-                      color: const Color(0xFF07894C),
-                      weight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+            // Container(
+            //   padding: const EdgeInsets.all(20),
+            //   decoration: BoxDecoration(
+            //     color: const Color(0xFFF0FBF4),
+            //     borderRadius: BorderRadius.circular(26),
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       Text(
+            //         'Estimated Monthly SIP',
+            //         style: _TrackingStyle.text(
+            //           13,
+            //           color: const Color(0xFF07894C),
+            //         ),
+            //       ),
+            //       const SizedBox(height: 10),
+            //       Text(
+            //         '₹${NumberFormat.decimalPattern('en_IN').format(monthly.round())}',
+            //         style: _TrackingStyle.text(
+            //           26,
+            //           color: const Color(0xFF07894C),
+            //           weight: FontWeight.w800,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(height: 20),
             Row(
               children: [
                 SizedBox(

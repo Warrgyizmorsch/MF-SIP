@@ -1555,7 +1555,7 @@ class GoalSipController extends GetxController {
 
       return await result.fold(
         (success) async {
-          ULoaders.success(
+          CustomSnackbar.success(
             title: 'Goal Updated',
             message: success.data ?? 'Goal updated successfully.',
           );
@@ -1564,12 +1564,12 @@ class GoalSipController extends GetxController {
           return true;
         },
         (error) {
-          ULoaders.error(title: 'Update Failed', message: error.message);
+          CustomSnackbar.error(title: 'Update Failed', message: error.message);
           return false;
         },
       );
     } catch (e) {
-      ULoaders.error(title: 'Error', message: e.toString());
+      CustomSnackbar.error(title: 'Error', message: e.toString());
       return false;
     } finally {
       isUpdatingGoal.value = false;
