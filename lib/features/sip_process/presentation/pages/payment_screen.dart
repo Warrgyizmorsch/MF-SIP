@@ -10,7 +10,9 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
     hide showCustomToast;
+import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
+import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -776,6 +778,37 @@ class _BottomBar extends StatelessWidget {
   }
 
   void _processCartPayment() {
+    final Map<String, dynamic>? arg = Get.arguments as Map<String, dynamic>?;
+    final bool isDirect = arg?['isDirectInvestment'] ?? false;
+    final paymentController = Get.find<MfuController>();
+
+    if (isDirect) {
+      if (isLumpsum) {
+        final List<LumpsumFundItemModel> directFunds =
+            arg?['lumpsumFunds'] as List<LumpsumFundItemModel>? ?? [];
+        if (directFunds.isNotEmpty) {
+          paymentController.executeLumpsum(funds: directFunds);
+        } else {
+          CustomSnackbar.error(
+            title: 'Empty Selection',
+            message: 'No lumpsum funds found to checkout.',
+          );
+        }
+      } else {
+        final List<SipFundItemModel> directFunds =
+            arg?['sipFunds'] as List<SipFundItemModel>? ?? [];
+        if (directFunds.isNotEmpty) {
+          paymentController.executeSip(funds: directFunds);
+        } else {
+          CustomSnackbar.error(
+            title: 'Empty Selection',
+            message: 'No SIP funds found to checkout.',
+          );
+        }
+      }
+      return;
+    }
+
     final cartController = Get.find<CartController>();
     if (isLumpsum) {
       if (cartController.lumpsumItems.isNotEmpty) {

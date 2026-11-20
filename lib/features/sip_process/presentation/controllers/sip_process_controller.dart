@@ -6,17 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/calculator/mothlyeffectiverate.dart';
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
+    hide showCustomToast;
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 import '../../domain/usecases/get_fund_list_usecase.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
-import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
-import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart'
+    show SipFrequency;
 
 // FIX: Updated StateMixin to use MutualFundListEntity to match your API result
 class SipProcessController extends GetxController
@@ -80,6 +82,78 @@ class SipProcessController extends GetxController
         return selectedWeekDayIndex.toString();
       case SipFrequency.monthly:
         return selectedSipDay.value ?? '10';
+    }
+  }
+
+  // Per-fund frequency and date customization
+  final RxMap<String, SipFrequency> fundFrequencies =
+      <String, SipFrequency>{}.obs;
+  final RxMap<String, String> fundSipDays = <String, String>{}.obs;
+  final RxMap<String, String> fundWeekDays = <String, String>{}.obs;
+
+  SipFrequency getFundFrequency(String code) =>
+      fundFrequencies[code] ?? selectedFrequency.value;
+
+  void setFundFrequency(String code, SipFrequency freq) {
+    fundFrequencies[code] = freq;
+  }
+
+  String getFundSipDay(String code) =>
+      fundSipDays[code] ?? selectedSipDay.value ?? '10';
+
+  void setFundSipDay(String code, String day) {
+    fundSipDays[code] = day;
+  }
+
+  String getFundWeekDay(String code) =>
+      fundWeekDays[code] ?? selectedWeekDay.value ?? 'Monday';
+
+  void setFundWeekDay(String code, String day) {
+    fundWeekDays[code] = day;
+  }
+
+  String formatFundMfuFrequency(String code) {
+    switch (getFundFrequency(code)) {
+      case SipFrequency.daily:
+        return 'D';
+      case SipFrequency.weekly:
+        return 'W';
+      case SipFrequency.monthly:
+        return 'M';
+    }
+  }
+
+  String formatFundMfuDay(String code) {
+    switch (getFundFrequency(code)) {
+      case SipFrequency.daily:
+        return 'NA';
+      case SipFrequency.weekly:
+        final day = getFundWeekDay(code);
+        final idx = [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+        ].indexOf(day);
+        return (idx >= 0 ? idx + 1 : 1).toString();
+      case SipFrequency.monthly:
+        return getFundSipDay(code);
+    }
+  }
+
+  String getFrequencyDisplayLabel(String code) {
+    final freq = getFundFrequency(code);
+    switch (freq) {
+      case SipFrequency.daily:
+        return 'Daily';
+      case SipFrequency.weekly:
+        final day = getFundWeekDay(code);
+        final shortDay = day.length >= 3 ? day.substring(0, 3) : day;
+        return 'Weekly • $shortDay';
+      case SipFrequency.monthly:
+        final day = getFundSipDay(code);
+        return 'Monthly • ${day}th';
     }
   }
 
@@ -249,13 +323,14 @@ class SipProcessController extends GetxController
   final RxList<MutualFundListEntity> baseFunds = <MutualFundListEntity>[].obs;
 
   List<MutualFundListEntity> get allDisplayedFunds {
-    final list = List<MutualFundListEntity>.from(baseFunds);
+    final extraFromExplore = <MutualFundListEntity>[];
     for (final selected in selectedFunds) {
-      if (!list.any((f) => f.schemeCode == selected.schemeCode)) {
-        list.add(selected);
+      if (!baseFunds.any((f) => f.schemeCode == selected.schemeCode)) {
+        extraFromExplore.add(selected);
       }
     }
-    return list;
+    // Prepend funds selected from Explore at the top (most recently selected at index 0)
+    return [...extraFromExplore.reversed, ...baseFunds];
   }
 
   void toggleSelection(MutualFundListEntity fund) {
@@ -456,11 +531,10 @@ class SipProcessController extends GetxController
 
   Future<void> proceedToInvest() async {
     if (selectedFunds.isEmpty) {
-      showCustomToast(
+      CustomSnackbar.warning(
         title: "Selection Required",
-        backgroundColor: Colors.red,
-        icon: Icons.warning,
-        message: "",
+        message:
+            "Please select at least one fund to proceed with your investment.",
       );
       return;
     }
@@ -473,12 +547,10 @@ class SipProcessController extends GetxController
     }).toList();
 
     if (unpurchasable.isNotEmpty) {
-      showCustomToast(
+      CustomSnackbar.warning(
         title: "Investment Unavailable",
         message:
-            "${unpurchasable.first.baseSchemeName ?? 'Selected fund'} is currently not accepting investments.",
-        backgroundColor: Colors.orange.shade800,
-        icon: Icons.pause_circle_outline,
+            "${unpurchasable.first.baseSchemeName ?? 'Selected fund'} is currently not accepting ${isLumpsum.value ? 'lumpsum' : 'SIP'} investments.",
       );
       return;
     }
@@ -490,94 +562,76 @@ class SipProcessController extends GetxController
           ? (fund.minLumpsum ?? 1000)
           : (fund.minSipAmount ?? 500);
 
-      if (entered < min || entered % 100 != 0) {
-        showCustomToast1(
-          title: "Check amount (Min. ₹$min)",
-          backgroundColor: Colors.redAccent,
-          icon: Icons.error_outline,
-          message: "${fund.baseSchemeName}",
+      if (entered < min) {
+        CustomSnackbar.warning(
+          title: "Minimum Amount Required",
+          message:
+              "Minimum investment for ${fund.baseSchemeName ?? 'fund'} is ₹$min.",
+        );
+        return;
+      }
+
+      if (entered % 100 != 0) {
+        CustomSnackbar.warning(
+          title: "Invalid Amount",
+          message:
+              "Investment amount for ${fund.baseSchemeName ?? 'fund'} must be in multiples of ₹100.",
         );
         return;
       }
     }
 
-    // Single-fund direct investment -> Open SIPPurchasePage immediately
-    if (selectedFunds.length == 1) {
-      final fund = selectedFunds.first;
-      final String code = fund.schemeCode ?? "";
-      final String name = fund.baseSchemeName ?? "Fund";
-      final int fundAmount = (fundAmounts[code] ?? amount.value).toInt();
-
-      final purchaseArgs = SipPurchaseArgs(
-        schemeCode: code,
-        fundName: name,
-        amcName: fund.amc?.amcName,
-        minSip: fundAmount,
-        minLumpsum: fundAmount,
-        imgUrl: fund.amc?.amcLogoUrl,
-        category: fund.schemecategory ?? 'Equity',
-        riskLabel: fund.riskLevel ?? 'Moderate Risk',
-        divoption: fund.divoption ?? 'GROWTH',
-        initialInvType: isLumpsum.value ? InvType.lumpsum : InvType.sip,
-        initialFrequency: selectedFrequency.value,
-        initialSipDay: int.tryParse(selectedSipDay.value ?? '10') ?? 10,
-        initialWeekDay: selectedWeekDayIndex,
-      );
-
-      SIPPurchasePage.tempData = purchaseArgs;
-      Get.to(() => const SIPPurchasePage(), arguments: purchaseArgs);
-      return;
-    }
-
-    // Multiple funds: Direct MFU executeLumpsum / executeSip with Gatekeeper
-    final mfuCtrl = Get.find<MfuController>();
+    final bool isDesktop = Get.width > 800;
     final bool lumpsumMode = isLumpsum.value;
 
     GatekeeperHelper.runWithPrerequisites(
       isLumpsum: lumpsumMode,
-      onSuccess: () async {
-        if (lumpsumMode) {
-          final List<LumpsumFundItemModel> lumpsumFunds = selectedFunds.map((
-            fund,
-          ) {
-            final code = fund.schemeCode ?? "";
-            final double fundAmount = fundAmounts[code] ?? amount.value;
-            return LumpsumFundItemModel(
-              schemeCode: code,
-              amount: fundAmount,
-              folio: 'NEW',
-              devopt: fund.divoption,
-            );
-          }).toList();
+      onSuccess: () {
+        final double targetAmount = totalSelectedAmount > 0
+            ? totalSelectedAmount
+            : amount.value;
 
-          await mfuCtrl.executeLumpsum(
-            funds: lumpsumFunds,
-            onSuccess: (res) {
-              selectedFunds.clear();
-              fundAmounts.clear();
-            },
-          );
-        } else {
-          final List<SipFundItemModel> sipFunds = selectedFunds.map((fund) {
-            final code = fund.schemeCode ?? "";
-            final double fundAmount = fundAmounts[code] ?? amount.value;
-            return SipFundItemModel(
-              schemeCode: code,
-              amount: fundAmount,
-              folio: 'NEW',
-              frequency: formatMfuFrequency(),
-              day: formatMfuDay(),
-            );
-          }).toList();
+        // Build direct fund models without touching CartController
+        final List<LumpsumFundItemModel> directLumpsumFunds = lumpsumMode
+            ? selectedFunds.map((fund) {
+                final code = fund.schemeCode ?? "";
+                final double fundAmount = fundAmounts[code] ?? amount.value;
+                return LumpsumFundItemModel(
+                  schemeCode: code,
+                  amount: fundAmount,
+                  folio: 'NEW',
+                  devopt: fund.divoption,
+                );
+              }).toList()
+            : [];
 
-          await mfuCtrl.executeSip(
-            funds: sipFunds,
-            onSuccess: (res) {
-              selectedFunds.clear();
-              fundAmounts.clear();
-            },
-          );
-        }
+        final List<SipFundItemModel> directSipFunds = !lumpsumMode
+            ? selectedFunds.map((fund) {
+                final code = fund.schemeCode ?? "";
+                final double fundAmount = fundAmounts[code] ?? amount.value;
+                return SipFundItemModel(
+                  schemeCode: code,
+                  amount: fundAmount,
+                  folio: 'NEW',
+                  frequency: formatFundMfuFrequency(code),
+                  day: formatFundMfuDay(code),
+                );
+              }).toList()
+            : [];
+
+        // Navigate directly to Payment Screen with direct investment arguments
+        Get.toNamed(
+          AppRoutes.paymentScreen,
+          id: isDesktop ? 1 : null,
+          arguments: {
+            'amount': targetAmount,
+            'isLumpsum': lumpsumMode,
+            'isMandate': false,
+            'isDirectInvestment': true,
+            'lumpsumFunds': directLumpsumFunds,
+            'sipFunds': directSipFunds,
+          },
+        );
       },
     );
   }

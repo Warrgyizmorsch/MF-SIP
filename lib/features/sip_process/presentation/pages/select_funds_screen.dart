@@ -19,6 +19,8 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart'
+    show SipFrequency;
 import '../controllers/sip_process_controller.dart';
 
 class SelectFundsScreen extends StatefulWidget {
@@ -331,12 +333,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   : (isSelected
                         ? Ucolors.primary.withValues(alpha: 0.04)
                         : Colors.white),
-              border: Border.all(
-                color: isPaused
-                    ? Colors.grey.shade300
-                    : (isSelected ? Ucolors.primary : Colors.grey.shade300),
-                width: isSelected && !isPaused ? 2.0 : 1.2,
-              ),
+              border: Border.all(color: Colors.grey.shade300, width: 1.0),
               borderRadius: BorderRadius.circular(12),
               boxShadow: isSelected && !isPaused
                   ? [
@@ -1582,12 +1579,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   : (isSelected
                         ? Ucolors.primary.withValues(alpha: 0.04)
                         : Colors.white),
-              border: Border.all(
-                color: isPaused
-                    ? Colors.grey.shade300
-                    : (isSelected ? Ucolors.primary : Colors.grey.shade300),
-                width: isSelected && !isPaused ? 1.8 : 1.0,
-              ),
+              border: Border.all(color: Colors.grey.shade300, width: 1.0),
               borderRadius: BorderRadius.circular(16.0),
               boxShadow: isSelected && !isPaused
                   ? [
@@ -1823,12 +1815,367 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     ],
                   ],
                 ),
+                if (isSelected && !controller.isLumpsum.value) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "SIP Frequency & Date:",
+                        style: AppTextStyles.bodySmall(
+                          size: 11,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () => _showFrequencySelectorModal(fund),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Ucolors.primary.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Ucolors.primary.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.calendar_month_outlined,
+                                size: 13,
+                                color: Ucolors.primary,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                controller.getFrequencyDisplayLabel(
+                                  fund.schemeCode ?? "",
+                                ),
+                                style: AppTextStyles.bodySmallBold(
+                                  size: 11,
+                                  color: Ucolors.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: 16,
+                                color: Ucolors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
         ),
       );
     });
+  }
+
+  void _showFrequencySelectorModal(MutualFundListEntity fund) {
+    final String code = fund.schemeCode ?? "";
+    final allowed = RegExp(r'\d+')
+        .allMatches(fund.allowedSipDates ?? '')
+        .map((m) => int.parse(m.group(0)!))
+        .toSet();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            final currentFreq = controller.getFundFrequency(code);
+            final currentDay =
+                int.tryParse(controller.getFundSipDay(code)) ?? 10;
+            final currentWeekDay = controller.getFundWeekDay(code);
+
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "SIP Frequency & Execution Date",
+                    style: AppTextStyles.bodyLargeBold(),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    fund.baseSchemeName ?? "Customize frequency",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.bodySmall(color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      _buildFrequencyChipModal(
+                        label: "Monthly",
+                        isSelected: currentFreq == SipFrequency.monthly,
+                        onTap: () {
+                          controller.setFundFrequency(
+                            code,
+                            SipFrequency.monthly,
+                          );
+                          setModalState(() {});
+                          setState(() {});
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFrequencyChipModal(
+                        label: "Weekly",
+                        isSelected: currentFreq == SipFrequency.weekly,
+                        onTap: () {
+                          controller.setFundFrequency(
+                            code,
+                            SipFrequency.weekly,
+                          );
+                          setModalState(() {});
+                          setState(() {});
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFrequencyChipModal(
+                        label: "Daily",
+                        isSelected: currentFreq == SipFrequency.daily,
+                        onTap: () {
+                          controller.setFundFrequency(code, SipFrequency.daily);
+                          setModalState(() {});
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  if (currentFreq == SipFrequency.monthly) ...[
+                    Text(
+                      "Select SIP Day of Month",
+                      style: AppTextStyles.bodyMediumBold(),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 31,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 7,
+                              mainAxisExtent: 38,
+                              crossAxisSpacing: 6,
+                              mainAxisSpacing: 6,
+                            ),
+                        itemBuilder: (context, i) {
+                          final day = i + 1;
+                          final isAllowed =
+                              allowed.isEmpty || allowed.contains(day);
+                          final isDaySelected = currentDay == day;
+
+                          return InkWell(
+                            onTap: isAllowed
+                                ? () {
+                                    controller.setFundSipDay(
+                                      code,
+                                      day.toString(),
+                                    );
+                                    setModalState(() {});
+                                    setState(() {});
+                                    Navigator.pop(ctx);
+                                  }
+                                : null,
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: isDaySelected
+                                    ? Ucolors.primary
+                                    : (isAllowed
+                                          ? Colors.white
+                                          : Colors.grey.shade100),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isDaySelected
+                                      ? Ucolors.primary
+                                      : Colors.grey.shade300,
+                                ),
+                              ),
+                              child: Text(
+                                "$day",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isDaySelected
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  color: isDaySelected
+                                      ? Colors.white
+                                      : (isAllowed
+                                            ? Colors.black87
+                                            : Colors.grey.shade400),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ] else if (currentFreq == SipFrequency.weekly) ...[
+                    Text(
+                      "Select Day of Week",
+                      style: AppTextStyles.bodyMediumBold(),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          [
+                            'Monday',
+                            'Tuesday',
+                            'Wednesday',
+                            'Thursday',
+                            'Friday',
+                          ].map((wDay) {
+                            final isDaySelected = currentWeekDay == wDay;
+                            return ChoiceChip(
+                              label: Text(wDay),
+                              selected: isDaySelected,
+                              selectedColor: Ucolors.primary,
+                              labelStyle: TextStyle(
+                                color: isDaySelected
+                                    ? Colors.white
+                                    : Colors.black87,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              onSelected: (selected) {
+                                if (selected) {
+                                  controller.setFundWeekDay(code, wDay);
+                                  setModalState(() {});
+                                  setState(() {});
+                                  Navigator.pop(ctx);
+                                }
+                              },
+                            );
+                          }).toList(),
+                    ),
+                  ] else ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 18,
+                            color: Colors.blue.shade700,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "Daily SIP orders are automatically placed on every AMC trading day.",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.blue.shade900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Ucolors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text(
+                          "Confirm Daily SIP",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFrequencyChipModal({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Ucolors.primary.withValues(alpha: 0.1)
+                : Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? Ucolors.primary : Colors.grey.shade300,
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected ? Ucolors.primary : Colors.grey.shade700,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
