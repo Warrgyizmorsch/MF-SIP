@@ -608,8 +608,29 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
         ).copyWith(height: 37 / 24, letterSpacing: -0.48),
       ),
       const SizedBox(height: 8),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Text(
+            money(total),
+            style: text(
+              22,
+              weight: FontWeight.w800,
+              color: const Color(0xFF12121A),
+            ),
+          ),
+          if (_expectedGoalAmount > 0) ...[
+            Text(
+              ' / ${money(_expectedGoalAmount)}',
+              style: text(16, weight: FontWeight.w600, color: muted),
+            ),
+          ],
+        ],
+      ),
+      const SizedBox(height: 4),
       Text(
-        '${money(total)} ${c.savedInvestmentType.value == 'lumpsum' ? 'invested' : 'a month'} across ${selected.length} funds, chosen for a ${c.years.value.toInt()}-year goal.',
+        'Across ${selected.length} ${selected.length == 1 ? 'fund' : 'funds'}, chosen for a ${c.years.value.toInt()}-year goal.',
         style: text(14, color: muted).copyWith(height: 1.5),
       ),
       const SizedBox(height: 20),
