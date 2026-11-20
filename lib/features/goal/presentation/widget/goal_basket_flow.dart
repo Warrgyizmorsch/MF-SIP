@@ -1528,11 +1528,17 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('My Goals / New', style: text(12, color: muted)),
-        const SizedBox(height: 6),
+        // ── Clean Header ──
         Text(
-          c.goalNameTextEditingController.text,
-          style: text(28, weight: FontWeight.w700),
+          c.goalNameTextEditingController.text.isNotEmpty
+              ? c.goalNameTextEditingController.text
+              : 'Goal Investment Plan',
+          style: text(22, weight: FontWeight.w700),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Review your basket and payment details before investing.',
+          style: text(13, color: muted),
         ),
         const SizedBox(height: 18),
 
@@ -1547,7 +1553,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    _getFrequencyHeaderTitle(selected, isLumpsum),
+                    isLumpsum ? 'ONE-TIME INVESTMENT' : 'MONTHLY INVESTMENT',
                     style: text(
                       11,
                       weight: FontWeight.w700,
@@ -1572,108 +1578,65 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
               ),
               const SizedBox(height: 8),
               Text(
-                '${money(total)}${_getFrequencyAmountSuffix(selected, isLumpsum)}',
+                '${money(total)}${isLumpsum ? '' : '/mo'}',
                 style: text(
                   28,
                   weight: FontWeight.w800,
                   color: const Color(0xFF1A1D2E),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                _getFrequencySubtitle(selected, isLumpsum, targetDateStr),
-                style: text(12, color: muted),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               const Divider(height: 1, color: Color(0xFFF0F1F6)),
               const SizedBox(height: 12),
-              Text(
-                'FUNDS BREAKDOWN',
-                style: text(
-                  10,
-                  weight: FontWeight.w700,
-                  color: muted,
-                ).copyWith(letterSpacing: 0.8),
-              ),
-              const SizedBox(height: 10),
               ...selected.map((f) {
                 final amt = amount(f);
-                final freq = _frequency(f);
                 final freqLabel = getFrequencyDisplayLabel(f);
-                final isDaily = freq == 'Daily';
-                final isWeekly = freq == 'Weekly';
-                final badgeColor = isDaily
-                    ? const Color(0xFF0284C7)
-                    : (isWeekly
-                          ? const Color(0xFF7C3AED)
-                          : const Color(0xFF4338CA));
-                final badgeBg = isDaily
-                    ? const Color(0xFFF0F9FF)
-                    : (isWeekly
-                          ? const Color(0xFFF5F3FF)
-                          : const Color(0xFFEEF2FF));
 
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              f.baseSchemeName ?? '',
-                              style: text(
-                                13,
-                                weight: FontWeight.w600,
-                                color: const Color(0xFF1A1D2E),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (!isLumpsum) ...[
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 7,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: badgeBg,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  freqLabel,
-                                  style: text(
-                                    10,
-                                    weight: FontWeight.w600,
-                                    color: badgeColor,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
+                        child: Text(
+                          f.baseSchemeName ?? '',
+                          style: text(
+                            13,
+                            weight: FontWeight.w600,
+                            color: const Color(0xFF1A1D2E),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            money(amt),
+                      if (!isLumpsum) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEEF2FF),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            freqLabel,
                             style: text(
-                              14,
-                              weight: FontWeight.w700,
-                              color: const Color(0xFF1A1D2E),
+                              10,
+                              weight: FontWeight.w600,
+                              color: const Color(0xFF4338CA),
                             ),
                           ),
-                          if (!isLumpsum)
-                            Text(
-                              _getFundAmountSuffix(f),
-                              style: text(10, color: muted),
-                            ),
-                        ],
+                        ),
+                      ],
+                      const SizedBox(width: 12),
+                      Text(
+                        money(amt),
+                        style: text(
+                          14,
+                          weight: FontWeight.w700,
+                          color: const Color(0xFF1A1D2E),
+                        ),
                       ),
                     ],
                   ),
@@ -1683,7 +1646,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
           ),
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
 
         // ── 2. Investment Bank Selection (Like Payment Page) ──
         Text(
@@ -1697,12 +1660,11 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
         const SizedBox(height: 8),
         CheckoutBankCard(isLumpsum: isLumpsum),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
 
-        // ── 3. Payment Method & Mandate Section ──
+        // ── 3. Payment Method & Mandate Section (Clean, No Mandate Numbers) ──
         Obx(() {
           final personalisationCtrl = Get.find<PersonalisationController>();
-          final mfuCtrl = Get.find<MfuController>();
           final bank = personalisationCtrl.activeCheckoutBank;
           final mandates = bank?.approvedMandates ?? [];
 
@@ -1725,64 +1687,19 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
           );
           final hasActiveEnachMandate = enachMandate != null;
 
-          final selectedMethod = mfuCtrl.selectedMethod.value;
-          final isSelectedMethodMandateReady =
-              (selectedMethod == 'upi' && hasActiveUpiMandate) ||
-              ((selectedMethod == 'netbanking' || selectedMethod == 'enach') &&
-                  hasActiveEnachMandate);
-
           return Container(
             padding: const EdgeInsets.all(18),
             decoration: box(22),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isLumpsum
-                          ? 'CHOOSE PAYMENT METHOD'
-                          : 'PAY AUTOMATICALLY WITH',
-                      style: text(
-                        11,
-                        weight: FontWeight.w700,
-                        color: muted,
-                      ).copyWith(letterSpacing: 0.8),
-                    ),
-                    if (!isLumpsum)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelectedMethodMandateReady
-                              ? const Color(0xFFECFDF5)
-                              : const Color(0xFFFFFBEB),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          isSelectedMethodMandateReady
-                              ? 'Mandate Ready ✓'
-                              : 'Mandate Required',
-                          style: text(
-                            10,
-                            weight: FontWeight.w700,
-                            color: isSelectedMethodMandateReady
-                                ? const Color(0xFF059669)
-                                : const Color(0xFFD97706),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
                 Text(
-                  isLumpsum
-                      ? 'Instant one-time investment via verified bank'
-                      : 'Recurring mandate linked to ${bank?.bankName ?? "your bank"}',
-                  style: text(12, color: muted),
+                  'PAYMENT METHOD',
+                  style: text(
+                    11,
+                    weight: FontWeight.w700,
+                    color: muted,
+                  ).copyWith(letterSpacing: 0.8),
                 ),
                 const SizedBox(height: 14),
 
@@ -1792,15 +1709,13 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                   icon: Icons.smartphone_rounded,
                   title: isLumpsum ? 'UPI' : 'UPI AutoPay',
                   subtitle: isLumpsum
-                      ? 'Instant approval via any UPI app (GPay, PhonePe, Paytm)'
+                      ? 'Google Pay, PhonePe, Paytm or any UPI app'
                       : (hasActiveUpiMandate
-                            ? 'Active mandate approved${upiMandate.mumrn != null && upiMandate.mumrn!.isNotEmpty ? " • ${upiMandate.mumrn}" : ""}'
-                            : 'One-time approval in PhonePe, GPay, or Paytm'),
+                            ? 'Active AutoPay mandate'
+                            : 'Quick one-time approval via UPI app'),
                   badgeText: isLumpsum
-                      ? 'Instant'
-                      : (hasActiveUpiMandate
-                            ? 'Active Mandate ✓'
-                            : 'Setup Required'),
+                      ? null
+                      : (hasActiveUpiMandate ? 'Ready ✓' : 'Setup'),
                   isSuccessBadge: isLumpsum || hasActiveUpiMandate,
                   onSetupTap: (!isLumpsum && !hasActiveUpiMandate)
                       ? _navigateToMandateSetup
@@ -1813,17 +1728,15 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                 paymentOption(
                   method: 'netbanking',
                   icon: Icons.account_balance_rounded,
-                  title: isLumpsum ? 'NetBanking' : 'Bank e-Mandate (eNACH)',
+                  title: isLumpsum ? 'NetBanking' : 'Bank e-Mandate',
                   subtitle: isLumpsum
-                      ? 'Pay directly via your bank internet banking portal'
+                      ? 'Direct payment via NetBanking'
                       : (hasActiveEnachMandate
-                            ? 'Active eNACH approved${enachMandate.maxAmount != null && enachMandate.maxAmount!.isNotEmpty ? " • Limit ₹${enachMandate.maxAmount}" : ""}'
-                            : 'Authenticate once via NetBanking or Debit Card'),
+                            ? 'Active bank mandate'
+                            : 'Debit Card or NetBanking authentication'),
                   badgeText: isLumpsum
-                      ? 'Direct'
-                      : (hasActiveEnachMandate
-                            ? 'Active eNACH ✓'
-                            : 'Setup Required'),
+                      ? null
+                      : (hasActiveEnachMandate ? 'Ready ✓' : 'Setup'),
                   isSuccessBadge: isLumpsum || hasActiveEnachMandate,
                   onSetupTap: (!isLumpsum && !hasActiveEnachMandate)
                       ? _navigateToMandateSetup
@@ -1834,22 +1747,57 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
           );
         }),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
 
-        // ── 4. Goal Target & Tenure Info ──
-        detail(
-          'Target',
-          Text(
-            money(c.targetAmount.value),
-            style: text(14, weight: FontWeight.w800),
+        // ── 4. Goal Target & Tenure Info (Compact 2-Column Card) ──
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8F9FD),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFECEEF5)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Target Amount',
+                      style: text(11, color: muted, weight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      money(c.targetAmount.value),
+                      style: text(15, weight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+              ),
+              Container(width: 1, height: 32, color: const Color(0xFFE2E4EC)),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Target Date',
+                      style: text(11, color: muted, weight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      targetDateStr,
+                      style: text(15, weight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        detail(
-          'Target date',
-          Text(targetDateStr, style: text(14, weight: FontWeight.w700)),
-        ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
       ],
     );
   }
