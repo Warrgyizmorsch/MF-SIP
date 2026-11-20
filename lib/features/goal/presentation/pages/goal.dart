@@ -179,21 +179,6 @@ class GoalScreenMobile extends GetView<GoalSipController> {
                           ),
                         ),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        constraints: const BoxConstraints.tightFor(
-                          width: 44,
-                          height: 44,
-                        ),
-                        padding: EdgeInsets.zero,
-                        tooltip: 'Add new goal',
-                        onPressed: _createGoal,
-                        icon: const Icon(
-                          Icons.add,
-                          size: 22,
-                          color: Color(0xFF12121A),
-                        ),
-                      ),
                     ],
                   ),
                 ),
