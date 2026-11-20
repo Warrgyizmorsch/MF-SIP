@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../config/routes/app_routes.dart';
+import '../../../../common/widget/animated/custom_toast.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
 import '../../../../core/utils/constant/appUrl.dart';
 import '../../../cart/presentation/widgets/checkout_bank_selector.dart';
@@ -394,6 +395,24 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _deleteFund(MutualFundListEntity f) async {
+    final id = c.getGoalFundId(f.schemeCode ?? '');
+    if (id != null) {
+      await c.deleteGoalFund(id: id, isEdit: false, schemeName: f.schemeCode);
+    }
+    c.toggleFund(f.baseSchemeName ?? '');
+    c.amountControllers.remove(f.schemeCode);
+    if (f.schemeCode != null) {
+      c.manuallyEditedSchemeCodes.remove(f.schemeCode);
+    }
+    if (c.savedInvestmentType.value == 'lumpsum') {
+      await c.distributeMonthlyAmount();
+    } else {
+      await c.distributeSipAmount();
+    }
+    if (mounted) setState(() {});
+  }
+
   int minRequired(MutualFundListEntity f) {
     final isLumpsum = c.savedInvestmentType.value == 'lumpsum';
     if (isLumpsum) {
@@ -635,9 +654,56 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
       ),
       const SizedBox(height: 20),
       ...selected.map(
-        (f) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: fundCard(f),
+        (f) => Dismissible(
+          key: ValueKey(
+            'basket_${f.schemeCode ?? f.baseSchemeName ?? UniqueKey().toString()}',
+          ),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEBEB),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  'Delete',
+                  style: text(
+                    13,
+                    color: const Color(0xFFFF383C),
+                    weight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Color(0xFFFF383C),
+                  size: 22,
+                ),
+              ],
+            ),
+          ),
+          confirmDismiss: (direction) async {
+            if (selected.length <= 1) {
+              CustomSnackbar.warning(
+                title: 'Cannot Remove',
+                message: 'At least one fund must remain in your goal basket.',
+              );
+              return false;
+            }
+            return true;
+          },
+          onDismissed: (direction) async {
+            await _deleteFund(f);
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: fundCard(f),
+          ),
         ),
       ),
       if (Get.find<MutualFundController>().isLoading.value ||
@@ -965,25 +1031,15 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                     if (mounted) setState(() {});
                   }
                 } else {
-                  final id = c.getGoalFundId(f.schemeCode ?? '');
-                  if (id != null) {
-                    await c.deleteGoalFund(
-                      id: id,
-                      isEdit: false,
-                      schemeName: f.schemeCode,
+                  if (funds.length <= 1) {
+                    CustomSnackbar.warning(
+                      title: 'Cannot Remove',
+                      message:
+                          'At least one fund must remain in your goal basket.',
                     );
+                    return;
                   }
-                  c.toggleFund(f.baseSchemeName ?? '');
-                  c.amountControllers.remove(f.schemeCode);
-                  if (f.schemeCode != null) {
-                    c.manuallyEditedSchemeCodes.remove(f.schemeCode);
-                  }
-                  if (c.savedInvestmentType.value == 'lumpsum') {
-                    await c.distributeMonthlyAmount();
-                  } else {
-                    await c.distributeSipAmount();
-                  }
-                  if (mounted) setState(() {});
+                  await _deleteFund(f);
                 }
               },
               itemBuilder: (_) => [
