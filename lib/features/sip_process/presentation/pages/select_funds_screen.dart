@@ -31,12 +31,6 @@ class SelectFundsScreen extends StatefulWidget {
 class _SelectFundsScreenState extends State<SelectFundsScreen> {
   final SipProcessController controller = Get.find<SipProcessController>();
 
-  final styleTags = [
-    "12 - 15 % CAGR",
-    "Medium Volatility",
-    "Ideal for 5+ Years",
-  ];
-
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
@@ -158,10 +152,12 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
             value: "Young Investor",
           ),
           const SizedBox(height: 16),
-          _buildProfileDetailCard(
-            icon: Icons.shield_outlined,
-            title: "Risk Appetite",
-            value: "High",
+          Obx(
+            () => _buildProfileDetailCard(
+              icon: Icons.shield_outlined,
+              title: "Risk Appetite",
+              value: controller.activeRiskProfile,
+            ),
           ),
           const SizedBox(height: 16),
           Obx(
@@ -237,13 +233,16 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          // Make sure your dynamic profile styling matches here
-          Text(
-            "Based on your High risk profile. Choose one or more funds and enter how much you want to invest in each.",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              height: 1.4,
+          Obx(
+            () => Text(
+              controller.selectedApproach.value == 1
+                  ? "Curated portfolio based on your ${controller.activeRiskProfile} risk profile. Choose one or more funds and enter how much you want to invest in each."
+                  : "Based on your ${controller.activeRiskProfile} risk profile. Choose one or more funds and enter how much you want to invest in each.",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -1333,29 +1332,36 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   }
 
   Widget _buildInfoSection({required bool isWeb}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: isWeb ? 0 : 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!isWeb) const SizedBox(height: 15.0),
-          Text(
-            "Balanced Investing Style",
-            style: AppTextStyles.bodyLargeBold(),
-          ),
-          Text(
-            "Investing in fundamentally strong, well-managed companies.",
-            style: AppTextStyles.bodySmall(size: 10, color: Colors.grey),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: styleTags.map((tag) => _buildTag(tag)).toList(),
-          ),
-        ],
-      ),
-    );
+    return Obx(() {
+      final style = controller.currentInvestingStyle;
+      return Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: 8.0,
+          horizontal: isWeb ? 0 : 30,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!isWeb) const SizedBox(height: 15.0),
+            Text(style.title, style: AppTextStyles.bodyLargeBold()),
+            Text(
+              style.subtitle,
+              style: AppTextStyles.bodySmall(size: 10, color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                ...style.tags.map((tag) => _buildTag(tag)),
+                _buildExploreMoreChip(),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildTag(String tag) {
@@ -1372,15 +1378,55 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
     );
   }
 
+  Widget _buildExploreMoreChip() {
+    return InkWell(
+      onTap: () => _showExploreMoreBottomSheet(context),
+      borderRadius: BorderRadius.circular(15),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Ucolors.primary.withValues(alpha: 0.08),
+          border: Border.all(
+            color: Ucolors.primary.withValues(alpha: 0.3),
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.add_circle_outline,
+              size: 13,
+              color: Ucolors.primary,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              "Explore more funds",
+              style: AppTextStyles.bodySmall(
+                size: 10,
+                color: Ucolors.primary,
+              ).copyWith(fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildListTitle({required bool isWeb}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "List Of Shortlisted high growth funds.",
-            style: AppTextStyles.bodyMediumBold(),
+          Obx(
+            () => Text(
+              controller.selectedApproach.value == 1
+                  ? "Curated Portfolio Funds"
+                  : "List Of Shortlisted ${controller.activeRiskProfile} Funds",
+              style: AppTextStyles.bodyMediumBold(),
+            ),
           ),
           const SizedBox(height: 2),
           Obx(

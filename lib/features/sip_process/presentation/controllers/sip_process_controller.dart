@@ -104,6 +104,108 @@ class SipProcessController extends GetxController
   final RxMap<String, double> fundAmounts = <String, double>{}.obs;
 
   static bool? navIsLumpsum;
+
+  String get activeRiskProfile {
+    final score = SessionManager.instance.riskScoreObs.value?.profileName;
+    if (score != null && score.trim().isNotEmpty) return score.trim();
+
+    final cached = SessionManager.instance.getRiskScore?.profileName;
+    if (cached != null && cached.trim().isNotEmpty) return cached.trim();
+
+    final userRisk =
+        SessionManager.instance.getUserData?.riskProfileModel?.profileName ??
+        user?.riskProfileModel?.profileName;
+    if (userRisk != null && userRisk.trim().isNotEmpty) return userRisk.trim();
+
+    return 'Balanced';
+  }
+
+  InvestingStyleInfo get currentInvestingStyle {
+    final risk = activeRiskProfile;
+    final rLower = risk.toLowerCase();
+
+    // If Curated Portfolio approach is chosen
+    if (selectedApproach.value == 1) {
+      return InvestingStyleInfo(
+        title: "Curated Model Portfolio",
+        subtitle:
+            "Expert-designed portfolio diversified across sectors to optimize returns for your $risk risk appetite.",
+        tags: const [
+          "Expert Allocation",
+          "Diversified Basket",
+          "Auto-Rebalancing",
+        ],
+        riskName: risk,
+      );
+    }
+
+    // Dynamic style based on user risk profile
+    if (rLower.contains('very high') || rLower.contains('very aggressive')) {
+      return InvestingStyleInfo(
+        title: "High Growth Investing Style",
+        subtitle:
+            "Maximum equity exposure targeting dynamic mid and small-cap market opportunities.",
+        tags: const [
+          "18%+ Target CAGR",
+          "Very High Volatility",
+          "Ideal for 7+ Years",
+        ],
+        riskName: risk,
+      );
+    } else if (rLower.contains('aggressive') ||
+        rLower.contains('growth') ||
+        rLower.contains('high')) {
+      return InvestingStyleInfo(
+        title: "Aggressive Growth Investing Style",
+        subtitle:
+            "Higher equity allocation focused on maximum capital appreciation over the long term.",
+        tags: const [
+          "15 - 18% Target CAGR",
+          "High Volatility",
+          "Ideal for 5+ Years",
+        ],
+        riskName: risk,
+      );
+    } else if (rLower.contains('conservative') || rLower.contains('low')) {
+      return InvestingStyleInfo(
+        title: "Conservative Investing Style",
+        subtitle:
+            "Focus on capital preservation with steady, low-risk returns through high-quality instruments.",
+        tags: const [
+          "7 - 9% Target CAGR",
+          "Low Volatility",
+          "Ideal for 1-3 Years",
+        ],
+        riskName: risk,
+      );
+    } else if (rLower.contains('moderate') || rLower.contains('cautious')) {
+      return InvestingStyleInfo(
+        title: "Moderate Investing Style",
+        subtitle:
+            "Balanced mix prioritizing stable capital growth while maintaining downside protection.",
+        tags: const [
+          "10 - 12% Target CAGR",
+          "Low-Med Volatility",
+          "Ideal for 3+ Years",
+        ],
+        riskName: risk,
+      );
+    } else {
+      // Default: Balanced
+      return InvestingStyleInfo(
+        title: "Balanced Investing Style",
+        subtitle:
+            "Investing in fundamentally strong, well-managed companies across diverse market sectors.",
+        tags: const [
+          "12 - 15% Target CAGR",
+          "Medium Volatility",
+          "Ideal for 3-5 Years",
+        ],
+        riskName: risk,
+      );
+    }
+  }
+
   String getOrdinal(int number) {
     if (number >= 11 && number <= 13) {
       return '${number}th';
@@ -582,7 +684,7 @@ class SipProcessController extends GetxController
     // 0: Best High Growth -> best_sip
     // 1: Suggested Portfolio -> curated
     final Map<String, dynamic> params = selectedApproach.value == 0
-        ? {'best_sip': 1, 'risk_type': user?.riskProfileModel?.profileName}
+        ? {'best_sip': 1}
         : {'is_curated': 1};
 
     final result = await _getMutualFundListUsecases.call(params);
@@ -791,4 +893,18 @@ class SipProcessController extends GetxController
     }
     super.onClose();
   }
+}
+
+class InvestingStyleInfo {
+  final String title;
+  final String subtitle;
+  final List<String> tags;
+  final String riskName;
+
+  const InvestingStyleInfo({
+    required this.title,
+    required this.subtitle,
+    required this.tags,
+    required this.riskName,
+  });
 }
