@@ -700,6 +700,7 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                           }
                         } finally {
                           c.hideLoading();
+                          if (mounted) setState(() {});
                         }
                       },
                     ),
@@ -952,11 +953,16 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                   await widget.onAdd();
                   if (funds.any((e) => !before.contains(e.schemeCode))) {
                     c.toggleFund(f.baseSchemeName ?? '');
+                    c.amountControllers.remove(f.schemeCode);
+                    if (f.schemeCode != null) {
+                      c.manuallyEditedSchemeCodes.remove(f.schemeCode);
+                    }
                     if (c.savedInvestmentType.value == 'lumpsum') {
                       await c.distributeMonthlyAmount();
                     } else {
                       await c.distributeSipAmount();
                     }
+                    if (mounted) setState(() {});
                   }
                 } else {
                   final id = c.getGoalFundId(f.schemeCode ?? '');
@@ -972,17 +978,12 @@ class GoalBasketFlowState extends State<GoalBasketFlow> {
                   if (f.schemeCode != null) {
                     c.manuallyEditedSchemeCodes.remove(f.schemeCode);
                   }
-                  final hasCustomizedFunds =
-                      c.manuallyEditedSchemeCodes.isNotEmpty;
-                  if (hasCustomizedFunds) {
-                    setState(() {});
+                  if (c.savedInvestmentType.value == 'lumpsum') {
+                    await c.distributeMonthlyAmount();
                   } else {
-                    if (c.savedInvestmentType.value == 'lumpsum') {
-                      await c.distributeMonthlyAmount();
-                    } else {
-                      await c.distributeSipAmount();
-                    }
+                    await c.distributeSipAmount();
                   }
+                  if (mounted) setState(() {});
                 }
               },
               itemBuilder: (_) => [

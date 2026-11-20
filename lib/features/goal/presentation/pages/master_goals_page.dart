@@ -931,6 +931,11 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                               ?.clear();
                                           goalSipController.amountControllers
                                               .remove(schemeCode);
+                                          if (schemeCode.isNotEmpty) {
+                                            goalSipController
+                                                .manuallyEditedSchemeCodes
+                                                .remove(schemeCode);
+                                          }
 
                                           if (goalSipController
                                               .selectedPopularFund
@@ -1523,6 +1528,11 @@ class PopularAndSelectedFund extends StatelessWidget {
                         goalSipController.amountControllers[schemeCode]
                             ?.clear();
                         goalSipController.amountControllers.remove(schemeCode);
+                        if (schemeCode.isNotEmpty) {
+                          goalSipController.manuallyEditedSchemeCodes.remove(
+                            schemeCode,
+                          );
+                        }
 
                         if (goalSipController.selectedPopularFund.isNotEmpty) {
                           if (goalSipController.savedInvestmentType.value ==

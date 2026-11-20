@@ -798,74 +798,139 @@ class GoalSipController extends GetxController {
       isDistributingAmount.value = true;
 
       final MutualFundController mutualController = Get.find();
+      final allFunds = mutualController.searchFund;
 
       final selectedFundNames = selectedPopularFund.toList();
       final int count = selectedFundNames.length;
-
       if (count == 0) return;
 
-      final int roundedTotal = ((lumpsumAmount.value / 100).ceil() * 100);
+      final totalLumpsum = lumpsumAmount.value;
       const int minAmount = 100;
 
-      final List<int> assignedAmounts;
-      if (roundedTotal >= count * minAmount) {
-        final int baseAmount =
-            ((roundedTotal / count) / minAmount).floor() * minAmount;
-        assignedAmounts = List.generate(count, (_) => baseAmount);
-        final int remainder = roundedTotal - (baseAmount * count);
-        if (remainder > 0) {
-          final int extraUnits = remainder ~/ minAmount;
-          for (int i = 0; i < extraUnits && i < count; i++) {
-            assignedAmounts[i] += minAmount;
-          }
-          final int leftover =
-              roundedTotal - assignedAmounts.fold(0, (a, b) => a + b);
-          if (leftover > 0) assignedAmounts[0] += leftover;
-        }
-      } else {
-        assignedAmounts = List.generate(count, (_) => minAmount);
-      }
+      // 1. Separate selected funds into manually edited vs unedited
+      final manuallyEditedCodes = <String>[];
+      final uneditedCodes = <String>[];
+      double editedTotal = 0.0;
 
-      final allFunds = mutualController.searchFund;
-
-      final List<Map<String, dynamic>> fundList = [];
-
-      for (int i = 0; i < selectedFundNames.length; i++) {
-        final fundName = selectedFundNames[i];
-
+      for (final fundName in selectedFundNames) {
         final fund = allFunds.firstWhereOrNull(
           (f) => f.baseSchemeName == fundName,
         );
-
         final schemeCode = fund?.schemeCode?.toString() ?? '';
+        if (schemeCode.isEmpty) continue;
 
-        getAmountController(schemeCode).text = assignedAmounts[i].toString();
-
-        final fundId = getGoalFundId(schemeCode);
-
-        if (fundId == null) continue;
-        fundList.add({
-          "id": fundId,
-          "goal_id": savedDatabaseId.value ?? 0,
-          "order_type": "lumpsum",
-          "status": "pending",
-          "scheme_code": schemeCode,
-
-          "lumpsum_amount": assignedAmounts[i].toDouble(),
-        });
+        if (manuallyEditedSchemeCodes.contains(schemeCode)) {
+          manuallyEditedCodes.add(schemeCode);
+          final textAmt = getAmountController(schemeCode).text;
+          final amt = double.tryParse(textAmt) ?? minAmount.toDouble();
+          editedTotal += amt;
+        } else {
+          uneditedCodes.add(schemeCode);
+        }
       }
 
-      // await updateGoalFundOrder(
-      //   goalId: savedDatabaseId.value ?? 0,
-      //   orderType: "sip",
-      //   sipAmount: 0,
-      //   sipDay: selectedSipDay.value,
-      //   fundId: 0,
-      //   lumpsumAmount: 0,
-      //   funds: fundList,
-      // );
+      final List<Map<String, dynamic>> fundList = [];
 
-      // await getAllGoals();
+      // 2. If NO funds have been manually edited, distribute equally across all funds
+      if (manuallyEditedCodes.isEmpty) {
+        final int roundedTotal = ((totalLumpsum / 100).ceil() * 100);
+        final List<int> assignedAmounts;
+        if (roundedTotal >= count * minAmount) {
+          final int baseAmount =
+              ((roundedTotal / count) / minAmount).floor() * minAmount;
+          assignedAmounts = List.generate(count, (_) => baseAmount);
+          final int remainder = roundedTotal - (baseAmount * count);
+          if (remainder > 0) {
+            final int extraUnits = remainder ~/ minAmount;
+            for (int i = 0; i < extraUnits && i < count; i++) {
+              assignedAmounts[i] += minAmount;
+            }
+            final int leftover =
+                roundedTotal - assignedAmounts.fold(0, (a, b) => a + b);
+            if (leftover > 0) assignedAmounts[0] += leftover;
+          }
+        } else {
+          assignedAmounts = List.generate(count, (_) => minAmount);
+        }
+
+        for (int i = 0; i < selectedFundNames.length; i++) {
+          final fundName = selectedFundNames[i];
+          final fund = allFunds.firstWhereOrNull(
+            (f) => f.baseSchemeName == fundName,
+          );
+          final schemeCode = fund?.schemeCode?.toString() ?? '';
+          getAmountController(schemeCode).text = assignedAmounts[i].toString();
+
+          final fundId = getGoalFundId(schemeCode);
+          if (fundId != null) {
+            fundList.add({
+              "id": fundId,
+              "goal_id": savedDatabaseId.value ?? 0,
+              "order_type": "lumpsum",
+              "status": "pending",
+              "scheme_code": schemeCode,
+              "lumpsum_amount": assignedAmounts[i].toDouble(),
+            });
+          }
+        }
+      } else {
+        // 3. Keep manual selection amounts, and distribute remaining amount to unedited funds
+        final remainingAmount = totalLumpsum - editedTotal;
+
+        if (uneditedCodes.isNotEmpty) {
+          final List<int> amounts;
+          if (remainingAmount >= uneditedCodes.length * minAmount) {
+            int perFund = roundToNearest5(
+              remainingAmount / uneditedCodes.length,
+            );
+            if (perFund < minAmount) perFund = minAmount;
+            amounts = List.generate(uneditedCodes.length, (_) => perFund);
+
+            int assigned = amounts.fold(0, (a, b) => a + b);
+            int diff = remainingAmount.round() - assigned;
+            if (diff != 0) {
+              amounts[amounts.length - 1] += diff;
+            }
+          } else {
+            amounts = List.generate(uneditedCodes.length, (_) => minAmount);
+          }
+
+          for (int i = 0; i < uneditedCodes.length; i++) {
+            final schemeCode = uneditedCodes[i];
+            getAmountController(schemeCode).text = amounts[i].toString();
+
+            final fundId = getGoalFundId(schemeCode);
+            if (fundId != null) {
+              fundList.add({
+                "id": fundId,
+                "goal_id": savedDatabaseId.value ?? 0,
+                "order_type": "lumpsum",
+                "status": "pending",
+                "scheme_code": schemeCode,
+                "lumpsum_amount": amounts[i].toDouble(),
+              });
+            }
+          }
+        }
+
+        // Also add manually edited funds to the fundList
+        for (final schemeCode in manuallyEditedCodes) {
+          final fundId = getGoalFundId(schemeCode);
+          final amt =
+              double.tryParse(getAmountController(schemeCode).text) ??
+              minAmount.toDouble();
+          if (fundId != null) {
+            fundList.add({
+              "id": fundId,
+              "goal_id": savedDatabaseId.value ?? 0,
+              "order_type": "lumpsum",
+              "status": "pending",
+              "scheme_code": schemeCode,
+              "lumpsum_amount": amt,
+            });
+          }
+        }
+      }
     } catch (e) {
       debugPrint("distributeMonthlyAmount Error: $e");
     } finally {
@@ -1013,7 +1078,6 @@ class GoalSipController extends GetxController {
     if (savedInvestmentType.value != "sip") return;
 
     try {
-      showLoading();
       isDistributingAmount.value = true;
 
       final totalSip = monthlySip.value;
@@ -1024,72 +1088,158 @@ class GoalSipController extends GetxController {
 
       final MutualFundController mutualController = Get.find();
       final allFunds = mutualController.searchFund;
-      final count = selectedFunds.length;
-
-      final int total = totalSip.toInt();
       const int minAmount = 100;
 
-      final List<int> amounts;
-      if (total >= count * minAmount) {
-        final int perFund = ((total / count) / minAmount).floor() * minAmount;
-        amounts = List.generate(count, (_) => perFund);
-        final int remainder = total - (perFund * count);
-        if (remainder > 0) {
-          final int extraUnits = remainder ~/ minAmount;
-          for (int i = 0; i < extraUnits && i < count; i++) {
-            amounts[i] += minAmount;
-          }
-          final int leftover = total - amounts.fold(0, (a, b) => a + b);
-          if (leftover > 0) amounts[0] += leftover;
+      // 1. Separate selected funds into manually edited vs unedited
+      final manuallyEditedCodes = <String>[];
+      final uneditedCodes = <String>[];
+      double editedTotal = 0.0;
+
+      for (final fundName in selectedFunds) {
+        final fund = allFunds.firstWhereOrNull(
+          (f) => f.baseSchemeName == fundName,
+        );
+        final schemeCode = fund?.schemeCode?.toString() ?? '';
+        if (schemeCode.isEmpty) continue;
+
+        if (manuallyEditedSchemeCodes.contains(schemeCode)) {
+          manuallyEditedCodes.add(schemeCode);
+          final textAmt = getAmountController(schemeCode).text;
+          final amt = double.tryParse(textAmt) ?? minAmount.toDouble();
+          editedTotal += amt;
+        } else {
+          uneditedCodes.add(schemeCode);
         }
-      } else {
-        amounts = List.generate(count, (_) => minAmount);
       }
 
       final List<Map<String, dynamic>> funds = [];
 
-      for (int i = 0; i < selectedFunds.length; i++) {
-        final fund = allFunds.firstWhereOrNull(
-          (f) => f.baseSchemeName == selectedFunds[i],
-        );
-        final schemeCode = fund?.schemeCode?.toString() ?? '';
+      // 2. If NO funds have been manually edited, distribute equally across all funds
+      if (manuallyEditedCodes.isEmpty) {
+        final int count = selectedFunds.length;
+        final int total = totalSip.toInt();
 
-        // Set the amount in the controller
-        getAmountController(schemeCode).text = amounts[i].toString();
-        final fundId = getGoalFundId(schemeCode);
-        final newTotal = amounts.fold(0, (a, b) => a + b);
+        final List<int> amounts;
+        if (total >= count * minAmount) {
+          final int perFund = ((total / count) / minAmount).floor() * minAmount;
+          amounts = List.generate(count, (_) => perFund);
+          final int remainder = total - (perFund * count);
+          if (remainder > 0) {
+            final int extraUnits = remainder ~/ minAmount;
+            for (int i = 0; i < extraUnits && i < count; i++) {
+              amounts[i] += minAmount;
+            }
+            final int leftover = total - amounts.fold(0, (a, b) => a + b);
+            if (leftover > 0) amounts[0] += leftover;
+          }
+        } else {
+          amounts = List.generate(count, (_) => minAmount);
+        }
 
-        int extraAdded = newTotal - totalSip.toInt();
-        additionalRoundingAmount.value = extraAdded;
-        if (fundId != null) {
-          funds.add({
-            "goal_id": savedDatabaseId.value ?? 0,
-            "order_type": "sip",
-            "id": fundId,
-            "status": "pending",
-            "scheme_code": schemeCode,
-            "sip_amount": amounts[i].toDouble(),
-            "sip_day": selectedSipDay.value,
-            "sip_start_date": DateTime.now().toString().split(' ').first,
-            "sip_end_date": DateTime.now()
-                .add(const Duration(days: 365 * 3))
-                .toString()
-                .split(' ')
-                .first,
-          });
+        for (int i = 0; i < selectedFunds.length; i++) {
+          final fund = allFunds.firstWhereOrNull(
+            (f) => f.baseSchemeName == selectedFunds[i],
+          );
+          final schemeCode = fund?.schemeCode?.toString() ?? '';
+          getAmountController(schemeCode).text = amounts[i].toString();
+
+          final fundId = getGoalFundId(schemeCode);
+          if (fundId != null) {
+            funds.add({
+              "goal_id": savedDatabaseId.value ?? 0,
+              "order_type": "sip",
+              "id": fundId,
+              "status": "pending",
+              "scheme_code": schemeCode,
+              "sip_amount": amounts[i].toDouble(),
+              "sip_day": selectedSipDay.value,
+              "sip_start_date": DateTime.now().toString().split(' ').first,
+              "sip_end_date": DateTime.now()
+                  .add(const Duration(days: 365 * 3))
+                  .toString()
+                  .split(' ')
+                  .first,
+            });
+          }
+        }
+      } else {
+        // 3. Keep manual selection amounts, and distribute remaining amount to unedited funds
+        final remainingAmount = totalSip - editedTotal;
+
+        if (uneditedCodes.isNotEmpty) {
+          final List<int> amounts;
+          if (remainingAmount >= uneditedCodes.length * minAmount) {
+            int perFund = roundToNearest5(
+              remainingAmount / uneditedCodes.length,
+            );
+            if (perFund < minAmount) perFund = minAmount;
+            amounts = List.generate(uneditedCodes.length, (_) => perFund);
+
+            int assigned = amounts.fold(0, (a, b) => a + b);
+            int diff = remainingAmount.round() - assigned;
+            if (diff != 0) {
+              amounts[amounts.length - 1] += diff;
+            }
+          } else {
+            amounts = List.generate(uneditedCodes.length, (_) => minAmount);
+          }
+
+          for (int i = 0; i < uneditedCodes.length; i++) {
+            final schemeCode = uneditedCodes[i];
+            getAmountController(schemeCode).text = amounts[i].toString();
+
+            final fundId = getGoalFundId(schemeCode);
+            if (fundId != null) {
+              funds.add({
+                "goal_id": savedDatabaseId.value ?? 0,
+                "order_type": "sip",
+                "id": fundId,
+                "status": "pending",
+                "scheme_code": schemeCode,
+                "sip_amount": amounts[i].toDouble(),
+                "sip_day": selectedSipDay.value,
+                "sip_start_date": DateTime.now().toString().split(' ').first,
+                "sip_end_date": DateTime.now()
+                    .add(const Duration(days: 365 * 3))
+                    .toString()
+                    .split(' ')
+                    .first,
+              });
+            }
+          }
+        }
+
+        // Also add manually edited funds to the funds list
+        for (final schemeCode in manuallyEditedCodes) {
+          final fundId = getGoalFundId(schemeCode);
+          final amt =
+              double.tryParse(getAmountController(schemeCode).text) ??
+              minAmount.toDouble();
+          if (fundId != null) {
+            funds.add({
+              "goal_id": savedDatabaseId.value ?? 0,
+              "order_type": "sip",
+              "id": fundId,
+              "status": "pending",
+              "scheme_code": schemeCode,
+              "sip_amount": amt,
+              "sip_day": selectedSipDay.value,
+              "sip_start_date": DateTime.now().toString().split(' ').first,
+              "sip_end_date": DateTime.now()
+                  .add(const Duration(days: 365 * 3))
+                  .toString()
+                  .split(' ')
+                  .first,
+            });
+          }
         }
       }
     } catch (e) {
       debugPrint("distributeSipAmount Error: $e");
     } finally {
       isDistributingAmount.value = false;
-      hideLoading();
     }
   }
-
-  // ==========================================
-  // 2. REDISTRIBUTION (When user edits a text field)
-  // ==========================================
 
   Future<void> redistributeSipAmountAfterEdit({
     required String editedSchemeCode,
