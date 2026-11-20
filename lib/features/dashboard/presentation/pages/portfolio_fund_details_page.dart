@@ -700,6 +700,7 @@ class PortfolioFundDetailsPage extends StatelessWidget {
             'Folio Number',
             activeFund.folioNo,
             icon: Iconsax.folder_open,
+            singleLineValue: true,
           ),
         ],
       ),
@@ -1348,7 +1349,13 @@ class PortfolioFundDetailsPage extends StatelessWidget {
     String value, {
     required IconData icon,
     Color? valueColor,
+    bool singleLineValue = false,
   }) {
+    final valueStyle = UTextStyles.portfolioText(
+      size: 13,
+      weight: FontWeight.w700,
+      color: valueColor ?? Ucolors.portfolioBodyText,
+    );
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1368,15 +1375,9 @@ class PortfolioFundDetailsPage extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           flex: 6,
-          child: Text(
-            value,
-            style: UTextStyles.portfolioText(
-              size: 13,
-              weight: FontWeight.w700,
-              color: valueColor ?? Ucolors.portfolioBodyText,
-            ),
-            textAlign: TextAlign.right,
-          ),
+          child: singleLineValue
+              ? PortfolioFolioNumber(value: value, style: valueStyle)
+              : Text(value, style: valueStyle, textAlign: TextAlign.right),
         ),
       ],
     );

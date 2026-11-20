@@ -187,16 +187,41 @@ class PortfolioHoldingCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             decoration: _band,
-            child: Column(
-              children: [
-                Row(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final folio = _metadata(
+                  'Folio number',
+                  fund.folioNo,
+                  singleLineValue: true,
+                );
+                final goal = _metadata('Goal', fund.goalName ?? '');
+                final folioWidth =
+                    _textWidth(
+                      context,
+                      'Folio number',
+                      _text(10, color: Ucolors.portfolioTextMuted, height: 1.5),
+                    ) +
+                    6 +
+                    _textWidth(
+                      context,
+                      fund.folioNo.trim().isEmpty ? '—' : fund.folioNo,
+                      _text(10, weight: FontWeight.w700, height: 1.5),
+                    );
+                if (folioWidth > (constraints.maxWidth - 24) / 2) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [folio, const SizedBox(height: 10), goal],
+                  );
+                }
+                return Row(
                   children: [
-                    Expanded(child: _metadata('Folio number', fund.folioNo)),
+                    Expanded(child: folio),
                     const SizedBox(width: 24),
-                    Expanded(child: _metadata('Goal', fund.goalName ?? '')),
+                    Expanded(child: goal),
                   ],
-                ),
-              ],
+                );
+              },
             ),
           ),
         ],
@@ -242,31 +267,60 @@ class PortfolioHoldingCard extends StatelessWidget {
     );
   }
 
-  Widget _metadata(String label, String value) => Row(
-    children: [
-      Expanded(
-        child: Text(
-          label,
-          style: _text(10, color: Ucolors.portfolioTextMuted, height: 1.5),
-        ),
-      ),
-      const SizedBox(width: 6),
-      Flexible(
-        child: Text(
-          value.trim().isEmpty ? '—' : value,
-          textAlign: TextAlign.right,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: _text(
-            10,
-            weight: FontWeight.w700,
-            color: Ucolors.portfolioValueBlue,
-            height: 1.5,
+  Widget _metadata(String label, String value, {bool singleLineValue = false}) {
+    final labelStyle = _text(
+      10,
+      color: Ucolors.portfolioTextMuted,
+      height: 1.5,
+    );
+    final valueStyle = _text(
+      10,
+      weight: FontWeight.w700,
+      color: Ucolors.portfolioValueBlue,
+      height: 1.5,
+    );
+    final labelText = Text(label, style: labelStyle);
+    if (singleLineValue) {
+      final number = PortfolioFolioNumber(value: value, style: valueStyle);
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final requiredWidth =
+              _textWidth(context, label, labelStyle) +
+              6 +
+              _textWidth(context, number.displayValue, valueStyle);
+          if (requiredWidth > constraints.maxWidth) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [labelText, const SizedBox(height: 4), number],
+            );
+          }
+          return Row(
+            children: [
+              labelText,
+              const SizedBox(width: 6),
+              Expanded(child: number),
+            ],
+          );
+        },
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: labelText),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            value.trim().isEmpty ? '—' : value,
+            textAlign: TextAlign.right,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: valueStyle,
           ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 
   Widget _metric(
     String label,
@@ -304,6 +358,35 @@ class PortfolioHoldingCard extends StatelessWidget {
           ),
         ),
       ],
+    ),
+  );
+}
+
+/// Keeps the complete folio readable without splitting or truncating digits.
+class PortfolioFolioNumber extends StatelessWidget {
+  const PortfolioFolioNumber({
+    super.key,
+    required this.value,
+    required this.style,
+  });
+
+  final String value;
+  final TextStyle style;
+
+  String get displayValue => value.trim().isEmpty ? '—' : value;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerRight,
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Text(
+        displayValue,
+        maxLines: 1,
+        softWrap: false,
+        textAlign: TextAlign.right,
+        style: style,
+      ),
     ),
   );
 }
@@ -356,6 +439,20 @@ TextStyle _text(
   color: color,
   height: height,
 );
+
+double _textWidth(BuildContext context, String value, TextStyle style) {
+  final painter = TextPainter(
+    text: TextSpan(
+      text: value,
+      style: DefaultTextStyle.of(context).style.merge(style),
+    ),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+  )..layout();
+  final width = painter.width;
+  painter.dispose();
+  return width;
+}
 
 String _money(double value, {int decimals = 2}) => value.isFinite
     ? NumberFormat.currency(
