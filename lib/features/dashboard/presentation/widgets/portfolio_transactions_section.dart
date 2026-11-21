@@ -213,28 +213,22 @@ class _TransactionCard extends StatelessWidget {
                       const SizedBox(height: 9),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
+                          horizontal: 8,
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: data.statusColor.withValues(alpha: 0.12),
+                          color: data.directionColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(7),
                         ),
                         child: Text(
-                          data.status,
+                          data.directionText,
                           textAlign: TextAlign.center,
                           style: _text(
                             9,
                             weight: FontWeight.w700,
-                            color: data.statusColor,
+                            color: data.directionColor,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        data.statusCaption,
-                        textAlign: TextAlign.center,
-                        style: _text(8, color: Ucolors.homeTextSecondary),
                       ),
                     ],
                   ),
@@ -298,21 +292,6 @@ class _TransactionPresentation {
   _TransactionPresentation(this.transaction);
   final MfuFundTransactionEntity transaction;
 
-  late final List<String> _statuses = [
-    transaction.statusLabel,
-    transaction.orderStatusLabel,
-    transaction.status,
-    transaction.orderStatus,
-  ].map((value) => value.trim()).where((value) => value.isNotEmpty).toList();
-  bool _failure(String value) =>
-      value.toLowerCase().contains('fail') ||
-      value.toLowerCase().contains('reject');
-  late final bool _isFailure = _statuses.any(_failure);
-  late final bool _isCancelled = _statuses.any(
-    (value) => value.toLowerCase().contains('cancel'),
-  );
-  bool get _isSuccess => !_isFailure && !_isCancelled && transaction.isSuccess;
-
   String get date {
     final value = transaction.displayDate.trim().isNotEmpty
         ? transaction.displayDate.trim()
@@ -349,52 +328,18 @@ class _TransactionPresentation {
             ? transaction.units.toStringAsFixed(3)
             : '—');
 
-  String get status {
-    // Explicit failure/cancellation text takes precedence over a conflicting
-    // success code. These are display labels; domain transaction state is unchanged.
-    if (_isFailure) {
-      return _statuses.firstWhere(_failure);
+  bool get isDebit => transaction.isDebit;
+
+  String get directionText {
+    if (transaction.direction.trim().isNotEmpty) {
+      final d = transaction.direction.trim().toLowerCase();
+      return d == 'debit' ? 'Debit' : 'Credit';
     }
-    if (_isCancelled) {
-      return _statuses.firstWhere(
-        (value) => value.toLowerCase().contains('cancel'),
-      );
-    }
-    if (transaction.statusLabel.trim().isNotEmpty) {
-      return transaction.statusLabel.trim();
-    }
-    if (transaction.orderStatusLabel.trim().isNotEmpty) {
-      return transaction.orderStatusLabel.trim();
-    }
-    if (_isSuccess) {
-      return 'Settled';
-    }
-    return _statuses.isEmpty ? '—' : _statuses.first;
+    return isDebit ? 'Debit' : 'Credit';
   }
 
-  String get statusCaption {
-    if (_isFailure) {
-      return 'Unsuccessful';
-    }
-    if (_isCancelled) {
-      return 'Cancelled';
-    }
-    final label = transaction.orderStatusLabel.trim();
-    if (label.isNotEmpty && label.toLowerCase() != status.toLowerCase()) {
-      return label;
-    }
-    return _isSuccess ? 'Successful' : 'Transaction status';
-  }
-
-  Color get statusColor {
-    if (_isFailure) {
-      return Ucolors.portfolioNegative;
-    }
-    if (_isCancelled || _statuses.isEmpty) {
-      return Ucolors.portfolioTextMuted;
-    }
-    return _isSuccess ? Ucolors.homePositive : Ucolors.portfolioWarningText;
-  }
+  Color get directionColor =>
+      isDebit ? Ucolors.portfolioNegative : Ucolors.homePositive;
 }
 
 TextStyle _text(
