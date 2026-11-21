@@ -124,7 +124,7 @@ class PortfolioHoldingCard extends StatelessWidget {
                     flex: 33,
                     child: _metric(
                       'Invested',
-                      _money(fund.investedAmount),
+                      _money(fund.investedAmount, decimals: 0),
                       fund.firstInvestedDate.trim().isNotEmpty &&
                               fund.firstInvestedDate.trim() != '—'
                           ? 'Since ${_date(fund.firstInvestedDate)}'
@@ -141,7 +141,7 @@ class PortfolioHoldingCard extends StatelessWidget {
                     flex: 34,
                     child: _metric(
                       'Current value',
-                      _money(fund.currentValue),
+                      _money(fund.currentValue, decimals: 0),
                       fund.navDate.trim().isNotEmpty &&
                               fund.navDate.trim() != '—'
                           ? 'As of ${_date(fund.navDate)}'
@@ -158,7 +158,7 @@ class PortfolioHoldingCard extends StatelessWidget {
                     flex: 33,
                     child: _metric(
                       'Total gain',
-                      _signedMoney(fund.gainLoss),
+                      _signedMoney(fund.gainLoss, decimals: 0),
                       fund.annualizedReturn != null
                           ? '${_percentage(fund.annualizedReturn!)} ${fund.annualizedReturnLabel}'
                           : '${_percentage(fund.gainLossPercent)} return',
@@ -488,8 +488,9 @@ String _money(double value, {int decimals = 2}) => value.isFinite
         decimalDigits: decimals,
       ).format(value)
     : '—';
-String _signedMoney(double value) =>
-    value.isFinite ? '${value < 0 ? '−' : '+'}${_money(value.abs())}' : '—';
+String _signedMoney(double value, {int decimals = 2}) => value.isFinite
+    ? '${value < 0 ? '−' : '+'}${_money(value.abs(), decimals: decimals)}'
+    : '—';
 String _percentage(double value) => value.isFinite
     ? '${value < 0 ? '−' : '+'}${value.abs().toStringAsFixed(2)}%'
     : '—';
