@@ -396,6 +396,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
     _searchFocus.dispose();
     _scrollController.dispose();
     sort.dispose();
+    if (Get.isRegistered<MutualFundController>()) {
+      final mfCtrl = Get.find<MutualFundController>();
+      final fhCtrl = Get.isRegistered<FundhouseController>()
+          ? Get.find<FundhouseController>()
+          : null;
+      final bool hasFilters =
+          (fhCtrl != null && fhCtrl.activeFilterCount > 0) ||
+          mfCtrl.hasSearchText.value ||
+          mfCtrl.currentSortLabel.value != "1Y,3Y,5Y";
+      if (hasFilters) {
+        mfCtrl.resetToDefault();
+      }
+    }
     super.dispose();
   }
 

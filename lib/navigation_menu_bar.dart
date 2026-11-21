@@ -89,6 +89,27 @@ class NavigationBarController extends GetxController {
     if (SessionManager.instance.isKycPending.value) {
       _startBackgroundCamsCheck();
     }
+
+    int previousNavIndex = selectedIndex.value;
+    ever(selectedIndex, (int newIndex) {
+      // When leaving Explore tab (tab 1), reset Explore filters and search
+      if (previousNavIndex == 1 && newIndex != 1) {
+        if (Get.isRegistered<MutualFundController>()) {
+          final mfCtrl = Get.find<MutualFundController>();
+          final fhCtrl = Get.isRegistered<FundhouseController>()
+              ? Get.find<FundhouseController>()
+              : null;
+          final bool hasFilters =
+              (fhCtrl != null && fhCtrl.activeFilterCount > 0) ||
+              mfCtrl.hasSearchText.value ||
+              mfCtrl.currentSortLabel.value != "1Y,3Y,5Y";
+          if (hasFilters) {
+            mfCtrl.resetToDefault();
+          }
+        }
+      }
+      previousNavIndex = newIndex;
+    });
   }
 
   void _startBackgroundCamsCheck() {
@@ -865,7 +886,24 @@ class NavigationBarController extends GetxController {
       return;
     }
 
-    if (selectedIndex.value == index) return;
+    if (selectedIndex.value == index) {
+      if (index == 1) {
+        if (Get.isRegistered<MutualFundController>()) {
+          final mfCtrl = Get.find<MutualFundController>();
+          final fhCtrl = Get.isRegistered<FundhouseController>()
+              ? Get.find<FundhouseController>()
+              : null;
+          final bool hasFilters =
+              (fhCtrl != null && fhCtrl.activeFilterCount > 0) ||
+              mfCtrl.hasSearchText.value ||
+              mfCtrl.currentSortLabel.value != "1Y,3Y,5Y";
+          if (hasFilters) {
+            mfCtrl.resetToDefault();
+          }
+        }
+      }
+      return;
+    }
 
     if (index < 4) {
       isProfileExpanded.value = false;

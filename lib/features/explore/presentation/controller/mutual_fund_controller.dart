@@ -213,6 +213,7 @@ class MutualFundController extends GetxController {
   void resetToDefault() {
     _debounce?.cancel();
     _isSearchMode.value = false;
+    hasSearchFocus.value = false;
     hasSearchText.value = false;
     searchController.clear();
     _currentSearchQuery = "";
@@ -481,9 +482,11 @@ class MutualFundController extends GetxController {
   void resetToDefaultStateOnly() {
     _debounce?.cancel();
     _isSearchMode.value = false;
+    hasSearchFocus.value = false;
     _invalidateContext();
     _currentSearchQuery = "";
     hasSearchText.value = false;
+    searchController.clear();
     _currentFilters.clear();
     selectedReturnYear.value = 3;
     currentSortLabel.value = "1Y,3Y,5Y";
