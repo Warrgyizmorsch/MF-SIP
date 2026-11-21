@@ -63,7 +63,7 @@ class HomeTrustFooter extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Trusted by',
+                'Built for',
                 style: UTextStyles.homeText(
                   size: (12 * scale).clamp(11.0, 14.0).toDouble(),
                   weight: FontWeight.w600,
@@ -73,7 +73,7 @@ class HomeTrustFooter extends StatelessWidget {
               ),
               SizedBox(height: 8 * scale),
               Text(
-                '10 Lakh+ Indians',
+                'Every Indian Investor',
                 style: UTextStyles.homeText(
                   size: (22 * scale).clamp(20.0, 26.0).toDouble(),
                   weight: FontWeight.w700,
@@ -83,7 +83,7 @@ class HomeTrustFooter extends StatelessWidget {
               ),
               SizedBox(height: 10 * scale),
               Text(
-                'Made with ❤️ by MF SIP',
+                'Made with ❤️ in India by MFSIP',
                 style: UTextStyles.homeText(
                   size: (13 * scale).clamp(12.0, 15.0).toDouble(),
                   color: Ucolors.homeTrustText,

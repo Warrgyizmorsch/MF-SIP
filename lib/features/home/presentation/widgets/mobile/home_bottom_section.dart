@@ -53,13 +53,13 @@ class MobileHomeBottomSection extends StatelessWidget {
             );
           }),
           HomeVideos(scale: scale),
-          SizedBox(height: 20 * scale),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: HomeMetrics.sectionInset * scale,
-            ),
-            child: HomeRelationshipCard(scale: scale),
-          ),
+          // SizedBox(height: 20 * scale),
+          // Padding(
+          //   padding: EdgeInsets.symmetric(
+          //     horizontal: HomeMetrics.sectionInset * scale,
+          //   ),
+          //   child: HomeRelationshipCard(scale: scale),
+          // ),
           SizedBox(height: 14 * scale),
           HomeTrustFooter(scale: scale),
         ],
