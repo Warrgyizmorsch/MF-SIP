@@ -121,24 +121,14 @@ class PortfolioHoldingCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
-                    flex: 30,
+                    flex: 33,
                     child: _metric(
-                      'Current NAV',
-                      _money(fund.currentNav, decimals: 4),
-                      _date(fund.navDate),
-                    ),
-                  ),
-                  const VerticalDivider(
-                    width: 1,
-                    thickness: 1,
-                    color: Ucolors.portfolioDivider,
-                  ),
-                  Expanded(
-                    flex: 35,
-                    child: _metric(
-                      'Current value',
-                      _money(fund.currentValue),
-                      '${_money(fund.investedAmount)} invested',
+                      'Invested',
+                      _money(fund.investedAmount),
+                      fund.firstInvestedDate.trim().isNotEmpty &&
+                              fund.firstInvestedDate.trim() != '—'
+                          ? 'Since ${_date(fund.firstInvestedDate)}'
+                          : 'Total cost',
                       prominent: true,
                     ),
                   ),
@@ -148,7 +138,24 @@ class PortfolioHoldingCard extends StatelessWidget {
                     color: Ucolors.portfolioDivider,
                   ),
                   Expanded(
-                    flex: 30,
+                    flex: 34,
+                    child: _metric(
+                      'Current value',
+                      _money(fund.currentValue),
+                      fund.navDate.trim().isNotEmpty &&
+                              fund.navDate.trim() != '—'
+                          ? 'As of ${_date(fund.navDate)}'
+                          : 'Market value',
+                      prominent: true,
+                    ),
+                  ),
+                  const VerticalDivider(
+                    width: 1,
+                    thickness: 1,
+                    color: Ucolors.portfolioDivider,
+                  ),
+                  Expanded(
+                    flex: 33,
                     child: _metric(
                       'Total gain',
                       _signedMoney(fund.gainLoss),
@@ -171,14 +178,34 @@ class PortfolioHoldingCard extends StatelessWidget {
               spacing: 12,
               runSpacing: 6,
               children: [
-                Text(
-                  '${fund.totalUnits.isFinite ? fund.totalUnits.toStringAsFixed(3) : '—'} total units',
-                  style: _text(
-                    12,
-                    color: Ucolors.portfolioInk,
-                    height: 1.5,
-                    weight: FontWeight.w700,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${fund.totalUnits.isFinite ? fund.totalUnits.toStringAsFixed(3) : '—'} units',
+                      style: _text(
+                        12,
+                        color: Ucolors.portfolioInk,
+                        height: 1.5,
+                        weight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '•',
+                      style: _text(12, color: Ucolors.portfolioDivider),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'NAV ${_money(fund.currentNav, decimals: 4)}',
+                      style: _text(
+                        12,
+                        color: Ucolors.portfolioTextMuted,
+                        height: 1.5,
+                        weight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
                 _statusBadge(),
               ],
